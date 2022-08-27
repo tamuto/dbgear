@@ -3,7 +3,7 @@ import json
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
+from fastapi.responses import RedirectResponse
 from .utils import config
 
 app = FastAPI()
@@ -20,6 +20,11 @@ if config.get_CORS() == '1':
         allow_methods=['GET', 'POST', 'PUT', 'DELETE'],
         allow_headers=['*']
     )
+
+
+@app.get('/')
+def root():
+    return RedirectResponse('/static')
 
 
 @app.get('/data/{rest_of_path:path}')
