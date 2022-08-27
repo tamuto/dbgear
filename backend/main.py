@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -22,34 +22,23 @@ if config.get_CORS() == '1':
     )
 
 
-# @app.get('/')
-# def root():
-#     return RedirectResponse('/static')
+@app.get('/data/{rest_of_path:path}')
+def get_entry(rest_of_path: str):
+    fname = f'./dist/data/{rest_of_path}'
+    if os.path.isfile(fname):
+        with open(fname, 'r') as f:
+            data = f.read()
+        return data
 
-
-# @app.get('/api/hello')
-# def hello():
-#     return {'message': 'hello'}
-
-
-# @app.get('/api/sample')
-# def get_sample():
-#     return execute_sql(
-#         'select * from test'
-#     ).all()
-
-@app.get('/data/{rest_of_path:path}/{name}')
-def test(request: Request, rest_of_path: str, name: str):
-    print('****', name)
     data = []
-    with os.scandir('./dist/data/' + rest_of_path) as it:
+    with os.scandir(fname) as it:
         for entry in it:
             data.append(entry.name)
     return data
 
 
 @app.put('/data/{rest_of_path:path}/{name}')
-def newEntry(rest_of_path: str, name: str, body=Body(...)):
+def new_entry(rest_of_path: str, name: str, body=Body(...)):
     with open(f'./dist/data/{rest_of_path}/{name}', 'w') as f:
         f.write(json.dumps(body))
     # print(rest_of_path, name, body)
@@ -57,13 +46,13 @@ def newEntry(rest_of_path: str, name: str, body=Body(...)):
 
 
 @app.delete('/data/{rest_of_path:path}/{name}')
-def deleteEntry(rest_of_path: str, name: str):
+def delete_entry(rest_of_path: str, name: str):
     os.remove(f'./dist/data/{rest_of_path}/{name}')
     return 'ok'
 
 
 @app.post('/data/{rest_of_path:path}/{name}')
-def updateEntry(rest_of_path: str, name: str, body=Body(...)):
+def update_entry(rest_of_path: str, name: str, body=Body(...)):
     with open(f'./dist/data/{rest_of_path}/{name}', 'w') as f:
         f.write(json.dumps(body))
     # print(rest_of_path, name, body)
