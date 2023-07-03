@@ -1,6 +1,6 @@
 {
-  "name": "boilerplate",
-  "version": "0.2.0",
+  "name": "dbgear",
+  "version": "0.1.0",
   "description": "",
   "main": "index.html",
   "scripts": {
@@ -9,26 +9,22 @@
     "setup:backend": "poetry install",
     "eslint": "eslint --ext .js --ignore-path .gitignore frontend",
     "build": "infodb-cli runall build:*",
-    "build:es": "infodb-cli es -i frontend/main.js --source-map",
+    "build:es": "infodb-cli es -i frontend/main.js --source-map --emotion frontend/emotion-shim.js",
     "build:minify": "infodb-cli minify -i frontend/index.html",
-    "serve": "etc/run_ap.sh"
+    "serve": "poetry run dbgear --serve"
   },
-  "author": "<YourName>",
-  "license": "SEE LICENSE IN YourLicense.txt",
+  "author": "tamuto <tamuto@infodb.jp>",
+  "license": "MIT",
   "dependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@mui/icons-material": "^5.4.2",
-    "@mui/material": "^5.4.2",
-    "axios": "^0.26.0",
-    "date-fns": "^2.28.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "axios": "^1.4.0",
     "prop-types": "^15.8.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router": "^6.2.1",
-    "react-router-dom": "^6.2.1"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
-    "eslint": "^8.9.0"
+    "eslint": "^8.44.0"
   }
 }

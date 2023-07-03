@@ -5,6 +5,7 @@ __pycache__
 *.lock
 db.sqlite3
 .venv
+!poetry.lock
 
 # Logs
 logs
