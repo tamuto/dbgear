@@ -1,8 +1,7 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import ProjectForm from './features/prjmgr/components/ProjectForm'
+import { createRoot } from 'react-dom/client'
+import DataEditor from './features/editdata/components/DataEditor'
 
-ReactDOM.render(
-    <ProjectForm />,
-    document.getElementById('app')
+const root = createRoot(document.getElementById('app'))
+root.render(
+  <DataEditor />
 )

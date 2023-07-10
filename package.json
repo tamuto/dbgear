@@ -11,13 +11,16 @@
     "build": "infodb-cli runall build:*",
     "build:es": "infodb-cli es -i frontend/main.js --source-map --emotion frontend/emotion-shim.js",
     "build:minify": "infodb-cli minify -i frontend/index.html",
-    "serve": "poetry run dbgear --serve"
+    "serve": "poetry run dbgear serve --project dist/dbgear"
   },
   "author": "tamuto <tamuto@infodb.jp>",
   "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.13.7",
+    "@mui/material": "^5.13.7",
+    "@mui/x-data-grid": "^6.9.1",
     "axios": "^1.4.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
