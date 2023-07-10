@@ -3,10 +3,16 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
-project = None
+from .api import tables
+from .api import templates
+from .api import environs
+
 app = FastAPI()
 
 app.mount('/static', StaticFiles(directory='dist', html=True), name='static')
+app.include_router(tables.router)
+app.include_router(templates.router)
+app.include_router(environs.router)
 
 
 @app.get('/')
@@ -16,11 +22,9 @@ def root():
 
 @app.get('/instances')
 def get_instances():
-    return list(project.definitions.keys())
+    return list(app.state.project.definitions.keys())
 
 
-def run(prj):
-    global project
-    project = prj
-    # uvicorn.run('dbgear.backend:app', port=5000, log_level='info')
+def run(project):
+    app.state.project = project
     uvicorn.run('dbgear.backend:app', port=5000, log_config=None)

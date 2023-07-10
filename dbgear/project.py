@@ -9,11 +9,16 @@ class Project:
 
     def __init__(self, folder):
         self.folder = folder
+        self.config = {}
+        self.templates = []
+        self.environs = []
         self.definitions = {}
 
     def read_project(self):
         with open(f'{self.folder}/project.yaml', 'r', encoding='utf-8') as f:
             self.config = yaml.safe_load(f)
+
+        # TODO environs.jsonの読み込み
 
     # def read_definitions(self):
     #     for fname in glob(f'{self.folder}/dbdef/**.yaml'):

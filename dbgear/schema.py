@@ -17,6 +17,14 @@ class Schema:
     def get_table(self, name):
         return self.tables[name]
 
+    def info(self):
+        return sorted(
+            [
+                {'table_name': t.table_name, 'display_name': t.display_name}
+                for t in self.tables.values()
+            ],
+            key=lambda x: x['table_name'])
+
 
 @dataclass
 class Field:
