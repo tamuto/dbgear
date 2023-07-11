@@ -6,4 +6,4 @@ router = APIRouter(prefix='/environs')
 
 @router.get('/')
 def get_environs(request: Request):
-    return request.app.project.environs
+    return request.app.state.project.environs

@@ -7,6 +7,8 @@ from .api import tables
 from .api import templates
 from .api import environs
 
+from .models.result import ProjectInfo
+
 app = FastAPI()
 
 app.mount('/static', StaticFiles(directory='dist', html=True), name='static')
@@ -20,9 +22,14 @@ def root():
     return RedirectResponse('/static')
 
 
-@app.get('/instances')
-def get_instances():
-    return list(app.state.project.definitions.keys())
+@app.get('/project')
+def get_project_info():
+    return ProjectInfo(
+        project_name=app.state.project.config['project_name'],
+        templates=app.state.project.templates,
+        environs=app.state.project.environs,
+        instances=list(app.state.project.definitions.keys())
+    )
 
 
 def run(project):

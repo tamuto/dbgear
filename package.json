@@ -11,7 +11,9 @@
     "build": "infodb-cli runall build:*",
     "build:es": "infodb-cli es -i frontend/main.js --source-map --emotion frontend/emotion-shim.js",
     "build:minify": "infodb-cli minify -i frontend/index.html",
-    "serve": "poetry run dbgear serve --project dist/dbgear"
+    "serve": "poetry run dbgear serve --project dist/dbgear",
+    "check": "poetry run dbgear check --project dist/dbgear",
+    "test": "poetry run python -m unittest discover"
   },
   "author": "tamuto <tamuto@infodb.jp>",
   "license": "MIT",
@@ -25,7 +27,8 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.1"
+    "react-router-dom": "^6.14.1",
+    "zustand": "^4.3.9"
   },
   "devDependencies": {
     "eslint": "^8.44.0"
