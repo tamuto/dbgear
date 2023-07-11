@@ -15,13 +15,13 @@ const AppNavigate = () => {
 
   return (
     <AppBar position='fixed' sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Toolbar variant='dense'>
+      <Toolbar>
         <Typography component='div' sx={{ mr: 1 }}>DB Gear</Typography>
         <Typography component='div' sx={{ mr: 1 }}>@</Typography>
         <Breadcrumbs separator={<NavigateNextIcon fontSize='small' />} sx={{ color: 'white' }}>
           {
             routePath.map(item => (
-              <Link key={item} color='primary.contrastText' underline='hover'>{item}</Link>
+              <Link key={item} color='primary.contrastText'>{item}</Link>
             ))
           }
         </Breadcrumbs>

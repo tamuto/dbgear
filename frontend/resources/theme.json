@@ -1,0 +1,42 @@
+{
+  "components": {
+    "MuiButtonBase": {
+      "defaultProps": {
+        "variant": "contained"
+      }
+    },
+    "MuiContainer": {
+      "defaultProps": {
+        "maxWidth": false
+      }
+    },
+    "MuiLink": {
+      "defaultProps": {
+        "underline": "hover"
+      }
+    },
+    "MuiList": {
+      "defaultProps": {
+        "dense": true
+      }
+    },
+    "MuiTextField": {
+      "defaultProps": {
+        "variant": "outlined",
+        "size": "small",
+        "margin": "none",
+        "fullWidth": true
+      }
+    },
+    "MuiToolbar": {
+      "defaultProps": {
+        "variant": "dense"
+      }
+    },
+    "MuiStack": {
+      "defaultProps": {
+        "spacing": 2
+      }
+    }
+  }
+}

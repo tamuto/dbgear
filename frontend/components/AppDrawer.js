@@ -30,7 +30,7 @@ const AppDrawer = () => {
         }
       }}
     >
-      <Toolbar variant='dense' />
+      <Toolbar />
       <Slide direction='down' in={mainMenu} mountOnEnter unmountOnExit>
         <Box sx={{ overflow: 'auto' }}>
           <TemplatesList />

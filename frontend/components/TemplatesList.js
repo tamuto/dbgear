@@ -15,7 +15,7 @@ const TemplatesList = () => {
   const projectInfo = useProject(state => state.projectInfo)
 
   return (
-    <List dense component='nav' subheader={
+    <List component='nav' subheader={
       <ListSubheader>Templates</ListSubheader>
     }>
       <ListItemButton component={Link} to='/add_template'>

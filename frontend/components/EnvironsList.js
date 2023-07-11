@@ -18,7 +18,7 @@ const EnvironsList = () => {
   const projectInfo = useProject(state => state.projectInfo)
 
   return (
-    <List dense component='nav' subheader={
+    <List component='nav' subheader={
       <ListSubheader>Environments</ListSubheader>
     }>
       <ListItemButton>
@@ -28,7 +28,7 @@ const EnvironsList = () => {
         <ListItemText>Add Environment</ListItemText>
       </ListItemButton>
       <ListItem>
-        <TextField fullWidth size='small' margin='none'
+        <TextField
           placeholder='Search...'
           InputProps={{
             startAdornment: (

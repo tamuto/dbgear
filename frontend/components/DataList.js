@@ -15,7 +15,7 @@ const DataList = () => {
   const subMenuTitle = useProject(state => state.subMenuTitle)
   const subBasePath = useProject(state => state.subBasePath)
   return (
-    <List dense component='nav' subheader={
+    <List component='nav' subheader={
       <ListSubheader>{subMenuTitle}</ListSubheader>
     }>
       <ListItemButton component={Link} to={`${subBasePath}/_init`}>
