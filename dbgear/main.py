@@ -2,7 +2,7 @@ import logging
 from argparse import ArgumentParser
 
 from . import backend
-from .project import Project
+from .models.project import Project
 
 
 def execute():

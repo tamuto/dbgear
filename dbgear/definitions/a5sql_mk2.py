@@ -2,10 +2,10 @@ import csv
 from dataclasses import dataclass
 from dataclasses import field
 
-from ..schema import Schema
-from ..schema import Table
-from ..schema import Field
-from ..schema import Index
+from ..models.schema import Schema
+from ..models.schema import Table
+from ..models.schema import Field
+from ..models.schema import Index
 
 
 @dataclass

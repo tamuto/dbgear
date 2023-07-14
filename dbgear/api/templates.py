@@ -1,23 +1,26 @@
 from fastapi import APIRouter
 from fastapi import Request
 
-from ..models.result import Result
-from ..models.templates import NewTemplate
+from ..models.proxy import APIProxy
+from ..models.request import NewTemplate
+from ..models.response import Result
 
 router = APIRouter(prefix='/templates')
 
 
-@router.get('/')
-def get_templates(request: Request):
-    return request.app.state.project.templates
-
-
 @router.post('/')
 def create_template(data: NewTemplate, request: Request):
-    if request.app.state.project.is_exist_template(data.id):
+    api = APIProxy(request.app)
+    if api.is_exist_template(data.id):
         return Result(
             status='ERROR',
             message='ERROR_EXIST_TEMPLATE_FOLDER'
         )
-    request.app.state.project.create_template(**data)
+    api.create_template(**data)
     return Result(status='OK')
+
+
+@router.get('/{id}/init')
+def get_init_list(id: str, request: Request):
+    api = APIProxy(request.app)
+    return api.listup_for_init(id)

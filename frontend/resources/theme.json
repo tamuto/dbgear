@@ -1,6 +1,6 @@
 {
   "components": {
-    "MuiButtonBase": {
+    "MuiButton": {
       "defaultProps": {
         "variant": "contained"
       }

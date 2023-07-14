@@ -7,7 +7,8 @@ from .api import tables
 from .api import templates
 from .api import environs
 
-from .models.result import ProjectInfo
+from .models.proxy import APIProxy
+from .models.response import ProjectInfo
 
 app = FastAPI()
 
@@ -24,11 +25,12 @@ def root():
 
 @app.get('/project')
 def get_project_info():
+    api = APIProxy(app)
     return ProjectInfo(
-        project_name=app.state.project.config['project_name'],
-        templates=app.state.project.templates,
-        environs=app.state.project.environs,
-        instances=list(app.state.project.definitions.keys())
+        project_name=api.project_name,
+        templates=api.templates,
+        environs=api.environs,
+        instances=api.instances
     )
 
 
