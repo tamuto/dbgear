@@ -7,14 +7,15 @@ import {
 } from '@mui/material'
 
 import TemplatesList from './TemplatesList'
+import TemplateDataList from './TemplateDataList'
 import EnvironsList from './EnvironsList'
 import useProject from '../api/useProject'
-import DataList from './DataList'
 
 const drawerWidth = 240
 
 const AppDrawer = () => {
   const mainMenu = useProject(state => state.mainMenu)
+  const dataType = useProject(state => state.dataType)
 
   return (
     <Drawer
@@ -40,7 +41,10 @@ const AppDrawer = () => {
       </Slide>
       <Slide direction='up' in={!mainMenu} mountOnEnter unmountOnExit>
         <Box sx={{ overflow: 'auto' }}>
-          <DataList />
+          {
+            dataType === 'template' &&
+            <TemplateDataList />
+          }
         </Box>
       </Slide>
     </Drawer>

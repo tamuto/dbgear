@@ -27,6 +27,12 @@ def get_init_list(id: str, request: Request):
     return api.listup_for_init(id)
 
 
+@router.get('/{id}')
+def get_data_list(id: str, request: Request):
+    api = APIProxy(request.app)
+    return api.listup_data(id)
+
+
 @router.post('/{id}')
 def create_data(id: str, data: NewTemplateData, request: Request):
     api = APIProxy(request.app)

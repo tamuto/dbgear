@@ -7,15 +7,11 @@ import {
   createTheme,
   ThemeProvider,
   CssBaseline,
-  Container,
-  Toolbar,
-  Box
 } from '@mui/material'
 
 import ScrollTop from 'github://tamuto/uilib/components/misc/ScrollTop.js'
 
 import AppNavigate from '~/components/AppNavigate'
-import AppDrawer from "~/components/AppDrawer"
 import LocationHandler from '~/components/LocationHandler'
 import AppRoutes from '~/components/AppRoutes'
 
@@ -39,13 +35,7 @@ const App = () => {
         <LocationHandler>
           <ScrollTop />
           <AppNavigate />
-          <Box sx={{ display: 'flex' }}>
-            <AppDrawer />
-            <Container>
-              <Toolbar sx={{ mb: 2 }} />
-              <AppRoutes />
-            </Container>
-          </Box>
+          <AppRoutes />
         </LocationHandler>
       </HashRouter>
     </ThemeProvider>

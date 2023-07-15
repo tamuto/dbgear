@@ -32,6 +32,9 @@ class APIProxy:
     def listup_for_init(self, id):
         return self.ins_temp.listup_for_init(id)
 
+    def listup_data(self, id):
+        return self.ins_temp.listup_data(id)
+
     def is_exist_data(self, id, instance, table):
         return self.ins_temp.is_exist_data(id, instance, table)
 

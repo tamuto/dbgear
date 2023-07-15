@@ -59,23 +59,13 @@ class Template:
             yaml.dump(config.model_dump(), f, indent=2, allow_unicode=True)
 
     def read_templates(self):
+        self.templates.clear()
         for tmpl in glob(f'{self._get_templates_folder()}/**/mapping.yaml'):
             with open(tmpl, 'r', encoding='utf-8') as f:
                 config = TemplateConfig(
                     **yaml.safe_load(f)
                 )
             self.templates.append(config)
-
-    def scan_data_folder(self, id):
-        return glob(f'{self._get_templates_folder()}/{id}/data/*.yaml')
-
-    # def scan_data_list(self, id):
-    #     def make_tuple(path):
-    #         fname = os.path.splitext(os.path.basename(path))[0]
-    #         f = fname.split('@')
-    #         return (f[0], f[1])
-
-    #     return [make_tuple(p) for p in self.scan_data_folder(id)]
 
     def _make_data_filename(self, id, instance, table):
         return f'{self._get_templates_folder()}/{id}/data/{instance}@{table}.yaml'
@@ -92,6 +82,17 @@ class Template:
                 DataFilename(instance=ins, table_name=t.table_name, display_name=t.display_name)
                 for t in self.project.definitions[ins].tables.values()
                 if not self.is_exist_data(id, ins, t.table_name)
+            ])
+        return sorted(tables, key=lambda x: f'{x.instance}@{x.table_name}')
+
+    def listup_data(self, id):
+        config = self._get_template(id)
+        tables = []
+        for ins in config.instances:
+            tables.extend([
+                DataFilename(instance=ins, table_name=t.table_name, display_name=t.display_name)
+                for t in self.project.definitions[ins].tables.values()
+                if self.is_exist_data(id, ins, t.table_name)
             ])
         return sorted(tables, key=lambda x: f'{x.instance}@{x.table_name}')
 
