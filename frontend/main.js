@@ -11,7 +11,6 @@ import {
 
 import ScrollTop from 'github://tamuto/uilib/components/misc/ScrollTop.js'
 
-import AppNavigate from '~/components/AppNavigate'
 import LocationHandler from '~/components/LocationHandler'
 import AppRoutes from '~/components/AppRoutes'
 
@@ -34,7 +33,6 @@ const App = () => {
       <HashRouter>
         <LocationHandler>
           <ScrollTop />
-          <AppNavigate />
           <AppRoutes />
         </LocationHandler>
       </HashRouter>

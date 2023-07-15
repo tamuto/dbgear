@@ -6,18 +6,17 @@ import {
 import {
   Box,
   Container,
-  Toolbar
 } from '@mui/material'
 
 import AppDrawer from "~/components/AppDrawer"
-import DataSettings from '~/features/data_settings/components/DataSettings'
+import TemplateDataSettings from '~/features/template_data_settings/components/TemplateDataSettings'
+import TemplateDataTab from '~/features/template_data_tab/components/TemplateDataTab'
 
 const BaseLayout = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <AppDrawer />
-      <Container>
-        <Toolbar sx={{ mb: 2 }} />
+      <Container sx={{ pt: 2, pb: 2 }}>
         <Outlet />
       </Container>
     </Box>
@@ -32,8 +31,8 @@ const AppRoutes = () => {
         <Route path='/add_template' element={<p>Add Template</p>} />
         <Route path='/add_environ' element={<p>Add Environ</p>} />
         <Route path='/templates/:id' element={<Outlet />}>
-          <Route path='_init' element={<DataSettings />} />
-          <Route path=':instance/:tableName' element={<p>editor</p>} />
+          <Route path='_init' element={<TemplateDataSettings />} />
+          <Route path=':instance/:tableName' element={<TemplateDataTab />} />
         </Route>
       </Route>
     </Routes>

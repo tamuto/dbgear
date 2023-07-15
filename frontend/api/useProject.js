@@ -3,7 +3,6 @@ import axios from 'axios'
 
 const parsePathAndInfo = (currentPath, projectInfo) => {
   const p = currentPath.split('/')
-  const routePath = [projectInfo.projectName]
   let mainMenu = true
   let dataType = null
   let subMenuTitle = ''
@@ -16,7 +15,6 @@ const parsePathAndInfo = (currentPath, projectInfo) => {
       if (result) {
         dataType = 'template'
         subMenuTitle = result.name
-        routePath.push(result.name)
       }
       // FIXME 例外？見つからなかったら無効なパス
     }
@@ -25,11 +23,10 @@ const parsePathAndInfo = (currentPath, projectInfo) => {
 
     }
   }
-  return { mainMenu, dataType, subMenuTitle, subBasePath, routePath }
+  return { mainMenu, dataType, subMenuTitle, subBasePath }
 }
 
 const useProject = create((set, get) => ({
-  routePath: [],
   mainMenu: true,
   dataType: null,
   subMenuTitle: '',
@@ -40,7 +37,6 @@ const useProject = create((set, get) => ({
   environDataList: [],
   updateProjectInfo: async () => {
     const result = await axios.get('/project')
-    console.log(result.data)
     if (get().currentPath) {
       const parsed = parsePathAndInfo(get().currentPath, result.data)
       set({

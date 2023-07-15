@@ -5,7 +5,7 @@ import axios from 'axios'
 
 import useProject from '~/api/useProject'
 
-const useDataSettings = () => {
+const useTemplateDataSettings = () => {
   const updateDataList = useProject(state => state.updateDataList)
   const subBasePath = useProject(state => state.subBasePath)
   const { id } = useParams()
@@ -49,4 +49,4 @@ const useDataSettings = () => {
   }
 }
 
-export default useDataSettings
+export default useTemplateDataSettings

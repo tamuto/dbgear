@@ -1,9 +1,9 @@
 import {
   Drawer,
-  Toolbar,
   Box,
   Divider,
-  Slide
+  Slide,
+  Typography
 } from '@mui/material'
 
 import TemplatesList from './TemplatesList'
@@ -31,7 +31,7 @@ const AppDrawer = () => {
         }
       }}
     >
-      <Toolbar />
+      <Typography component='div' sx={{ mr: 1 }}>DB Gear</Typography>
       <Slide direction='down' in={mainMenu} mountOnEnter unmountOnExit>
         <Box sx={{ overflow: 'auto' }}>
           <TemplatesList />

@@ -12,7 +12,7 @@ import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle'
 import useProject from '~/api/useProject'
 import { useEffect } from 'react'
 
-const DataList = () => {
+const TemplateDataList = () => {
   const subMenuTitle = useProject(state => state.subMenuTitle)
   const subBasePath = useProject(state => state.subBasePath)
   const updateDataList = useProject(state => state.updateDataList)
@@ -50,4 +50,4 @@ const DataList = () => {
   )
 }
 
-export default DataList
+export default TemplateDataList

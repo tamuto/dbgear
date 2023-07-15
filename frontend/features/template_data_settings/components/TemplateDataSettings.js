@@ -14,7 +14,7 @@ import HookFormField from 'github://tamuto/uilib/components/form/HookFormField.j
 import imgTable from '~/resources/img/table.png'
 import imgMatrix from '~/resources/img/matrix.png'
 import imgForm from '~/resources/img/form.png'
-import useDataSettings from '../api/useDataSettings'
+import useDataSettings from '../api/useTemplateDataSettings'
 
 const ImageLabel = ({ img, label }) => {
   return (
@@ -29,7 +29,7 @@ ImageLabel.propTypes = {
   label: PropTypes.string
 }
 
-const DataSettings = () => {
+const TemplateDataSettings = () => {
   const { control, onSubmit, layout, tableList } = useDataSettings()
   return (
     <Stack component='form' onSubmit={onSubmit}>
@@ -62,4 +62,4 @@ const DataSettings = () => {
   )
 }
 
-export default DataSettings
+export default TemplateDataSettings
