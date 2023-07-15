@@ -26,8 +26,14 @@ class APIProxy:
     def is_exist_template(self, id):
         return self.ins_temp.is_exist_template(id)
 
-    def create_template(self, id, name, instances):
-        return self.ins_temp.create_template(id, name, instances)
+    def create_template(self, **kwargs):
+        return self.ins_temp.create_template(**kwargs)
 
     def listup_for_init(self, id):
         return self.ins_temp.listup_for_init(id)
+
+    def is_exist_data(self, id, instance, table):
+        return self.ins_temp.is_exist_data(id, instance, table)
+
+    def create_template_data(self, **kwargs):
+        return self.ins_temp.create_template_data(**kwargs)

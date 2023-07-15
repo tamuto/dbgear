@@ -5,7 +5,8 @@ import {
   Stack,
   Radio,
   FormControlLabel,
-  Typography
+  Typography,
+  MenuItem
 } from '@mui/material'
 
 import HookFormField from 'github://tamuto/uilib/components/form/HookFormField.js'
@@ -29,10 +30,18 @@ ImageLabel.propTypes = {
 }
 
 const DataSettings = () => {
-  const { control, onSubmit, layout } = useDataSettings()
+  const { control, onSubmit, layout, tableList } = useDataSettings()
   return (
     <Stack component='form' onSubmit={onSubmit}>
-      <HookFormField type='text' label='Target Table' name='table' control={control} />
+      <HookFormField type='select' label='Target Table' name='table' control={control}>
+        {
+          tableList.map(item => (
+            <MenuItem key={item.tableName} value={`${item.instance}.${item.tableName}`}>
+              {item.instance}.{item.tableName} ({item.displayName})
+            </MenuItem>
+          ))
+        }
+      </HookFormField>
       <HookFormField type='radio' label='Input Form' name='layout' control={control} row={true}>
         <FormControlLabel value="table" control={<Radio />} label={<ImageLabel img={imgTable} label='Table' />} />
         <FormControlLabel value="matrix" control={<Radio />} label={<ImageLabel img={imgMatrix} label='Matrix' />} />

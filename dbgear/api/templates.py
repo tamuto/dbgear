@@ -3,6 +3,7 @@ from fastapi import Request
 
 from ..models.proxy import APIProxy
 from ..models.request import NewTemplate
+from ..models.request import NewTemplateData
 from ..models.response import Result
 
 router = APIRouter(prefix='/templates')
@@ -16,7 +17,7 @@ def create_template(data: NewTemplate, request: Request):
             status='ERROR',
             message='ERROR_EXIST_TEMPLATE_FOLDER'
         )
-    api.create_template(**data)
+    api.create_template(**data.model_dump())
     return Result(status='OK')
 
 
@@ -24,3 +25,14 @@ def create_template(data: NewTemplate, request: Request):
 def get_init_list(id: str, request: Request):
     api = APIProxy(request.app)
     return api.listup_for_init(id)
+
+
+@router.post('/{id}')
+def create_data(id: str, data: NewTemplateData, request: Request):
+    api = APIProxy(request.app)
+    if api.is_exist_data(id, data.instance, data.table_name):
+        return Result(
+            status='ERROR'
+        )
+    api.create_template_data(id=id, **data.model_dump())
+    return Result(status='OK')

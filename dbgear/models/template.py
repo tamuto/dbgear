@@ -17,6 +17,13 @@ class DataFilename(BaseSchema):
     display_name: str
 
 
+class TemplateDataConfig(BaseSchema):
+    instance: str
+    table_name: str
+    layout: str
+    # TODO layoutの情報のパラメータ追加する
+
+
 class Template:
 
     def __init__(self, project, folder):
@@ -70,8 +77,11 @@ class Template:
 
     #     return [make_tuple(p) for p in self.scan_data_folder(id)]
 
+    def _make_data_filename(self, id, instance, table):
+        return f'{self._get_templates_folder()}/{id}/data/{instance}@{table}.yaml'
+
     def is_exist_data(self, id, instance, table):
-        fname = f'{self._get_templates_folder()}/{id}/data/{instance}@{table}.yaml'
+        fname = self._make_data_filename(id, instance, table)
         return os.path.isfile(fname)
 
     def listup_for_init(self, id):
@@ -84,3 +94,13 @@ class Template:
                 if not self.is_exist_data(id, ins, t.table_name)
             ])
         return sorted(tables, key=lambda x: f'{x.instance}@{x.table_name}')
+
+    def create_template_data(self, id, instance, table_name, layout):
+        fname = self._make_data_filename(id, instance, table_name)
+        with open(fname, 'w', encoding='utf-8') as f:
+            config = TemplateDataConfig(
+                instance=instance,
+                table_name=table_name,
+                layout=layout
+            )
+            yaml.dump(config.model_dump(), f, indent=2, allow_unicode=True)
