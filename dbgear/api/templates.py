@@ -42,3 +42,9 @@ def create_data(id: str, data: NewTemplateData, request: Request):
         )
     api.create_template_data(id=id, **data.model_dump())
     return Result(status='OK')
+
+
+@router.get('/{id}/{instance}/{table}')
+def get_data(id: str, instance: str, table: str, request: Request):
+    api = APIProxy(request.app)
+    return api.read_template_data(id, instance, table)

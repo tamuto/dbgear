@@ -3,7 +3,7 @@ import os
 from glob import glob
 
 from .base import BaseSchema
-
+from .schema import Table
 
 class TemplateConfig(BaseSchema):
     id: str
@@ -18,10 +18,14 @@ class DataFilename(BaseSchema):
 
 
 class TemplateDataConfig(BaseSchema):
-    instance: str
-    table_name: str
     layout: str
     # TODO layoutの情報のパラメータ追加する
+
+
+class TemplateDataInfo(TemplateDataConfig):
+    instance: str = None
+    info: Table = None
+    # TODO データそのもの
 
 
 class Template:
@@ -100,8 +104,19 @@ class Template:
         fname = self._make_data_filename(id, instance, table_name)
         with open(fname, 'w', encoding='utf-8') as f:
             config = TemplateDataConfig(
-                instance=instance,
-                table_name=table_name,
+                # instance=instance,
+                # table_name=table_name,
                 layout=layout
             )
             yaml.dump(config.model_dump(), f, indent=2, allow_unicode=True)
+
+    def read_template_data(self, id, instance, table_name):
+        fname = self._make_data_filename(id, instance, table_name)
+        with open(fname, 'r', encoding='utf-8') as f:
+            config = TemplateDataInfo(
+                **yaml.safe_load(f)
+            )
+        config.instance = instance
+        config.info = self.project.definitions[instance].get_table(table_name)
+        # TODO データの読み込み？
+        return config

@@ -31,7 +31,7 @@ class Field:
     column_name: str = None
     display_name: str = None
     column_type: str = None
-    nullable: str = None
+    nullable: bool = None
     primary_key: int = None
     default_value: str = None
     foreign_key: str = None

@@ -1,54 +1,54 @@
-import { useState } from 'react'
+import { css } from '@emotion/react'
 import {
   Box,
   Tabs,
-  Tab
+  Tab,
+  Typography
 } from '@mui/material'
 
-const TemplateDataTab = () => {
-  function a11yProps(index) {
-    return {
-      id: `template-data-tab-${index}`,
-      'aria-controls': 'template-data-tabpanel-${index}'
-    }
-  }
-  const TabPanel = ({ children, value, index, ...pros }) => {
-    return (
-      <div
-        role='tabpanel'
-        hidden={value !== index}
-        id={`template-data-tabpanel-${index}`}
-        aria-labelledby={`template-data-tab-${index}`}
-        {...pros}
-      >
-        {
-          value === index &&
-          <Box sx={{ p: 2 }}>
-            {children}
-          </Box>
-        }
-      </div>
-    )
-  }
+import TabPanel from './TabPanel'
+import TemplateDataProperties from './TemplateDataProperties'
+import useTemplateDataTab from '../api/useTemplateDataTab'
 
-  const [value, setValue] = useState(0)
-  const handleChange = (e, newValue) => {
-    setValue(newValue)
-  }
+const TemplateDataTab = () => {
+  const roundHeadCss = css`
+    position: relative;
+    padding: 0.25em 0;
+    &:after {
+      content: '';
+      display: block;
+      height: 4px;
+      background: -webkit-linear-gradient(to right, rgb(134, 204, 206), transparent);
+      background: linear-gradient(to right, rgb(134, 204, 206), transparent);
+    }
+  `
+
+  const {
+    tabIndex,
+    handleChange,
+    a11yProps,
+    data
+  } = useTemplateDataTab()
 
   return (
     <Box>
+      {
+        data &&
+        <Typography css={roundHeadCss} variant='h6' component='div'>
+          {data.instance}.{data.info.tableName} ({data.info.displayName})
+        </Typography>
+      }
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label='tabs'>
+        <Tabs value={tabIndex} onChange={handleChange} aria-label='tabs'>
           <Tab label='Editor' {...a11yProps(0)} />
           <Tab label='Propeties' {...a11yProps(1)} />
         </Tabs>
       </Box>
-      <TabPanel value={value} index={0}>
+      <TabPanel value={tabIndex} index={0}>
         <p>エディタ</p>
       </TabPanel>
-      <TabPanel value={value} index={1}>
-        <p>プロパティ</p>
+      <TabPanel value={tabIndex} index={1}>
+        <TemplateDataProperties />
       </TabPanel>
     </Box>
   )

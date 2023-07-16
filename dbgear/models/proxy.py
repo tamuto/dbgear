@@ -40,3 +40,6 @@ class APIProxy:
 
     def create_template_data(self, **kwargs):
         return self.ins_temp.create_template_data(**kwargs)
+
+    def read_template_data(self, id, instance, table_name):
+        return self.ins_temp.read_template_data(id, instance, table_name)
