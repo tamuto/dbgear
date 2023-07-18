@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from dataclasses import field
+from typing import Union
+from .base import BaseSchema
 
 
 class Schema:
@@ -26,28 +26,25 @@ class Schema:
             key=lambda x: x['table_name'])
 
 
-@dataclass
-class Field:
-    column_name: str = None
-    display_name: str = None
-    column_type: str = None
-    nullable: bool = None
-    primary_key: int = None
-    default_value: str = None
-    foreign_key: str = None
-    comment: str = None
+class Field(BaseSchema):
+    column_name: str
+    display_name: str
+    column_type: str
+    nullable: bool
+    primary_key: Union[int, None]
+    default_value: Union[str, None]
+    foreign_key: Union[str, None]
+    comment: Union[str, None]
 
 
-@dataclass
-class Index:
-    index_name: str = None
-    columns: list[str] = field(default_factory=list)
+class Index(BaseSchema):
+    index_name: Union[str, None]
+    columns: list[str]
 
 
-@dataclass
-class Table:
-    table_name: str = None
-    display_name: str = None
-    fields: list[Field] = field(default_factory=list)
-    indexes: list[Index] = field(default_factory=list)
+class Table(BaseSchema):
+    table_name: str
+    display_name: str
+    fields: list[Field] = []
+    indexes: list[Index] = []
     # FIXME 参照元をデータとして持たせるか？

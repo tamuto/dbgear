@@ -10,10 +10,13 @@ import {
 } from '@mui/material'
 
 import HookFormField from 'github://tamuto/uilib/components/form/HookFormField.js'
+import FormFieldSet from 'github://tamuto/uilib/components/form/FormFieldSet.js'
 
 import imgTable from '~/resources/img/table.png'
 import imgMatrix from '~/resources/img/matrix.png'
 import imgForm from '~/resources/img/form.png'
+
+import ColumnSettingField from '~/components/ColumnSettingField'
 import useDataSettings from '../api/useTemplateDataSettings'
 
 const ImageLabel = ({ img, label }) => {
@@ -30,7 +33,7 @@ ImageLabel.propTypes = {
 }
 
 const TemplateDataSettings = () => {
-  const { control, onSubmit, layout, tableList } = useDataSettings()
+  const { control, onSubmit, layout, tableList, fields, columnSettings } = useDataSettings()
   return (
     <Stack component='form' onSubmit={onSubmit}>
       <HookFormField type='select' label='Target Table' name='table' control={control}>
@@ -55,6 +58,17 @@ const TemplateDataSettings = () => {
         layout === 'single' &&
         <p>Single UI</p>
       }
+      <FormFieldSet label='Column Settings'>
+        {
+          fields.map(item => (
+            <ColumnSettingField
+              key={item.key}
+              control={control}
+              item={item}
+              settings={columnSettings} />
+          ))
+        }
+      </FormFieldSet>
       <Box sx={{ textAlign: 'right' }}>
         <Button type='submit'>Create</Button>
       </Box>

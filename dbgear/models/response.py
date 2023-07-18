@@ -1,4 +1,5 @@
 from typing import Union
+from typing import Dict
 from .base import BaseSchema
 
 
@@ -12,3 +13,5 @@ class ProjectInfo(BaseSchema):
     templates: list
     environs: list
     instances: list
+    column_settings: list
+    rules: Dict[str, str]

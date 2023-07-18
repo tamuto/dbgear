@@ -37,6 +37,7 @@ const useProject = create((set, get) => ({
   environDataList: [],
   updateProjectInfo: async () => {
     const result = await axios.get('/project')
+    console.log(result.data)
     if (get().currentPath) {
       const parsed = parsePathAndInfo(get().currentPath, result.data)
       set({
@@ -65,7 +66,6 @@ const useProject = create((set, get) => ({
   updateDataList: async (dataType, id) => {
     if (dataType === 'template') {
       const result = await axios.get(`/templates/${id}`)
-      console.log(result.data)
       set({
         templateDataList: result.data
       })

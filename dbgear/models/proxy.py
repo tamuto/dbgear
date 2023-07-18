@@ -12,6 +12,14 @@ class APIProxy:
         return self.ins_proj.config['project_name']
 
     @property
+    def column_settings(self):
+        return self.ins_proj.config['column_settings']
+
+    @property
+    def rules(self):
+        return self.ins_proj.config['rules']
+
+    @property
     def templates(self):
         return self.ins_temp.templates
 

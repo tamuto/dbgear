@@ -30,7 +30,9 @@ def get_project_info():
         project_name=api.project_name,
         templates=api.templates,
         environs=api.environs,
-        instances=api.instances
+        instances=api.instances,
+        column_settings=api.column_settings,
+        rules=api.rules
     )
 
 
