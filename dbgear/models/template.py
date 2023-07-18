@@ -1,5 +1,6 @@
 import yaml
 import os
+from typing import Dict
 from glob import glob
 
 from .base import BaseSchema
@@ -19,6 +20,7 @@ class DataFilename(BaseSchema):
 
 class TemplateDataConfig(BaseSchema):
     layout: str
+    settings: Dict[str, str]
     # TODO layoutの情報のパラメータ追加する
 
 
@@ -100,13 +102,12 @@ class Template:
             ])
         return sorted(tables, key=lambda x: f'{x.instance}@{x.table_name}')
 
-    def create_template_data(self, id, instance, table_name, layout):
+    def create_template_data(self, id, instance, table_name, layout, settings):
         fname = self._make_data_filename(id, instance, table_name)
         with open(fname, 'w', encoding='utf-8') as f:
             config = TemplateDataConfig(
-                # instance=instance,
-                # table_name=table_name,
-                layout=layout
+                layout=layout,
+                settings=settings
             )
             yaml.dump(config.model_dump(), f, indent=2, allow_unicode=True)
 

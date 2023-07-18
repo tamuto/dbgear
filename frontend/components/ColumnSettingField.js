@@ -8,6 +8,7 @@ const ColumnSettingField = ({ control, item, settings }) => {
   if (item.type === 'select') {
     return (
       <HookFormField {...item} control={control}>
+        <MenuItem value=''></MenuItem>
         {
           settings.map(item => (
             <MenuItem key={item.value} value={item.value}>{item.value}</MenuItem>

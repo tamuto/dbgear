@@ -31,16 +31,17 @@ const useTemplateDataSettings = () => {
   }, [])
 
   useEffect(() => {
-    fieldMgr.retrieve_table_info(table)
+    fieldMgr.retrieveTableInfo(table)
   }, [table])
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
     const [instance, tableName] = data.table.split('.')
+    const settings = fieldMgr.filterForSave(data)
     const result = await axios.post(`/templates/${id}`, {
       instance,
       tableName,
-      layout: data.layout
+      layout: data.layout,
+      settings
     })
     if (result.data.status === 'OK') {
       await updateDataList('template', id)

@@ -3,6 +3,7 @@ import axios from 'axios'
 import useProject from './useProject'
 
 const useFieldMgr = (setValue, unregister) => {
+  const FK = 'Foreign Key: '
   const projectInfo = useProject(state => state.projectInfo)
   const [fields, setFields] = useState([])
 
@@ -10,7 +11,13 @@ const useFieldMgr = (setValue, unregister) => {
     const makeFieldName = (field) => `fields.${field.columnName}`
     const judgeDefvalue = (field) => {
       if (field.foreignKey !== null) {
-        return `Foreing Key: ${field.foreignKey}`
+        return `${FK}${field.foreignKey}`
+      }
+      for (const [rule, value] of Object.entries(projectInfo.rules)) {
+        const re = new RegExp(rule)
+        if (re.test(field.columnName)) {
+          return value
+        }
       }
       if (field.columnName in projectInfo.rules) {
         return projectInfo.rules[field.columnName]
@@ -40,7 +47,7 @@ const useFieldMgr = (setValue, unregister) => {
     }
   }
 
-  const retrieve_table_info = async (table) => {
+  const retrieveTableInfo = async (table) => {
     if (table === '') {
       return
     }
@@ -51,8 +58,23 @@ const useFieldMgr = (setValue, unregister) => {
     setFields(newFields)
   }
 
+  const filterForSave = (data) => {
+    const ret = {}
+    for (const [field, value] of Object.entries(data.fields)) {
+      if (value === '') {
+        continue
+      }
+      if (value.startsWith(FK)) {
+        continue
+      }
+      ret[field] = value
+    }
+    return ret
+  }
+
   return {
-    retrieve_table_info,
+    retrieveTableInfo,
+    filterForSave,
     columnSettings: projectInfo?.columnSettings,
     fields
   }
