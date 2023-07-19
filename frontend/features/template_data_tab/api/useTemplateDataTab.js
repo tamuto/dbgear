@@ -5,7 +5,6 @@ import axios from 'axios'
 import useProject from '~/api/useProject'
 
 const useTemplateDataTab = () => {
-  const subBasePath = useProject(state => state.subBasePath)
   const location = useLocation()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -17,7 +16,7 @@ const useTemplateDataTab = () => {
   }, [location.pathname])
 
   const handleChange = (e, newValue) => {
-    navigate(`${subBasePath}/${instance}/${tableName}/${newValue}`)
+    navigate(`/templates/${id}/${instance}/${tableName}/${newValue}`)
   }
 
   const _init = async () => {

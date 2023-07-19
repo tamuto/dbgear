@@ -9,7 +9,6 @@ import useFieldMgr from '~/api/useFieldMgr'
 const useTemplateDataSettings = () => {
   const data = useOutletContext()
   const updateDataList = useProject(state => state.updateDataList)
-  const subBasePath = useProject(state => state.subBasePath)
   const { id } = useParams()
   const navigate = useNavigate()
   const { control, handleSubmit, watch, setValue, unregister } = useForm({
@@ -57,7 +56,7 @@ const useTemplateDataSettings = () => {
       })
       if (result.data.status === 'OK') {
         await updateDataList('template', id)
-        navigate(`${subBasePath}/${instance}/${tableName}/_data`)
+        navigate(`/templates/${id}/${instance}/${tableName}/_data`)
       }
     }
   })

@@ -6,10 +6,8 @@ const parsePathAndInfo = (currentPath, projectInfo) => {
   let mainMenu = true
   let dataType = null
   let subMenuTitle = ''
-  let subBasePath = ''
   if (p.length > 2) {
     mainMenu = false
-    subBasePath = [p[0], p[1], p[2]].join('/')
     if (p[1] === 'templates') {
       const result = projectInfo.templates.find(x => x.id == p[2])
       if (result) {
@@ -23,14 +21,13 @@ const parsePathAndInfo = (currentPath, projectInfo) => {
 
     }
   }
-  return { mainMenu, dataType, subMenuTitle, subBasePath }
+  return { mainMenu, dataType, subMenuTitle }
 }
 
 const useProject = create((set, get) => ({
   mainMenu: true,
   dataType: null,
   subMenuTitle: '',
-  subBasePath: null,
   projectInfo: null,
   currentPath: null,
   templateDataList: [],

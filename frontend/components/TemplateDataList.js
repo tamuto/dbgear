@@ -14,7 +14,6 @@ import useProject from '~/api/useProject'
 
 const TemplateDataList = () => {
   const subMenuTitle = useProject(state => state.subMenuTitle)
-  const subBasePath = useProject(state => state.subBasePath)
   const updateDataList = useProject(state => state.updateDataList)
   const templateDataList = useProject(state => state.templateDataList)
   const { id } = useParams()
@@ -29,14 +28,16 @@ const TemplateDataList = () => {
   }, [location.pathname])
 
   useEffect(() => {
-    updateDataList('template', id)
-  }, [subBasePath])
+    if (id) {
+      updateDataList('template', id)
+    }
+  }, [id])
 
   return (
     <List component='nav' subheader={
       <ListSubheader>{subMenuTitle}</ListSubheader>
     }>
-      <ListItemButton component={Link} to={`${subBasePath}/_init`}>
+      <ListItemButton component={Link} to={`/templates/${id}/_init`}>
         <ListItemIcon>
           <PlaylistAddCircleIcon />
         </ListItemIcon>
@@ -47,7 +48,7 @@ const TemplateDataList = () => {
           <ListItemButton
             key={item.tableName}
             component={Link}
-            to={`${subBasePath}/${item.instance}/${item.tableName}/${postfix}`}
+            to={`/templates/${id}/${item.instance}/${item.tableName}/${postfix}`}
           >
             <ListItemText
               primary={`${item.instance}.${item.tableName}`}
