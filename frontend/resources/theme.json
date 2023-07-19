@@ -5,6 +5,11 @@
         "variant": "contained"
       }
     },
+    "MuiButtonGroup": {
+      "defaultProps": {
+        "size": "small"
+      }
+    },
     "MuiContainer": {
       "defaultProps": {
         "maxWidth": false

@@ -10,21 +10,41 @@ import {
 
 import useTemplateDataEditor from '../api/useTemplateDataEditor'
 
+import CheckIcon from '@mui/icons-material/Check'
+import DownloadIcon from '@mui/icons-material/Download';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove'
+import UploadIcon from '@mui/icons-material/Upload'
+
 const TemplateDataEditor = () => {
   const {
     apiRef,
     columns,
-    rows,
-    append,
-    lotofappend
+    rows
   } = useTemplateDataEditor()
 
   return (
     <Stack sx={{ height: 'calc(100vh - 150px)' }}>
-      <ButtonGroup>
-        <Button onClick={() => append()}>ADD</Button>
-        <Button onClick={() => lotofappend()}>LOTS</Button>
-      </ButtonGroup>
+      <Stack direction='row'>
+        <Button size='small' variant='outlined' color='success' startIcon={<CheckIcon />}>
+          Save
+        </Button>
+        <Button size='small' variant='outlined' startIcon={<DownloadIcon />}>
+          Download
+        </Button>
+        <ButtonGroup>
+          <Button startIcon={<PlaylistAddIcon />}>
+            Add
+          </Button>
+          <Button startIcon={<PlaylistRemoveIcon />}>
+            Remove
+          </Button>
+        </ButtonGroup>
+        <div style={{ flexGrow: 1 }}></div>
+        <Button size='small' variant='outlined' color='secondary' startIcon={<UploadIcon />}>
+          Upload
+        </Button>
+      </Stack>
       <DataGrid
         apiRef={apiRef}
         rows={rows}
