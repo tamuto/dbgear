@@ -15,9 +15,17 @@ class TestTemplate(unittest.TestCase):
         p = Project('dist/test')
         self.assertTrue(p.template.is_exist_template('test'))
 
+    @unittest.skip('事前にフォルダを作成する必要あり')
     def test_listup_for_init(self):
         p = Project('dist/test')
         p.read_project()
         p.read_definitions()
         result = p.template.listup_for_init('test')
+        print(result)
+
+    def test_read_template_data(self):
+        p = Project('dist/dbgear')
+        p.read_project()
+        p.read_definitions()
+        result = p.template.read_template_data('test', 'facility', 'mt_position_type')
         print(result)

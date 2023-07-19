@@ -1,4 +1,6 @@
 import {
+  Button,
+  ButtonGroup,
   Stack
 } from '@mui/material'
 
@@ -8,16 +10,27 @@ import {
 
 import useTemplateDataEditor from '../api/useTemplateDataEditor'
 
-const TemplateDataEditor = ({ data }) => {
+const TemplateDataEditor = () => {
   const {
     apiRef,
     columns,
-    rows
-  } = useTemplateDataEditor(data)
+    rows,
+    append,
+    lotofappend
+  } = useTemplateDataEditor()
 
   return (
-    <Stack>
-      <DataGrid apiRef={apiRef} rows={rows} columns={columns} sx={{ height: '100px' }} />
+    <Stack sx={{ height: 'calc(100vh - 150px)' }}>
+      <ButtonGroup>
+        <Button onClick={() => append()}>ADD</Button>
+        <Button onClick={() => lotofappend()}>LOTS</Button>
+      </ButtonGroup>
+      <DataGrid
+        apiRef={apiRef}
+        rows={rows}
+        columns={columns}
+        autoPageSize
+      />
     </Stack>
   )
 }

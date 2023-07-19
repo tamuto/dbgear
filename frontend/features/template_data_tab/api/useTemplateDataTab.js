@@ -19,19 +19,20 @@ const useTemplateDataTab = () => {
     navigate(`/templates/${id}/${instance}/${tableName}/${newValue}`)
   }
 
-  const _init = async () => {
+  const initData = async () => {
     const result = await axios.get(`/templates/${id}/${instance}/${tableName}`)
     setData(result.data)
   }
 
   useEffect(() => {
-    _init()
+    initData()
   }, [id, instance, tableName])
 
   return {
     tabIndex,
     handleChange,
-    data
+    data,
+    initData
   }
 }
 

@@ -25,7 +25,8 @@ const TemplateDataTab = () => {
   const {
     tabIndex,
     handleChange,
-    data
+    data,
+    initData
   } = useTemplateDataTab()
 
   return (
@@ -45,7 +46,7 @@ const TemplateDataTab = () => {
       <Box sx={{ pt: 2 }}>
         {
           data &&
-          <Outlet context={data} />
+          <Outlet context={{ data, initData }} />
         }
       </Box>
     </Box>

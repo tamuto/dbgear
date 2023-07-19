@@ -1,4 +1,3 @@
-from typing import Union
 from .base import BaseSchema
 
 
@@ -31,14 +30,14 @@ class Field(BaseSchema):
     display_name: str
     column_type: str
     nullable: bool
-    primary_key: Union[int, None]
-    default_value: Union[str, None]
-    foreign_key: Union[str, None]
-    comment: Union[str, None]
+    primary_key: int | None
+    default_value: str | None
+    foreign_key: str | None
+    comment: str | None
 
 
 class Index(BaseSchema):
-    index_name: Union[str, None]
+    index_name: str | None
     columns: list[str]
 
 

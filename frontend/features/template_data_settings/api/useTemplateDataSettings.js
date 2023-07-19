@@ -7,7 +7,7 @@ import useProject from '~/api/useProject'
 import useFieldMgr from '~/api/useFieldMgr'
 
 const useTemplateDataSettings = () => {
-  const data = useOutletContext()
+  const { data, initData } = useOutletContext()
   const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
   const navigate = useNavigate()
@@ -46,12 +46,15 @@ const useTemplateDataSettings = () => {
     const [instance, tableName] = values.table.split('.')
     const settings = fieldMgr.filterForSave(values)
     if (data) {
-      await axios.put(`/templates/${id}`, {
+      const result = await axios.put(`/templates/${id}`, {
         instance,
         tableName,
         layout: values.layout,
         settings
       })
+      if (result.data.status === 'OK') {
+        await initData()
+      }
     } else {
       const result = await axios.post(`/templates/${id}`, {
         instance,

@@ -1,12 +1,28 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import {
   useGridApiRef
 } from '@mui/x-data-grid'
 
+const rows = []
+
 const useTemplateDataEditor = () => {
-  const data = useOutletContext()
+  const { data } = useOutletContext()
   const apiRef = useGridApiRef()
+
+  useEffect(() => {
+    console.log(data)
+  }, [])
+
+  const columns = useMemo(() => {
+    return data.gridColumns.map(({type, items, ...props}) => (
+      {
+        ...props,
+        type,
+        valueOptions: items
+      }
+    ))
+  }, [data])
 
   // const rows = [
   //   {id: 1, col1: 'Test1', col2: 'TestA' },
@@ -19,21 +35,32 @@ const useTemplateDataEditor = () => {
   //   { field: 'col2', headerName: 'Column2', width: 100 }
   // ]
 
-  const columns = useMemo(() => {
-    return data.info.fields.map(item => (
-      {
-        field: item.columnName,
-        headerName: item.displayName,
-        editable: true
-      }
-    ))
-  }, [data])
-  const rows = []
+  const append = () => {
+    console.log(apiRef.current.getSortedRows())
+    // setRows([ ...rows, {
+    //   id: count,
+    //   position_id: '',
+    //   position_name: count,
+    // }])
+    setCount(count + 1)
+  }
+
+  const lotofappend = () => {
+    const data = []
+    for (let i = 1; i < 3; i++) {
+      apiRef.current.updateRows([{
+        id: 'abic-a222-aa-x-x-s-s--wa' + i,
+        position_id: 'a' + i
+      }])
+    }
+  }
 
   return {
     apiRef,
     columns,
-    rows
+    rows,
+    append,
+    lotofappend
   }
 }
 

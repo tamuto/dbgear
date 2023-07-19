@@ -1,8 +1,6 @@
 import yaml
-import os
 
 from logging import getLogger
-from glob import glob
 from importlib import import_module
 
 from .template import Template
@@ -37,3 +35,7 @@ class Project:
             result = module.retrieve(self.folder, **items)
 
             self.definitions.update(result)
+
+    def find_column_setting(self, setting):
+        settings = self.config['column_settings']
+        return [d for d in settings if d['value'] == setting][0]

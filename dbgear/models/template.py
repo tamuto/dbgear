@@ -24,9 +24,20 @@ class TemplateDataConfig(BaseSchema):
     # TODO layoutの情報のパラメータ追加する
 
 
+class GridColumns(BaseSchema):
+    field: str
+    type: str
+    header_name: str
+    width: int
+    editable: bool
+    items: list = []
+
+
 class TemplateDataInfo(TemplateDataConfig):
-    instance: str = None
-    info: Table = None
+    instance: str | None = None
+    info: Table | None = None
+    grid_columns: list[GridColumns] = []
+    grid_rows: list = []
     # TODO データそのもの
 
 
@@ -76,6 +87,9 @@ class Template:
     def _make_data_filename(self, id, instance, table):
         return f'{self._get_templates_folder()}/{id}/data/{instance}@{table}.yaml'
 
+    def _make_raw_filename(self, id, instance, table):
+        return f'{self._get_templates_folder()}/{id}/data/{instance}@{table}.dat'
+
     def is_exist_data(self, id, instance, table):
         fname = self._make_data_filename(id, instance, table)
         return os.path.isfile(fname)
@@ -119,5 +133,54 @@ class Template:
             )
         config.instance = instance
         config.info = self.project.definitions[instance].get_table(table_name)
-        # TODO データの読み込み？
+        config.grid_columns = self.make_column_data(config)
+        # TODO データも読む。。。
         return config
+
+    def _make_table_grid_column(self, field, settings):
+        if field.column_name in settings:
+            setting = settings[field.column_name]
+            data = self.project.find_column_setting(setting)
+            if data['type'] == 'fixed':
+                return None
+            if data['type'] == 'generate':
+                return GridColumns(
+                    field=field.column_name,
+                    type='string',
+                    header_name=field.display_name,
+                    width=150,
+                    editable=False,
+                )
+            if data['type'] == 'choice':
+                return GridColumns(
+                    field=field.column_name,
+                    type='singleSelect',
+                    header_name=field.display_name,
+                    width=150,
+                    editable=True,
+                    items=data['items']
+                )
+
+        return GridColumns(
+            field=field.column_name,
+            type='string',
+            header_name=field.display_name,
+            width=150,
+            editable=True
+        )
+
+    def make_column_data(self, config: TemplateDataInfo):
+        if config.layout == 'table':
+            columns = []
+            for field in config.info.fields:
+                col = self._make_table_grid_column(field, config.settings)
+                if col is None:
+                    continue
+                columns.append(col)
+            return columns
+        if config.layout == 'matrix':
+            # TODO
+            pass
+        if config.layout == 'single':
+            # TODO
+            pass
