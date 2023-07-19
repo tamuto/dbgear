@@ -38,7 +38,20 @@ def create_data(id: str, data: NewTemplateData, request: Request):
     api = APIProxy(request.app)
     if api.is_exist_data(id, data.instance, data.table_name):
         return Result(
-            status='ERROR'
+            status='ERROR',
+            message='ERROR_EXIST_TEMPLATE_DATA'
+        )
+    api.create_template_data(id=id, **data.model_dump())
+    return Result(status='OK')
+
+
+@router.put('/{id}')
+def update_data(id: str, data: NewTemplateData, request: Request):
+    api = APIProxy(request.app)
+    if not api.is_exist_data(id, data.instance, data.table_name):
+        return Result(
+            status='ERROR',
+            message='ERROR_NOT_EXIST_TEMPLATE_DATA'
         )
     api.create_template_data(id=id, **data.model_dump())
     return Result(status='OK')

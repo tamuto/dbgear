@@ -46,7 +46,12 @@ const useTemplateDataSettings = () => {
     const [instance, tableName] = values.table.split('.')
     const settings = fieldMgr.filterForSave(values)
     if (data) {
-      // TODO update
+      await axios.put(`/templates/${id}`, {
+        instance,
+        tableName,
+        layout: values.layout,
+        settings
+      })
     } else {
       const result = await axios.post(`/templates/${id}`, {
         instance,
