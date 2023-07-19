@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import {
   useGridApiRef
 } from '@mui/x-data-grid'
 
-const useTemplateDataEditor = (data) => {
+const useTemplateDataEditor = () => {
+  const data = useOutletContext()
   const apiRef = useGridApiRef()
 
   // const rows = [

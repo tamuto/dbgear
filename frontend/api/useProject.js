@@ -66,6 +66,7 @@ const useProject = create((set, get) => ({
   updateDataList: async (dataType, id) => {
     if (dataType === 'template') {
       const result = await axios.get(`/templates/${id}`)
+      console.log(result.data)
       set({
         templateDataList: result.data
       })

@@ -7,9 +7,13 @@ const useFieldMgr = (setValue, unregister) => {
   const projectInfo = useProject(state => state.projectInfo)
   const [fields, setFields] = useState([])
 
-  const _buildField = (tableInfo) => {
+  const _buildField = (tableInfo, settings) => {
+    // TODO settings
     const makeFieldName = (field) => `fields.${field.columnName}`
     const judgeDefvalue = (field) => {
+      if (settings && field.columnName in settings) {
+        return settings[field.columnName]
+      }
       if (field.foreignKey !== null) {
         return `${FK}${field.foreignKey}`
       }
@@ -18,9 +22,6 @@ const useFieldMgr = (setValue, unregister) => {
         if (re.test(field.columnName)) {
           return value
         }
-      }
-      if (field.columnName in projectInfo.rules) {
-        return projectInfo.rules[field.columnName]
       }
       return ''
     }
@@ -47,13 +48,13 @@ const useFieldMgr = (setValue, unregister) => {
     }
   }
 
-  const retrieveTableInfo = async (table) => {
+  const retrieveTableInfo = async (table, settings) => {
     if (table === '') {
       return
     }
     const [instance, tableName] = table.split('.')
     const result = await axios.get(`/tables/${instance}/${tableName}`)
-    const newFields = _buildField(result.data)
+    const newFields = _buildField(result.data, settings)
     _resetFields(newFields)
     setFields(newFields)
   }

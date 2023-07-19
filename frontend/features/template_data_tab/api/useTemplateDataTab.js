@@ -1,26 +1,27 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useState, useMemo } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 
+import useProject from '~/api/useProject'
+
 const useTemplateDataTab = () => {
+  const subBasePath = useProject(state => state.subBasePath)
+  const location = useLocation()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
-  const [tabIndex, setTabIndex] = useState(0)
-  const { id, instance, tableName} = useParams()
+  const { id, instance, tableName } = useParams()
+
+  const tabIndex = useMemo(() => {
+    const sp = location.pathname.split('/')
+    return sp[sp.length - 1]
+  }, [location.pathname])
 
   const handleChange = (e, newValue) => {
-    setTabIndex(newValue)
-  }
-
-  const a11yProps = (index) => {
-    return {
-      id: `template-data-tab-${index}`,
-      'aria-controls': 'template-data-tabpanel-${index}'
-    }
+    navigate(`${subBasePath}/${instance}/${tableName}/${newValue}`)
   }
 
   const _init = async () => {
     const result = await axios.get(`/templates/${id}/${instance}/${tableName}`)
-    console.log(result.data)
     setData(result.data)
   }
 
@@ -31,10 +32,8 @@ const useTemplateDataTab = () => {
   return {
     tabIndex,
     handleChange,
-    a11yProps,
     data
   }
-
 }
 
 export default useTemplateDataTab

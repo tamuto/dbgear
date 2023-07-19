@@ -11,6 +11,7 @@ import {
 import AppDrawer from "~/components/AppDrawer"
 import TemplateDataSettings from '~/features/template_data_settings/components/TemplateDataSettings'
 import TemplateDataTab from '~/features/template_data_tab/components/TemplateDataTab'
+import TemplateDataEditor from '../features/template_data_tab/components/TemplateDataEditor'
 
 const BaseLayout = () => {
   return (
@@ -32,7 +33,10 @@ const AppRoutes = () => {
         <Route path='/add_environ' element={<p>Add Environ</p>} />
         <Route path='/templates/:id' element={<Outlet />}>
           <Route path='_init' element={<TemplateDataSettings />} />
-          <Route path=':instance/:tableName' element={<TemplateDataTab />} />
+          <Route path=':instance/:tableName' element={<TemplateDataTab />}>
+            <Route path='_data' element={<TemplateDataEditor />} />
+            <Route path='_props' element={<TemplateDataSettings />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

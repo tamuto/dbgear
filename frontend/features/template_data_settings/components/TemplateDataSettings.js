@@ -17,7 +17,7 @@ import imgMatrix from '~/resources/img/matrix.png'
 import imgForm from '~/resources/img/form.png'
 
 import ColumnSettingField from '~/components/ColumnSettingField'
-import useDataSettings from '../api/useTemplateDataSettings'
+import useTemplateDataSettings from '../api/useTemplateDataSettings'
 
 const ImageLabel = ({ img, label }) => {
   return (
@@ -33,18 +33,29 @@ ImageLabel.propTypes = {
 }
 
 const TemplateDataSettings = () => {
-  const { control, onSubmit, layout, tableList, fields, columnSettings } = useDataSettings()
+  const {
+    control,
+    onSubmit,
+    layout,
+    tableList,
+    fields,
+    columnSettings,
+    editMode
+  } = useTemplateDataSettings()
   return (
     <Stack component='form' onSubmit={onSubmit}>
-      <HookFormField type='select' label='Target Table' name='table' control={control}>
-        {
-          tableList.map(item => (
-            <MenuItem key={item.tableName} value={`${item.instance}.${item.tableName}`}>
-              {item.instance}.{item.tableName} ({item.displayName})
-            </MenuItem>
-          ))
-        }
-      </HookFormField>
+      {
+        !editMode &&
+        <HookFormField type='select' label='Target Table' name='table' control={control}>
+          {
+            tableList.map(item => (
+              <MenuItem key={item.tableName} value={`${item.instance}.${item.tableName}`}>
+                {item.instance}.{item.tableName} ({item.displayName})
+              </MenuItem>
+            ))
+          }
+        </HookFormField>
+      }
       <HookFormField type='radio' label='Input Form' name='layout' control={control} row={true}>
         <FormControlLabel value="table" control={<Radio />} label={<ImageLabel img={imgTable} label='Table' />} />
         <FormControlLabel value="matrix" control={<Radio />} label={<ImageLabel img={imgMatrix} label='Matrix' />} />
@@ -70,7 +81,11 @@ const TemplateDataSettings = () => {
         }
       </FormFieldSet>
       <Box sx={{ textAlign: 'right' }}>
-        <Button type='submit'>Create</Button>
+        <Button type='submit'>
+          {
+            editMode ? 'Update' : 'Create'
+          }
+        </Button>
       </Box>
     </Stack>
   )

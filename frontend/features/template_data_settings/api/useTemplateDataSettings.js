@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 
@@ -7,6 +7,7 @@ import useProject from '~/api/useProject'
 import useFieldMgr from '~/api/useFieldMgr'
 
 const useTemplateDataSettings = () => {
+  const data = useOutletContext()
   const updateDataList = useProject(state => state.updateDataList)
   const subBasePath = useProject(state => state.subBasePath)
   const { id } = useParams()
@@ -27,25 +28,37 @@ const useTemplateDataSettings = () => {
   }
 
   useEffect(() => {
-    _init()
+    if (!data) {
+      _init()
+    }
   }, [])
 
   useEffect(() => {
-    fieldMgr.retrieveTableInfo(table)
+    if (data) {
+      setValue('table', `${data.instance}.${data.info.tableName}`)
+    }
+  }, [data])
+
+  useEffect(() => {
+    fieldMgr.retrieveTableInfo(table, data?.settings)
   }, [table])
 
-  const onSubmit = handleSubmit(async (data) => {
-    const [instance, tableName] = data.table.split('.')
-    const settings = fieldMgr.filterForSave(data)
-    const result = await axios.post(`/templates/${id}`, {
-      instance,
-      tableName,
-      layout: data.layout,
-      settings
-    })
-    if (result.data.status === 'OK') {
-      await updateDataList('template', id)
-      navigate(`${subBasePath}/${instance}/${tableName}`)
+  const onSubmit = handleSubmit(async (values) => {
+    const [instance, tableName] = values.table.split('.')
+    const settings = fieldMgr.filterForSave(values)
+    if (data) {
+      // TODO update
+    } else {
+      const result = await axios.post(`/templates/${id}`, {
+        instance,
+        tableName,
+        layout: values.layout,
+        settings
+      })
+      if (result.data.status === 'OK') {
+        await updateDataList('template', id)
+        navigate(`${subBasePath}/${instance}/${tableName}/_data`)
+      }
     }
   })
 
@@ -55,7 +68,8 @@ const useTemplateDataSettings = () => {
     layout,
     tableList,
     fields: fieldMgr.fields,
-    columnSettings: fieldMgr.columnSettings
+    columnSettings: fieldMgr.columnSettings,
+    editMode: data !== undefined
   }
 }
 

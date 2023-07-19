@@ -1,4 +1,5 @@
 import { css } from '@emotion/react'
+import { Outlet } from 'react-router-dom'
 import {
   Box,
   Tabs,
@@ -6,13 +7,10 @@ import {
   Typography
 } from '@mui/material'
 
-import TabPanel from './TabPanel'
-import TemplateDataProperties from './TemplateDataProperties'
-import TemplateDataEditor from './TemplateDataEditor'
 import useTemplateDataTab from '../api/useTemplateDataTab'
 
 const TemplateDataTab = () => {
-  const roundHeadCss = css`
+  const headCss = css`
     position: relative;
     padding: 0.25em 0;
     &:after {
@@ -27,7 +25,6 @@ const TemplateDataTab = () => {
   const {
     tabIndex,
     handleChange,
-    a11yProps,
     data
   } = useTemplateDataTab()
 
@@ -35,25 +32,22 @@ const TemplateDataTab = () => {
     <Box>
       {
         data &&
-        <Typography css={roundHeadCss} variant='h6' component='div'>
+        <Typography css={headCss} variant='h6' component='div'>
           {data.instance}.{data.info.tableName} ({data.info.displayName})
         </Typography>
       }
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabIndex} onChange={handleChange} aria-label='tabs'>
-          <Tab label='Editor' {...a11yProps(0)} />
-          <Tab label='Properties' {...a11yProps(1)} />
+          <Tab label='Editor' value='_data' />
+          <Tab label='Properties' value='_props' />
         </Tabs>
       </Box>
-      <TabPanel value={tabIndex} index={0}>
+      <Box sx={{ pt: 2 }}>
         {
           data &&
-          <TemplateDataEditor data={data} />
+          <Outlet context={data} />
         }
-      </TabPanel>
-      <TabPanel value={tabIndex} index={1}>
-        <TemplateDataProperties />
-      </TabPanel>
+      </Box>
     </Box>
   )
 }
