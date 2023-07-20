@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi import Request
+from fastapi import Body
 
 from ..models.proxy import APIProxy
 from ..models.request import NewTemplate
@@ -61,3 +62,16 @@ def update_data(id: str, data: NewTemplateData, request: Request):
 def get_data(id: str, instance: str, table: str, request: Request):
     api = APIProxy(request.app)
     return api.read_template_data(id, instance, table)
+
+
+@router.get('/{id}/{instance}/{table}/new_row')
+def get_new_data_row(id: str, instance: str, table: str, request: Request):
+    api = APIProxy(request.app)
+    return api.build_new_data_row(id, instance, table)
+
+
+@router.post('/{id}/{instance}/{table}')
+def update_data(id: str, instance: str, table: str, request: Request, body=Body(...)):
+    api = APIProxy(request.app)
+    api.update_raw_data(id, instance, table, body)
+    return Result(status='OK')

@@ -5,6 +5,8 @@ from glob import glob
 
 from .base import BaseSchema
 from .schema import Table
+from .grid import GridColumns
+from . import grid
 
 class TemplateConfig(BaseSchema):
     id: str
@@ -24,19 +26,10 @@ class TemplateDataConfig(BaseSchema):
     # TODO layoutの情報のパラメータ追加する
 
 
-class GridColumns(BaseSchema):
-    field: str
-    type: str
-    header_name: str
-    width: int
-    editable: bool
-    items: list = []
-
-
 class TemplateDataInfo(TemplateDataConfig):
     instance: str | None = None
     info: Table | None = None
-    grid_columns: list[GridColumns] = []
+    grid_columns: list = []
     grid_rows: list = []
     # TODO データそのもの
 
@@ -125,7 +118,7 @@ class Template:
             )
             yaml.dump(config.model_dump(), f, indent=2, allow_unicode=True)
 
-    def read_template_data(self, id, instance, table_name):
+    def _read_template_data_config(self, id, instance, table_name):
         fname = self._make_data_filename(id, instance, table_name)
         with open(fname, 'r', encoding='utf-8') as f:
             config = TemplateDataInfo(
@@ -133,54 +126,28 @@ class Template:
             )
         config.instance = instance
         config.info = self.project.definitions[instance].get_table(table_name)
-        config.grid_columns = self.make_column_data(config)
-        # TODO データも読む。。。
         return config
 
-    def _make_table_grid_column(self, field, settings):
-        if field.column_name in settings:
-            setting = settings[field.column_name]
-            data = self.project.find_column_setting(setting)
-            if data['type'] == 'fixed':
-                return None
-            if data['type'] == 'generate':
-                return GridColumns(
-                    field=field.column_name,
-                    type='string',
-                    header_name=field.display_name,
-                    width=150,
-                    editable=False,
-                )
-            if data['type'] == 'choice':
-                return GridColumns(
-                    field=field.column_name,
-                    type='singleSelect',
-                    header_name=field.display_name,
-                    width=150,
-                    editable=True,
-                    items=data['items']
-                )
+    def read_template_data(self, id, instance, table_name):
+        config = self._read_template_data_config(id, instance, table_name)
+        config.grid_columns = grid.make_column_data(self.project, config)
+        config.grid_rows = self.read_raw_data(id, instance, table_name)
+        return config
 
-        return GridColumns(
-            field=field.column_name,
-            type='string',
-            header_name=field.display_name,
-            width=150,
-            editable=True
-        )
+    def build_new_data_row(self, id, instance, table_name):
+        config = self._read_template_data_config(id, instance, table_name)
+        row = grid.new_data_row(self.project, config)
+        return row
 
-    def make_column_data(self, config: TemplateDataInfo):
-        if config.layout == 'table':
-            columns = []
-            for field in config.info.fields:
-                col = self._make_table_grid_column(field, config.settings)
-                if col is None:
-                    continue
-                columns.append(col)
-            return columns
-        if config.layout == 'matrix':
-            # TODO
-            pass
-        if config.layout == 'single':
-            # TODO
-            pass
+    def read_raw_data(self, id, instance, table_name):
+        fname = self._make_raw_filename(id, instance, table_name)
+        if not os.path.isfile(fname):
+            return []
+        with open(fname, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+        return data
+
+    def update_raw_data(self, id, instance, table_name, data):
+        fname = self._make_raw_filename(id, instance, table_name)
+        with open(fname, 'w', encoding='utf-8') as f:
+            yaml.dump(data, f, indent=2, allow_unicode=True)

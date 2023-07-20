@@ -51,3 +51,9 @@ class APIProxy:
 
     def read_template_data(self, id, instance, table_name):
         return self.ins_temp.read_template_data(id, instance, table_name)
+
+    def build_new_data_row(self, id, instance, table_name):
+        return self.ins_temp.build_new_data_row(id, instance, table_name)
+
+    def update_raw_data(self, id, instance, table_name, data):
+        return self.ins_temp.update_raw_data(id, instance, table_name, data)

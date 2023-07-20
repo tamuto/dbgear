@@ -1,21 +1,18 @@
-import { useMemo, useState, useEffect } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useOutletContext, useParams } from 'react-router-dom'
+import axios from 'axios'
 import {
   useGridApiRef
 } from '@mui/x-data-grid'
 
-const rows = []
-
 const useTemplateDataEditor = () => {
   const { data } = useOutletContext()
+  const { id, instance, tableName } = useParams()
   const apiRef = useGridApiRef()
-
-  useEffect(() => {
-    console.log(data)
-  }, [])
+  const [allColumns, setAllColumns] = useState(false)
 
   const columns = useMemo(() => {
-    return data.gridColumns.map(({type, items, ...props}) => (
+    return data.gridColumns.map(({type, items, hide, ...props}) => (
       {
         ...props,
         type,
@@ -23,44 +20,59 @@ const useTemplateDataEditor = () => {
       }
     ))
   }, [data])
+  const columnVisibilityModel = useMemo(() => {
+    const model = {}
+    for (const item of data.gridColumns.filter(x => x.hide)) {
+      model[item.field] = false
+    }
+    return model
+  }, [data])
+  const rows = useMemo(() => {
+    return data.gridRows
+  }, [data])
 
+  const triggerColumns = () => {
+    apiRef.current.setColumnVisibilityModel(allColumns ? columnVisibilityModel : {})
+    setAllColumns(!allColumns)
+  }
   // const rows = [
   //   {id: 1, col1: 'Test1', col2: 'TestA' },
   //   {id: 2, col1: 'Test2', col2: 'TestB' },
   //   {id: 3, col1: 'Test3', col2: 'TestC' },
   // ]
 
-  // const columns = [
-  //   { field: 'col1', headerName: 'Column1', width: 150, editable: true },
-  //   { field: 'col2', headerName: 'Column2', width: 100 }
-  // ]
+  // console.log(apiRef.current.getSortedRows())
+  // console.log(apiRef.current.getVisibleColumns())
 
-  const append = () => {
-    console.log(apiRef.current.getSortedRows())
-    // setRows([ ...rows, {
-    //   id: count,
-    //   position_id: '',
-    //   position_name: count,
-    // }])
-    setCount(count + 1)
+  const append = async () => {
+    const result = await axios.get(`/templates/${id}/${instance}/${tableName}/new_row`)
+    console.log(result.data)
+    apiRef.current.updateRows([result.data])
   }
 
-  const lotofappend = () => {
-    const data = []
-    for (let i = 1; i < 3; i++) {
-      apiRef.current.updateRows([{
-        id: 'abic-a222-aa-x-x-s-s--wa' + i,
-        position_id: 'a' + i
-      }])
-    }
+  const remove = () => {
+
+  }
+
+  const save = async () => {
+    console.log(apiRef.current.getSortedRows())
+    await axios.post(`/templates/${id}/${instance}/${tableName}`, apiRef.current.getSortedRows())
   }
 
   return {
     apiRef,
     columns,
     rows,
+    initialState: {
+      columns: {
+        columnVisibilityModel
+      }
+    },
+    allColumns,
+    triggerColumns,
     append,
-    lotofappend
+    remove,
+    save,
   }
 }
 
