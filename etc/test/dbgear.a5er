@@ -1,0 +1,199 @@
+﻿# A5:ER FORMAT:17
+# A5:ER ENCODING:UTF8
+# A5:ER Mk-1 Copyright © 2007 m.matsubara
+# A5:SQL Mk-2 Version 2.18.3 Copyright © 1997 - 2023 m.matsubara
+#  https://a5m2.mmatsubara.com
+
+[Manager]
+ProjectName=Test
+Author=
+MaxEntityRowShow=1000
+ReadOnlyRecommend=0
+Page=Main
+PageInfo="Main",7,"A4Landscape",$FFFFFF
+LogicalView=1
+DecodeDomain=0
+ViewModePageIndividually=1
+ViewMode=7
+ViewFormat=0
+UseNondependenceDashLine=0
+FontName=Tahoma
+FontSize=6
+PaperSize=A4Landscape
+HeaderLeft=
+HeaderCenter=
+HeaderRight=
+FooterLeft=
+FooterCenter=
+FooterRight=
+ShowPageoutRelation=1
+RDBMSType=6
+RDBMSTypeName=MySQL
+DefaultPkName=%0:s_PKC
+DefaultPkIndexName=%0:s_PKI
+DefaultIndexName=%0:s_IX%1:d
+DefaultFkName=%0:s_FK%1:d
+SqlSeparator=0
+UpperCaseKeyword=0
+ShowTag=1
+ShowCommonAttributes=0
+BugFixEntityWidth=1
+
+[Entity]
+PName=test_table
+LName=テストテーブル
+Comment=
+TableOption=
+Page=Main
+Left=300
+Top=300
+Field="IDカラム","col_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="名前","name","varchar(100)","NOT NULL",,"","",$FFFFFFFF,""
+Field="数字","num","int",,,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080409
+Position="Main",300,300
+ZOrder=1
+
+[Entity]
+PName=tbl_child
+LName=子テーブル
+Comment=
+TableOption=
+Page=Main
+Left=900
+Top=400
+Field="子ID","child_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="IDカラム","col_id","varchar(36)","NOT NULL",,"","",$FFFFFFFF,""
+Field="名前","name","varchar(100)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080532
+Position="Main",900,400
+ZOrder=2
+
+[Relation]
+Entity1=test_table
+Entity2=tbl_child
+RelationType1=1
+RelationType2=3
+Fields1=col_id
+Fields2=col_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,2606,7394,2044,R,R,""
+Dependence=0
+Caption=
+PName=
+LineMode=0
+Bar1=261
+Bar2=739
+Bar3=204
+TermPos1=R
+TermPos2=R
+ZOrder=4
+
+[Entity]
+PName=properties
+LName=プロパティ
+Comment=
+TableOption=
+Page=Main
+Left=1700
+Top=250
+Field="キー","key","varchar(32)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="値","value","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080727
+Position="Main",1700,250
+ZOrder=5
+
+[Entity]
+PName=row_table
+LName=行テーブル
+Comment=
+TableOption=
+Page=Main
+Left=350
+Top=750
+Field="ID","row_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="名前","row_name","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080859
+Position="Main",350,750
+ZOrder=6
+
+[Entity]
+PName=tbl_matrix
+LName=マトリックステーブル
+Comment=
+TableOption=
+Page=Main
+Left=1000
+Top=700
+Field="ID","row_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="子ID","child_id","varchar(36)","NOT NULL",1,"","",$FFFFFFFF,""
+Field="値","value","char(1)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810081112
+Position="Main",1000,700
+ZOrder=7
+
+[Relation]
+Entity1=row_table
+Entity2=tbl_matrix
+RelationType1=1
+RelationType2=3
+Fields1=row_id
+Fields2=row_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4008,5992,4361,R,R,""
+Dependence=1
+Caption=
+PName=
+LineMode=0
+Bar1=401
+Bar2=599
+Bar3=436
+TermPos1=R
+TermPos2=R
+ZOrder=8
+
+[Relation]
+Entity1=tbl_child
+Entity2=tbl_matrix
+RelationType1=1
+RelationType2=3
+Fields1=child_id
+Fields2=child_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4252,5748,3972,R,R,""
+Dependence=1
+Caption=
+PName=
+LineMode=0
+Bar1=425
+Bar2=575
+Bar3=397
+TermPos1=R
+TermPos2=R
+ZOrder=9

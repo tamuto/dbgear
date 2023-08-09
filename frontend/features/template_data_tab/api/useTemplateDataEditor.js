@@ -12,18 +12,23 @@ const useTemplateDataEditor = () => {
   const [allColumns, setAllColumns] = useState(false)
 
   const columns = useMemo(() => {
-    return data.gridColumns.map(({type, items, hide, ...props}) => (
-      {
-        ...props,
-        type,
-        valueOptions: items
-      }
-    ))
+    if (data.gridColumns) {
+      return data.gridColumns.map(({type, items, hide, ...props}) => (
+        {
+          ...props,
+          type,
+          valueOptions: items
+        }
+      ))
+    }
+    return []
   }, [data])
   const columnVisibilityModel = useMemo(() => {
     const model = {}
-    for (const item of data.gridColumns.filter(x => x.hide)) {
-      model[item.field] = false
+    if (data.gridColumns) {
+      for (const item of data.gridColumns.filter(x => x.hide)) {
+        model[item.field] = false
+      }
     }
     return model
   }, [data])
@@ -35,14 +40,6 @@ const useTemplateDataEditor = () => {
     apiRef.current.setColumnVisibilityModel(allColumns ? columnVisibilityModel : {})
     setAllColumns(!allColumns)
   }
-  // const rows = [
-  //   {id: 1, col1: 'Test1', col2: 'TestA' },
-  //   {id: 2, col1: 'Test2', col2: 'TestB' },
-  //   {id: 3, col1: 'Test3', col2: 'TestC' },
-  // ]
-
-  // console.log(apiRef.current.getSortedRows())
-  // console.log(apiRef.current.getVisibleColumns())
 
   const append = async () => {
     const result = await axios.get(`/templates/${id}/${instance}/${tableName}/new_row`)

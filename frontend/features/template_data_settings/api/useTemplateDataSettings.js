@@ -14,6 +14,7 @@ const useTemplateDataSettings = () => {
   const { control, handleSubmit, watch, setValue, unregister } = useForm({
     defaultValues: {
       table: '',
+      description: '',
       layout: 'table'
     }
   })
@@ -35,6 +36,8 @@ const useTemplateDataSettings = () => {
   useEffect(() => {
     if (data) {
       setValue('table', `${data.instance}.${data.info.tableName}`)
+      setValue('description', data.description)
+      setValue('layout', data.layout)
     }
   }, [data])
 
@@ -49,6 +52,7 @@ const useTemplateDataSettings = () => {
       const result = await axios.put(`/templates/${id}`, {
         instance,
         tableName,
+        description: values.description,
         layout: values.layout,
         settings
       })
@@ -59,6 +63,7 @@ const useTemplateDataSettings = () => {
       const result = await axios.post(`/templates/${id}`, {
         instance,
         tableName,
+        description: values.description,
         layout: values.layout,
         settings
       })

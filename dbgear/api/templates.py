@@ -2,76 +2,87 @@ from fastapi import APIRouter
 from fastapi import Request
 from fastapi import Body
 
-from ..models.proxy import APIProxy
-from ..models.request import NewTemplate
-from ..models.request import NewTemplateData
-from ..models.response import Result
+from ..models.project import project
+from ..models.template import mapping
+from ..models.template import entity
+
+from .dtos import Result
+from .dtos import Data
+from .dtos import NewMapping
+from .dtos import NewDataModel
+from .dtos import convert_to_datafilename
+from .dtos import convert_to_mapping
+from .dtos import convert_to_data_model
 
 router = APIRouter(prefix='/templates')
 
 
-@router.post('/')
-def create_template(data: NewTemplate, request: Request):
-    api = APIProxy(request.app)
-    if api.is_exist_template(data.id):
+@router.post('/{id}')
+def create_mapping(id: str, data: NewMapping, request: Request) -> Result:
+    proj = project(request)
+    if mapping.is_exist(proj.folder, id):
         return Result(
             status='ERROR',
-            message='ERROR_EXIST_TEMPLATE_FOLDER'
+            message='ERROR_EXIST_MAPPING'
         )
-    api.create_template(**data.model_dump())
-    return Result(status='OK')
+    mapping.save(proj.folder, id, convert_to_mapping(data))
+    return Result()
+
+
+@router.get('/{id}/tables')
+def get_tables(id: str, request: Request):
+    '''
+    既に存在するテーブル一覧。
+    '''
+    proj = project(request)
+    tables = [
+        convert_to_datafilename(ins, tbl)
+        for ins, tbl in entity.items(proj.schemas, proj.folder, id)
+    ]
+    return Result(data=tables)
 
 
 @router.get('/{id}/init')
-def get_init_list(id: str, request: Request):
-    api = APIProxy(request.app)
-    return api.listup_for_init(id)
+def get_not_exist_tables(id: str, request: Request):
+    '''
+    新規作成時のテーブル一覧。既に存在するものは除く
+    '''
+    proj = project(request)
+    tables = [
+        convert_to_datafilename(ins, tbl)
+        for ins, tbl in entity.items(proj.schemas, proj.folder, id, exist=False)
+    ]
+    return Result(data=tables)
 
 
-@router.get('/{id}')
-def get_data_list(id: str, request: Request):
-    api = APIProxy(request.app)
-    return api.listup_data(id)
+@router.get('/{id}/tables/{instance}/{table}')
+def get_table(id: str, instance: str, table: str, request: Request):
+    proj = project(request)
+    dm, tbl, info = entity.get(proj.bindings, proj.schemas, proj.folder, id, instance, table)
+    data = Data(
+        model=dm,
+        info=info,
+        table=tbl
+    )
+    return Result(data=data)
 
 
-@router.post('/{id}')
-def create_data(id: str, data: NewTemplateData, request: Request):
-    api = APIProxy(request.app)
-    if api.is_exist_data(id, data.instance, data.table_name):
-        return Result(
-            status='ERROR',
-            message='ERROR_EXIST_TEMPLATE_DATA'
-        )
-    api.create_template_data(id=id, **data.model_dump())
-    return Result(status='OK')
+@router.post('/{id}/tables/{instance}/{table}')
+def create_data_model(id: str, instance: str, table: str, data: NewDataModel, request: Request):
+    proj = project(request)
+    entity.save(proj.folder, id, instance, table, convert_to_data_model(data))
+    return Result()
 
 
-@router.put('/{id}')
-def update_data(id: str, data: NewTemplateData, request: Request):
-    api = APIProxy(request.app)
-    if not api.is_exist_data(id, data.instance, data.table_name):
-        return Result(
-            status='ERROR',
-            message='ERROR_NOT_EXIST_TEMPLATE_DATA'
-        )
-    api.create_template_data(id=id, **data.model_dump())
-    return Result(status='OK')
-
-
-@router.get('/{id}/{instance}/{table}')
-def get_data(id: str, instance: str, table: str, request: Request):
-    api = APIProxy(request.app)
-    return api.read_template_data(id, instance, table)
-
-
-@router.get('/{id}/{instance}/{table}/new_row')
-def get_new_data_row(id: str, instance: str, table: str, request: Request):
-    api = APIProxy(request.app)
-    return api.build_new_data_row(id, instance, table)
-
-
-@router.post('/{id}/{instance}/{table}')
+@router.put('/{id}/tables/{instance}/{table}')
 def update_data(id: str, instance: str, table: str, request: Request, body=Body(...)):
-    api = APIProxy(request.app)
-    api.update_raw_data(id, instance, table, body)
-    return Result(status='OK')
+    proj = project(request)
+    entity.save_data(proj.schemas, proj.folder, id, instance, table, body)
+    return Result()
+
+
+
+# @router.get('/{id}/{instance}/{table}/new_row')
+# def get_new_data_row(id: str, instance: str, table: str, request: Request):
+#     api = APIProxy(request.app)
+#     return api.build_new_data_row(id, instance, table)

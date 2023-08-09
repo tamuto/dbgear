@@ -1,0 +1,5 @@
+description: データなし、モデルのみのテスト用
+layout: table
+settings:
+  update_date: now
+  update_user: update_user

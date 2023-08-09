@@ -25,7 +25,6 @@ def execute():
     logging.info(args)
 
     project = Project(args.project)
-    project.read_project()
     project.read_definitions()
 
     if args.command == 'serve':

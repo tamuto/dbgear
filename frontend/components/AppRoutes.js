@@ -31,7 +31,7 @@ const AppRoutes = () => {
       <Route path='/' element={<BaseLayout />}>
         <Route path='/add_template' element={<p>Add Template</p>} />
         <Route path='/add_environ' element={<p>Add Environ</p>} />
-        <Route path='/templates/:id' element={<Outlet />}>
+        <Route path='/templates/:id' element={<Outlet context={{ data: undefined, initData: () => {} }} />}>
           <Route path='_init' element={<TemplateDataSettings />} />
           <Route path=':instance/:tableName' element={<TemplateDataTab />}>
             <Route path='_data' element={<TemplateDataEditor />} />

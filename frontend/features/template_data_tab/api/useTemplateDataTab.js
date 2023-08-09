@@ -21,6 +21,7 @@ const useTemplateDataTab = () => {
 
   const initData = async () => {
     const result = await axios.get(`/templates/${id}/${instance}/${tableName}`)
+    console.log(result)
     setData(result.data)
   }
 

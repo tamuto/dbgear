@@ -1,41 +1,54 @@
-import yaml
-
 from logging import getLogger
 from importlib import import_module
 
-from .template import Template
-from .environ import Environ
+from .base import BaseSchema
+from .schema import Schema
+from . import fileio
+
+
+class Binding(BaseSchema):
+    type: str
+    value: str
+    items: list | None = None
 
 
 class Project:
     logger = getLogger('project')
 
-    def __init__(self, folder):
+    def __init__(self, folder: str):
         self.folder = folder
-        self.config = {}
-        self.definitions = {}
-        self.template = Template(self, folder)
-        self.environ = Environ(self, folder)
 
-    def setup(self):
-        self.template.setup()
-        self.environ.setup()
+        data = fileio.load_yaml(f'{self.folder}/project.yaml')
+        self.project_name = data['project_name']
+        self._rules = data['rules']
+        self._definitions = data['definitions']
+        self._bindings = {k: Binding(**v) for k, v in data['bindings'].items()}
+        self._schemas = {}
 
-    def read_project(self):
-        with open(f'{self.folder}/project.yaml', 'r', encoding='utf-8') as f:
-            self.config = yaml.safe_load(f)
+    @property
+    def bindings(self) -> dict[str, Binding]:
+        return self._bindings
 
-        self.template.read_templates()
-        self.environ.read_environs()
+    @property
+    def rules(self) -> dict[str, str]:
+        return self._rules
 
-    def read_definitions(self):
-        for items in self.config['definitions']:
+    @property
+    def schemas(self) -> dict[str, Schema]:
+        return self._schemas
+
+    @property
+    def instances(self) -> list[str]:
+        return list(self._schemas.keys())
+
+    def read_definitions(self) -> None:
+        for items in self._definitions:
             self.logger.info(f"definition: {items['filename']}, {items['type']}")
             module = import_module(f'.{items["type"]}', 'dbgear.definitions')
             result = module.retrieve(self.folder, **items)
 
-            self.definitions.update(result)
+            self._schemas.update(result)
 
-    def find_column_setting(self, setting):
-        settings = self.config['column_settings']
-        return [d for d in settings if d['value'] == setting][0]
+
+def project(request) -> Project:
+    return request.app.state.project

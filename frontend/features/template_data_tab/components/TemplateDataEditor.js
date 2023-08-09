@@ -39,7 +39,6 @@ const TemplateDataEditor = () => {
       <Stack direction='row'>
         <Button
           size='small'
-          variant='outlined'
           color='success'
           startIcon={<CheckIcon />}
           onClick={save}
@@ -71,7 +70,6 @@ const TemplateDataEditor = () => {
         </ToggleButton>
         <Button
           size='small'
-          variant='outlined'
           color='secondary'
           startIcon={<UploadIcon />}
           sx={{ ml: 3 }}

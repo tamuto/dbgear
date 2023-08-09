@@ -1,18 +1,29 @@
 from fastapi import APIRouter
 from fastapi import Request
 
+from ..models.project import project
+from .dtos import Result
+from .dtos import convert_to_datafilename
+
 router = APIRouter(prefix='/tables')
 
 
 @router.get('/')
-def get_tables(request: Request):
-    return {
-        ins: schema.info()
-        for ins, schema in request.app.state.project.definitions.items()
+def get_tables(request: Request) -> Result:
+    proj = project(request)
+    tables = {
+        ins: sorted([
+            convert_to_datafilename(ins, tbl)
+            for tbl in schema.get_tables()
+        ], key=lambda x: x.table_name)
+        for ins, schema in proj.schemas.items()
     }
+    return Result(data=tables)
 
 
 @router.get('/{instance}/{table}')
-def get_table(instance: str, table: str, request: Request):
-    schema = request.app.state.project.definitions[instance]
-    return schema.get_table(table)
+def get_table(instance: str, table: str, request: Request) -> Result:
+    proj = project(request)
+    schema = proj.schemas[instance]
+    table = schema.get_table(table)
+    return Result(data=table)

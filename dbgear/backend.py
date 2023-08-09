@@ -3,16 +3,19 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
+from .api import project
 from .api import tables
 from .api import templates
 from .api import environs
 
-from .models.proxy import APIProxy
-from .models.response import ProjectInfo
+from .models.fileio import make_folder
+from .models.project import Project
+from .models.template.utils import get_templates_folder
 
 app = FastAPI()
 
 app.mount('/static', StaticFiles(directory='dist', html=True), name='static')
+app.include_router(project.router)
 app.include_router(tables.router)
 app.include_router(templates.router)
 app.include_router(environs.router)
@@ -23,19 +26,10 @@ def root():
     return RedirectResponse('/static')
 
 
-@app.get('/project')
-def get_project_info():
-    api = APIProxy(app)
-    return ProjectInfo(
-        project_name=api.project_name,
-        templates=api.templates,
-        environs=api.environs,
-        instances=api.instances,
-        column_settings=api.column_settings,
-        rules=api.rules
-    )
-
-
-def run(project):
+def run(project: Project):
     app.state.project = project
+
+    # 初回起動時のフォルダができていないケースを想定
+    make_folder(get_templates_folder(project.folder))
+
     uvicorn.run('dbgear.backend:app', port=5000, log_config=None)

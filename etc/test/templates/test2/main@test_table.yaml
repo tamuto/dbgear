@@ -1,0 +1,5 @@
+description: テストテーブル用データ
+layout: table
+settings:
+  update_date: NOW()
+  update_user: '''SYSTEM'''

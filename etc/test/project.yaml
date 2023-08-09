@@ -1,0 +1,55 @@
+project_name: Test
+
+definitions:
+  - filename: ./dbgear.a5er
+    type: a5sql_mk2
+    mapping:
+      Main: main
+
+bindings:
+  uuid:
+    type: fixed
+    value: UUID()
+  now:
+    type: fixed
+    value: NOW()
+  update_user:
+    type: fixed
+    value: "'SYSTEM'"
+  set_y:
+    type: fixed
+    value: "'Y'"
+  set_n:
+    type: fixed
+    value: "'N'"
+  y_or_n:
+    type: selectable
+    value: Yes or No
+    items:
+      - caption: 'Yes'
+        value: 'Y'
+      - caption: 'No'
+        value: 'N'
+  gen_uuid:
+    type: call
+    value: uuid
+  gen_seq:
+    type: call
+    value: sequence
+  ref_id:
+    type: ref
+    value: id
+
+rules:
+  update_user: update_user
+  update_date: now
+  .*_flag: set_y
+  .*_id$: ref_id
+
+deployments:
+  local:
+    command: xxxx
+    options: xxxx
+  production:
+    command: xxxx
+    options: yyyy

@@ -56,6 +56,7 @@ const TemplateDataSettings = () => {
           }
         </HookFormField>
       }
+      <HookFormField type='multiline' label='Description' name='description' control={control} rows={5} />
       <HookFormField type='radio' label='Input Form' name='layout' control={control} row={true}>
         <FormControlLabel value="table" control={<Radio />} label={<ImageLabel img={imgTable} label='Table' />} />
         <FormControlLabel value="matrix" control={<Radio />} label={<ImageLabel img={imgMatrix} label='Matrix' />} />
