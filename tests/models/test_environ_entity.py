@@ -7,7 +7,7 @@ from dbgear.models import const
 FOLDER_PATH = './etc/test'
 
 
-class TestTemplate(unittest.TestCase):
+class TestEnviron(unittest.TestCase):
 
     def test_entity_items(self):
         proj = Project(FOLDER_PATH)

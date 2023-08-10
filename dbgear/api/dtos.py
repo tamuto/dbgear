@@ -8,6 +8,7 @@ from ..models.datagrid.data import DataInfo
 
 
 class NewMapping(BaseSchema):
+    base: str | None
     name: str
     instances: list = []
     description: str = ''
@@ -24,7 +25,12 @@ class NewDataModel(BaseSchema):
     description: str
     layout: str
     settings: dict[str, str]
-    # TODO layoutのパラメータ追加予定
+    columns: list[object] = []
+    value: str
+    caption: str
+    x_axis: str | None = None
+    y_axis: str | None = None
+    values: list[str] | None = None
 
 
 def convert_to_data_model(

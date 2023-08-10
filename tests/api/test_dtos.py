@@ -8,6 +8,7 @@ class TestDTOs(unittest.TestCase):
 
     def test_mapping(self):
         data = dtos.convert_to_mapping('test', dtos.NewMapping(
+            base=None,
             name='abc'
         ))
         self.assertEqual(data.id, 'test')
@@ -19,7 +20,9 @@ class TestDTOs(unittest.TestCase):
         data = dtos.convert_to_data_model(dtos.NewDataModel(
             description='abc',
             layout='test',
-            settings={}
+            settings={},
+            value='id',
+            caption='name'
         ))
         self.assertEqual(data.id, '')
         self.assertEqual(data.instance, '')

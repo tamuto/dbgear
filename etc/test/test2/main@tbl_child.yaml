@@ -1,6 +1,7 @@
 layout: table
 settings:
   child_id: ref_id
-  col_id: test_table
   update_date: now
   update_user: update_user
+value: child_id
+caption: name

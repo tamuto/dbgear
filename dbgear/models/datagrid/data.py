@@ -10,7 +10,12 @@ class DataModel(BaseSchema):
     description: str = ''
     layout: str
     settings: dict[str, str]
-    # TODO layoutの情報のパラメータ追加する
+    columns: list[object] = []
+    value: str
+    caption: str
+    x_axis: str | None = None
+    y_axis: str | None = None
+    values: list[str] | None = None
 
 
 class GridColumn(BaseSchema):

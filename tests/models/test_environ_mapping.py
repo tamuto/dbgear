@@ -6,7 +6,7 @@ from dbgear.models.environ import mapping
 FOLDER_PATH = './etc/test'
 
 
-class TestTemplate(unittest.TestCase):
+class TestEnviron(unittest.TestCase):
 
     def test_mapping_items(self):
         items = mapping.items(FOLDER_PATH)
@@ -25,6 +25,7 @@ class TestTemplate(unittest.TestCase):
         mapping.save(FOLDER_PATH, 'test3', Mapping(
             id='Test3',
             name='AAAABBBBCCCC',
+            base=None,
         ))
         item = mapping.get(FOLDER_PATH, 'test3')
         self.assertEqual(item.name, 'AAAABBBBCCCC')

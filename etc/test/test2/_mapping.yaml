@@ -2,3 +2,4 @@ instances:
 - main
 name: テスト2
 description: 'ABC'
+base: null
