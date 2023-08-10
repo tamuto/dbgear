@@ -3,6 +3,24 @@ import shutil
 import yaml
 from typing import Any
 
+from . import const
+
+
+def get_environ_name(folder: str, id: str):
+    return f'{folder}/{id}'
+
+
+def get_mapping_name(folder: str, id: str):
+    return f'{folder}/{id}/{const.FNAME_MAPPING}'
+
+
+def get_data_model_name(folder: str, id: str, instance: str, table: str) -> str:
+    return f'{folder}/{id}/{instance}@{table}.yaml'
+
+
+def get_data_dat_name(folder: str, id: str, instance: str, table: str) -> str:
+    return f'{folder}/{id}/{instance}@{table}.dat'
+
 
 def save_model(fname: str, model: Any) -> None:
     with open(fname, 'w', encoding='utf-8') as f:
@@ -21,6 +39,17 @@ def load_model(fname: str, clazz: Any, **kwargs) -> Any:
 def load_yaml(fname: str) -> Any:
     with open(fname, 'r', encoding='utf-8') as f:
         data = yaml.safe_load(f)
+    return data
+
+
+def _is_exist_raw_data(folder: str, id: str, ins: str, tbl: str) -> bool:
+    return os.path.isfile(get_data_dat_name(folder, id, ins, tbl))
+
+
+def load_data(folder: str, id: str, ins: str, tbl: str) -> Any:
+    data = []
+    if _is_exist_raw_data(folder, id, ins, tbl):
+        data = load_yaml(get_data_dat_name(folder, id, ins, tbl))
     return data
 
 

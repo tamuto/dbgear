@@ -1,7 +1,7 @@
 import unittest
 
 from dbgear.models.project import Project
-from dbgear.models.template import entity
+from dbgear.models.environ import entity
 from dbgear.models import const
 
 FOLDER_PATH = './etc/test'

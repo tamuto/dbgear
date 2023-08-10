@@ -9,9 +9,9 @@ from .data import DataInfo
 from . import layout_table
 
 
-def build(bindings: dict[str, Binding], dm: DataModel, table: Table, data: Any) -> DataInfo:
+def build(folder: str, bindings: dict[str, Binding], dm: DataModel, table: Table, data: Any) -> DataInfo:
     if dm.layout == const.LAYOUT_TABLE:
-        return layout_table.build(bindings, dm, table, data)
+        return layout_table.build(folder, bindings, dm, table, data)
 
 
 def parse() -> Any:

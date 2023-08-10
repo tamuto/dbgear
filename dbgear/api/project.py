@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Request
 
 from ..models.project import project
-from ..models.template import mapping as template_mapping
+from ..models.environ import mapping as template_mapping
 from .dtos import Result
 from .dtos import ProjectInfo
 

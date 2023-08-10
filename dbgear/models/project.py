@@ -3,7 +3,7 @@ from importlib import import_module
 
 from .base import BaseSchema
 from .schema import Schema
-from . import fileio
+from .fileio import load_yaml
 
 
 class Binding(BaseSchema):
@@ -18,7 +18,7 @@ class Project:
     def __init__(self, folder: str):
         self.folder = folder
 
-        data = fileio.load_yaml(f'{self.folder}/project.yaml')
+        data = load_yaml(f'{folder}/project.yaml')
         self.project_name = data['project_name']
         self._rules = data['rules']
         self._definitions = data['definitions']

@@ -1,6 +1,6 @@
 from ..models.base import BaseSchema
 from ..models.schema import Table
-from ..models.template.data import Mapping
+from ..models.environ.data import Mapping
 from ..models.datagrid.data import DataModel
 from ..models.datagrid.data import DataInfo
 
@@ -27,8 +27,15 @@ class NewDataModel(BaseSchema):
     # TODO layoutのパラメータ追加予定
 
 
-def convert_to_data_model(data: NewDataModel) -> DataModel:
+def convert_to_data_model(
+        data: NewDataModel,
+        id: str = '',
+        instance: str = '',
+        table_name: str = '') -> DataModel:
     return DataModel(
+        id=id,
+        instance=instance,
+        table_name=table_name,
         **data.model_dump()
     )
 
@@ -56,7 +63,7 @@ class DataFilename(BaseSchema):
     display_name: str
 
 
-def convert_to_datafilename(instance: str, tbl: Table):
+def convert_to_data_filename(instance: str, tbl: Table):
     return DataFilename(
         instance=instance,
         table_name=tbl.table_name,

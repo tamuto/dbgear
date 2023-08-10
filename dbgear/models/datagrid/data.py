@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import Field
 from ..base import BaseSchema
 
@@ -12,12 +13,7 @@ class DataModel(BaseSchema):
     # TODO layoutの情報のパラメータ追加する
 
 
-class DataInfo(BaseSchema):
-    grid_columns: list = []
-    grid_rows: list = []
-
-
-class GridColumns(BaseSchema):
+class GridColumn(BaseSchema):
     field: str
     type: str
     header_name: str
@@ -25,3 +21,8 @@ class GridColumns(BaseSchema):
     editable: bool
     items: list = []
     hide: bool = False
+
+
+class DataInfo(BaseSchema):
+    grid_columns: list[GridColumn] = []
+    grid_rows: list[dict[str, Any]] = []

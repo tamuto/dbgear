@@ -1,5 +1,5 @@
 description: テストテーブル用データ
 layout: table
 settings:
-  update_date: NOW()
-  update_user: '''SYSTEM'''
+  update_date: now
+  update_user: update_user

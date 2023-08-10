@@ -1,7 +1,7 @@
 import unittest
 
-from dbgear.models.template.data import Mapping
-from dbgear.models.template import mapping
+from dbgear.models.environ.data import Mapping
+from dbgear.models.environ import mapping
 
 FOLDER_PATH = './etc/test'
 
