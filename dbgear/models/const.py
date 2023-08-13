@@ -11,6 +11,7 @@ BIND_TYPE_CALL = 'call'
 # 特殊タイプ
 BIND_TYPE_REF_ID = 'ref_id'
 BIND_TYPE_FOREIGN_KEY = "foreign_key"
+BIND_TYPE_EMBEDDED_DATA = "embedded_data"
 
 FIELD_TYPE_STRING = 'string'
 FIELD_TYPE_SELECTABLE = 'singleSelect'

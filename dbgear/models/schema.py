@@ -42,3 +42,10 @@ class Schema:
 
     def get_tables(self) -> dict[str, Table]:
         return self.tables
+
+
+def find_field(fields: list[Field], name: str):
+    field = next(filter(lambda x: x.column_name == name, fields), None)
+    if field is None:
+        raise RuntimeError(f'Could not find field. ({name})')
+    return field

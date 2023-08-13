@@ -10,12 +10,11 @@ class DataModel(BaseSchema):
     description: str = ''
     layout: str
     settings: dict[str, object]
-    columns: list[object] = []
-    value: str
-    caption: str
+    value: str | None = None
+    caption: str | None = None
     x_axis: str | None = None
     y_axis: str | None = None
-    values: list[str] | None = None
+    cells: list[str] | None = None
 
 
 class GridColumn(BaseSchema):

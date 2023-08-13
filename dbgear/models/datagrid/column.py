@@ -1,5 +1,9 @@
-from ..schema import Field
+from dataclasses import dataclass
+
+from ..project import Project
 from ..environ.data import Mapping
+from ..schema import Table
+from ..schema import find_field
 from ..fileio import load_data
 from ..fileio import load_model
 from ..fileio import get_data_model_name
@@ -10,7 +14,8 @@ from .data import GridColumn
 
 
 def make_grid_column(
-        field: Field,
+        column_name: str,
+        display_name: str,
         *,
         type: str = const.FIELD_TYPE_STRING,
         width: int = 150,
@@ -18,9 +23,9 @@ def make_grid_column(
         hide: bool = False,
         items: list | None = None):
     return GridColumn(
-        field=field.column_name,
+        field=column_name,
         type=type,
-        header_name=field.display_name,
+        header_name=display_name,
         width=width,
         editable=editable,
         hide=hide,
@@ -43,8 +48,66 @@ def load_for_select_items(folder: str, map: Mapping, ins: str, ref: str):
             instance=ins,
             table_name=ref
         )
-        items = [{
-            'caption': item[dm.caption],
-            'value': item[dm.value]
-        } for item in items]
+        if dm.caption is not None and dm.value is not None:
+            items = [{
+                'caption': item[dm.caption],
+                'value': item[dm.value]
+            } for item in items]
+        else:
+            raise RuntimeError('Invalid Data Model for Master Data.')
     return items
+
+
+@dataclass
+class CellItem:
+    column_name: str
+    display_name: str
+    type: str = const.FIELD_TYPE_STRING
+    editable: bool = True
+    items: list[object] = None
+
+
+def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[CellItem]:
+    result = []
+    for cell in dm.cells:
+        field = find_field(table.fields, cell)
+        if cell in dm.settings:
+            setting = dm.settings[cell]
+            if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
+                items = load_for_select_items(proj.folder, map, dm.instance, setting['value'])
+
+                result.append(CellItem(
+                    column_name=field.column_name,
+                    display_name=field.display_name,
+                    type=const.FIELD_TYPE_SELECTABLE,
+                    editable=True,
+                    items=items
+                ))
+            elif setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
+                result.append(CellItem(
+                    column_name=field.column_name,
+                    display_name=field.display_name,
+                    type=const.FIELD_TYPE_SELECTABLE,
+                    editable=True,
+                    items=setting['values']
+                ))
+            else:
+                bind = proj.bindings[setting['type']]
+                if bind.type in [const.BIND_TYPE_FIXED, const.BIND_TYPE_CALL]:
+                    result.append(CellItem(
+                        column_name=field.column_name,
+                        display_name=field.display_name,
+                        editable=False
+                    ))
+                if bind.type == const.BIND_TYPE_SELECTABLE:
+                    result.append(CellItem(
+                        column_name=field.column_name,
+                        display_name=field.display_name,
+                        items=bind.items
+                    ))
+        else:
+            result.append(CellItem(
+                column_name=field.column_name,
+                display_name=field.display_name
+            ))
+    return result

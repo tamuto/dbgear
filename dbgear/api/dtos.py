@@ -26,12 +26,10 @@ class NewDataModel(BaseSchema):
     description: str
     layout: str
     settings: dict[str, str]
-    columns: list[object] = []
     value: str
     caption: str
     x_axis: str | None = None
     y_axis: str | None = None
-    values: list[str] | None = None
 
 
 def convert_to_data_model(

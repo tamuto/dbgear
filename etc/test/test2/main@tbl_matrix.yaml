@@ -1,0 +1,18 @@
+layout: matrix
+settings:
+  row_id:
+    type: foreign_key
+    value: row_table
+  child_id:
+    type: foreign_key
+    value: tbl_child
+  value:
+    type: y_or_n
+  update_date:
+    type: now
+  update_user:
+    type: update_user
+x_axis: row_id
+y_axis: child_id
+cells:
+  - value
