@@ -21,7 +21,10 @@ def make_grid_column(
         width: int = 150,
         editable: bool = True,
         hide: bool = False,
-        items: list | None = None):
+        items: list | None = None,
+        fixed_value: str | None = None,
+        call_value: str | None = None,
+        reference: str | None = None):
     return GridColumn(
         field=column_name,
         type=type,
@@ -29,7 +32,10 @@ def make_grid_column(
         width=width,
         editable=editable,
         hide=hide,
-        items=items
+        items=items,
+        fixed_value=fixed_value,
+        call_value=call_value,
+        reference=reference
     )
 
 
@@ -64,7 +70,10 @@ class CellItem:
     display_name: str
     type: str = const.FIELD_TYPE_STRING
     editable: bool = True
-    items: list[object] = None
+    items: list[object] | None = None
+    fixed_value: str | None = None
+    call_value: str | None = None
+    reference: str | None = None
 
 
 def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[CellItem]:
@@ -91,15 +100,31 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     editable=True,
                     items=setting['values']
                 ))
+            elif setting['type'] == const.BIND_TYPE_REF_ID:
+                result.append(CellItem(
+                    column_name=field.column_name,
+                    display_name=field.display_name,
+                    type=const.FIELD_TYPE_STRING,
+                    editable=False,
+                    reference='id'
+                ))
             else:
                 bind = proj.bindings[setting['type']]
-                if bind.type in [const.BIND_TYPE_FIXED, const.BIND_TYPE_CALL]:
+                if bind.type == const.BIND_TYPE_FIXED:
                     result.append(CellItem(
                         column_name=field.column_name,
                         display_name=field.display_name,
-                        editable=False
+                        editable=False,
+                        fixed_value=bind.value
                     ))
-                if bind.type == const.BIND_TYPE_SELECTABLE:
+                elif bind.type == const.BIND_TYPE_CALL:
+                    result.append(CellItem(
+                        column_name=field.column_name,
+                        display_name=field.display_name,
+                        editable=False,
+                        call_value=bind.value
+                    ))
+                elif bind.type == const.BIND_TYPE_SELECTABLE:
                     result.append(CellItem(
                         column_name=field.column_name,
                         display_name=field.display_name,

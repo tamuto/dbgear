@@ -1,4 +1,5 @@
 from typing import Any
+from dataclasses import asdict
 
 from ..project import Project
 from ..environ.data import Mapping
@@ -20,17 +21,17 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
 
     items = _get_x_axis_items(proj, map, dm)
     cells = column.make_cell_item(proj, map, dm, table)
-    for item in items:
-        for cell in cells:
-            columns.append(
-                column.make_grid_column(
-                    f"{item['value']}_{cell.column_name}",
-                    f"{item['caption']}({cell.display_name})",
-                    type=cell.type,
-                    editable=cell.editable,
-                    items=cell.items
-                )
-            )
+    columns.extend([
+        # 一度、辞書にしてcolumn_name, display_nameを上書きしてから、引数展開している
+        # また、cells、itemsの2重ループ
+        column.make_grid_column(
+            **{
+                **asdict(cell),
+                'column_name': f"{item['value']}_{cell.column_name}",
+                'display_name': f"{item['caption']}({cell.display_name})"
+            }
+        ) for cell in cells for item in items
+    ])
 
     # TODO データをマトリックスへ変換
 

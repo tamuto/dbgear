@@ -47,7 +47,8 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
             field.column_name,
             field.display_name,
             editable=False,
-            hide=True)
+            hide=True,
+            reference='id')
     if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
         # 選択肢は外部データを参照する以外は選択型と同じ
         items = column.load_for_select_items(proj.folder, map, dm.instance, setting['value'])
@@ -64,18 +65,20 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
             field.display_name,
             items=setting['values'])
 
-    bind =  proj.bindings[setting['type']]
+    bind = proj.bindings[setting['type']]
     if bind.type == const.BIND_TYPE_FIXED:
         return column.make_grid_column(
             field.column_name,
             field.display_name,
             editable=False,
-            hide=True)
+            hide=True,
+            fixed_value=bind.value)
     if bind.type == const.BIND_TYPE_CALL:
         return column.make_grid_column(
             field.column_name,
             field.display_name,
-            editable=False)
+            editable=False,
+            call_value=bind.value)
     if bind.type == const.BIND_TYPE_SELECTABLE:
         return column.make_grid_column(
             field.column_name,
