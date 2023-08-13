@@ -46,8 +46,8 @@ def _is_exist_raw_data(folder: str, id: str, ins: str, tbl: str) -> bool:
     return os.path.isfile(get_data_dat_name(folder, id, ins, tbl))
 
 
-def load_data(folder: str, id: str, ins: str, tbl: str) -> Any:
-    data = []
+def load_data(folder: str, id: str, ins: str, tbl: str, none: bool = False) -> Any:
+    data = None if none else []
     if _is_exist_raw_data(folder, id, ins, tbl):
         data = load_yaml(get_data_dat_name(folder, id, ins, tbl))
     return data

@@ -1,6 +1,7 @@
 import os
 
-from ..project import Binding
+from ..project import Project
+from ..environ.data import Mapping
 from ..schema import Schema
 from ..schema import Table
 from ..fileio import load_model
@@ -14,17 +15,17 @@ from ..datagrid.data import DataModel
 from . import mapping
 
 
-def get(bindings: dict[str, Binding], schemas: dict[str, Schema], folder: str, id: str, ins: str, tbl: str) -> tuple[DataModel, Table, DataInfo]:
+def get(proj: Project, map: Mapping, ins: str, tbl: str) -> tuple[DataModel, Table, DataInfo]:
     dm = load_model(
-        get_data_model_name(folder, id, ins, tbl),
+        get_data_model_name(proj.folder, map.id, ins, tbl),
         DataModel,
-        id=id,
+        id=map.id,
         instance=ins,
         table_name=tbl
     )
-    table = schemas[ins].get_table(tbl)
-    data = load_data(folder, id, ins, tbl)
-    info = grid.build(folder, bindings, dm, table, data)
+    table = proj.schemas[ins].get_table(tbl)
+    data = load_data(proj.folder, map.id, ins, tbl)
+    info = grid.build(proj, map, dm, table, data)
 
     return (dm, table, info)
 

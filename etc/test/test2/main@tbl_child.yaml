@@ -1,7 +1,13 @@
 layout: table
 settings:
-  child_id: ref_id
-  update_date: now
-  update_user: update_user
+  child_id:
+    type: ref_id
+  col_id:
+    type: foreign_key
+    value: test_table
+  update_date:
+    type: now
+  update_user:
+    type: update_user
 value: child_id
 caption: name

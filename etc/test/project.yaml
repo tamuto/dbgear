@@ -36,9 +36,6 @@ bindings:
   gen_seq:
     type: call
     value: sequence
-  ref_id:
-    type: ref
-    value: id
 
 rules:
   update_user: update_user

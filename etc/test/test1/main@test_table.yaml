@@ -1,7 +1,9 @@
 description: データなし、モデルのみのテスト用
 layout: table
 settings:
-  update_date: now
-  update_user: update_user
+  update_date:
+    type: now
+  update_user:
+    type: update_user
 value: col_id
 caption: name

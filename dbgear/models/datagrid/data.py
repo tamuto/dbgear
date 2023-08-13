@@ -9,7 +9,7 @@ class DataModel(BaseSchema):
     table_name: str = Field(exclude=True)
     description: str = ''
     layout: str
-    settings: dict[str, str]
+    settings: dict[str, object]
     columns: list[object] = []
     value: str
     caption: str
@@ -24,7 +24,7 @@ class GridColumn(BaseSchema):
     header_name: str
     width: int
     editable: bool
-    items: list = []
+    items: list | None = None
     hide: bool = False
 
 

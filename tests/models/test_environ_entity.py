@@ -1,6 +1,7 @@
 import unittest
 
 from dbgear.models.project import Project
+from dbgear.models.environ import mapping
 from dbgear.models.environ import entity
 from dbgear.models import const
 
@@ -23,12 +24,16 @@ class TestEnviron(unittest.TestCase):
         proj = Project(FOLDER_PATH)
         proj.read_definitions()
 
-        dm, table, info = entity.get(proj.bindings, proj.schemas, proj.folder, 'test1', 'main', 'test_table')
+        map = mapping.get(proj.folder, 'test1')
+
+        dm, table, info = entity.get(proj, map, 'main', 'test_table')
 
         self.assertEqual(dm.id, 'test1')
         self.assertEqual(dm.instance, 'main')
         self.assertEqual(dm.table_name, 'test_table')
         self.assertEqual(dm.layout, const.LAYOUT_TABLE)
+        self.assertEqual(len(dm.settings), 2)
+        self.assertEqual(dm.settings['update_date']['type'], 'now')
         self.assertEqual(table.table_name, 'test_table')
         self.assertEqual(len(info.grid_columns), 5)
         self.assertEqual(info.grid_rows, [])
