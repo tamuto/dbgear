@@ -81,7 +81,6 @@ def update_data(id: str, instance: str, table: str, request: Request, body=Body(
     return Result()
 
 
-
 # @router.get('/{id}/{instance}/{table}/new_row')
 # def get_new_data_row(id: str, instance: str, table: str, request: Request):
 #     api = APIProxy(request.app)

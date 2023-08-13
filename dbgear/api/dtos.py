@@ -12,6 +12,7 @@ class NewMapping(BaseSchema):
     name: str
     instances: list = []
     description: str = ''
+    deployment: bool
 
 
 def convert_to_mapping(id: str, data: NewMapping) -> Mapping:

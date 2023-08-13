@@ -9,3 +9,4 @@ class Mapping(BaseSchema):
     name: str
     instances: list[str] = []
     description: str = ''
+    deployment: bool

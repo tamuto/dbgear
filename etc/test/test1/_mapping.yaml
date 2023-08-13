@@ -2,3 +2,4 @@ instances:
 - main
 name: テスト1
 base: test2
+deployment: false

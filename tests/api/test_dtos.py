@@ -9,12 +9,14 @@ class TestDTOs(unittest.TestCase):
     def test_mapping(self):
         data = dtos.convert_to_mapping('test', dtos.NewMapping(
             base=None,
-            name='abc'
+            name='abc',
+            deployment=False
         ))
         self.assertEqual(data.id, 'test')
         self.assertEqual(data.name, 'abc')
         self.assertEqual(data.description, '')
         self.assertEqual(data.instances, [])
+        self.assertEqual(data.deployment, False)
 
     def test_data_model(self):
         data = dtos.convert_to_data_model(dtos.NewDataModel(

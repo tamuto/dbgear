@@ -44,8 +44,8 @@ class Parser:
             if self.mode == 3:
                 if self.session.entity2 not in self.relations:
                     self.relations[self.session.entity2] = {}
-                for field in self.session.fields2.split(','):
-                    self.relations[self.session.entity2][field] = self.session
+                for fld in self.session.fields2.split(','):
+                    self.relations[self.session.entity2][fld] = self.session
             # 空行の場合、セッション解除
             self.mode = None
             return

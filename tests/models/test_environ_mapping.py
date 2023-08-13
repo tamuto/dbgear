@@ -26,6 +26,7 @@ class TestEnviron(unittest.TestCase):
             id='Test3',
             name='AAAABBBBCCCC',
             base=None,
+            deployment=False
         ))
         item = mapping.get(FOLDER_PATH, 'test3')
         self.assertEqual(item.name, 'AAAABBBBCCCC')

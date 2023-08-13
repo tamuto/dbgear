@@ -3,3 +3,4 @@ instances:
 name: テスト2
 description: 'ABC'
 base: null
+deployment: true

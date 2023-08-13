@@ -13,7 +13,9 @@
     "build:minify": "infodb-cli minify -i frontend/index.html",
     "serve": "poetry run dbgear serve --project dist/dbgear",
     "check": "poetry run dbgear check --project dist/dbgear",
-    "test": "poetry run python -m unittest discover"
+    "test": "poetry run python -m unittest discover",
+    "flake8:src": "poetry run flake8 dbgear",
+    "flake8:test": "poetry run flake8 tests"
   },
   "author": "tamuto <tamuto@infodb.jp>",
   "license": "MIT",

@@ -78,5 +78,5 @@ def new_data_row(table):
     row = {
         'id': uuid4()
     }
-    row.update({ field.column_name: '' for field in table.fields })
+    row.update({field.column_name: '' for field in table.fields})
     return row
