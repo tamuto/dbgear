@@ -31,3 +31,4 @@ class GridColumn(BaseSchema):
 class DataInfo(BaseSchema):
     grid_columns: list[GridColumn] = []
     grid_rows: list[dict[str, Any]] = []
+    allow_line_addition_and_removal: bool

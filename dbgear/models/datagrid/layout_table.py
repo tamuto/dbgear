@@ -24,7 +24,8 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: list) 
 
     return DataInfo(
         grid_columns=columns,
-        grid_rows=data
+        grid_rows=data,
+        allow_line_addition_and_removal=True
     )
 
 
