@@ -1,3 +1,4 @@
+from typing import Any
 from dataclasses import dataclass
 
 from ..project import Project
@@ -138,4 +139,5 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
     return result
 
 
-exclude_names = lambda items: {key: value for key, value in items if key not in ['column_name', 'display_name']}
+def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
+    return {key: value for key, value in items if key not in ['column_name', 'display_name']}
