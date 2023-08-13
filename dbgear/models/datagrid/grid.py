@@ -1,3 +1,5 @@
+from typing import Any
+
 from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
@@ -10,7 +12,7 @@ from . import layout_matrix
 from . import layout_single
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: list) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     if dm.layout == const.LAYOUT_TABLE:
         return layout_table.build(proj, map, dm, table, data)
     if dm.layout == const.LAYOUT_MATRIX:

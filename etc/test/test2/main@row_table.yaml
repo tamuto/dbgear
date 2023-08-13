@@ -1,4 +1,5 @@
 layout: table
 settings: {}
+sync_mode: drop_create
 value: row_id
 caption: row_name

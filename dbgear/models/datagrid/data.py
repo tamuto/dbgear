@@ -10,6 +10,7 @@ class DataModel(BaseSchema):
     description: str = ''
     layout: str
     settings: dict[str, object]
+    sync_mode: str
     value: str | None = None
     caption: str | None = None
     x_axis: str | None = None
@@ -25,6 +26,8 @@ class GridColumn(BaseSchema):
     editable: bool
     items: list | None = None
     hide: bool = False
+    fixed_value: str | None = None
+    call_value: str | None = None
 
 
 class DataInfo(BaseSchema):

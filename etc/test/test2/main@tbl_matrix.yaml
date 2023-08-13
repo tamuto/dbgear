@@ -12,6 +12,7 @@ settings:
     type: now
   update_user:
     type: update_user
+sync_mode: drop_create
 x_axis: row_id
 y_axis: child_id
 cells:

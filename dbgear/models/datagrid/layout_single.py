@@ -1,3 +1,5 @@
+from typing import Any
+
 from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
@@ -8,7 +10,7 @@ from .data import DataInfo
 from . import column
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: list) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     columns = []
     field = find_field(table.fields, dm.y_axis)
     columns.append(column.make_grid_column(

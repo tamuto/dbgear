@@ -15,6 +15,7 @@ settings:
     type: now
   update_user:
     type: update_user
+sync_mode: drop_create
 y_axis: key
 cells:
   - value

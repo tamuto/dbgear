@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import uuid4
 
 from ..project import Project
@@ -11,7 +12,7 @@ from .data import DataInfo
 from . import column
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: list) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
     columns = []
     for field in table.fields:
@@ -26,10 +27,14 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: list) 
 
     # FIXME: dataについては、特に変換はなしで良いのか？
     # 例えば仕様変更でカラムが追加された時などにデフォルト値などで埋めるとか？
+    rows = []
+    for d in data:
+        row = {f.column_name: d[f.column_name] for f in table.fields}
+        rows.append(row)
 
     return DataInfo(
         grid_columns=columns,
-        grid_rows=data,
+        grid_rows=rows,
         allow_line_addition_and_removal=True
     )
 

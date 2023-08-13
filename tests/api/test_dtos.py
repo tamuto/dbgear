@@ -2,6 +2,7 @@ import unittest
 
 from dbgear.api import dtos
 from dbgear.models.schema import Table
+from dbgear.models import const
 
 
 class TestDTOs(unittest.TestCase):
@@ -23,6 +24,7 @@ class TestDTOs(unittest.TestCase):
             description='abc',
             layout='test',
             settings={},
+            sync_mode=const.SYNC_MODE_DROP_CREATE,
             value='id',
             caption='name'
         ))

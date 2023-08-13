@@ -9,5 +9,6 @@ settings:
     type: now
   update_user:
     type: update_user
+sync_mode: drop_create
 value: child_id
 caption: name
