@@ -22,14 +22,10 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
     items = _get_x_axis_items(proj, map, dm)
     cells = column.make_cell_item(proj, map, dm, table)
     columns.extend([
-        # 一度、辞書にしてcolumn_name, display_nameを上書きしてから、引数展開している
-        # また、cells、itemsの2重ループ
         column.make_grid_column(
-            **{
-                **asdict(cell),
-                'column_name': f"{item['value']}_{cell.column_name}",
-                'display_name': f"{item['caption']}({cell.display_name})"
-            }
+            **asdict(cell, dict_factory=column.exclude_names),
+            column_name=f"{item['value']}_{cell.column_name}",
+            display_name=f"{item['caption']}({cell.display_name})"
         ) for cell in cells for item in items
     ])
 

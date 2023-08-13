@@ -136,3 +136,6 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                 display_name=field.display_name
             ))
     return result
+
+
+exclude_names = lambda items: {key: value for key, value in items if key not in ['column_name', 'display_name']}
