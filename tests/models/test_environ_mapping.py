@@ -20,6 +20,8 @@ class TestEnviron(unittest.TestCase):
         item = mapping.get(FOLDER_PATH, 'test1')
         self.assertEqual(item.id, 'test1')
         self.assertEqual(item.description, '')
+        self.assertIsNotNone(item.parent)
+        self.assertEqual(item.parent.id, 'test2')
 
     def test_mapping_save(self):
         mapping.save(FOLDER_PATH, 'test3', Mapping(

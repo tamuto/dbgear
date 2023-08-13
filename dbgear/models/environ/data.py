@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import Field
 
 from ..base import BaseSchema
@@ -10,3 +11,6 @@ class Mapping(BaseSchema):
     instances: list[str] = []
     description: str = ''
     deployment: bool
+
+    # FIXME https://github.com/pydantic/pydantic/issues/5992
+    parent: Mapping | None = Field(exclude=True, default=None)

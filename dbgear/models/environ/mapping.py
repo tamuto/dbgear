@@ -11,12 +11,19 @@ from ..fileio import get_mapping_name
 from .data import Mapping
 
 
-def get(folder: str, id: str) -> Mapping:
-    return load_model(
+def _load_mapping(folder: str, id: str) -> Mapping:
+    data = load_model(
         get_mapping_name(folder, id),
         Mapping,
         id=id
     )
+    if data.base is not None:
+        data.parent = _load_mapping(folder, data.base)
+    return data
+
+
+def get(folder: str, id: str) -> Mapping:
+    return _load_mapping(folder, id)
 
 
 def items(folder: str) -> list[Mapping]:
