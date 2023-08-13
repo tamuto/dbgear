@@ -93,6 +93,7 @@ class Parser:
         if name == 'LName':
             self.session.display_name = value
         if name == 'Page':
+            value = value.lower()
             self.session.instance = self.mapping[value] if value in self.mapping else None
         if name == "Field":
             self.session.fields.append(value)

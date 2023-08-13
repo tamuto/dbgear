@@ -17,6 +17,13 @@ from .dtos import convert_to_data_model
 router = APIRouter(prefix='/environs')
 
 
+@router.get('/')
+def get_mappings(request: Request):
+    proj = project(request)
+    maps = mapping.items(proj.folder)
+    return Result(data=maps)
+
+
 @router.post('/{id}')
 def create_mapping(id: str, data: NewMapping, request: Request) -> Result:
     proj = project(request)
@@ -25,7 +32,7 @@ def create_mapping(id: str, data: NewMapping, request: Request) -> Result:
             status='ERROR',
             message='ERROR_EXIST_MAPPING'
         )
-    mapping.save(proj.folder, id, convert_to_mapping(data))
+    mapping.save(proj.folder, id, convert_to_mapping(id, data))
     return Result()
 
 
@@ -58,7 +65,8 @@ def get_not_exist_tables(id: str, request: Request):
 @router.get('/{id}/tables/{instance}/{table}')
 def get_table(id: str, instance: str, table: str, request: Request):
     proj = project(request)
-    dm, tbl, info = entity.get(proj.bindings, proj.schemas, proj.folder, id, instance, table)
+    map = mapping.get(proj.folder, id)
+    dm, tbl, info = entity.get(proj, map, instance, table)
     data = Data(
         model=dm,
         info=info,

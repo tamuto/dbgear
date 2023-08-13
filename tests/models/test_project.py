@@ -20,10 +20,10 @@ class TestProject(unittest.TestCase):
         proj.read_definitions()
         self.assertEqual(len(proj.instances), 1)
         self.assertEqual(proj.instances[0], 'main')
-        self.assertEqual(len(proj.schemas['main'].get_tables()), 5)
+        self.assertEqual(len(proj.schemas['main'].get_tables()), 7)
 
         # dictで取得できるかのテスト
         keys = [key for key, _ in proj.schemas['main'].get_tables().items()]
-        self.assertEqual(len(keys), 5)
+        self.assertEqual(len(keys), 7)
 
         self.assertEqual(len(proj.schemas['main'].get_table('row_table').fields), 2)

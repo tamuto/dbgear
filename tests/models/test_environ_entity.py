@@ -17,7 +17,7 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(len(items), 1)
 
         invert_items = entity.items(proj.schemas, proj.folder, 'test1', exist=False)
-        self.assertEqual(len(invert_items), 4)
+        self.assertEqual(len(invert_items), 6)
 
     def test_entity_get(self):
         # データなしの定義のみ読み込み

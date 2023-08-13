@@ -4,7 +4,7 @@ definitions:
   - filename: ./dbgear.a5er
     type: a5sql_mk2
     mapping:
-      Main: main
+      main: main
 
 bindings:
   uuid:

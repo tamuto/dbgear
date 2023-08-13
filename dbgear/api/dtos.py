@@ -1,5 +1,6 @@
 from ..models.base import BaseSchema
 from ..models.schema import Table
+from ..models.project import Binding
 from ..models.environ.data import Mapping
 from ..models.datagrid.data import DataModel
 from ..models.datagrid.data import DataInfo
@@ -57,10 +58,7 @@ class Result(BaseSchema):
 
 class ProjectInfo(BaseSchema):
     project_name: str
-    templates: list
-    environs: list
-    instances: list
-    column_settings: list
+    bindings: dict[str, Binding]
     rules: dict[str, str]
 
 

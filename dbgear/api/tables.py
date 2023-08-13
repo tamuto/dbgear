@@ -3,7 +3,7 @@ from fastapi import Request
 
 from ..models.project import project
 from .dtos import Result
-from .dtos import convert_to_datafilename
+from .dtos import convert_to_data_filename
 
 router = APIRouter(prefix='/tables')
 
@@ -13,8 +13,8 @@ def get_tables(request: Request) -> Result:
     proj = project(request)
     tables = {
         ins: sorted([
-            convert_to_datafilename(ins, tbl)
-            for tbl in schema.get_tables()
+            convert_to_data_filename(ins, tbl)
+            for tbl in schema.get_tables().values()
         ], key=lambda x: x.table_name)
         for ins, schema in proj.schemas.items()
     }
