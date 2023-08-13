@@ -33,9 +33,6 @@ bindings:
   gen_uuid:
     type: call
     value: uuid
-  gen_seq:
-    type: call
-    value: sequence
 
 rules:
   update_user: update_user

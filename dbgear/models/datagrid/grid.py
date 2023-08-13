@@ -20,5 +20,6 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
     if dm.layout == const.LAYOUT_SINGLE:
         return layout_single.build(proj, map, dm, table, data)
 
+
 def parse():
     pass

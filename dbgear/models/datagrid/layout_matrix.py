@@ -4,23 +4,45 @@ from dataclasses import asdict
 from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
-from .. import const
 
 from .data import DataModel
+from .data import GridColumn
 from .data import DataInfo
 from . import column
+from .column import CellItem
 
 
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
+    items = column.get_axis_items(proj, map, dm.settings, dm.x_axis, dm.instance)
+    cells = column.make_cell_item(proj, map, dm, table)
+    columns = _build_columns(dm, items, cells)
+
+    row_items = column.get_axis_items(proj, map, dm.settings, dm.y_axis, dm.instance)
+    matrix = {k['value']: {dm.y_axis: k['value'], '_sort_key': k['caption']} for k in row_items}
+    for d in data:
+        y_data = d[dm.y_axis]
+        if y_data not in matrix:
+            continue
+        for cell in cells:
+            matrix[y_data][f"{d[dm.x_axis]}_{cell.column_name}"] = d[cell.column_name]
+    rows = [{
+        col.field: column.adjust_column_value(col, d)
+        for col in columns} for d in sorted(matrix.values(), key=lambda x: x['_sort_key'])]
+
+    return DataInfo(
+        grid_columns=columns,
+        grid_rows=rows,
+        allow_line_addition_and_removal=False
+    )
+
+
+def _build_columns(dm: DataModel, items: list[object], cells: list[CellItem]) -> list[GridColumn]:
     columns = []
     columns.append(column.make_grid_column(
         dm.y_axis,
         '',
         editable=False
     ))
-
-    items = _get_x_axis_items(proj, map, dm)
-    cells = column.make_cell_item(proj, map, dm, table)
     columns.extend([
         column.make_grid_column(
             **asdict(cell, dict_factory=column.exclude_names),
@@ -28,27 +50,4 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
             display_name=f"{item['caption']}({cell.display_name})"
         ) for cell in cells for item in items
     ])
-
-    # TODO データをマトリックスへ変換
-
-    return DataInfo(
-        grid_columns=columns,
-        grid_rows=[],
-        allow_line_addition_and_removal=False
-    )
-
-
-def _get_x_axis_items(proj: Project, map: Mapping, dm: DataModel) -> list[object]:
-    items = None
-    setting = dm.settings[dm.x_axis]
-    if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
-        items = column.load_for_select_items(proj.folder, map, dm.instance, setting['value'])
-    elif setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
-        items = setting['values']
-    elif setting['type'] in proj.bindings:
-        bind = proj.bindings[setting['type']]
-        if bind.type == const.BIND_TYPE_SELECTABLE:
-            items = bind.items
-    if items is None:
-        raise RuntimeError('No Data for X axis.')
-    return items
+    return columns

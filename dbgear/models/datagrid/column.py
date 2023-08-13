@@ -1,5 +1,6 @@
 from typing import Any
 from dataclasses import dataclass
+from uuid import uuid4
 
 from ..project import Project
 from ..environ.data import Mapping
@@ -26,6 +27,9 @@ def make_grid_column(
         fixed_value: str | None = None,
         call_value: str | None = None,
         reference: str | None = None):
+    '''
+    GridColumnを生成する。
+    '''
     return GridColumn(
         field=column_name,
         type=type,
@@ -41,6 +45,9 @@ def make_grid_column(
 
 
 def load_for_select_items(folder: str, map: Mapping, ins: str, ref: str):
+    '''
+    マスタデータをロードして、選択肢用データを生成する。
+    '''
     items = load_data(folder, map.id, ins, ref, True)
     if items is None:
         if map.parent is not None:
@@ -78,6 +85,9 @@ class CellItem:
 
 
 def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[CellItem]:
+    '''
+    セルの設定を生成する。
+    '''
     result = []
     for cell in dm.cells:
         field = find_field(table.fields, cell)
@@ -140,4 +150,37 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
 
 
 def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
+    '''
+    column_name, display_nameを除外した辞書を生成する。
+    '''
     return {key: value for key, value in items if key not in ['column_name', 'display_name']}
+
+
+def adjust_column_value(col: GridColumn, value: Any) -> Any:
+    '''
+    valueの中にフィールドのキーがなかったら、値を補完する。
+    '''
+    if col.field in value:
+        return value[col.field]
+    if col.fixed_value is not None:
+        return col.fixed_value
+    if col.call_value is not None:
+        if col.call_value == const.CALL_TYPE_UUID:
+            return str(uuid4())
+    return ''
+
+
+def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axis: str, ins: str) -> list[object]:
+    items = None
+    setting = settings[axis]
+    if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
+        items = load_for_select_items(proj.folder, map, ins, setting['value'])
+    elif setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
+        items = setting['values']
+    elif setting['type'] in proj.bindings:
+        bind = proj.bindings[setting['type']]
+        if bind.type == const.BIND_TYPE_SELECTABLE:
+            items = bind.items
+    if items is None:
+        raise RuntimeError(f'No Data for axis. ({ins}@{axis})')
+    return items

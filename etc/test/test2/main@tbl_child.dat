@@ -1,23 +1,19 @@
-- id: 3f2a4961-4363-4c9e-aba1-8a91f6909be7
-  child_id: 3f2a4961-4363-4c9e-aba1-8a91f6909be7
+- child_id: 3f2a4961-4363-4c9e-aba1-8a91f6909be7
   col_id: 0001
   name: AAA
   update_date: NOW()
   update_user: '''SYSTEM'''
-- id: 444307b2-b838-4cb1-908f-9f41e6605f29
-  child_id: 444307b2-b838-4cb1-908f-9f41e6605f29
+- child_id: 444307b2-b838-4cb1-908f-9f41e6605f29
   col_id: 0001
   name: BBB
   update_date: NOW()
   update_user: '''SYSTEM'''
-- id: 84d85612-e010-4548-bcd6-0d4686f34570
-  child_id: 84d85612-e010-4548-bcd6-0d4686f34570
+- child_id: 84d85612-e010-4548-bcd6-0d4686f34570
   col_id: 0001
   name: CCC
   update_date: NOW()
   update_user: '''SYSTEM'''
-- id: e6ac8323-fa26-4107-be08-6a42c5293937
-  child_id: e6ac8323-fa26-4107-be08-6a42c5293937
+- child_id: e6ac8323-fa26-4107-be08-6a42c5293937
   col_id: 0002
   name: DDD
   update_date: NOW()

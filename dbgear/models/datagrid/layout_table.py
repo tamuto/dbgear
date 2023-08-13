@@ -8,12 +8,24 @@ from ..schema import Field
 from .. import const
 
 from .data import DataModel
+from .data import GridColumn
 from .data import DataInfo
 from . import column
 
 
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
+    columns = _build_columns(proj, map, dm, table)
+    rows = [{col.field: column.adjust_column_value(col, d) for col in columns} for d in data]
+
+    return DataInfo(
+        grid_columns=columns,
+        grid_rows=rows,
+        allow_line_addition_and_removal=True
+    )
+
+
+def _build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
     columns = []
     for field in table.fields:
         if field.column_name in dm.settings:
@@ -24,19 +36,7 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
                 field.display_name)
 
         columns.append(grid_column)
-
-    # FIXME: dataについては、特に変換はなしで良いのか？
-    # 例えば仕様変更でカラムが追加された時などにデフォルト値などで埋めるとか？
-    rows = []
-    for d in data:
-        row = {f.column_name: d[f.column_name] for f in table.fields}
-        rows.append(row)
-
-    return DataInfo(
-        grid_columns=columns,
-        grid_rows=rows,
-        allow_line_addition_and_removal=True
-    )
+    return columns
 
 
 def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, field: Field):

@@ -13,7 +13,7 @@ settings:
   update_user:
     type: update_user
 sync_mode: drop_create
-x_axis: row_id
-y_axis: child_id
+x_axis: child_id
+y_axis: row_id
 cells:
   - value

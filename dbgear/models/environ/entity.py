@@ -59,7 +59,7 @@ def save(folder: str, id: str, ins: str, tbl: str, data: DataModel) -> None:
 def save_data(schemas: dict[str, Schema], folder: str, id: str, ins: str, tbl: str, rows: object) -> None:
     dm = load_model(get_data_model_name(folder, id, ins, tbl), DataModel)
     table = schemas[ins].get_table(tbl)
-    data = grid.parse(dm, table, rows)
+    _ = grid.parse(dm, table, rows)
     # save_yaml(
     #     get_data_rawname(folder, id, ins, tbl),
     #     data
