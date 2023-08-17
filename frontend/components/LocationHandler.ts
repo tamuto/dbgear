@@ -3,7 +3,10 @@ import {
   FC,
   ReactNode
 } from 'react'
-import { useLocation } from 'react-router-dom'
+import {
+  useParams,
+  useLocation
+} from 'react-router-dom'
 
 import useProject from '~/api/useProject'
 
@@ -12,12 +15,15 @@ type Props = {
 }
 
 const LocationHandler: FC<Props> = ({ children }) => {
-  const location = useLocation()
   const setCurrentPath = useProject(state => state.setCurrentPath)
+  const updateDataList = useProject(state => state.updateDataList)
+  const { id } = useParams()
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    setCurrentPath(location.pathname)
-  }, [location.pathname])
+    setCurrentPath(pathname)
+    updateDataList(id)
+  }, [pathname])
 
   return children
 }

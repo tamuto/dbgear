@@ -12,11 +12,13 @@ interface ProjectInfo {
 
 interface ProjectState {
   mainMenu: boolean,
-  subMenuTitle: string,
   projectInfo: ProjectInfo | null,
   currentPath: string | null,
+  currentMapping: Mapping | null,
   environs: Mapping[],
+  dataList: DataFilename[],
   updateProjectInfo: () => void,
   setCurrentPath: (path: string) => void,
   updateEnvirons: () => void,
+  updateDataList: (id: string | undefined) => void,
 }

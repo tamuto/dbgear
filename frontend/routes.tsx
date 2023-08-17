@@ -1,6 +1,7 @@
 import BaseLayout from "~/cmp/BaseLayout"
 
-import TopPage from './features/toppage/components/TopPage'
+import TopPage from './features/top_page/components/TopPage'
+import EnvironPage from "./features/environ_page/components/EnvironPage"
 
 const routes = [
   {
@@ -16,25 +17,23 @@ const routes = [
       },
       {
         path: '/environs/:id',
+        element: <EnvironPage />
+      },
+      {
+        path: '/environs/:id/_init',
+        element: <div>test</div>
+      },
+      {
+        path: '/environs/:id/:instance/:table',
         element: <div>test</div>,
         children: [
           {
-            path: '_init',
+            path: '_data',
             element: <div>test</div>
           },
           {
-            path: ':instance/:table',
-            element: <div>test</div>,
-            children: [
-              {
-                path: '_data',
-                element: <div>test</div>
-              },
-              {
-                path: '_props',
-                element: <div>test</div>
-              }
-            ]
+            path: '_props',
+            element: <div>test</div>
           }
         ]
       }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Link, useParams, useLocation } from 'react-router-dom'
 import {
   List,
@@ -11,35 +11,24 @@ import {
 import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle'
 
 import useProject from '~/api/useProject'
-import useAxios from '~/api/useAxios'
 
 const DataList = () => {
-  const [dataList, setDataList] = useState<DataFilename[]>([])
-
-  const subMenuTitle = useProject(state => state.subMenuTitle)
+  const dataList = useProject(state => state.dataList)
+  const mapping = useProject(state => state.currentMapping)
+  const { pathname } = useLocation()
   const { id } = useParams()
-  const location = useLocation()
 
   const postfix = useMemo(() => {
-    const sp = location.pathname.split('/')
+    const sp = pathname.split('/')
     if (sp.length > 4) {
       return sp[sp.length - 1]
     }
     return '_data'
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (id) {
-      useAxios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
-        console.log(result)
-        setDataList(result)
-      })
-    }
-  }, [id])
+  }, [pathname])
 
   return (
     <List component='nav' subheader={
-      <ListSubheader>{subMenuTitle}</ListSubheader>
+      <ListSubheader component={Link} to={`/environs/${id}`}>{mapping?.name}</ListSubheader>
     }>
       <ListItemButton component={Link} to={`/environs/${id}/_init`}>
         <ListItemIcon>

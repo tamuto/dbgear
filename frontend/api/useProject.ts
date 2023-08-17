@@ -1,29 +1,31 @@
 import { create } from 'zustand'
+import { useParams } from 'react-router-dom'
 
 import useAxios from '~/api/useAxios'
 
-type parsedPathAndInfo = (currentPath: string, environs: Mapping[]) => ({ mainMenu: boolean, subMenuTitle: string })
+type parsedPathAndInfo = (currentPath: string, environs: Mapping[]) => ({ mainMenu: boolean, currentMapping: Mapping | null })
 
 const parsePathAndInfo: parsedPathAndInfo = (currentPath, environs) => {
   const p = currentPath.split('/')
   let mainMenu = true
-  let subMenuTitle = ''
+  let currentMapping = null
   if (p.length > 2) {
     mainMenu = false
     const result = environs.find(x => x.id == p[2])
     if (result) {
-      subMenuTitle = result.name
+      currentMapping = result
     }
   }
-  return { mainMenu, subMenuTitle }
+  return { mainMenu, currentMapping }
 }
 
 const useProject = create<ProjectState>((set, get) => ({
   mainMenu: false,
-  subMenuTitle: '',
   projectInfo: null,
   currentPath: null,
+  currentMapping: null,
   environs: [],
+  dataList: [],
   updateProjectInfo: () => {
     useAxios<ProjectInfo>('/project').get(result => {
       console.log(result)
@@ -34,9 +36,6 @@ const useProject = create<ProjectState>((set, get) => ({
   },
   setCurrentPath: (path) => {
     console.log(path)
-    set({
-      currentPath: path
-    })
     if (get().environs.length > 0) {
       const parsed = parsePathAndInfo(path, get().environs)
       set({
@@ -51,7 +50,6 @@ const useProject = create<ProjectState>((set, get) => ({
   },
   updateEnvirons: () => {
     useAxios<Mapping[]>('/environs').get((result) => {
-      console.log(result)
       if (get().currentPath) {
         const parsed = parsePathAndInfo(get().currentPath!, result)
         set({
@@ -64,6 +62,16 @@ const useProject = create<ProjectState>((set, get) => ({
         })
       }
     })
+  },
+  updateDataList: (id) => {
+    if (id) {
+      useAxios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
+        console.log(result)
+        set({
+          dataList: result
+        })
+      })
+    }
   }
 }))
 
