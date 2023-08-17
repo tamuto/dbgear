@@ -8,7 +8,7 @@ from .dtos import convert_to_data_filename
 router = APIRouter(prefix='/tables')
 
 
-@router.get('/')
+@router.get('')
 def get_tables(request: Request) -> Result:
     proj = project(request)
     tables = {

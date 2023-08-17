@@ -8,7 +8,7 @@ from .dtos import ProjectInfo
 router = APIRouter(prefix='/project')
 
 
-@router.get('/')
+@router.get('', response_model=Result)
 def get_project_info(request: Request) -> Result:
     proj = project(request)
 
@@ -17,4 +17,4 @@ def get_project_info(request: Request) -> Result:
         bindings=proj.bindings,
         rules=proj.rules
     )
-    return Result(data=info)
+    return Result(status='OK', data=info)

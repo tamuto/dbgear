@@ -4,9 +4,9 @@ from ..base import BaseSchema
 
 
 class DataModel(BaseSchema):
-    id: str = Field(exclude=True)
-    instance: str = Field(exclude=True)
-    table_name: str = Field(exclude=True)
+    id: str
+    instance: str
+    table_name: str
     description: str = ''
     layout: str
     settings: dict[str, object]
@@ -32,6 +32,6 @@ class GridColumn(BaseSchema):
 
 
 class DataInfo(BaseSchema):
-    grid_columns: list[GridColumn] = []
-    grid_rows: list[dict[str, Any]] = []
+    grid_columns: list[GridColumn]
+    grid_rows: list[dict[str, Any]]
     allow_line_addition_and_removal: bool

@@ -6,6 +6,7 @@ __pycache__
 db.sqlite3
 .venv
 !poetry.lock
+.ts-cache
 
 # Logs
 logs

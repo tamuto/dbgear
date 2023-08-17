@@ -17,7 +17,7 @@ from .dtos import convert_to_data_model
 router = APIRouter(prefix='/environs')
 
 
-@router.get('/')
+@router.get('')
 def get_mappings(request: Request):
     proj = project(request)
     maps = mapping.items(proj.folder)

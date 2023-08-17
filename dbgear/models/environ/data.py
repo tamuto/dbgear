@@ -5,7 +5,7 @@ from ..base import BaseSchema
 
 
 class Mapping(BaseSchema):
-    id: str = Field(exclude=True)
+    id: str
     base: str | None
     name: str
     instances: list[str] = []
@@ -13,4 +13,4 @@ class Mapping(BaseSchema):
     deployment: bool
 
     # FIXME https://github.com/pydantic/pydantic/issues/5992
-    parent: Mapping | None = Field(exclude=True, default=None)
+    parent: Mapping | None = Field(default=None)
