@@ -8,7 +8,7 @@ import {
 
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 
-import useProject from '../api/useProject'
+import useProject from '~/api/useProject'
 
 const EnvironList = () => {
   const environs = useProject(state => state.environs)

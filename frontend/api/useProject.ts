@@ -1,31 +1,22 @@
 import { create } from 'zustand'
 
-import useAxios from './useAxios'
+import useAxios from '~/api/useAxios'
 
-// type parsedPathAndInfo = (currentPath: string | null, projectInfo: object | null) => ({ mainMenu: boolean, dataType: string | null, subMenuTitle: string })
+type parsedPathAndInfo = (currentPath: string, environs: Mapping[]) => ({ mainMenu: boolean, subMenuTitle: string })
 
-// const parsePathAndInfo: parsedPathAndInfo = (currentPath, projectInfo) => {
-//   const p = currentPath?.split('/')
-//   let mainMenu = true
-//   let dataType = null
-//   let subMenuTitle = ''
-//   if (p.length > 2) {
-//     mainMenu = false
-//     if (p[1] === 'templates') {
-//       const result = projectInfo?.templates.find(x => x.id == p[2])
-//       if (result) {
-//         dataType = 'template'
-//         subMenuTitle = result.name
-//       }
-//       // FIXME 例外？見つからなかったら無効なパス
-//     }
-//     if (p[1] === 'environs') {
-//       dataType = 'environ'
-
-//     }
-//   }
-//   return { mainMenu, dataType, subMenuTitle }
-// }
+const parsePathAndInfo: parsedPathAndInfo = (currentPath, environs) => {
+  const p = currentPath.split('/')
+  let mainMenu = true
+  let subMenuTitle = ''
+  if (p.length > 2) {
+    mainMenu = false
+    const result = environs.find(x => x.id == p[2])
+    if (result) {
+      subMenuTitle = result.name
+    }
+  }
+  return { mainMenu, subMenuTitle }
+}
 
 const useProject = create<ProjectState>((set, get) => ({
   mainMenu: false,
@@ -33,21 +24,12 @@ const useProject = create<ProjectState>((set, get) => ({
   projectInfo: null,
   currentPath: null,
   environs: [],
-  environDataList: [],
   updateProjectInfo: () => {
     useAxios<ProjectInfo>('/project').get(result => {
       console.log(result)
-      if (get().currentPath) {
-        // const parsed = parsePathAndInfo(get().currentPath, result)
-        set({
-          projectInfo: result,
-          // ...parsed
-        })
-      } else {
-        set({
-          projectInfo: result
-        })
-      }
+      set({
+        projectInfo: result
+      })
     })
   },
   setCurrentPath: (path) => {
@@ -55,37 +37,33 @@ const useProject = create<ProjectState>((set, get) => ({
     set({
       currentPath: path
     })
-    // if (get().projectInfo) {
-    //   const parsed = parsePathAndInfo(path, get().projectInfo)
-    //   set({
-    //     currentPath: path,
-    //     ...parsed
-    //   })
-    // } else {
-    //   set({
-    //     currentPath: path
-    //   })
-    // }
+    if (get().environs.length > 0) {
+      const parsed = parsePathAndInfo(path, get().environs)
+      set({
+        currentPath: path,
+        ...parsed
+      })
+    } else {
+      set({
+        currentPath: path
+      })
+    }
   },
   updateEnvirons: () => {
     useAxios<Mapping[]>('/environs').get((result) => {
       console.log(result)
-      set({
-        environs: result
-      })
+      if (get().currentPath) {
+        const parsed = parsePathAndInfo(get().currentPath!, result)
+        set({
+          environs: result,
+          ...parsed
+        })
+      } else {
+        set({
+          environs: result
+        })
+      }
     })
-  },
-  updateDataList: async (dataType, id) => {
-    // if (dataType === 'template') {
-    //   const result = await axios.get(`/templates/${id}`)
-    //   console.log(result.data)
-    //   set({
-    //     templateDataList: result.data
-    //   })
-    // }
-    // if (dataType === 'environ') {
-
-    // }
   }
 }))
 

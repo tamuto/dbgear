@@ -1,6 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
-import useLoading from './useLoading'
+
+import useLoading from '~/api/useLoading'
 
 const useAxios = <T>(url: string, params: object | null = null) => {
   const _resetLoading = () => {

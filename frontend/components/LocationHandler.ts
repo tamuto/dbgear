@@ -5,7 +5,7 @@ import {
 } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import useProject from '../api/useProject'
+import useProject from '~/api/useProject'
 
 type Props = {
   children: ReactNode

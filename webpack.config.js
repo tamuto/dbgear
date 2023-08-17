@@ -7,6 +7,13 @@ module.exports = {
     filename: 'main.js',
   },
   resolve: {
+    alias: {
+      '~/api': path.resolve(__dirname, 'frontend/api'),
+      '~/cmp': path.resolve(__dirname, 'frontend/components'),
+      '~/img': path.resolve(__dirname, 'frontend/resources/img'),
+      '~/f/api': '../api',
+      '~/f/cmp': '../components',
+    },
     extensions: [".ts", ".tsx", ".js", ".jsx"]
   },
   module: {

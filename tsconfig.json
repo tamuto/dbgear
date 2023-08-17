@@ -2,6 +2,13 @@
   "compilerOptions": {
     "noEmit": true,
     "baseUrl": "./frontend",
+    "paths": {
+      "~/api/*": ["api/*"],
+      "~/cmp/*": ["components/*"],
+      "~/img/*": ["resources/img/*"],
+      "~/f/api/*": ["../api"],
+      "~/f/cmp/*": ["../components"],
+    },
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],
     "module": "ESNext",

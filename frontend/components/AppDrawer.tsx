@@ -7,11 +7,11 @@ import {
   Typography
 } from '@mui/material'
 
-import imgDBGear from '../resources/img/dbgear.png'
+import EnvironList from '~/cmp/EnvironList'
+import DataList from '~/cmp/DataList'
+import useProject from '~/api/useProject'
 
-import EnvironList from './EnvironList'
-import useProject from '../api/useProject'
-import DataList from './DataList'
+import imgDBGear from '~/img/dbgear.png'
 
 const drawerWidth = 240
 

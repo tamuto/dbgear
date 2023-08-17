@@ -16,9 +16,7 @@ interface ProjectState {
   projectInfo: ProjectInfo | null,
   currentPath: string | null,
   environs: Mapping[],
-  environDataList: string[],
   updateProjectInfo: () => void,
   setCurrentPath: (path: string) => void,
   updateEnvirons: () => void,
-  updateDataList: (dataType: string, id: string) => void
 }

@@ -5,9 +5,9 @@ import {
   Container
 } from '@mui/material'
 
-import LocationHandler from './LocationHandler'
-import useProject from '../api/useProject'
-import AppDrawer from './AppDrawer'
+import LocationHandler from '~/cmp/LocationHandler'
+import AppDrawer from '~/cmp/AppDrawer'
+import useProject from '~/api/useProject'
 
 const BaseLayout: FC = () => {
   // FIXME ScrollTopをどうするか？
