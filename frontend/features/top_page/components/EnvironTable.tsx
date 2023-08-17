@@ -1,4 +1,5 @@
 import { css } from '@emotion/react'
+import { useNavigate } from 'react-router-dom'
 import {
   TableContainer,
   Table,
@@ -29,6 +30,7 @@ const tableCss = css`
 
 const EnvironListPage = () => {
   const environs = useProject(state => state.environs)
+  const navigate = useNavigate()
 
   return (
     <Stack>
@@ -46,7 +48,7 @@ const EnvironListPage = () => {
           <TableBody>
             {
               environs.map(item => (
-                <TableRow className='clickable' key={item.id} onClick={() => console.log('clicked')}>
+                <TableRow className='clickable' key={item.id} onClick={() => navigate(`/environs/${item.id}`)}>
                   {/* TODO 配布可能ならアイコンとかで表示する。 */}
                   <TableCell className='id'>{item.id}</TableCell>
                   <TableCell className='name'>{item.name}</TableCell>

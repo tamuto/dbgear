@@ -28,7 +28,13 @@ const DataList = () => {
 
   return (
     <List component='nav' subheader={
-      <ListSubheader component={Link} to={`/environs/${id}`}>{mapping?.name}</ListSubheader>
+      <ListSubheader
+        sx={{ textDecoration: 'none' }}
+        component={Link}
+        to={`/environs/${id}`}
+      >
+        {mapping?.name}
+      </ListSubheader>
     }>
       <ListItemButton component={Link} to={`/environs/${id}/_init`}>
         <ListItemIcon>

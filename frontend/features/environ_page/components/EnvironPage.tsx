@@ -1,4 +1,5 @@
 import { css } from '@emotion/react'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   TableContainer,
   Table,
@@ -23,6 +24,8 @@ const tableCss = css`
 const EnvironPage = () => {
   const dataList = useProject(state => state.dataList)
   const mapping = useProject(state => state.currentMapping)
+  const { id } = useParams()
+  const navigate = useNavigate()
 
   return (
     <Stack>
@@ -39,7 +42,11 @@ const EnvironPage = () => {
           <TableBody>
             {
               dataList.map(item => (
-                <TableRow className='clickable' key={item.tableName} onClick={() => console.log('clicked')}>
+                <TableRow
+                  className='clickable'
+                  key={item.tableName}
+                  onClick={() => navigate(`/environs/${id}/${item.instance}/${item.tableName}/_data`)}
+                >
                   <TableCell className='entity'>{item.instance}.{item.tableName}</TableCell>
                   <TableCell className='displayName'>{item.displayName}</TableCell>
                 </TableRow>
