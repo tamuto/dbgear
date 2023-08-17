@@ -1,12 +1,14 @@
 import BaseLayout from "~/cmp/BaseLayout"
 
+import TopPage from './features/toppage/components/TopPage'
+
 const routes = [
   {
     element: <BaseLayout />,
     children: [
       {
         index: true,
-        element: <div>root</div>
+        element: <TopPage />
       },
       {
         path: "/add",

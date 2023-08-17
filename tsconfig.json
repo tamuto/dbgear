@@ -23,7 +23,7 @@
     "noImplicitThis": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./frontend/types"],
+    "typeRoots": ["./node_modules/@types", "./frontend/types"]
   },
   "include": ["./frontend/**/*"],
   "exclude": ["node_modules", "dist"]

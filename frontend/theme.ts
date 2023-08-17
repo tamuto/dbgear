@@ -44,6 +44,10 @@ const theme = createTheme({
       defaultProps: {
         spacing: 2
       }
+    },
+    MuiTable: {
+      defaultProps: {
+      }
     }
   }
 })

@@ -7,6 +7,7 @@ import {
 
 import LocationHandler from '~/cmp/LocationHandler'
 import AppDrawer from '~/cmp/AppDrawer'
+import GlobalCss from '~/cmp/GlobalCss'
 import useProject from '~/api/useProject'
 
 const BaseLayout: FC = () => {
@@ -23,7 +24,7 @@ const BaseLayout: FC = () => {
     <LocationHandler>
       <Box sx={{ display: 'flex' }}>
         <AppDrawer />
-        <Container sx={{ py: 2 }}>
+        <Container sx={{ py: 2 }} css={GlobalCss} >
           <Outlet />
         </Container>
       </Box>
