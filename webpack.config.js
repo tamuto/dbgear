@@ -7,6 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'main.js',
   },
+  devtool: 'source-map',
   resolve: {
     alias: {
       '~/api': path.resolve(__dirname, 'frontend/api'),
