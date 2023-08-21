@@ -34,9 +34,16 @@ const useAxios = <T>(url: string, params: object | null = null) => {
       .catch(_catchFunc)
   }
 
+  const put = (data: object, cb: Callback<T>) => {
+    return axios.put(url, data, { params })
+      .then(result => _thenFunc(cb, result))
+      .catch(_catchFunc)
+  }
+
   return {
     get,
-    post
+    post,
+    put
   }
 }
 

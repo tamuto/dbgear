@@ -27,14 +27,12 @@ const useProject = create<ProjectState>((set, get) => ({
   dataList: [],
   updateProjectInfo: () => {
     useAxios<ProjectInfo>('/project').get(result => {
-      console.log(result)
       set({
         projectInfo: result
       })
     })
   },
   setCurrentPath: (path) => {
-    console.log(path)
     if (get().environs.length > 0) {
       const parsed = parsePathAndInfo(path, get().environs)
       set({
@@ -65,7 +63,6 @@ const useProject = create<ProjectState>((set, get) => ({
   updateDataList: (id) => {
     if (id) {
       useAxios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
-        console.log(result)
         set({
           dataList: result
         })

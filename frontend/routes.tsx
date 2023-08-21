@@ -1,8 +1,9 @@
-import BaseLayout from "~/cmp/BaseLayout"
+import BaseLayout from '~/cmp/BaseLayout'
 
 import TopPage from './features/top_page/components/TopPage'
-import EnvironPage from "./features/environ_page/components/EnvironPage"
-import EnvironSettings from "./features/environ_settings/components/EnvironSettings"
+import EnvironPage from './features/environ_page/components/EnvironPage'
+import EnvironSettings from './features/environ_settings/components/EnvironSettings'
+import DataTab from './features/data_tab/components/DataTab'
 
 const routes = [
   {
@@ -13,7 +14,7 @@ const routes = [
         element: <TopPage />
       },
       {
-        path: "/add",
+        path: '/add',
         element: <EnvironSettings />
       },
       {
@@ -26,7 +27,7 @@ const routes = [
       },
       {
         path: '/environs/:id/:instance/:table',
-        element: <div>test</div>,
+        element: <DataTab />,
         children: [
           {
             path: '_data',
