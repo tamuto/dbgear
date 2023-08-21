@@ -44,3 +44,7 @@ def _build_column(dm: DataModel, table: Table, cells: list[CellItem]) -> list[Gr
     ))
     columns.extend([column.make_grid_column(**asdict(cell)) for cell in cells])
     return columns
+
+
+def parse(dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+    print(rows)

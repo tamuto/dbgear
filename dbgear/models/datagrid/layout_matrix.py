@@ -49,3 +49,7 @@ def _build_columns(dm: DataModel, items: list[object], cells: list[CellItem]) ->
         ) for cell in cells for item in items
     ])
     return columns
+
+
+def parse(dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+    print(rows)
