@@ -25,9 +25,7 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
             continue
         for cell in cells:
             matrix[y_data][cell.column_name] = d[cell.column_name]
-    rows = [{
-        col.field: column.adjust_column_value(col, d)
-        for col in columns} for d in sorted(matrix.values(), key=lambda x: x['_sort_key'])]
+    rows = [column.build_one_row(columns, d) for d in sorted(matrix.values(), key=lambda x: x['_sort_key'])]
 
     return DataInfo(
         grid_columns=columns,

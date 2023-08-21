@@ -4,6 +4,7 @@ import TopPage from './features/top_page/components/TopPage'
 import EnvironPage from './features/environ_page/components/EnvironPage'
 import EnvironSettings from './features/environ_settings/components/EnvironSettings'
 import DataTab from './features/data_tab/components/DataTab'
+import DataEditor from './features/data_editor/components/DataEditor'
 
 const routes = [
   {
@@ -31,7 +32,7 @@ const routes = [
         children: [
           {
             path: '_data',
-            element: <div>test</div>
+            element: <DataEditor />
           },
           {
             path: '_props',

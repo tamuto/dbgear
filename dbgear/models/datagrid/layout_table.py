@@ -16,13 +16,18 @@ from . import column
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
     columns = _build_columns(proj, map, dm, table)
-    rows = [{col.field: column.adjust_column_value(col, d) for col in columns} for d in data]
+    rows = [column.build_one_row(columns, d) for d in data]
 
     return DataInfo(
         grid_columns=columns,
         grid_rows=rows,
         allow_line_addition_and_removal=True
     )
+
+
+def build_one_row(proj: Project, map: Mapping, dm: DataModel, table: Table) -> dict[str, Any]:
+    columns = _build_columns(proj, map, dm, table)
+    return column.build_one_row(columns, {})
 
 
 def _build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
@@ -87,9 +92,7 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
     raise RuntimeError('Unknown Data Type')
 
 
-def new_data_row(table):
-    row = {
-        'id': uuid4()
-    }
-    row.update({field.column_name: '' for field in table.fields})
-    return row
+def parse(dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+    # idカラムを除いて返却する。
+    # 元から一覧なので、それ以上の変更は不要。
+    return [{k: v for k, v in row.items() if k != 'id'} for row in rows]

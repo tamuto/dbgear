@@ -14,10 +14,10 @@ class TestEnviron(unittest.TestCase):
         proj = Project(FOLDER_PATH)
         proj.read_definitions()
         items = entity.items(proj.schemas, proj.folder, 'test1')
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(items), 2)
 
         invert_items = entity.items(proj.schemas, proj.folder, 'test1', exist=False)
-        self.assertEqual(len(invert_items), 6)
+        self.assertEqual(len(invert_items), 5)
 
     def test_entity_get(self):
         # データなしの定義のみ読み込み
@@ -44,6 +44,3 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(info.grid_columns[1].items[1]['caption'], 'P002')
         self.assertEqual(info.grid_columns[1].items[1]['value'], '002')
         self.assertEqual(info.grid_rows, [])
-
-    # TODO saveメソッド
-    # TODO 1行データ取得？datagrid側かも？

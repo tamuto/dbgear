@@ -49,4 +49,24 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(result.status, 'OK')
         self.assertEqual(result.data.model.table_name, 'test_table')
 
-    # TODO save
+    def test_update_data(self):
+        data = [
+            {
+                'col_id': '001',
+                'name': 'P001',
+                'num': 1,
+                'update_date': 'NOW()',
+                'update_user': "'SYSTEM'",
+                'id': 'e2e738ee-29d7-4a9d-aa56-2b906ad99cf2'
+            },
+            {
+                'col_id': '002',
+                'name': 'P002',
+                'num': None,
+                'update_date': 'NOW()',
+                'update_user': "'SYSTEM'",
+                'id': '7b984dd6-ef1f-43d0-8b60-4e4cd4c67db8'
+            }
+        ]
+        result = environs.update_data('test1', 'main', 'test_table', self.request, data)
+        self.assertEqual(result.status, 'OK')

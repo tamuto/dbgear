@@ -27,9 +27,9 @@ interface GridColumn {
 }
 
 interface DataInfo {
-  grid_columns: GridColumn[],
-  grid_rows: [{ [key: string]: any }],
-  allow_line_addition_and_removal: boolean,
+  gridColumns: GridColumn[],
+  gridRows: [{ [key: string]: any }],
+  allowLineAdditionAndRemoval: boolean,
 }
 
 interface Data {

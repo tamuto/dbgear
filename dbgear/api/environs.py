@@ -75,21 +75,25 @@ def get_table(id: str, instance: str, table: str, request: Request):
     return Result(data=data)
 
 
+@router.get('/{id}/tables/{instance}/{table}/row')
+def get_row(id: str, instance: str, table: str, request: Request):
+    proj = project(request)
+    map = mapping.get(proj.folder, id)
+    row = entity.get_row(proj, map, instance, table)
+    return Result(data=row)
+
+
 @router.post('/{id}/tables/{instance}/{table}')
 def create_data_model(id: str, instance: str, table: str, data: NewDataModel, request: Request):
     proj = project(request)
-    entity.save(proj.folder, id, instance, table, convert_to_data_model(data))
+    map = mapping.get(proj.folder, id)
+    entity.save(proj, map, instance, table, convert_to_data_model(data))
     return Result()
 
 
 @router.put('/{id}/tables/{instance}/{table}')
 def update_data(id: str, instance: str, table: str, request: Request, body=Body(...)):
     proj = project(request)
-    entity.save_data(proj.schemas, proj.folder, id, instance, table, body)
+    map = mapping.get(proj.folder, id)
+    entity.save_data(proj, map, instance, table, body)
     return Result()
-
-
-# @router.get('/{id}/{instance}/{table}/new_row')
-# def get_new_data_row(id: str, instance: str, table: str, request: Request):
-#     api = APIProxy(request.app)
-#     return api.build_new_data_row(id, instance, table)

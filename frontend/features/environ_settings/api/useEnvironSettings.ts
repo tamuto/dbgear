@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import {
   useForm
 } from 'react-hook-form'
+import { enqueueSnackbar } from 'notistack'
+
 import useAxios from '~/api/useAxios'
 import useProject from '~/api/useProject'
 
@@ -28,6 +30,7 @@ const useEnvironSettings = () => {
       deployment: data.deployment
     }
     useAxios<null>(`/environs/${data.id}`).post(mapData, () => {
+      enqueueSnackbar('The data has been updated.', { variant: 'success' })
       updateEnvirons()
       navigate('/')
     })

@@ -170,6 +170,19 @@ def adjust_column_value(col: GridColumn, value: Any) -> Any:
     return ''
 
 
+def build_one_row(columns: list[GridColumn], data: Any):
+    '''
+    1行分のデータを生成する。
+    '''
+    row = {
+        col.field: adjust_column_value(col, data)
+        for col in columns
+    }
+    if 'id' not in row:
+        row['id'] = str(uuid4())
+    return row
+
+
 def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axis: str, ins: str) -> list[object]:
     items = None
     setting = settings[axis]

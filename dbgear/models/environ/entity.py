@@ -6,8 +6,10 @@ from ..schema import Schema
 from ..schema import Table
 from ..fileio import load_model
 from ..fileio import save_model
+from ..fileio import save_yaml
 from ..fileio import load_data
 from ..fileio import get_data_model_name
+from ..fileio import get_data_dat_name
 from ..datagrid import grid
 from ..datagrid.data import DataInfo
 from ..datagrid.data import DataModel
@@ -30,6 +32,19 @@ def get(proj: Project, map: Mapping, ins: str, tbl: str) -> tuple[DataModel, Tab
     return (dm, table, info)
 
 
+def get_row(proj: Project, map: Mapping, ins: str, tbl: str) -> dict[str, object]:
+    dm = load_model(
+        get_data_model_name(proj.folder, map.id, ins, tbl),
+        DataModel,
+        id=map.id,
+        instance=ins,
+        table_name=tbl
+    )
+    table = proj.schemas[ins].get_table(tbl)
+    row = grid.build_one_row(proj, map, dm, table)
+    return row
+
+
 def items(schemas: dict[str, Schema], folder: str, id: str, *, exist: bool = True) -> list[tuple[str, Table]]:
     config = mapping.get(folder, id)
     tables = []
@@ -49,23 +64,24 @@ def is_exist(folder: str, id: str, ins: str, tbl: str) -> bool:
     return os.path.isfile(get_data_model_name(folder, id, ins, tbl))
 
 
-def save(folder: str, id: str, ins: str, tbl: str, data: DataModel) -> None:
+def save(proj: Project, map: Mapping, ins: str, tbl: str, data: DataModel) -> None:
     save_model(
-        get_data_model_name(folder, id, ins, tbl),
+        get_data_model_name(proj.folder, map.id, ins, tbl),
         data
     )
 
 
-def save_data(schemas: dict[str, Schema], folder: str, id: str, ins: str, tbl: str, rows: object) -> None:
-    dm = load_model(get_data_model_name(folder, id, ins, tbl), DataModel)
-    table = schemas[ins].get_table(tbl)
-    _ = grid.parse(dm, table, rows)
-    # save_yaml(
-    #     get_data_rawname(folder, id, ins, tbl),
-    #     data
-    # )
-
-# def build_new_data_row(self, id, instance, table_name):
-#     config = self._read_template_data_config(id, instance, table_name)
-#     row = grid.new_data_row(self.project, config)
-#     return row
+def save_data(proj: Project, map: Mapping, ins: str, tbl: str, rows: object) -> None:
+    dm = load_model(
+        get_data_model_name(proj.folder, map.id, ins, tbl),
+        DataModel,
+        id=map.id,
+        instance=ins,
+        table_name=tbl
+    )
+    table = proj.schemas[ins].get_table(tbl)
+    data = grid.parse(dm, table, rows)
+    save_yaml(
+        get_data_dat_name(proj.folder, map.id, ins, tbl),
+        data
+    )
