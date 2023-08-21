@@ -7,7 +7,7 @@ from dbgear.models.environ import mapping
 from dbgear.api import environs
 from dbgear.api.dtos import NewMapping
 
-FOLDER_PATH = './dist/test'
+FOLDER_PATH = './etc/test'
 
 
 class TestEnviron(unittest.TestCase):

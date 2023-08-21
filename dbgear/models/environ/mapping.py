@@ -43,7 +43,8 @@ def save(folder: str, id: str, data: Mapping) -> None:
     make_folder(get_environ_name(folder, id))
     save_model(
         get_mapping_name(folder, id),
-        data
+        data,
+        ['id', 'parent']
     )
 
 

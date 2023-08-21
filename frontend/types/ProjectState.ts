@@ -6,8 +6,10 @@ interface Binding {
 
 interface ProjectInfo {
   projectName: string,
+  description: string,
   bindings: {[key: string]: Binding},
-  rules: {[key: string]: string}
+  rules: {[key: string]: string},
+  instances: string[],
 }
 
 interface ProjectState {

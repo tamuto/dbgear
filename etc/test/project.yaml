@@ -1,4 +1,5 @@
 project_name: Test
+description: Test Project
 
 definitions:
   - filename: ./dbgear.a5er

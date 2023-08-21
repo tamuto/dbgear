@@ -22,9 +22,9 @@ def get_data_dat_name(folder: str, id: str, instance: str, table: str) -> str:
     return f'{folder}/{id}/{instance}@{table}.dat'
 
 
-def save_model(fname: str, model: Any) -> None:
+def save_model(fname: str, model: Any, exclude: list[str] = None) -> None:
     with open(fname, 'w', encoding='utf-8') as f:
-        yaml.dump(model.model_dump(), f, indent=2, allow_unicode=True)
+        yaml.dump(model.model_dump(exclude=exclude), f, indent=2, allow_unicode=True)
 
 
 def save_yaml(fname: str, data: object) -> None:

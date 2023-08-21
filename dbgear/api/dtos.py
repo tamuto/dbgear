@@ -58,8 +58,10 @@ class Result(BaseSchema):
 
 class ProjectInfo(BaseSchema):
     project_name: str
+    description: str
     bindings: dict[str, Binding]
     rules: dict[str, str]
+    instances: list[str]
 
 
 class DataFilename(BaseSchema):

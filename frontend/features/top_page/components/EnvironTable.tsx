@@ -15,8 +15,6 @@ import Head from '~/cmp/Head'
 
 import useProject from '~/api/useProject'
 
-import { environDescription } from '~/api/const'
-
 const tableCss = css`
 .id {
   width: 120px;
@@ -30,12 +28,16 @@ const tableCss = css`
 
 const EnvironListPage = () => {
   const environs = useProject(state => state.environs)
+  const info = useProject(state => state.projectInfo)
   const navigate = useNavigate()
 
   return (
     <Stack>
       <Head title='Environs' />
-      <Typography><span dangerouslySetInnerHTML={{ __html: environDescription }}></span></Typography>
+      {
+        info &&
+        <Typography><span dangerouslySetInnerHTML={{ __html: info.description }}></span></Typography>
+      }
       <TableContainer component={Paper}>
         <Table css={tableCss}>
           <TableHead>

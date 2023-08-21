@@ -2,6 +2,7 @@ import BaseLayout from "~/cmp/BaseLayout"
 
 import TopPage from './features/top_page/components/TopPage'
 import EnvironPage from "./features/environ_page/components/EnvironPage"
+import EnvironSettings from "./features/environ_settings/components/EnvironSettings"
 
 const routes = [
   {
@@ -13,7 +14,7 @@ const routes = [
       },
       {
         path: "/add",
-        element: <div>test</div>
+        element: <EnvironSettings />
       },
       {
         path: '/environs/:id',

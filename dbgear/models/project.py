@@ -20,6 +20,7 @@ class Project:
 
         data = load_yaml(f'{folder}/project.yaml')
         self.project_name = data['project_name']
+        self.description = data['description']
         self._rules = data['rules']
         self._definitions = data['definitions']
         self._bindings = {k: Binding(**v) for k, v in data['bindings'].items()}

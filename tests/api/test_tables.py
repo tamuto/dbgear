@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from dbgear.models.project import Project
 from dbgear.api import tables
 
-FOLDER_PATH = './dist/test'
+FOLDER_PATH = './etc/test'
 
 
 class TestTables(unittest.TestCase):

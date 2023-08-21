@@ -14,7 +14,9 @@ def get_project_info(request: Request) -> Result:
 
     info = ProjectInfo(
         project_name=proj.project_name,
+        description=proj.description,
         bindings=proj.bindings,
-        rules=proj.rules
+        rules=proj.rules,
+        instances=proj.instances
     )
     return Result(status='OK', data=info)

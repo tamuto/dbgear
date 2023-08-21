@@ -6,7 +6,7 @@ from dbgear.models.project import Project
 from dbgear.api import project
 
 
-FOLDER_PATH = './dist/test'
+FOLDER_PATH = './etc/test'
 
 
 class TestProject(unittest.TestCase):

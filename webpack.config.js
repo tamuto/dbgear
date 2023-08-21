@@ -1,3 +1,4 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
 module.exports = {
@@ -10,9 +11,7 @@ module.exports = {
     alias: {
       '~/api': path.resolve(__dirname, 'frontend/api'),
       '~/cmp': path.resolve(__dirname, 'frontend/components'),
-      '~/img': path.resolve(__dirname, 'frontend/resources/img'),
-      '~/f/api': '../api',
-      '~/f/cmp': '../components',
+      '~/img': path.resolve(__dirname, 'frontend/resources/img')
     },
     extensions: [".ts", ".tsx", ".js", ".jsx"]
   },
@@ -65,5 +64,12 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './frontend/index.html',
+      cache: false,
+      hash: true
+    })
+  ]
 }
