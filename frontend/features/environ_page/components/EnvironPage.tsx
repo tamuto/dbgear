@@ -7,11 +7,11 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Typography,
   Paper,
   Stack
 } from '@mui/material'
 import Head from '~/cmp/Head'
+import Description from '~/cmp/Description'
 
 import useProject from '~/api/useProject'
 
@@ -30,7 +30,10 @@ const EnvironPage = () => {
   return (
     <Stack>
       <Head title='Managed Data' />
-      <Typography>{mapping?.description}</Typography>
+      {
+        mapping &&
+        <Description value={mapping.description} />
+      }
       <TableContainer component={Paper}>
         <Table css={tableCss}>
           <TableHead>

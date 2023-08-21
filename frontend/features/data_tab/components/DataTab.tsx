@@ -5,6 +5,8 @@ import {
   Tab,
 } from '@mui/material'
 import Head from '~/cmp/Head'
+import Description from '~/cmp/Description'
+
 import useDataTab from '../api/useDataTab'
 
 const DataTab = () => {
@@ -18,7 +20,10 @@ const DataTab = () => {
     <Box>
       {
         data &&
-        <Head title={`${data.model.instance}.${data.model.tableName} (${data.table.displayName})`} />
+        <>
+          <Head title={`${data.model.instance}.${data.model.tableName} (${data.table.displayName})`} />
+          <Description value={data.model.description} />
+        </>
       }
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabIndex} onChange={handleChange} aria-label='tabs'>

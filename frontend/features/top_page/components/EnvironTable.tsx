@@ -7,11 +7,11 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Typography,
   Paper,
   Stack
 } from '@mui/material'
 import Head from '~/cmp/Head'
+import Description from '~/cmp/Description'
 
 import useProject from '~/api/useProject'
 
@@ -36,7 +36,7 @@ const EnvironListPage = () => {
       <Head title='Environs' />
       {
         info &&
-        <Typography><span dangerouslySetInnerHTML={{ __html: info.description }}></span></Typography>
+        <Description value={info.description} />
       }
       <TableContainer component={Paper}>
         <Table css={tableCss}>
