@@ -45,7 +45,7 @@ const TemplateDataEditor = () => {
         >
           {t('caption.save')}
         </Button>
-        <Button size='small' variant='outlined' startIcon={<DownloadIcon />}>
+        <Button size='small' variant='outlined' startIcon={<DownloadIcon />} disabled>
           {t('caption.download')}
         </Button>
         <ButtonGroup>
@@ -81,6 +81,7 @@ const TemplateDataEditor = () => {
           color='secondary'
           startIcon={<UploadIcon />}
           sx={{ ml: 3 }}
+          disabled
         >
           {t('caption.upload')}
         </Button>
