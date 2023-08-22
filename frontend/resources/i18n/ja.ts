@@ -13,7 +13,7 @@ export const ja = {
     remove: '削除',
     upload: 'アップロード',
   },
-  messages: {
+  message: {
     saveSuccess: '保存しました。',
   },
 }
