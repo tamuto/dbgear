@@ -10,6 +10,7 @@ from .data import DataModel
 from .data import GridColumn
 from .data import DataInfo
 from . import column
+from . import layout_table
 from .column import CellItem
 
 
@@ -47,4 +48,10 @@ def _build_column(dm: DataModel, table: Table, cells: list[CellItem]) -> list[Gr
 
 
 def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
-    print(rows)
+    expdata = [
+        {
+            dm.y_axis: row[dm.y_axis],
+            **{cell: row[cell] for cell in dm.cells}
+        }
+        for row in rows]
+    return layout_table.parse(proj, map, dm, table, expdata)
