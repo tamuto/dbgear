@@ -92,7 +92,8 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
     raise RuntimeError('Unknown Data Type')
 
 
-def parse(dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
     # idカラムを除いて返却する。
-    # 元から一覧なので、それ以上の変更は不要。
-    return [{k: v for k, v in row.items() if k != 'id'} for row in rows]
+    columns = _build_columns(proj, map, dm, table)
+    data = [column.build_one_row(columns, d, False) for d in rows]
+    return data

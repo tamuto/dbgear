@@ -29,11 +29,11 @@ def build_one_row(proj: Project, map: Mapping, dm: DataModel, table: Table) -> d
     raise RuntimeError('Cannot build one row at this layout.')
 
 
-def parse(dm: DataModel, table: Table, data: Any) -> list[dict[str, Any]]:
+def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> list[dict[str, Any]]:
     if dm.layout == const.LAYOUT_TABLE:
-        return layout_table.parse(dm, table, data)
+        return layout_table.parse(proj, map, dm, table, data)
     if dm.layout == const.LAYOUT_MATRIX:
-        return layout_matrix.parse(dm, table, data)
+        return layout_matrix.parse(proj, map, dm, table, data)
     if dm.layout == const.LAYOUT_SINGLE:
-        return layout_single.parse(dm, table, data)
+        return layout_single.parse(proj, map, dm, table, data)
     raise RuntimeError(f'Unknown layout. {dm.layout}')

@@ -170,7 +170,7 @@ def adjust_column_value(col: GridColumn, value: Any) -> Any:
     return ''
 
 
-def build_one_row(columns: list[GridColumn], data: Any):
+def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True) -> dict[str, Any]:
     '''
     1行分のデータを生成する。
     '''
@@ -178,7 +178,7 @@ def build_one_row(columns: list[GridColumn], data: Any):
         col.field: adjust_column_value(col, data)
         for col in columns
     }
-    if 'id' not in row:
+    if need_id and 'id' not in row:
         row['id'] = str(uuid4())
     return row
 

@@ -80,7 +80,7 @@ def save_data(proj: Project, map: Mapping, ins: str, tbl: str, rows: object) -> 
         table_name=tbl
     )
     table = proj.schemas[ins].get_table(tbl)
-    data = grid.parse(dm, table, rows)
+    data = grid.parse(proj, map, dm, table, rows)
     save_yaml(
         get_data_dat_name(proj.folder, map.id, ins, tbl),
         data

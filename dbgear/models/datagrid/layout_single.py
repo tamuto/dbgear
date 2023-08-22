@@ -46,5 +46,5 @@ def _build_column(dm: DataModel, table: Table, cells: list[CellItem]) -> list[Gr
     return columns
 
 
-def parse(dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
     print(rows)
