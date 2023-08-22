@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useParams, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   List,
   ListSubheader,
@@ -13,6 +14,7 @@ import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle'
 import useProject from '~/api/useProject'
 
 const DataList = () => {
+  const { t } = useTranslation()
   const dataList = useProject(state => state.dataList)
   const mapping = useProject(state => state.currentMapping)
   const { pathname } = useLocation()
@@ -40,7 +42,7 @@ const DataList = () => {
         <ListItemIcon>
           <PlaylistAddCircleIcon />
         </ListItemIcon>
-        <ListItemText>Add Data</ListItemText>
+        <ListItemText>{t('caption.addData')}</ListItemText>
       </ListItemButton>
       {
         dataList.map(item => (

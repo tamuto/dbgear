@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Tabs,
@@ -10,6 +11,7 @@ import Description from '~/cmp/Description'
 import useDataTab from '../api/useDataTab'
 
 const DataTab = () => {
+  const { t } = useTranslation()
   const {
     tabIndex,
     handleChange,
@@ -27,8 +29,8 @@ const DataTab = () => {
       }
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabIndex} onChange={handleChange} aria-label='tabs'>
-          <Tab label='Editor' value='_data' />
-          <Tab label='Properties' value='_props' />
+          <Tab label={t('caption.editor')} value='_data' />
+          <Tab label={t('caption.properties')} value='_props' />
         </Tabs>
       </Box>
       <Box sx={{ pt: 2 }}>

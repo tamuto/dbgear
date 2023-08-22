@@ -12,6 +12,8 @@ import { SnackbarProvider } from 'notistack'
 import routes from './routes'
 import theme from './theme'
 
+import './resources/i18n/configs'
+
 const router = createHashRouter(routes)
 
 const App = () => {

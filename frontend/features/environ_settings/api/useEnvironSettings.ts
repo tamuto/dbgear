@@ -2,12 +2,14 @@ import { useNavigate } from 'react-router-dom'
 import {
   useForm
 } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { enqueueSnackbar } from 'notistack'
 
 import useAxios from '~/api/useAxios'
 import useProject from '~/api/useProject'
 
 const useEnvironSettings = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const updateEnvirons = useProject(state => state.updateEnvirons)
   const { control, handleSubmit } = useForm({
@@ -30,7 +32,7 @@ const useEnvironSettings = () => {
       deployment: data.deployment
     }
     useAxios<null>(`/environs/${data.id}`).post(mapData, () => {
-      enqueueSnackbar('The data has been updated.', { variant: 'success' })
+      enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
       updateEnvirons()
       navigate('/')
     })

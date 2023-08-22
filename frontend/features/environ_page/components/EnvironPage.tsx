@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   TableContainer,
   Table,
@@ -22,6 +23,7 @@ const tableCss = css`
 `
 
 const EnvironPage = () => {
+  const { t } = useTranslation()
   const dataList = useProject(state => state.dataList)
   const mapping = useProject(state => state.currentMapping)
   const { id } = useParams()
@@ -29,7 +31,7 @@ const EnvironPage = () => {
 
   return (
     <Stack>
-      <Head title='Managed Data' />
+      <Head title={t('caption.managedData')} />
       {
         mapping &&
         <Description value={mapping.description} />
@@ -38,8 +40,8 @@ const EnvironPage = () => {
         <Table css={tableCss}>
           <TableHead>
             <TableRow>
-              <TableCell className='entity'>Data Name</TableCell>
-              <TableCell className='displayName'>Remarks</TableCell>
+              <TableCell className='entity'>{t('caption.dataName')}</TableCell>
+              <TableCell className='displayName'>{t('caption.remarks')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

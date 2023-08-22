@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   List,
   ListItemButton,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  ListSubheader
 } from '@mui/material'
 
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
@@ -11,10 +13,13 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import useProject from '~/api/useProject'
 
 const EnvironList = () => {
+  const { t } = useTranslation()
   const environs = useProject(state => state.environs)
 
   return (
-    <List component='nav'>
+    <List component='nav' subheader={
+      <ListSubheader>{t('caption.environs')}</ListSubheader>
+    }>
       <ListItemButton component={Link} to='/add'>
         <ListItemIcon>
           <CreateNewFolderIcon />

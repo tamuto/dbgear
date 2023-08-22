@@ -1,15 +1,13 @@
+import { useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
   Stack,
   ToggleButton
 } from '@mui/material'
-
 import {
   DataGrid
 } from '@mui/x-data-grid'
-
-import useDataEditor from '../api/useDataEditor'
 
 import CheckIcon from '@mui/icons-material/Check'
 import DownloadIcon from '@mui/icons-material/Download';
@@ -19,7 +17,10 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import UploadIcon from '@mui/icons-material/Upload'
 
+import useDataEditor from '../api/useDataEditor'
+
 const TemplateDataEditor = () => {
+  const { t } = useTranslation()
   const {
     apiRef,
     columns,
@@ -42,10 +43,10 @@ const TemplateDataEditor = () => {
           startIcon={<CheckIcon />}
           onClick={save}
         >
-          Save
+          {t('caption.save')}
         </Button>
         <Button size='small' variant='outlined' startIcon={<DownloadIcon />}>
-          Download
+          {t('caption.download')}
         </Button>
         <ButtonGroup>
           <Button
@@ -53,14 +54,14 @@ const TemplateDataEditor = () => {
             startIcon={<PlaylistAddIcon />}
             disabled={disabledAppendAndRemove}
           >
-            Append
+            {t('caption.append')}
           </Button>
           <Button
             onClick={remove}
             startIcon={<PlaylistRemoveIcon />}
             disabled={disabledAppendAndRemove}
           >
-            Remove
+            {t('caption.remove')}
           </Button>
         </ButtonGroup>
         <ToggleButton
@@ -81,7 +82,7 @@ const TemplateDataEditor = () => {
           startIcon={<UploadIcon />}
           sx={{ ml: 3 }}
         >
-          Upload
+          {t('caption.upload')}
         </Button>
       </Stack>
       <DataGrid

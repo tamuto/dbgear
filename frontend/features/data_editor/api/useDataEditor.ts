@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   useGridApiRef
 } from '@mui/x-data-grid'
@@ -8,6 +9,7 @@ import { enqueueSnackbar } from 'notistack'
 import useAxios from '~/api/useAxios'
 
 const useDataEditor = () => {
+  const { t } = useTranslation()
   const { data } = useOutletContext<{data: Data}>()
   const { id, instance, table } = useParams()
   const apiRef = useGridApiRef()
@@ -63,7 +65,7 @@ const useDataEditor = () => {
   const save = async () => {
     const data = apiRef.current.getSortedRows()
     useAxios<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
-      enqueueSnackbar('The data has been updated.', { variant: 'success' })
+      enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
     })
   }
 
