@@ -1,6 +1,6 @@
 interface Binding {
   type: string,
-  value: string | null,
+  value: string,
   items: {[key: string]: string}[],
 }
 

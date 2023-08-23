@@ -38,8 +38,7 @@ bindings:
 rules:
   update_user: update_user
   update_date: now
-  .*_flag: set_y
-  .*_id$: ref_id
+  .*_flag: y_or_n
 
 deployments:
   local:
