@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import useAxios from '~/api/useAxios'
 
 const useDataTab = () => {
+  const axios = useAxios()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { id, instance, table } = useParams()
@@ -19,7 +20,7 @@ const useDataTab = () => {
   const [data, setData] = useState<Data|null>(null)
 
   useEffect(() => {
-    useAxios<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
+    axios<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
       console.log(result)
       setData(result)
     })

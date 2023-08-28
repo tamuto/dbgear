@@ -1,3 +1,5 @@
+import useProject from '~/api/useProject'
+
 import BaseLayout from '~/cmp/BaseLayout'
 
 import TopPage from './features/top_page/components/TopPage'
@@ -11,6 +13,15 @@ import DataSettingsWrapper from './features/data_settings/components/DataSetting
 const routes = [
   {
     element: <BaseLayout />,
+    loader: async (opts: any) => {
+      await useProject.getState().updateProjectInfo()
+      await useProject.getState().updateEnvirons()
+      if (opts.params.id) {
+        // 既にIDがある場合は、データリストを更新する
+        await useProject.getState().updateDataList(opts.params.id)
+      }
+      return null
+    },
     children: [
       {
         index: true,

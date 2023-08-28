@@ -9,6 +9,7 @@ import useAxios from '~/api/useAxios'
 import useProject from '~/api/useProject'
 
 const useEnvironSettings = () => {
+  const axios = useAxios()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const updateEnvirons = useProject(state => state.updateEnvirons)
@@ -31,7 +32,7 @@ const useEnvironSettings = () => {
       description: data.description,
       deployment: data.deployment
     }
-    useAxios<null>(`/environs/${data.id}`).post(mapData, () => {
+    axios<null>(`/environs/${data.id}`).post(mapData, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
       updateEnvirons()
       navigate('/')

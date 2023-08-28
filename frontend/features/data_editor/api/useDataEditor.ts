@@ -9,6 +9,7 @@ import { enqueueSnackbar } from 'notistack'
 import useAxios from '~/api/useAxios'
 
 const useDataEditor = () => {
+  const axios = useAxios()
   const { t } = useTranslation()
   const { data } = useOutletContext<{data: Data}>()
   const { id, instance, table } = useParams()
@@ -49,7 +50,7 @@ const useDataEditor = () => {
   }
 
   const append = async () => {
-    useAxios<{ [key: string]: any }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
+    axios<{ [key: string]: any }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
       console.log(result)
       apiRef.current.updateRows([result])
     })
@@ -64,7 +65,7 @@ const useDataEditor = () => {
 
   const save = async () => {
     const data = apiRef.current.getSortedRows()
-    useAxios<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
+    axios<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
     })
   }

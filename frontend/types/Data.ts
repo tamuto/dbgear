@@ -1,15 +1,20 @@
+interface SettingValue {
+  type: string,
+  value?: string,
+}
+
 interface DataModel {
   id: string,
   instance: string,
   tableName: string,
   description: string,
   layout: string,
-  settings: { [key: string]: object },
-  sync_mode: string,
+  settings: { [key: string]: SettingValue },
+  syncMode: string,
   value?: string,
   caption?: string,
-  x_axis?: string,
-  y_axis?: string,
+  xAxis?: string,
+  yAxis?: string,
   cells?: string[],
 }
 
@@ -21,8 +26,8 @@ interface GridColumn {
   editable: boolean,
   hide: boolean,
   items: object[],
-  fixed_value?: string,
-  call_value?: string,
+  fixedValue?: string,
+  callValue?: string,
   reference?: string,
 }
 

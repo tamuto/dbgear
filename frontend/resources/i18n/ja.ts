@@ -1,5 +1,6 @@
 export const ja = {
   caption: {
+    required: '(必須)',
     addData: 'データ追加',
     environs: '環境一覧',
     managedData: '管理データ',
@@ -16,7 +17,7 @@ export const ja = {
     description: '説明',
     syncMode: '同期モード',
     dropCreate: 'ドロップ＆作成',
-    updateDiff: '更新差分',
+    updateDiff: '差分更新',
     forListDisplay: 'リスト表示用',
     valueField: '値',
     captionField: 'キャプション',
@@ -36,5 +37,6 @@ export const ja = {
     saveSuccess: '保存しました。',
     listDisplayDesc: '一覧表示時に使う値とキャプションのフィールドを設定します。',
     inputFormDesc: '入力フォームのレイアウトを設定します。',
+    required: 'この項目は必須です。',
   },
 }

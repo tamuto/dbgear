@@ -7,9 +7,11 @@ import useColumnSettings from './useColumnSettings'
 import useAxios from '~/api/useAxios'
 
 const useDataSettings = (data: Data | null) => {
+  const axios = useAxios()
   // const navigate = useNavigate()
   // const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
+  // TODO: cellsは複数にする
   const { control, handleSubmit, watch, setValue, unregister } = useForm({
     defaultValues: {
       table: '',
@@ -17,39 +19,62 @@ const useDataSettings = (data: Data | null) => {
       syncMode: '',
       value: '',
       caption: '',
-      layout: 'table',
-      x_axis: '',
-      y_axis: '',
-      cells: '',
+      layout: '',
+      xAxis: '',
+      yAxis: '',
+      cells: ''
+      // table: data?.model.tableName ?? '',
+      // description: data?.model.description ?? '',
+      // syncMode: data?.model.syncMode ?? '',
+      // value: data?.model.value ?? '',
+      // caption: data?.model.caption ?? '',
+      // layout: data?.model.layout ?? '',
+      // x_axis: data?.model.xAxis ?? '',
+      // y_axis: data?.model.yAxis ?? '' ,
+      // cells: data?.model.cells?.[0] ?? ''
     }
   })
   const { table, layout } = watch()
   const [tableList, setTableList] = useState<DataFilename[]>([])
   const {
     retrieveTableInfo,
+    setupField,
+    setupFieldItems,
     columnFields,
     fieldItems
   } = useColumnSettings(setValue, unregister)
 
   useEffect(() => {
-    useAxios<DataFilename[]>(`/environs/${id}/init`).get(result => {
+    setupFieldItems()
+    axios<DataFilename[]>(`/environs/${id}/init`).get(result => {
       setTableList(result)
     })
   }, [])
 
   useEffect(() => {
-    // if (data) {
-    //   setValue('table', `${data.instance}.${data.info.tableName}`)
-    //   setValue('description', data.description)
-    //   setValue('layout', data.layout)
-    // }
+    if (data) {
+      setValue('table', `${data.model.instance}.${data.model.tableName}`)
+      setValue('description', data.model.description)
+      setValue('syncMode', data.model.syncMode)
+      setValue('layout', data.model.layout)
+      setValue('value', data.model.value ?? '')
+      setValue('caption', data.model.caption ?? '')
+      setValue('xAxis', data.model.xAxis ?? '')
+      setValue('yAxis', data.model.yAxis ?? '')
+      setValue('cells', data.model.cells?.[0] ?? '')
+      setupField(data.table, data.model.settings)
+    }
   }, [data])
 
   useEffect(() => {
-    retrieveTableInfo(table, data?.model.settings)
+    // プルダウン変更時の処理
+    if (!data) {
+      retrieveTableInfo(table)
+    }
   }, [table])
 
   const onSubmit = handleSubmit(async (values) => {
+    console.log(values)
     // const [instance, tableName] = values.table.split('.')
     // const settings = fieldMgr.filterForSave(values)
     // if (data) {

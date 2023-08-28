@@ -8,6 +8,8 @@ import {
   CssBaseline
 } from '@mui/material'
 import { SnackbarProvider } from 'notistack'
+import { useTranslation } from 'react-i18next'
+import { initIn4UILib } from '@infodb/uilib'
 
 import routes from './routes'
 import theme from './theme'
@@ -17,6 +19,11 @@ import './resources/i18n/configs'
 const router = createHashRouter(routes)
 
 const App = () => {
+  const { t } = useTranslation()
+  initIn4UILib({
+    requiredLabel: t('caption.required'),
+  })
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

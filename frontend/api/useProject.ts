@@ -25,8 +25,9 @@ const useProject = create<ProjectState>((set, get) => ({
   currentMapping: null,
   environs: [],
   dataList: [],
-  updateProjectInfo: () => {
-    useAxios<ProjectInfo>('/project').get(result => {
+  updateProjectInfo: async () => {
+    const axios = useAxios()
+    return axios<ProjectInfo>('/project').get(result => {
       set({
         projectInfo: result
       })
@@ -45,8 +46,9 @@ const useProject = create<ProjectState>((set, get) => ({
       })
     }
   },
-  updateEnvirons: () => {
-    useAxios<Mapping[]>('/environs').get((result) => {
+  updateEnvirons: async () => {
+    const axios = useAxios()
+    return axios<Mapping[]>('/environs').get((result) => {
       if (get().currentPath) {
         const parsed = parsePathAndInfo(get().currentPath!, result)
         set({
@@ -60,9 +62,10 @@ const useProject = create<ProjectState>((set, get) => ({
       }
     })
   },
-  updateDataList: (id) => {
+  updateDataList: async (id) => {
     if (id) {
-      useAxios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
+      const axios = useAxios()
+      return axios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
         set({
           dataList: result
         })

@@ -44,7 +44,13 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
         !editMode &&
         <>
           <Head title={t('caption.addData')} />
-          <HookFormField type='select' label={t('caption.targetTable')} name='table' control={control}>
+          <HookFormField
+            type='select'
+            label={t('caption.targetTable')}
+            name='table'
+            control={control}
+            rules={{ required: t('message.required') }}
+          >
             {
               tableList.map(item => (
                 <MenuItem key={item.tableName} value={`${item.instance}.${item.tableName}`}>
@@ -56,7 +62,13 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
         </>
       }
       <HookFormField type='multiline' label={t('caption.description')} name='description' control={control} rows={5} />
-      <HookFormField type='select' label={t('caption.syncMode')} name='syncMode' control={control}>
+      <HookFormField
+        type='select'
+        label={t('caption.syncMode')}
+        name='syncMode'
+        control={control}
+        rules={{ required: t('message.required') }}
+      >
         <MenuItem value='drop_create'>{t('caption.dropCreate')}</MenuItem>
         <MenuItem value='update_diff'>{t('caption.updateDiff')}</MenuItem>
       </HookFormField>
@@ -65,14 +77,14 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
         <HookFormField type='select' label={t('caption.valueField')} name='value' control={control}>
           {
             columnFields.map(item => (
-              <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
+              <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
             ))
           }
         </HookFormField>
         <HookFormField type='select' label={t('caption.captionField')} name='caption' control={control}>
           {
             columnFields.map(item => (
-              <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
+              <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
             ))
           }
         </HookFormField>
@@ -86,7 +98,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
         </HookFormField>
         {
           layout === 'matrix' &&
-          <HookFormField type='select' label={t('caption.xAxis')} name='x_axis' control={control}>
+          <HookFormField type='select' label={t('caption.xAxis')} name='xAxis' control={control}>
             {
               columnFields.map(item => (
                 <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
@@ -97,7 +109,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
         {
           ['matrix', 'single'].includes(layout) &&
           <>
-            <HookFormField type='select' label={t('caption.yAxis')} name='y_axis' control={control}>
+            <HookFormField type='select' label={t('caption.yAxis')} name='yAxis' control={control}>
               {
                 columnFields.map(item => (
                   <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>

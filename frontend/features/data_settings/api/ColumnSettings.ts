@@ -8,5 +8,5 @@ interface ColumnSettings {
   key: string,
   label: string,
   name: string,
-  defvalue: string | object
+  defvalue: string | object  // 小文字でないとReactDOMでエラーになる
 }

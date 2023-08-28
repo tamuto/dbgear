@@ -2,15 +2,20 @@ import { useState } from 'react'
 import useProject from '~/api/useProject'
 import useAxios from '~/api/useAxios'
 
+const FK = 'foreign_key'
+
 const _makeFieldName = (field: Field): string => `fields.${field.columnName}`
 const _judgeDefvalue = (
   projectInfo: ProjectInfo,
   field: Field,
-  settings: { [key: string]: object } | undefined
+  settings: { [key: string]: SettingValue } | undefined
 ): string | object => {
   if (settings && field.columnName in settings) {
     // TODO: foreginkeyの場合には、valueも付ける
-    return settings[field.columnName]
+    if (settings[field.columnName].type === FK) {
+      return `${FK}.${settings[field.columnName].value}`
+    }
+    return settings[field.columnName].type
   }
   for (const [rule, value] of Object.entries(projectInfo.rules)) {
     const re = new RegExp(rule)
@@ -24,7 +29,7 @@ const _judgeDefvalue = (
 const _buildField = (
   projectInfo: ProjectInfo,
   tableInfo: Table,
-  settings: { [key: string]: object } | undefined
+  settings: { [key: string]: SettingValue } | undefined = undefined
 ): ColumnSettings[] => {
   const ret: ColumnSettings[] = []
   for (const field of tableInfo.fields) {
@@ -39,6 +44,7 @@ const _buildField = (
 }
 
 const useColumnSettings = (setValue: Function, unregister: Function) => {
+  const axios = useAxios()
   const projectInfo = useProject(state => state.projectInfo)
   const dataList = useProject(state => state.dataList)
   const [columnFields, setColumnFields] = useState<ColumnSettings[]>([])
@@ -53,17 +59,25 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
     }
   }
 
-  const retrieveTableInfo = async (table: string, settings: { [key: string]: object } | undefined) => {
+  const retrieveTableInfo = async (table: string) => {
     if (table === '') {
       return
     }
     const [instance, tableName] = table.split('.')
-    useAxios<Table>(`/tables/${instance}/${tableName}`).get(result => {
-      const newFields = _buildField(projectInfo!, result, settings)
+    axios<Table>(`/tables/${instance}/${tableName}`).get(result => {
+      const newFields = _buildField(projectInfo!, result)
       _resetFields(newFields)
       setColumnFields(newFields)
     })
+  }
 
+  const setupField = (table: Table, settings: { [key: string]: SettingValue }) => {
+    const newFields = _buildField(projectInfo!, table, settings)
+    _resetFields(newFields)
+    setColumnFields(newFields)
+  }
+
+  const setupFieldItems = () => {
     const data = [
       ...Object.keys(projectInfo!.bindings).map(key => {
         const item: FieldItem = {
@@ -74,7 +88,7 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
       }),
       ...dataList.map(data => {
         const item: FieldItem = {
-          value: `foreign_key.${data.tableName}`,
+          value: `${FK}.${data.tableName}`,
           caption: `${data.instance}.${data.tableName} (${data.displayName})`,
         }
         return item
@@ -99,6 +113,8 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
 
   return {
     retrieveTableInfo,
+    setupField,
+    setupFieldItems,
     // filterForSave,
     columnFields,
     fieldItems
