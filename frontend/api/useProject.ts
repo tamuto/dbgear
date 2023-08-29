@@ -19,7 +19,7 @@ const parsePathAndInfo: parsedPathAndInfo = (currentPath, environs) => {
 }
 
 const useProject = create<ProjectState>((set, get) => ({
-  mainMenu: false,
+  mainMenu: true,
   projectInfo: null,
   currentPath: null,
   currentMapping: null,
@@ -28,6 +28,7 @@ const useProject = create<ProjectState>((set, get) => ({
   updateProjectInfo: async () => {
     const axios = useAxios()
     return axios<ProjectInfo>('/project').get(result => {
+      console.log(result)
       set({
         projectInfo: result
       })

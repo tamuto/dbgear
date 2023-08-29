@@ -24,7 +24,7 @@ const EnvironList = () => {
         <ListItemIcon>
           <CreateNewFolderIcon />
         </ListItemIcon>
-        <ListItemText>Add Environ</ListItemText>
+        <ListItemText>{t('caption.addEnviron')}</ListItemText>
       </ListItemButton>
       {
         environs.map(item => (

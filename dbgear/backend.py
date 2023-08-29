@@ -1,3 +1,4 @@
+import os
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -11,7 +12,7 @@ from .models.project import Project
 
 app = FastAPI()
 
-app.mount('/static', StaticFiles(directory='dist', html=True), name='static')
+app.mount('/static', StaticFiles(directory=f'{os.path.dirname(__file__)}/web', html=True), name='static')
 app.include_router(project.router)
 app.include_router(tables.router)
 app.include_router(environs.router)

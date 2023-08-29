@@ -26,7 +26,7 @@ const useEnvironSettings = () => {
 
   const onSubmit = handleSubmit((data) => {
     const mapData: NewMapping = {
-      base: data.base,
+      base: data.base === '' ? null : data.base,
       name: data.name,
       instances: [data.instance],
       description: data.description,

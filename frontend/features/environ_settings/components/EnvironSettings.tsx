@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   Stack,
   MenuItem,
@@ -12,16 +13,29 @@ import useEnvironSettings from '../api/useEnvironSettings'
 import useProject from '~/api/useProject'
 
 const EnvironSettings = () => {
+  const { t } = useTranslation()
   const info = useProject(state => state.projectInfo)
   const environs = useProject(state => state.environs)
   const { control, onSubmit } = useEnvironSettings()
 
   return (
     <Stack component='form' onSubmit={onSubmit}>
-      <Head title='Environ Settings' />
-      <HookFormField type='text' name='id' label='Environ ID' control={control} />
-      <HookFormField type='text' name='name' label='Environ Name' control={control} />
-      <HookFormField type='select' name='base' label='Base Environ' control={control}>
+      <Head title={t('caption.environSettings')} />
+      <HookFormField
+        type='text'
+        name='id'
+        label={t('caption.environID')}
+        control={control}
+        rules={{ required: t('message.required') }}
+      />
+      <HookFormField
+        type='text'
+        name='name'
+        label={t('caption.environName')}
+        control={control}
+        rules={{ required: t('message.required') }}
+      />
+      <HookFormField type='select' name='base' label={t('caption.baseEnviron')} control={control}>
         <MenuItem value=''></MenuItem>
         {
           environs.map(environ => (
@@ -29,8 +43,14 @@ const EnvironSettings = () => {
           ))
         }
       </HookFormField>
-      <HookFormField type='multiline' rows={3} name='description' label='Description' control={control} />
-      <HookFormField type='select' name='instance' label='Instance' control={control}>
+      <HookFormField type='multiline' rows={3} name='description' label={t('caption.description')} control={control} />
+      <HookFormField
+        type='select'
+        name='instance'
+        label={t('caption.instances')}
+        control={control}
+        rules={{ required: t('message.required') }}
+      >
         {
           info?.instances.map(instance => (
             <MenuItem key={instance} value={instance}>{instance}</MenuItem>
@@ -40,7 +60,7 @@ const EnvironSettings = () => {
           !info && <MenuItem value=''></MenuItem>
         }
       </HookFormField>
-      <HookFormField type='switch' name='deployment' label='Deploymentable' control={control} />
+      <HookFormField type='switch' name='deployment' label={t('caption.deploymentable')} control={control} />
       <Box sx={{ textAlign: 'right' }}>
         <Button type='submit'>Create</Button>
       </Box>

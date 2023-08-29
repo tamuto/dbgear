@@ -1,7 +1,7 @@
 interface NewMapping {
-  base: string,
+  base: string | null,
   name: string,
   instances: string[],
-  description: string,
+  description: string | null,
   deployment: boolean,
 }

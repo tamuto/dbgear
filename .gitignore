@@ -7,6 +7,7 @@ db.sqlite3
 .venv
 !poetry.lock
 .ts-cache
+test.sh
 
 # Logs
 logs

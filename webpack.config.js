@@ -4,7 +4,7 @@ const path = require('path')
 module.exports = {
   entry: './frontend/main.tsx',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dbgear/web'),
     filename: 'main.js',
   },
   devtool: 'source-map',

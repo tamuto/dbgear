@@ -93,7 +93,6 @@ class Parser:
         if name == 'LName':
             self.session.display_name = value
         if name == 'Page':
-            value = value.lower()
             self.session.instance = self.mapping[value] if value in self.mapping else None
         if name == "Field":
             self.session.fields.append(value)
@@ -147,6 +146,7 @@ def convert_to_schema(p):
 
 
 def retrieve(folder, filename, mapping, **kwargs):
+    print(mapping)
     p = Parser(mapping)
     with open(f'{folder}/{filename}', 'r', encoding='utf-8-sig') as f:
         for idx, line in enumerate(f):

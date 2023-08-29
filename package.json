@@ -12,12 +12,16 @@
     "build:tsc": "tsc",
     "build:ts": "webpack --config webpack.config.js --mode development",
     "watch": "webpack -w --config webpack.config.js --mode development",
-    "serve": "poetry run dbgear serve --project dist/test",
+    "serve": "poetry run dbgear serve --project dist/test2",
     "check": "poetry run dbgear check --project dist/test",
     "apply": "poetry run dbgear apply --project dist/test --env test1 --deploy localhost",
     "test": "poetry run python -m unittest discover",
     "flake8:src": "poetry run flake8 dbgear",
-    "flake8:test": "poetry run flake8 tests"
+    "flake8:test": "poetry run flake8 tests",
+    "release": "infodb-cli runall release:*",
+    "release:frontend": "webpack --config webpack.config.js --mode production",
+    "release:backend": "poetry build",
+    "release:publish": "poetry publish"
   },
   "author": "tamuto <tamuto@infodb.jp>",
   "license": "MIT",

@@ -1,6 +1,13 @@
 export const ja = {
   caption: {
     required: '(必須)',
+    addEnviron: '環境追加',
+    environSettings: '環境設定',
+    environID: '環境ID(物理DB名)',
+    environName: '環境名',
+    baseEnviron: '継承元環境',
+    instances: 'インスタンス',
+    deploymentable: 'デプロイ可能',
     addData: 'データ追加',
     environs: '環境一覧',
     managedData: '管理データ',
