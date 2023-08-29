@@ -17,11 +17,21 @@ import Description from '~/cmp/Description'
 import useProject from '~/api/useProject'
 
 const tableCss = css`
-.id {
-  width: 150px;
-}
 .name {
   width: 250px;
+}
+.name span {
+  display: block;
+}
+.name .id {
+  font-size: 0.8em;
+  color: #999;
+}
+.name .id::before {
+  content: '(';
+}
+.name .id::after {
+  content: ')';
 }
 .description {
 }
@@ -44,7 +54,6 @@ const EnvironListPage = () => {
         <Table css={tableCss}>
           <TableHead>
             <TableRow>
-              <TableCell className='id'>{t('caption.environID')}</TableCell>
               <TableCell className='name'>{t('caption.environName')}</TableCell>
               <TableCell className='description'>{t('caption.description')}</TableCell>
             </TableRow>
@@ -54,8 +63,10 @@ const EnvironListPage = () => {
               environs.flatMap(x => x.children).map(item => (
                 <TableRow className='clickable' key={item.id} onClick={() => navigate(`/environs/${item.id}`)}>
                   {/* TODO 配布可能ならアイコンとかで表示する。 */}
-                  <TableCell className='id'>{item.id}</TableCell>
-                  <TableCell className='name'>{item.group} / {item.name}</TableCell>
+                  <TableCell className='name'>
+                    <span className='name'>{item.group} / {item.name}</span>
+                    <span className='id'>{item.id}</span>
+                  </TableCell>
                   <TableCell className='description'><Description value={item.description} /></TableCell>
                 </TableRow>
               ))
