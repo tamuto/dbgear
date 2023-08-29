@@ -41,9 +41,4 @@ rules:
   .*_flag: y_or_n
 
 deployments:
-  local:
-    command: xxxx
-    options: xxxx
-  production:
-    command: xxxx
-    options: yyyy
+  localhost: mysql+pymysql://root:password@denv.host?charset=utf8

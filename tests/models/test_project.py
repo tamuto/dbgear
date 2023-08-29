@@ -12,8 +12,9 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj.project_name, 'Test')
         self.assertEqual(len(proj.bindings.keys()), 7)
         self.assertEqual(proj.bindings['gen_uuid'].value, 'uuid')
-        self.assertEqual(len(proj.rules), 4)
+        self.assertEqual(len(proj.rules), 3)
         self.assertEqual(proj.rules['update_date'], 'now')
+        self.assertEqual(proj.deployments['localhost'], 'mysql+pymysql://root:password@denv.host?charset=utf8')
 
     def test_project_definitions(self):
         proj = Project(FOLDER_PATH)

@@ -1,8 +1,9 @@
 import logging
 from argparse import ArgumentParser
 
-from . import backend
 from .models.project import Project
+from . import backend
+from . import operations
 
 
 def execute():
@@ -18,7 +19,12 @@ def execute():
         '--project',
         default='etc/dbgear',
         help='please specify the folder for the project.')
-
+    parser.add_argument(
+        '--env',
+        help='target environment for the command.')
+    parser.add_argument(
+        '--deploy',
+        help='target deployment for the command.')
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
@@ -29,3 +35,5 @@ def execute():
 
     if args.command == 'serve':
         backend.run(project)
+    if args.command == 'apply':
+        operations.apply(project, args.env, args.deploy)

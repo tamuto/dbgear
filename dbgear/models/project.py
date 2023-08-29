@@ -25,6 +25,7 @@ class Project:
         self._definitions = data['definitions']
         self._bindings = {k: Binding(**v) for k, v in data['bindings'].items()}
         self._schemas = {}
+        self.deployments = data['deployments']
 
     @property
     def bindings(self) -> dict[str, Binding]:
