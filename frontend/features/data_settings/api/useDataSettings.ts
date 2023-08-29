@@ -34,7 +34,7 @@ const useDataSettings = (data: Data | null) => {
       syncMode: '',
       value: '',
       caption: '',
-      layout: '',
+      layout: 'table',
       xAxis: '',
       yAxis: '',
       cells: '',
