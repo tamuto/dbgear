@@ -9,6 +9,7 @@ class TestDTOs(unittest.TestCase):
 
     def test_mapping(self):
         data = dtos.convert_to_mapping('test', dtos.NewMapping(
+            group='Test',
             base=None,
             name='abc',
             deployment=False

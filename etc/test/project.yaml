@@ -5,7 +5,7 @@ definitions:
   - filename: ./dbgear.a5er
     type: a5sql_mk2
     mapping:
-      main: main
+      MAIN: main
 
 bindings:
   uuid:
@@ -16,21 +16,21 @@ bindings:
     value: NOW()
   update_user:
     type: fixed
-    value: "'SYSTEM'"
+    value: SYSTEM
   set_y:
     type: fixed
-    value: "'Y'"
+    value: Y
   set_n:
     type: fixed
-    value: "'N'"
+    value: N
   y_or_n:
     type: selectable
     value: Yes or No
     items:
-      - caption: 'Yes'
-        value: 'Y'
-      - caption: 'No'
-        value: 'N'
+      - caption: Yes
+        value: Y
+      - caption: No
+        value: N
   gen_uuid:
     type: call
     value: uuid

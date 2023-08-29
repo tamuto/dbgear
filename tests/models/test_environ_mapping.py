@@ -27,6 +27,7 @@ class TestEnviron(unittest.TestCase):
         mapping.save(FOLDER_PATH, 'test3', Mapping(
             id='Test3',
             name='AAAABBBBCCCC',
+            group='Test3',
             base=None,
             deployment=False
         ))

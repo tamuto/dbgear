@@ -12,6 +12,7 @@ from .dtos import Data
 from .dtos import NewMapping
 from .dtos import NewDataModel
 from .dtos import ImportSQL
+from .dtos import MappingTree
 from .dtos import convert_to_data_filename
 from .dtos import convert_to_mapping
 from .dtos import convert_to_data_model
@@ -23,7 +24,14 @@ router = APIRouter(prefix='/environs')
 def get_mappings(request: Request):
     proj = project(request)
     maps = mapping.items(proj.folder)
-    return Result(data=maps)
+
+    groupTree = {}
+    for map in maps:
+        if map.group not in groupTree:
+            groupTree[map.group] = MappingTree(name=map.group, children=[])
+        groupTree[map.group].children.append(map)
+
+    return Result(data=[*groupTree.values()])
 
 
 @router.post('/{id}')

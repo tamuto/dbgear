@@ -23,6 +23,12 @@ const EnvironSettings = () => {
       <Head title={t('caption.environSettings')} />
       <HookFormField
         type='text'
+        name='group'
+        label={t('caption.environGroup')}
+        control={control}
+      />
+      <HookFormField
+        type='text'
         name='id'
         label={t('caption.environID')}
         control={control}
@@ -38,8 +44,8 @@ const EnvironSettings = () => {
       <HookFormField type='select' name='base' label={t('caption.baseEnviron')} control={control}>
         <MenuItem value=''></MenuItem>
         {
-          environs.map(environ => (
-            <MenuItem key={environ.id} value={environ.id}>{environ.name}</MenuItem>
+          environs.flatMap(x => x.children).map(environ => (
+            <MenuItem key={environ.id} value={environ.id}>{environ.group} / {environ.name}</MenuItem>
           ))
         }
       </HookFormField>

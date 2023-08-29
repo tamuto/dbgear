@@ -15,6 +15,7 @@ const useEnvironSettings = () => {
   const updateEnvirons = useProject(state => state.updateEnvirons)
   const { control, handleSubmit } = useForm({
     defaultValues: {
+      group: '',
       id: '',
       name: '',
       base: '',
@@ -26,6 +27,7 @@ const useEnvironSettings = () => {
 
   const onSubmit = handleSubmit((data) => {
     const mapData: NewMapping = {
+      group: data.group === '' ? null : data.group,
       base: data.base === '' ? null : data.base,
       name: data.name,
       instances: [data.instance],
