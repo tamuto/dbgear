@@ -2,17 +2,32 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-// import useProject from '~/api/useProject'
+import useProject from '~/api/useProject'
 import useColumnSettings from './useColumnSettings'
 import useAxios from '~/api/useAxios'
 
+import { FK } from './const'
+
+type FormValues = {
+  table: string
+  description: string
+  syncMode: string
+  value: string
+  caption: string
+  layout: string
+  xAxis: string
+  yAxis: string
+  cells: string
+  fields: { [key: string]: string }
+}
+
 const useDataSettings = (data: Data | null) => {
   const axios = useAxios()
-  // const navigate = useNavigate()
-  // const updateDataList = useProject(state => state.updateDataList)
+  const navigate = useNavigate()
+  const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
   // TODO: cellsは複数にする
-  const { control, handleSubmit, watch, setValue, unregister } = useForm({
+  const { control, handleSubmit, watch, setValue, unregister } = useForm<FormValues>({
     defaultValues: {
       table: '',
       description: '',
@@ -22,16 +37,8 @@ const useDataSettings = (data: Data | null) => {
       layout: '',
       xAxis: '',
       yAxis: '',
-      cells: ''
-      // table: data?.model.tableName ?? '',
-      // description: data?.model.description ?? '',
-      // syncMode: data?.model.syncMode ?? '',
-      // value: data?.model.value ?? '',
-      // caption: data?.model.caption ?? '',
-      // layout: data?.model.layout ?? '',
-      // x_axis: data?.model.xAxis ?? '',
-      // y_axis: data?.model.yAxis ?? '' ,
-      // cells: data?.model.cells?.[0] ?? ''
+      cells: '',
+      fields: {}
     }
   })
   const { table, layout } = watch()
@@ -74,33 +81,39 @@ const useDataSettings = (data: Data | null) => {
   }, [table])
 
   const onSubmit = handleSubmit(async (values) => {
-    console.log(values)
-    // const [instance, tableName] = values.table.split('.')
-    // const settings = fieldMgr.filterForSave(values)
-    // if (data) {
-    //   const result = await axios.put(`/templates/${id}`, {
-    //     instance,
-    //     tableName,
-    //     description: values.description,
-    //     layout: values.layout,
-    //     settings
-    //   })
-    //   if (result.data.status === 'OK') {
-    //     // await initData()
-    //   }
-    // } else {
-    //   const result = await axios.post(`/templates/${id}`, {
-    //     instance,
-    //     tableName,
-    //     description: values.description,
-    //     layout: values.layout,
-    //     settings
-    //   })
-    //   if (result.data.status === 'OK') {
-    //     // await updateDataList('template', id)
-    //     // navigate(`/templates/${id}/${instance}/${tableName}/_data`)
-    //   }
-    // }
+    const [instance, tableName] = values.table.split('.')
+    const data: NewDataModel = {
+      description: values.description,
+      layout: values.layout,
+      settings: {},
+      syncMode: values.syncMode,
+      value: values.value,
+      caption: values.caption,
+      xAxis: values.xAxis,
+      yAxis: values.yAxis,
+      cells: [values.cells]
+    }
+    for (const key of Object.keys(values.fields)) {
+      const val: string = values.fields[key]
+      if (val === '') {
+        continue
+      }
+      if (val.startsWith(FK)) {
+        const fkTable = val.split('.')[1]
+        data.settings[key] = {
+          type: FK,
+          value: fkTable
+        }
+      } else {
+        data.settings[key] = {
+          type: val,
+        }
+      }
+    }
+    console.log(data)
+    await axios<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(data, () => {})
+    await updateDataList(id)
+    navigate(`/environs/${id}/${instance}/${tableName}/_data`)
   })
 
   return {

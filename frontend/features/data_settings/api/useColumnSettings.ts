@@ -2,7 +2,7 @@ import { useState } from 'react'
 import useProject from '~/api/useProject'
 import useAxios from '~/api/useAxios'
 
-const FK = 'foreign_key'
+import { FK } from './const'
 
 const _makeFieldName = (field: Field): string => `fields.${field.columnName}`
 const _judgeDefvalue = (
@@ -11,7 +11,6 @@ const _judgeDefvalue = (
   settings: { [key: string]: SettingValue } | undefined
 ): string | object => {
   if (settings && field.columnName in settings) {
-    // TODO: foreginkeyの場合には、valueも付ける
     if (settings[field.columnName].type === FK) {
       return `${FK}.${settings[field.columnName].value}`
     }
@@ -97,25 +96,10 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
     setFieldItems(data)
   }
 
-  // const filterForSave = (data) => {
-    // const ret = {}
-    // for (const [field, value] of Object.entries(data.fields)) {
-    //   if (value === '') {
-    //     continue
-    //   }
-    //   if (value.startsWith(FK)) {
-    //     continue
-    //   }
-    //   ret[field] = value
-    // }
-    // return ret
-  // }
-
   return {
     retrieveTableInfo,
     setupField,
     setupFieldItems,
-    // filterForSave,
     columnFields,
     fieldItems
   }

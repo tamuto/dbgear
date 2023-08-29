@@ -67,7 +67,8 @@ def is_exist(folder: str, id: str, ins: str, tbl: str) -> bool:
 def save(proj: Project, map: Mapping, ins: str, tbl: str, data: DataModel) -> None:
     save_model(
         get_data_model_name(proj.folder, map.id, ins, tbl),
-        data
+        data,
+        ['id', 'instance', 'table_name']
     )
 
 

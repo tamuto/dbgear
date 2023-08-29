@@ -101,7 +101,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
           <HookFormField type='select' label={t('caption.xAxis')} name='xAxis' control={control}>
             {
               columnFields.map(item => (
-                <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
+                <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
               ))
             }
           </HookFormField>
@@ -112,14 +112,14 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
             <HookFormField type='select' label={t('caption.yAxis')} name='yAxis' control={control}>
               {
                 columnFields.map(item => (
-                  <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
+                  <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
                 ))
               }
             </HookFormField>
             <HookFormField type='select' label={t('caption.cells')} name='cells' control={control}>
               {
                 columnFields.map(item => (
-                  <MenuItem key={item.key} value={item.name}>{item.label}</MenuItem>
+                  <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
                 ))
               }
             </HookFormField>

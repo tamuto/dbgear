@@ -26,7 +26,7 @@ def convert_to_mapping(id: str, data: NewMapping) -> Mapping:
 class NewDataModel(BaseSchema):
     description: str
     layout: str
-    settings: dict[str, str]
+    settings: dict[str, object]
     sync_mode: str
     value: str | None = None
     caption: str | None = None
