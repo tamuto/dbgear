@@ -15,7 +15,8 @@ const DataTab = () => {
   const {
     tabIndex,
     handleChange,
-    data
+    data,
+    reload
   } = useDataTab()
 
   return (
@@ -36,7 +37,7 @@ const DataTab = () => {
       <Box sx={{ pt: 2 }}>
         {
           data &&
-          <Outlet context={{ data }} />
+          <Outlet context={{ data, reload }} />
         }
       </Box>
     </Box>

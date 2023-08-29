@@ -8,6 +8,7 @@ db.sqlite3
 !poetry.lock
 .ts-cache
 test.sh
+test2.sh
 
 # Logs
 logs

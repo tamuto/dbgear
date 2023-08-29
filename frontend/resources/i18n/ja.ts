@@ -39,11 +39,18 @@ export const ja = {
     columnSettings: 'カラム設定',
     update: '更新',
     create: '作成',
+    import: 'インポート',
+    cancel: 'キャンセル',
+    importSQL: 'SQLインポート',
+    host: '接続先',
+    sql: '実行するSQL',
   },
   message: {
     saveSuccess: '保存しました。',
+    importSuccess: 'インポートしました。',
     listDisplayDesc: '一覧表示時に使う値とキャプションのフィールドを設定します。',
     inputFormDesc: '入力フォームのレイアウトを設定します。',
+    importSQLDesc: 'SQLを実行してデータをインポートします。',
     required: 'この項目は必須です。',
   },
 }

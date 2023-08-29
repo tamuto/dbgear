@@ -47,6 +47,12 @@ def convert_to_data_model(
         **data.model_dump()
     )
 
+
+class ImportSQL(BaseSchema):
+    host: str
+    sql: str
+
+
 # レスポンス用DTO
 
 

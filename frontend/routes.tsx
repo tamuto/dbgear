@@ -37,7 +37,7 @@ const routes = [
       },
       {
         path: '/environs/:id/_init',
-        element: <DataSettings data={null} />
+        element: <DataSettings data={null} reload={null} />
       },
       {
         path: '/environs/:id/:instance/:table',
