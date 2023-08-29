@@ -1,7 +1,4 @@
 import { FC } from 'react'
-import {
-  Typography,
-} from '@mui/material'
 
 type DescriptionProps = {
   value: string
@@ -9,9 +6,7 @@ type DescriptionProps = {
 
 const Description: FC<DescriptionProps> = ({ value }) => {
   return (
-    <Typography>
-      <span dangerouslySetInnerHTML={{ __html: value }}></span>
-    </Typography>
+    <span dangerouslySetInnerHTML={{ __html: value }}></span>
   )
 }
 

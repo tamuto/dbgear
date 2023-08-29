@@ -54,7 +54,7 @@ const EnvironListPage = () => {
                   {/* TODO 配布可能ならアイコンとかで表示する。 */}
                   <TableCell className='id'>{item.id}</TableCell>
                   <TableCell className='name'>{item.name}</TableCell>
-                  <TableCell className='description'>{item.description}</TableCell>
+                  <TableCell className='description'><Description value={item.description} /></TableCell>
                 </TableRow>
               ))
             }
