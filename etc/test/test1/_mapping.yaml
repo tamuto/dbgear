@@ -1,5 +1,6 @@
 instances:
 - main
 name: テスト1
+group: Test
 base: test2
 deployment: false

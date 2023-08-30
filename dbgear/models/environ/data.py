@@ -6,6 +6,7 @@ from ..base import BaseSchema
 
 class Mapping(BaseSchema):
     id: str
+    group: str
     base: str | None
     name: str
     instances: list[str] = []

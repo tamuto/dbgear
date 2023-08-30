@@ -24,10 +24,12 @@ class TestEnviron(unittest.TestCase):
     def test_get_mappings(self):
         result = environs.get_mappings(self.request)
         self.assertEqual(result.status, 'OK')
-        self.assertEqual(len(result.data), 2)
+        self.assertEqual(len(result.data), 1)
+        # TODO MappingTreeになっているか否かのテスト
 
     def test_create_mapping(self):
         result = environs.create_mapping('test3', NewMapping(
+            group='Test3',
             base=None,
             name='AAAA',
             deployment=False

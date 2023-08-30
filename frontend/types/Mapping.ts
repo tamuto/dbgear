@@ -1,5 +1,6 @@
 interface Mapping {
   id: string,
+  group: string,
   base: string,
   name: string,
   instances: string[],

@@ -9,6 +9,7 @@ from ..models.datagrid.data import DataInfo
 
 
 class NewMapping(BaseSchema):
+    group: str
     base: str | None
     name: str
     instances: list = []
@@ -88,3 +89,8 @@ class Data(BaseSchema):
     model: DataModel
     info: DataInfo
     table: Table
+
+
+class MappingTree(BaseSchema):
+    name: str | None
+    children: list[Mapping]

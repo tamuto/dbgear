@@ -12,12 +12,17 @@ interface ProjectInfo {
   instances: string[],
 }
 
+interface MappingTree {
+  name: string,
+  children: Mapping[],
+}
+
 interface ProjectState {
   mainMenu: boolean,
   projectInfo: ProjectInfo | null,
   currentPath: string | null,
   currentMapping: Mapping | null,
-  environs: Mapping[],
+  environs: MappingTree[],
   dataList: DataFilename[],
   updateProjectInfo: () => void,
   setCurrentPath: (path: string) => void,

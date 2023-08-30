@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 import useAxios from '~/api/useAxios'
 
-type parsedPathAndInfo = (currentPath: string, environs: Mapping[]) => ({ mainMenu: boolean, currentMapping: Mapping | null })
+type parsedPathAndInfo = (currentPath: string, environs: MappingTree[]) => ({ mainMenu: boolean, currentMapping: Mapping | null })
 
 const parsePathAndInfo: parsedPathAndInfo = (currentPath, environs) => {
   const p = currentPath.split('/')
@@ -10,7 +10,7 @@ const parsePathAndInfo: parsedPathAndInfo = (currentPath, environs) => {
   let currentMapping = null
   if (p.length > 2) {
     mainMenu = false
-    const result = environs.find(x => x.id == p[2])
+    const result = environs.flatMap(x => x.children).find(x => x.id == p[2])
     if (result) {
       currentMapping = result
     }
@@ -49,7 +49,7 @@ const useProject = create<ProjectState>((set, get) => ({
   },
   updateEnvirons: async () => {
     const axios = useAxios()
-    return axios<Mapping[]>('/environs').get((result) => {
+    return axios<MappingTree[]>('/environs').get((result) => {
       if (get().currentPath) {
         const parsed = parsePathAndInfo(get().currentPath!, result)
         set({

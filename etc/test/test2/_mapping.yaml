@@ -2,5 +2,6 @@ instances:
 - main
 name: テスト2
 description: 'ABC'
+group: Test
 base: null
 deployment: true
