@@ -24,10 +24,11 @@ import ImageLabel from './ImageLabel'
 import useDataSettings from '../api/useDataSettings'
 
 type DataSettingsProps = {
-  data: Data | null
+  data: Data | null,
+  reload: (() => void) | null
 }
 
-const DataSettings: FC<DataSettingsProps> = ({ data }) => {
+const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
   const { t } = useTranslation()
   const {
     control,
@@ -37,7 +38,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data }) => {
     columnFields,
     fieldItems,
     editMode
-  } = useDataSettings(data)
+  } = useDataSettings(data, reload)
   return (
     <Stack component='form' onSubmit={onSubmit}>
       {

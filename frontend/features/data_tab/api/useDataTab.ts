@@ -19,17 +19,22 @@ const useDataTab = () => {
 
   const [data, setData] = useState<Data|null>(null)
 
-  useEffect(() => {
+  const reload = async () => {
     axios<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
       console.log(result)
       setData(result)
     })
+  }
+
+  useEffect(() => {
+    reload()
   }, [id, instance, table])
 
   return {
     tabIndex,
     handleChange,
     data,
+    reload
   }
 }
 

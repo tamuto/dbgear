@@ -5,11 +5,13 @@ from fastapi import Body
 from ..models.project import project
 from ..models.environ import mapping
 from ..models.environ import entity
+from ..models.environ import import_sql
 
 from .dtos import Result
 from .dtos import Data
 from .dtos import NewMapping
 from .dtos import NewDataModel
+from .dtos import ImportSQL
 from .dtos import convert_to_data_filename
 from .dtos import convert_to_mapping
 from .dtos import convert_to_data_model
@@ -96,4 +98,12 @@ def update_data(id: str, instance: str, table: str, request: Request, body=Body(
     proj = project(request)
     map = mapping.get(proj.folder, id)
     entity.save_data(proj, map, instance, table, body)
+    return Result()
+
+
+@router.post('/{id}/tables/{instance}/{table}/import')
+def import_data(id: str, instance: str, table: str, imp: ImportSQL, request: Request):
+    proj = project(request)
+    map = mapping.get(proj.folder, id)
+    import_sql.execute(proj, map, instance, table, imp.host, imp.sql)
     return Result()

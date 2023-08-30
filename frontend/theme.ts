@@ -48,7 +48,18 @@ const theme = createTheme({
     MuiTable: {
       defaultProps: {
       }
-    }
+    },
+    MuiDialogActions: {
+      defaultProps: {
+        disableSpacing: true,
+        sx: {
+          justifyContent: "space-between",
+          pt: 0,
+          pb: 2,
+          px: 2
+        }
+      }
+    },
   }
 })
 

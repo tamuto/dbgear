@@ -16,8 +16,8 @@ def execute(conn, sql, params=None):
 
 
 def select_all(conn, sql, params=None):
-    return execute(conn, sql, params).fetchall()
+    return execute(conn, sql, params).mappings().fetchall()
 
 
 def select_one(conn, sql, params=None):
-    return execute(conn, sql, params).fetchone()
+    return execute(conn, sql, params).mappings().fetchone()

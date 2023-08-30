@@ -21,7 +21,7 @@ type FormValues = {
   fields: { [key: string]: string }
 }
 
-const useDataSettings = (data: Data | null) => {
+const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
   const axios = useAxios()
   const navigate = useNavigate()
   const updateDataList = useProject(state => state.updateDataList)
@@ -82,7 +82,7 @@ const useDataSettings = (data: Data | null) => {
 
   const onSubmit = handleSubmit(async (values) => {
     const [instance, tableName] = values.table.split('.')
-    const data: NewDataModel = {
+    const newDM: NewDataModel = {
       description: values.description,
       layout: values.layout,
       settings: {},
@@ -100,20 +100,24 @@ const useDataSettings = (data: Data | null) => {
       }
       if (val.startsWith(FK)) {
         const fkTable = val.split('.')[1]
-        data.settings[key] = {
+        newDM.settings[key] = {
           type: FK,
           value: fkTable
         }
       } else {
-        data.settings[key] = {
+        newDM.settings[key] = {
           type: val,
         }
       }
     }
-    console.log(data)
-    await axios<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(data, () => {})
-    await updateDataList(id)
-    navigate(`/environs/${id}/${instance}/${tableName}/_data`)
+    await axios<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(newDM, () => {})
+    if (data) {
+      // dataがある場合は、reloadも渡される。
+      await reload!()
+    } else {
+      await updateDataList(id)
+      navigate(`/environs/${id}/${instance}/${tableName}/_data`)
+    }
   })
 
   return {

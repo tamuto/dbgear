@@ -156,10 +156,12 @@ def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
     return {key: value for key, value in items if key not in ['column_name', 'display_name']}
 
 
-def adjust_column_value(col: GridColumn, value: Any) -> Any:
+def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any:
     '''
     valueの中にフィールドのキーがなかったら、値を補完する。
     '''
+    if fixed and col.fixed_value is not None:
+        return col.fixed_value
     if col.field in value:
         return value[col.field]
     if col.fixed_value is not None:
@@ -170,12 +172,12 @@ def adjust_column_value(col: GridColumn, value: Any) -> Any:
     return ''
 
 
-def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True) -> dict[str, Any]:
+def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True, fixed: bool = False) -> dict[str, Any]:
     '''
     1行分のデータを生成する。
     '''
     row = {
-        col.field: adjust_column_value(col, data)
+        col.field: adjust_column_value(col, data, fixed)
         for col in columns
     }
     if need_id and 'id' not in row:

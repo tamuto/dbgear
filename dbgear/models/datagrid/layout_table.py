@@ -1,5 +1,4 @@
 from typing import Any
-from uuid import uuid4
 
 from ..project import Project
 from ..environ.data import Mapping
@@ -15,7 +14,7 @@ from . import column
 
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
-    columns = _build_columns(proj, map, dm, table)
+    columns = build_columns(proj, map, dm, table)
     rows = [column.build_one_row(columns, d) for d in data]
 
     return DataInfo(
@@ -26,11 +25,11 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
 
 
 def build_one_row(proj: Project, map: Mapping, dm: DataModel, table: Table) -> dict[str, Any]:
-    columns = _build_columns(proj, map, dm, table)
+    columns = build_columns(proj, map, dm, table)
     return column.build_one_row(columns, {})
 
 
-def _build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
+def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
     columns = []
     for field in table.fields:
         if field.column_name in dm.settings:
@@ -94,6 +93,6 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
 
 def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
     # idカラムを除いて返却する。
-    columns = _build_columns(proj, map, dm, table)
+    columns = build_columns(proj, map, dm, table)
     data = [column.build_one_row(columns, d, False) for d in rows]
     return data
