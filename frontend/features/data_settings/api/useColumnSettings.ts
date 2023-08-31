@@ -87,7 +87,7 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
       }),
       ...dataList.map(data => {
         const item: FieldItem = {
-          value: `${FK}.${data.tableName}`,
+          value: `${FK}:${data.instance}.${data.tableName}`,
           caption: `${data.instance}.${data.tableName} (${data.displayName})`,
         }
         return item

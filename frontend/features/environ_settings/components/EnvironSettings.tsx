@@ -52,10 +52,11 @@ const EnvironSettings = () => {
       <HookFormField type='multiline' rows={3} name='description' label={t('caption.description')} control={control} />
       <HookFormField
         type='select'
-        name='instance'
+        name='instances'
         label={t('caption.instances')}
         control={control}
         rules={{ required: t('message.required') }}
+        SelectProps={{ multiple: true }}
       >
         {
           info?.instances.map(instance => (

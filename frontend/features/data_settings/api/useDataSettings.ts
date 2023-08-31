@@ -17,7 +17,7 @@ type FormValues = {
   layout: string
   xAxis: string
   yAxis: string
-  cells: string
+  cells: string[]
   fields: { [key: string]: string }
 }
 
@@ -26,7 +26,6 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
   const navigate = useNavigate()
   const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
-  // TODO: cellsは複数にする
   const { control, handleSubmit, watch, setValue, unregister } = useForm<FormValues>({
     defaultValues: {
       table: '',
@@ -37,7 +36,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       layout: 'table',
       xAxis: '',
       yAxis: '',
-      cells: '',
+      cells: [],
       fields: {}
     }
   })
@@ -68,7 +67,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       setValue('caption', data.model.caption ?? '')
       setValue('xAxis', data.model.xAxis ?? '')
       setValue('yAxis', data.model.yAxis ?? '')
-      setValue('cells', data.model.cells?.[0] ?? '')
+      setValue('cells', data.model.cells ?? [])
       setupField(data.table, data.model.settings)
     }
   }, [data])
@@ -91,15 +90,16 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       caption: values.caption,
       xAxis: values.xAxis,
       yAxis: values.yAxis,
-      cells: [values.cells]
+      cells: values.cells
     }
     for (const key of Object.keys(values.fields)) {
       const val: string = values.fields[key]
       if (val === '') {
         continue
       }
+      // FIXME embeddedはUIサポートしていない
       if (val.startsWith(FK)) {
-        const fkTable = val.split('.')[1]
+        const fkTable = val.split(':')[1]
         newDM.settings[key] = {
           type: FK,
           value: fkTable

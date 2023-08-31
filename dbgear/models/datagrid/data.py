@@ -28,7 +28,6 @@ class GridColumn(BaseSchema):
     items: list | None = None
     fixed_value: str | None = None
     call_value: str | None = None
-    reference: str | None = None
 
 
 class DataInfo(BaseSchema):

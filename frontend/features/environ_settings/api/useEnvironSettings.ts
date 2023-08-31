@@ -20,7 +20,7 @@ const useEnvironSettings = () => {
       name: '',
       base: '',
       description: '',
-      instance: '',
+      instances: [],
       deployment: false
     }
   })
@@ -30,7 +30,7 @@ const useEnvironSettings = () => {
       group: data.group === '' ? null : data.group,
       base: data.base === '' ? null : data.base,
       name: data.name,
-      instances: [data.instance],
+      instances: data.instances,
       description: data.description,
       deployment: data.deployment
     }

@@ -25,8 +25,7 @@ def make_grid_column(
         hide: bool = False,
         items: list | None = None,
         fixed_value: str | None = None,
-        call_value: str | None = None,
-        reference: str | None = None):
+        call_value: str | None = None):
     '''
     GridColumnを生成する。
     '''
@@ -40,7 +39,6 @@ def make_grid_column(
         items=items,
         fixed_value=fixed_value,
         call_value=call_value,
-        reference=reference
     )
 
 
@@ -81,7 +79,6 @@ class CellItem:
     items: list[object] | None = None
     fixed_value: str | None = None
     call_value: str | None = None
-    reference: str | None = None
 
 
 def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[CellItem]:
@@ -94,7 +91,8 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
         if cell in dm.settings:
             setting = dm.settings[cell]
             if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
-                items = load_for_select_items(proj.folder, map, dm.instance, setting['value'])
+                splt = setting['value'].split('.')
+                items = load_for_select_items(proj.folder, map, splt[0], splt[1])
 
                 result.append(CellItem(
                     column_name=field.column_name,
@@ -102,22 +100,6 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     type=const.FIELD_TYPE_SELECTABLE,
                     editable=True,
                     items=items
-                ))
-            elif setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
-                result.append(CellItem(
-                    column_name=field.column_name,
-                    display_name=field.display_name,
-                    type=const.FIELD_TYPE_SELECTABLE,
-                    editable=True,
-                    items=setting['values']
-                ))
-            elif setting['type'] == const.BIND_TYPE_REF_ID:
-                result.append(CellItem(
-                    column_name=field.column_name,
-                    display_name=field.display_name,
-                    type=const.FIELD_TYPE_STRING,
-                    editable=False,
-                    reference='id'
                 ))
             else:
                 bind = proj.bindings[setting['type']]
@@ -189,9 +171,8 @@ def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axi
     items = None
     setting = settings[axis]
     if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
-        items = load_for_select_items(proj.folder, map, ins, setting['value'])
-    elif setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
-        items = setting['values']
+        splt = setting['value'].split('.')
+        items = load_for_select_items(proj.folder, map, splt[0], splt[1])
     elif setting['type'] in proj.bindings:
         bind = proj.bindings[setting['type']]
         if bind.type == const.BIND_TYPE_SELECTABLE:

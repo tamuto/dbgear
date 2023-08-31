@@ -45,17 +45,10 @@ def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> l
 
 def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, field: Field):
     setting = dm.settings[field.column_name]
-    if setting['type'] == const.BIND_TYPE_REF_ID:
-        # 固定値と同じものとする
-        return column.make_grid_column(
-            field.column_name,
-            field.display_name,
-            editable=False,
-            hide=True,
-            reference='id')
     if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
         # 選択肢は外部データを参照する以外は選択型と同じ
-        items = column.load_for_select_items(proj.folder, map, dm.instance, setting['value'])
+        splt = setting['value'].split('.')
+        items = column.load_for_select_items(proj.folder, map, splt[0], splt[1])
         if items is None:
             # データが見つからなければ空の配列とする
             items = []
@@ -63,11 +56,6 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
             field.column_name,
             field.display_name,
             items=items)
-    if setting['type'] == const.BIND_TYPE_EMBEDDED_DATA:
-        return column.make_grid_column(
-            field.column_name,
-            field.display_name,
-            items=setting['values'])
 
     bind = proj.bindings[setting['type']]
     if bind.type == const.BIND_TYPE_FIXED:

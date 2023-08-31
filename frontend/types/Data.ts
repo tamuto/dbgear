@@ -28,7 +28,6 @@ interface GridColumn {
   items: object[],
   fixedValue?: string,
   callValue?: string,
-  reference?: string,
 }
 
 interface DataInfo {

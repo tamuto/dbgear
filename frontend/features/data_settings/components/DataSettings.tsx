@@ -117,7 +117,13 @@ const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
                 ))
               }
             </HookFormField>
-            <HookFormField type='select' label={t('caption.cells')} name='cells' control={control}>
+            <HookFormField
+              type='select'
+              label={t('caption.cells')}
+              name='cells'
+              control={control}
+              SelectProps={{ multiple: true }}
+            >
               {
                 columnFields.map(item => (
                   <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
