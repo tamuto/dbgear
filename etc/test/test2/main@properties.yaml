@@ -1,16 +1,7 @@
 layout: single
 settings:
   key:
-    type: embedded_data
-    values:
-      - caption: Item1
-        value: AAA
-      - caption: Item2
-        value: BBB
-      - caption: Item3
-        value: CCC
-      - caption: Item4
-        value: DDD
+    type: property_items
   update_date:
     type: now
   update_user:

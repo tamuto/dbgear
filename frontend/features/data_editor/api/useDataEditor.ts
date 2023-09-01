@@ -20,7 +20,9 @@ const useDataEditor = () => {
         {
           ...props,
           type,
-          valueOptions: items
+          valueOptions: items,
+          getOptionValue: (option: any) => option.value,
+          getOptionLabel: (option: any) => option.caption,
         }
       ))
     }

@@ -2,10 +2,10 @@ layout: matrix
 settings:
   row_id:
     type: foreign_key
-    value: row_table
+    value: main.row_table
   child_id:
     type: foreign_key
-    value: tbl_child
+    value: main.tbl_child
   value:
     type: y_or_n
   update_date:

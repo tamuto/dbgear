@@ -55,6 +55,7 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
         return column.make_grid_column(
             field.column_name,
             field.display_name,
+            type=const.FIELD_TYPE_SELECTABLE,
             items=items)
 
     bind = proj.bindings[setting['type']]
@@ -75,6 +76,7 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
         return column.make_grid_column(
             field.column_name,
             field.display_name,
+            type=const.FIELD_TYPE_SELECTABLE,
             items=bind.items)
     raise RuntimeError('Unknown Data Type')
 

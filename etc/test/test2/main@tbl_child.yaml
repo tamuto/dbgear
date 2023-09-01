@@ -1,10 +1,8 @@
 layout: table
 settings:
-  child_id:
-    type: ref_id
   col_id:
     type: foreign_key
-    value: test_table
+    value: main.test_table
   update_date:
     type: now
   update_user:

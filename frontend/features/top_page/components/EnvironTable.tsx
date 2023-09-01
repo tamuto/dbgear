@@ -42,6 +42,7 @@ const EnvironListPage = () => {
   const environs = useProject(state => state.environs)
   const info = useProject(state => state.projectInfo)
   const navigate = useNavigate()
+  console.log(environs)
 
   return (
     <Stack>
@@ -65,7 +66,9 @@ const EnvironListPage = () => {
                   {/* TODO 配布可能ならアイコンとかで表示する。 */}
                   <TableCell className='name'>
                     <span className='name'>{item.group} / {item.name}</span>
-                    <span className='id'>{item.id}</span>
+                    <span className='id'>
+                      {item.id} {item.base && `=> ${item.base}`}
+                    </span>
                   </TableCell>
                   <TableCell className='description'><Description value={item.description} /></TableCell>
                 </TableRow>

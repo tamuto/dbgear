@@ -3,7 +3,7 @@ layout: table
 settings:
   col_id:
     type: foreign_key
-    value: test_table
+    value: main.test_table
   update_date:
     type: now
   update_user:

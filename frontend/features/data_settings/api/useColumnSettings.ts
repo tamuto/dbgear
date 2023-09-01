@@ -12,7 +12,7 @@ const _judgeDefvalue = (
 ): string | object => {
   if (settings && field.columnName in settings) {
     if (settings[field.columnName].type === FK) {
-      return `${FK}.${settings[field.columnName].value}`
+      return `${FK}:${settings[field.columnName].value}`
     }
     return settings[field.columnName].type
   }

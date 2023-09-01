@@ -97,7 +97,6 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       if (val === '') {
         continue
       }
-      // FIXME embeddedはUIサポートしていない
       if (val.startsWith(FK)) {
         const fkTable = val.split(':')[1]
         newDM.settings[key] = {
