@@ -4,21 +4,22 @@ from dataclasses import asdict
 from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
+from .. import const
 
+from .column import CellItem
 from .data import DataModel
 from .data import GridColumn
 from .data import DataInfo
 from . import column
 from . import layout_table
-from .column import CellItem
 
 
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
+    row_items = column.get_axis_items(proj, map, dm.settings, dm.y_axis, dm.instance)
     items = column.get_axis_items(proj, map, dm.settings, dm.x_axis, dm.instance)
     cells = column.make_cell_item(proj, map, dm, table)
-    columns = _build_columns(dm, items, cells)
+    columns = _build_columns(dm, row_items, items, cells)
 
-    row_items = column.get_axis_items(proj, map, dm.settings, dm.y_axis, dm.instance)
     matrix = {k['value']: {dm.y_axis: k['value'], '_sort_key': k['caption']} for k in row_items}
     for d in data:
         y_data = d[dm.y_axis]
@@ -35,12 +36,18 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
     )
 
 
-def _build_columns(dm: DataModel, items: list[object], cells: list[CellItem]) -> list[GridColumn]:
+def _build_columns(dm: DataModel, row_items: list[object], items: list[object], cells: list[CellItem]) -> list[GridColumn]:
+    width = const.DEFAULT_WIDTH
+    if 'width' in dm.settings[dm.y_axis]:
+        width = dm.settings[dm.y_axis]['width']
     columns = []
     columns.append(column.make_grid_column(
         dm.y_axis,
         '',
-        editable=False
+        type=const.FIELD_TYPE_SELECTABLE,
+        width=width,
+        editable=False,
+        items=row_items
     ))
     columns.extend([
         column.make_grid_column(

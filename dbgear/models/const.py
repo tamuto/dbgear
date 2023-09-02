@@ -23,3 +23,6 @@ FIELD_TYPE_SYSTEM = 'system'
 
 # 同期モード
 SYNC_MODE_DROP_CREATE = 'drop_create'
+
+# フィールド幅
+DEFAULT_WIDTH = 150

@@ -20,7 +20,7 @@ def make_grid_column(
         display_name: str,
         *,
         type: str = const.FIELD_TYPE_STRING,
-        width: int = 150,
+        width: int = const.DEFAULT_WIDTH,
         editable: bool = True,
         hide: bool = False,
         items: list | None = None,
@@ -75,6 +75,7 @@ class CellItem:
     column_name: str
     display_name: str
     type: str = const.FIELD_TYPE_STRING
+    width: int = const.DEFAULT_WIDTH
     editable: bool = True
     items: list[object] | None = None
     fixed_value: str | None = None
@@ -98,6 +99,7 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     column_name=field.column_name,
                     display_name=field.display_name,
                     type=const.FIELD_TYPE_SELECTABLE,
+                    width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
                     editable=True,
                     items=items
                 ))
@@ -107,6 +109,7 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     result.append(CellItem(
                         column_name=field.column_name,
                         display_name=field.display_name,
+                        width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
                         editable=False,
                         fixed_value=bind.value
                     ))
@@ -114,6 +117,7 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     result.append(CellItem(
                         column_name=field.column_name,
                         display_name=field.display_name,
+                        width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
                         editable=False,
                         call_value=bind.value
                     ))
@@ -121,6 +125,8 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     result.append(CellItem(
                         column_name=field.column_name,
                         display_name=field.display_name,
+                        type=const.FIELD_TYPE_SELECTABLE,
+                        width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
                         items=bind.items
                     ))
         else:

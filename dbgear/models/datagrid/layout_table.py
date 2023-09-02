@@ -56,6 +56,7 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
             field.column_name,
             field.display_name,
             type=const.FIELD_TYPE_SELECTABLE,
+            width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
             items=items)
 
     bind = proj.bindings[setting['type']]
@@ -63,6 +64,7 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
         return column.make_grid_column(
             field.column_name,
             field.display_name,
+            width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
             editable=False,
             hide=True,
             fixed_value=bind.value)
@@ -70,12 +72,14 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
         return column.make_grid_column(
             field.column_name,
             field.display_name,
+            width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
             editable=False,
             call_value=bind.value)
     if bind.type == const.BIND_TYPE_SELECTABLE:
         return column.make_grid_column(
             field.column_name,
             field.display_name,
+            width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
             type=const.FIELD_TYPE_SELECTABLE,
             items=bind.items)
     raise RuntimeError('Unknown Data Type')
