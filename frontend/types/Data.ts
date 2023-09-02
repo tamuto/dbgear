@@ -1,6 +1,7 @@
 interface SettingValue {
   type: string,
   value?: string,
+  width?: number
 }
 
 interface DataModel {

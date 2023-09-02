@@ -93,20 +93,28 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       cells: values.cells
     }
     for (const key of Object.keys(values.fields)) {
+      if (key.endsWith('_width')) {
+        // _widthは無視
+        continue
+      }
       const val: string = values.fields[key]
-      if (val === '') {
+      const width: number = parseInt(values.fields[key + '_width'])
+      if (val === '' && Number.isNaN(width)) {
         continue
       }
       if (val.startsWith(FK)) {
         const fkTable = val.split(':')[1]
         newDM.settings[key] = {
           type: FK,
-          value: fkTable
+          value: fkTable,
         }
       } else {
         newDM.settings[key] = {
           type: val,
         }
+      }
+      if (!Number.isNaN(width)) {
+        newDM.settings[key].width = width
       }
     }
     await axios<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(newDM, () => {})

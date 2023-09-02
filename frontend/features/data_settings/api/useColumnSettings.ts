@@ -25,6 +25,13 @@ const _judgeDefvalue = (
   return ''
 }
 
+const _judgeWidth = (field: Field, settings: { [key: string]: SettingValue } | undefined): number | string => {
+  if (settings && field.columnName in settings) {
+    return settings[field.columnName].width || ''
+  }
+  return ''
+}
+
 const _buildField = (
   projectInfo: ProjectInfo,
   tableInfo: Table,
@@ -36,7 +43,8 @@ const _buildField = (
       key: field.columnName,
       label: field.displayName,
       name: _makeFieldName(field),
-      defvalue: _judgeDefvalue(projectInfo, field, settings)
+      defValue: _judgeDefvalue(projectInfo, field, settings),
+      width: _judgeWidth(field, settings)
     })
   }
   return ret
@@ -52,9 +60,11 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
   const _resetFields = (newFields: ColumnSettings[]) => {
     for (const field of columnFields) {
       unregister(field.name)
+      unregister(field.name + '_width')
     }
     for (const field of newFields) {
-      setValue(field.name, field.defvalue)
+      setValue(field.name, field.defValue)
+      setValue(field.name + '_width', field.width)
     }
   }
 

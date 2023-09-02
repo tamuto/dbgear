@@ -11,7 +11,8 @@ BIND_TYPE_FIXED = 'fixed'
 BIND_TYPE_SELECTABLE = 'selectable'
 BIND_TYPE_CALL = 'call'
 # カラム定義（特殊タイプ）
-BIND_TYPE_FOREIGN_KEY = "foreign_key"
+BIND_TYPE_FOREIGN_KEY = 'foreign_key'
+BIND_TYPE_BLANK = ''
 
 # callのタイプ
 CALL_TYPE_UUID = 'uuid'

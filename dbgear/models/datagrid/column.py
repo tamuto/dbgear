@@ -91,7 +91,13 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
         field = find_field(table.fields, cell)
         if cell in dm.settings:
             setting = dm.settings[cell]
-            if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
+            if setting['type'] == const.BIND_TYPE_BLANK:
+                result.append(CellItem(
+                    column_name=field.column_name,
+                    display_name=field.display_name,
+                    width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH
+                ))
+            elif setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
                 splt = setting['value'].split('.')
                 items = load_for_select_items(proj.folder, map, splt[0], splt[1])
 

@@ -44,6 +44,7 @@ export const ja = {
     updateDiff: '差分更新',
     upload: 'アップロード',
     valueField: '値',
+    width: '幅',
     xAxis: 'X軸カラム',
     yAxis: 'Y軸カラム',
   },

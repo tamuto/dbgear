@@ -32,19 +32,24 @@ def build_one_row(proj: Project, map: Mapping, dm: DataModel, table: Table) -> d
 def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
     columns = []
     for field in table.fields:
-        if field.column_name in dm.settings:
-            grid_column = _make_grid_column_from_setting(proj, map, dm, field)
-        else:
-            grid_column = column.make_grid_column(
-                field.column_name,
-                field.display_name)
-
+        grid_column = _make_grid_column_from_setting(proj, map, dm, field)
         columns.append(grid_column)
     return columns
 
 
 def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, field: Field):
+    if field.column_name not in dm.settings:
+        return column.make_grid_column(
+            field.column_name,
+            field.display_name)
+
     setting = dm.settings[field.column_name]
+    if setting['type'] == const.BIND_TYPE_BLANK:
+        return column.make_grid_column(
+            field.column_name,
+            field.display_name,
+            width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH)
+
     if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
         # 選択肢は外部データを参照する以外は選択型と同じ
         splt = setting['value'].split('.')
