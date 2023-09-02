@@ -5,20 +5,22 @@ from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
 from ..schema import find_field
+from .. import const
 
+from .column import CellItem
 from .data import DataModel
 from .data import GridColumn
 from .data import DataInfo
 from . import column
 from . import layout_table
-from .column import CellItem
 
 
 def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
-    cells = column.make_cell_item(proj, map, dm, table)
-    columns = _build_column(dm, table, cells)
-
+    field = find_field(table.fields, dm.y_axis)
     row_items = column.get_axis_items(proj, map, dm.settings, dm.y_axis, dm.instance)
+    cells = column.make_cell_item(proj, map, dm, table)
+    columns = _build_column(dm, field.display_name, row_items, cells)
+
     matrix = {k['value']: {dm.y_axis: k['value'], '_sort_key': k['caption']} for k in row_items}
     for d in data:
         y_data = d[dm.y_axis]
@@ -35,13 +37,18 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
     )
 
 
-def _build_column(dm: DataModel, table: Table, cells: list[CellItem]) -> list[GridColumn]:
+def _build_column(dm: DataModel, display_name: str, row_items: list[object], cells: list[CellItem]) -> list[GridColumn]:
+    width = const.DEFAULT_WIDTH
+    if 'width' in dm.settings[dm.y_axis]:
+        width = dm.settings[dm.y_axis]['width']
     columns = []
-    field = find_field(table.fields, dm.y_axis)
     columns.append(column.make_grid_column(
         dm.y_axis,
-        field.display_name,
-        editable=False
+        display_name,
+        type=const.FIELD_TYPE_SELECTABLE,
+        width=width,
+        editable=False,
+        items=row_items
     ))
     columns.extend([column.make_grid_column(**asdict(cell)) for cell in cells])
     return columns
