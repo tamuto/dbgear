@@ -74,14 +74,16 @@ class ProjectInfo(BaseSchema):
 class DataFilename(BaseSchema):
     instance: str
     table_name: str
-    display_name: str
+    display_name: str | None
+    description: str | None
 
 
-def convert_to_data_filename(instance: str, tbl: Table):
+def convert_to_data_filename(instance: str, tbl: Table, description: str | None = None):
     return DataFilename(
         instance=instance,
         table_name=tbl.table_name,
-        display_name=tbl.display_name
+        display_name=tbl.display_name,
+        description=description
     )
 
 

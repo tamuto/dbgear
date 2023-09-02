@@ -18,7 +18,22 @@ import useProject from '~/api/useProject'
 
 const tableCss = css`
 .entity {
-  width: 350px;
+  width: 250px;
+}
+.entity span {
+  display: block;
+}
+.entity .displayName {
+  font-size: 0.8em;
+  color: #999;
+}
+.entity .displayName::before {
+  content: '(';
+}
+.entity .displayName::after {
+  content: ')';
+}
+.description {
 }
 `
 
@@ -40,8 +55,8 @@ const EnvironPage = () => {
         <Table css={tableCss}>
           <TableHead>
             <TableRow>
-              <TableCell className='entity'>{t('caption.dataName')}</TableCell>
-              <TableCell className='displayName'>{t('caption.remarks')}</TableCell>
+              <TableCell className='name'>{t('caption.dataName')}</TableCell>
+              <TableCell className='description'>{t('caption.description')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -52,8 +67,11 @@ const EnvironPage = () => {
                   key={item.tableName}
                   onClick={() => navigate(`/environs/${id}/${item.instance}/${item.tableName}/_data`)}
                 >
-                  <TableCell className='entity'>{item.instance}.{item.tableName}</TableCell>
-                  <TableCell className='displayName'>{item.displayName}</TableCell>
+                  <TableCell className='entity'>
+                    <span className='entity'>{item.instance}.{item.tableName}</span>
+                    <span className='displayName'>{item.displayName}</span>
+                  </TableCell>
+                  <TableCell className='description'><Description value={item.description} /></TableCell>
                 </TableRow>
               ))
             }

@@ -53,7 +53,11 @@ def get_tables(id: str, request: Request):
     '''
     proj = project(request)
     tables = [
-        convert_to_data_filename(ins, tbl)
+        convert_to_data_filename(
+            ins,
+            tbl,
+            entity.get_description(proj, id, ins, tbl.table_name)
+        )
         for ins, tbl in entity.items(proj.schemas, proj.folder, id)
     ]
     return Result(data=tables)

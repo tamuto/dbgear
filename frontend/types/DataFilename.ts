@@ -1,5 +1,6 @@
 interface DataFilename {
   instance: string,
   tableName: string,
-  displayName: string
+  displayName: string,
+  description?: string
 }

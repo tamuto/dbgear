@@ -45,6 +45,16 @@ def get_row(proj: Project, map: Mapping, ins: str, tbl: str) -> dict[str, object
     return row
 
 
+def get_description(proj: Project, id: str, ins: str, tbl: str) -> str:
+    return load_model(
+        get_data_model_name(proj.folder, id, ins, tbl),
+        DataModel,
+        id=id,
+        instance=ins,
+        table_name=tbl
+    ).description
+
+
 def items(schemas: dict[str, Schema], folder: str, id: str, *, exist: bool = True) -> list[tuple[str, Table]]:
     config = mapping.get(folder, id)
     tables = []
