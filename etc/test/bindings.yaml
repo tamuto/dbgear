@@ -1,0 +1,38 @@
+uuid:
+  type: fixed
+  value: UUID()
+now:
+  type: fixed
+  value: NOW()
+update_user:
+  type: fixed
+  value: SYSTEM
+set_y:
+  type: fixed
+  value: Y
+set_n:
+  type: fixed
+  value: N
+y_or_n:
+  type: selectable
+  value: Yes or No
+  items:
+    - caption: Yes
+      value: Y
+    - caption: No
+      value: N
+gen_uuid:
+  type: call
+  value: uuid
+property_items:
+  type: selectable
+  value: Property Items
+  items:
+    - caption: Item1
+      value: AAA
+    - caption: Item2
+      value: BBB
+    - caption: Item3
+      value: CCC
+    - caption: Item4
+      value: DDD
