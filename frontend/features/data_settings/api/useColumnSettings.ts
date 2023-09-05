@@ -12,7 +12,10 @@ const _judgeDefvalue = (
 ): string | object => {
   if (settings && field.columnName in settings) {
     if (settings[field.columnName].type === FK) {
-      return `${FK}:${settings[field.columnName].value}`
+      const id = settings[field.columnName].id
+      const ins = settings[field.columnName].instance
+      const tbl = settings[field.columnName].table
+      return `${FK}:${id}/${ins}.${tbl}`
     }
     return settings[field.columnName].type
   }
@@ -53,9 +56,7 @@ const _buildField = (
 const useColumnSettings = (setValue: Function, unregister: Function) => {
   const axios = useAxios()
   const projectInfo = useProject(state => state.projectInfo)
-  const dataList = useProject(state => state.dataList)
   const [columnFields, setColumnFields] = useState<ColumnSettings[]>([])
-  const [fieldItems, setFieldItems] = useState<FieldItem[]>([])
 
   const _resetFields = (newFields: ColumnSettings[]) => {
     for (const field of columnFields) {
@@ -86,32 +87,10 @@ const useColumnSettings = (setValue: Function, unregister: Function) => {
     setColumnFields(newFields)
   }
 
-  const setupFieldItems = () => {
-    const data = [
-      ...Object.keys(projectInfo!.bindings).map(key => {
-        const item: FieldItem = {
-          value: key,
-          caption: projectInfo!.bindings[key].value,
-        }
-        return item
-      }),
-      ...dataList.map(data => {
-        const item: FieldItem = {
-          value: `${FK}:${data.instance}.${data.tableName}`,
-          caption: `${data.instance}.${data.tableName} (${data.displayName})`,
-        }
-        return item
-      }).sort((a, b) => { return a.caption.localeCompare(b.caption) })
-    ]
-    setFieldItems(data)
-  }
-
   return {
     retrieveTableInfo,
     setupField,
-    setupFieldItems,
-    columnFields,
-    fieldItems
+    columnFields
   }
 }
 

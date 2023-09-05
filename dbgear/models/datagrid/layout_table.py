@@ -50,10 +50,12 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
             field.display_name,
             width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH)
 
-    if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
+    if setting['type'] == const.BIND_TYPE_REFS:
         # 選択肢は外部データを参照する以外は選択型と同じ
-        splt = setting['value'].split('.')
-        items = column.load_for_select_items(proj.folder, map, splt[0], splt[1])
+        id = setting['id']
+        ins = setting['instance']
+        tbl = setting['table']
+        items = column.load_for_select_items(proj.folder, id, ins, tbl)
         if items is None:
             # データが見つからなければ空の配列とする
             items = []

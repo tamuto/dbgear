@@ -24,6 +24,7 @@ interface ProjectState {
   currentMapping: Mapping | null,
   environs: MappingTree[],
   dataList: DataFilename[],
+  refs: DataFilename[],
   updateProjectInfo: () => void,
   setCurrentPath: (path: string) => void,
   updateEnvirons: () => void,

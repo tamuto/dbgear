@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 from .api import project
 from .api import tables
 from .api import environs
+from .api import refs
 
 from .models.project import Project
 
@@ -16,6 +17,7 @@ app.mount('/static', StaticFiles(directory=f'{os.path.dirname(__file__)}/web', h
 app.include_router(project.router)
 app.include_router(tables.router)
 app.include_router(environs.router)
+app.include_router(refs.router)
 
 
 @app.get('/')

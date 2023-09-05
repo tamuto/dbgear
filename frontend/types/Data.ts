@@ -1,6 +1,8 @@
 interface SettingValue {
   type: string,
-  value?: string,
+  id?: string,
+  instance?: string,
+  table?: string,
   width?: number
 }
 

@@ -1,11 +1,15 @@
 layout: matrix
 settings:
   row_id:
-    type: foreign_key
-    value: main.row_table
+    type: refs
+    id: test2
+    instance: main
+    table: row_table
   child_id:
-    type: foreign_key
-    value: main.tbl_child
+    type: refs
+    id: test2
+    instance: main
+    table: tbl_child
   value:
     type: y_or_n
   update_date:
