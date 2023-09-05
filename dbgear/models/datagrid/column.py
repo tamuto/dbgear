@@ -42,21 +42,18 @@ def make_grid_column(
     )
 
 
-def load_for_select_items(folder: str, map: Mapping, ins: str, ref: str):
+def load_for_select_items(folder: str, id: str, ins: str, ref: str):
     '''
     マスタデータをロードして、選択肢用データを生成する。
     '''
-    items = load_data(folder, map.id, ins, ref, True)
-    if items is None:
-        if map.parent is not None:
-            items = load_for_select_items(folder, map.parent, ins, ref)
-    else:
+    items = load_data(folder, id, ins, ref, True)
+    if items is not None:
         # データが見つかった場合には、DataModelをロードし、
         # caption, valueのデータを生成する
         dm: DataModel = load_model(
-            get_data_model_name(folder, map.id, ins, ref),
+            get_data_model_name(folder, id, ins, ref),
             DataModel,
-            id=map.id,
+            id=id,
             instance=ins,
             table_name=ref
         )
@@ -97,9 +94,11 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                     display_name=field.display_name,
                     width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH
                 ))
-            elif setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
-                splt = setting['value'].split('.')
-                items = load_for_select_items(proj.folder, map, splt[0], splt[1])
+            elif setting['type'] == const.BIND_TYPE_REFS:
+                id = setting['id']
+                ins = setting['instance']
+                tbl = setting['table']
+                items = load_for_select_items(proj.folder, id, ins, tbl)
 
                 result.append(CellItem(
                     column_name=field.column_name,
@@ -182,9 +181,11 @@ def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True, fi
 def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axis: str, ins: str) -> list[object]:
     items = None
     setting = settings[axis]
-    if setting['type'] == const.BIND_TYPE_FOREIGN_KEY:
-        splt = setting['value'].split('.')
-        items = load_for_select_items(proj.folder, map, splt[0], splt[1])
+    if setting['type'] == const.BIND_TYPE_REFS:
+        id = setting['id']
+        ins = setting['instance']
+        tbl = setting['table']
+        items = load_for_select_items(proj.folder, id, ins, tbl)
     elif setting['type'] in proj.bindings:
         bind = proj.bindings[setting['type']]
         if bind.type == const.BIND_TYPE_SELECTABLE:

@@ -25,6 +25,7 @@ const useProject = create<ProjectState>((set, get) => ({
   currentMapping: null,
   environs: [],
   dataList: [],
+  refs: [],
   updateProjectInfo: async () => {
     const axios = useAxios()
     return axios<ProjectInfo>('/project').get(result => {
@@ -64,14 +65,21 @@ const useProject = create<ProjectState>((set, get) => ({
     })
   },
   updateDataList: async (id) => {
+    const axios = useAxios()
+    const a = axios<DataFilename[]>(`/refs`).get(result => {
+      set({
+        refs: result
+      })
+    })
     if (id) {
-      const axios = useAxios()
-      return axios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
+      const b = axios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
         set({
           dataList: result
         })
       })
+      return Promise.all([a, b])
     }
+    return a
   }
 }))
 

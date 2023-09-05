@@ -1,1 +1,1 @@
-export const FK = 'foreign_key'
+export const FK = 'refs'

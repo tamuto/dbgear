@@ -1,8 +1,10 @@
 layout: table
 settings:
   col_id:
-    type: foreign_key
-    value: main.test_table
+    type: refs
+    id: test2
+    instance: main
+    table: test_table
   update_date:
     type: now
   update_user:

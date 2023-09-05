@@ -26,7 +26,7 @@ def create(conn, env: str, table: Table):
     engine.execute(conn, sql)
 
     for idx, index in enumerate(table.indexes):
-        sql = f'CREATE INDEX '
+        sql = 'CREATE INDEX '
         sql += f'{table.table_name}_IX{idx} ' if index.index_name is None else f'{index.index_name} '
         sql += f'ON {env}.{table.table_name} ('
         sql += ', '.join(index.columns)

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 
 import useProject from '~/api/useProject'
 import useColumnSettings from './useColumnSettings'
+import useFieldItems from './useFieldItems'
 import useAxios from '~/api/useAxios'
 
 import { FK } from './const'
@@ -45,13 +46,13 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
   const {
     retrieveTableInfo,
     setupField,
-    setupFieldItems,
     columnFields,
-    fieldItems
   } = useColumnSettings(setValue, unregister)
+  const {
+    fieldItems
+  } = useFieldItems()
 
   useEffect(() => {
-    setupFieldItems()
     axios<DataFilename[]>(`/environs/${id}/init`).get(result => {
       setTableList(result)
     })
@@ -73,7 +74,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
   }, [data])
 
   useEffect(() => {
-    // プルダウン変更時の処理
+    // 対象テーブルのプルダウン変更時の処理
     if (!data) {
       retrieveTableInfo(table)
     }
@@ -102,13 +103,18 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       if (val === '' && Number.isNaN(width)) {
         continue
       }
+      console.log(val)
       if (val.startsWith(FK)) {
-        const fkTable = val.split(':')[1]
+        const [typ, id, ins, tbl] = val.split(/[:\/\.]/)
+        console.log(typ, id, ins, tbl)
         newDM.settings[key] = {
-          type: FK,
-          value: fkTable,
+          type: typ,
+          id: id,
+          instance: ins,
+          table: tbl,
         }
       } else {
+        console.log('not refs')
         newDM.settings[key] = {
           type: val,
         }
