@@ -1,7 +1,10 @@
 layout: single
 settings:
   key:
-    type: property_items
+    type: refs
+    id: test2
+    instance: _select
+    table: property_keys
   update_date:
     type: now
   update_user:

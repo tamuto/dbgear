@@ -1,0 +1,4 @@
+- id: Y
+  caption: 'Yes'
+- id: N
+  caption: 'No'

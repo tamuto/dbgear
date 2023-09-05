@@ -19,12 +19,11 @@ class Project:
         self.folder = folder
 
         data = load_yaml(f'{folder}/project.yaml')
-        bindings = load_yaml(f'{folder}/bindings.yaml')
         self.project_name = data['project_name']
         self.description = data['description']
         self._rules = data['rules']
         self._definitions = data['definitions']
-        self._bindings = {k: Binding(**v) for k, v in bindings.items()}
+        self._bindings = {k: Binding(**v) for k, v in data['bindings'].items()}
         self._schemas = {}
         self.deployments = data['deployments']
 
@@ -46,7 +45,7 @@ class Project:
 
     def read_definitions(self) -> None:
         for items in self._definitions:
-            self.logger.info(f"definition: {items['filename']}, {items['type']}")
+            self.logger.info(f"definition: {items['type']}")
             module = import_module(f'.{items["type"]}', 'dbgear.definitions')
             result = module.retrieve(self.folder, **items)
 
