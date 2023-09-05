@@ -126,14 +126,6 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                         editable=False,
                         call_value=bind.value
                     ))
-                elif bind.type == const.BIND_TYPE_SELECTABLE:
-                    result.append(CellItem(
-                        column_name=field.column_name,
-                        display_name=field.display_name,
-                        type=const.FIELD_TYPE_SELECTABLE,
-                        width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
-                        items=bind.items
-                    ))
         else:
             result.append(CellItem(
                 column_name=field.column_name,
@@ -186,10 +178,6 @@ def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axi
         ins = setting['instance']
         tbl = setting['table']
         items = load_for_select_items(proj.folder, id, ins, tbl)
-    elif setting['type'] in proj.bindings:
-        bind = proj.bindings[setting['type']]
-        if bind.type == const.BIND_TYPE_SELECTABLE:
-            items = bind.items
     if items is None:
         raise RuntimeError(f'No Data for axis. ({ins}@{axis})')
     return items

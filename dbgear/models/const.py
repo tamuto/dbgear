@@ -8,7 +8,6 @@ LAYOUT_SINGLE = 'single'
 
 # カラム定義
 BIND_TYPE_FIXED = 'fixed'
-BIND_TYPE_SELECTABLE = 'selectable'
 BIND_TYPE_CALL = 'call'
 # カラム定義（特殊タイプ）
 BIND_TYPE_REFS = 'refs'

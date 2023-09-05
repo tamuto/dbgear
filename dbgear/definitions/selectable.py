@@ -11,8 +11,8 @@ def retrieve(folder, prefix, items, **kwargs):
         schema.add_table(table)
 
         table.fields.append(Field(
-            column_name='id',
-            display_name='ID',
+            column_name='value',
+            display_name='Value',
             column_type='varchar',
             nullable=False,
             primary_key=1,

@@ -1,4 +1,4 @@
-- id: Y
+- value: Y
   caption: 'Yes'
-- id: N
+- value: N
   caption: 'No'

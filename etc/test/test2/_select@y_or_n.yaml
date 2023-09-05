@@ -2,5 +2,5 @@ description: テストテーブル用データ
 layout: table
 settings: {}
 sync_mode: drop_create
-value: id
+value: value
 caption: caption

@@ -8,8 +8,7 @@ from .fileio import load_yaml
 
 class Binding(BaseSchema):
     type: str
-    value: str | None = None
-    items: list | None = None
+    value: str
 
 
 class Project:
