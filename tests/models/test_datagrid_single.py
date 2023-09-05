@@ -27,7 +27,7 @@ class TestDataGrid(unittest.TestCase):
         self.assertEqual(len(info.grid_columns), 2)
         self.assertEqual(info.grid_columns[1].field, 'value')
         self.assertEqual(info.grid_columns[1].header_name, '値')
-        self.assertEqual(len(info.grid_rows), 4)
+        self.assertEqual(len(info.grid_rows), 2)
 
     def test_parse(self):
         proj = Project(FOLDER_PATH)

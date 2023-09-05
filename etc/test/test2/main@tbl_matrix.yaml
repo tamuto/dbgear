@@ -11,7 +11,10 @@ settings:
     instance: main
     table: tbl_child
   value:
-    type: y_or_n
+    type: refs
+    id: test2
+    instance: _select
+    table: y_or_n
   update_date:
     type: now
   update_user:
