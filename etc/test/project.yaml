@@ -10,7 +10,7 @@ definitions:
     prefix: _select
     items:
       y_or_n: Yes or No
-      property_keys: システムプロパティキー
+      property_keys: Property Keys
 
 bindings:
   uuid:
