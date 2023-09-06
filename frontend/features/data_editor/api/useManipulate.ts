@@ -6,15 +6,14 @@ import {
   GridApiCommon
 } from '@mui/x-data-grid'
 
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 
 const useManipulate = (apiRef: MutableRefObject<GridApiCommon>) => {
-  const axios = useAxios()
   const { t } = useTranslation()
   const { id, instance, table } = useParams()
 
   const append = async () => {
-    axios<{ [key: string]: any }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
+    nxio<{ [key: string]: object }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
       console.log(result)
       apiRef.current.updateRows([result])
     })
@@ -29,7 +28,7 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>) => {
 
   const save = async () => {
     const data = apiRef.current.getSortedRows()
-    axios<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
+    nxio<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
     })
   }

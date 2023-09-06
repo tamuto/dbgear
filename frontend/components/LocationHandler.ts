@@ -23,7 +23,7 @@ const LocationHandler: FC<Props> = ({ children }) => {
   useEffect(() => {
     setCurrentPath(pathname)
     updateDataList(id)
-  }, [pathname])
+  }, [setCurrentPath, updateDataList, id, pathname])
 
   return children
 }

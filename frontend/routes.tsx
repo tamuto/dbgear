@@ -1,3 +1,4 @@
+import { LoaderFunction } from 'react-router-dom'
 import useProject from '~/api/useProject'
 
 import BaseLayout from '~/cmp/BaseLayout'
@@ -10,18 +11,20 @@ import DataEditor from './features/data_editor/components/DataEditor'
 import DataSettings from './features/data_settings/components/DataSettings'
 import DataSettingsWrapper from './features/data_settings/components/DataSettingsWrapper'
 
+const loader: LoaderFunction = async (opts) => {
+  await useProject.getState().updateProjectInfo()
+  await useProject.getState().updateEnvirons()
+  if (opts.params.id) {
+    // 既にIDがある場合は、データリストを更新する
+    await useProject.getState().updateDataList(opts.params.id)
+  }
+  return null
+}
+
 const routes = [
   {
     element: <BaseLayout />,
-    loader: async (opts: any) => {
-      await useProject.getState().updateProjectInfo()
-      await useProject.getState().updateEnvirons()
-      if (opts.params.id) {
-        // 既にIDがある場合は、データリストを更新する
-        await useProject.getState().updateDataList(opts.params.id)
-      }
-      return null
-    },
+    loader,
     children: [
       {
         index: true,

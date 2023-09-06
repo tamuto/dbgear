@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
 import useProject from '~/api/useProject'
 import { FK } from './const'
@@ -6,9 +6,9 @@ import { FK } from './const'
 const useFiedlItems = () => {
   const projectInfo = useProject(state => state.projectInfo)
   const refs = useProject(state => state.refs)
-  const [fieldItems, setFieldItems] = useState<FieldItem[]>([])
+  // const [fieldItems, setFieldItems] = useState<FieldItem[]>([])
 
-  useEffect(() => {
+  const fieldItems = useMemo(() => {
     const data = [
       ...Object.keys(projectInfo!.bindings).map(key => {
         const item: FieldItem = {
@@ -25,8 +25,9 @@ const useFiedlItems = () => {
         return item
       }).sort((a, b) => { return a.caption.localeCompare(b.caption) })
     ]
-    setFieldItems(data)
-  }, [])
+    return data
+    // setFieldItems(data)
+  }, [projectInfo, refs])
 
   return {
     fieldItems

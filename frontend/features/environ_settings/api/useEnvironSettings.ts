@@ -5,11 +5,10 @@ import {
 import { useTranslation } from 'react-i18next'
 import { enqueueSnackbar } from 'notistack'
 
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 import useProject from '~/api/useProject'
 
 const useEnvironSettings = () => {
-  const axios = useAxios()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const updateEnvirons = useProject(state => state.updateEnvirons)
@@ -34,7 +33,7 @@ const useEnvironSettings = () => {
       description: data.description,
       deployment: data.deployment
     }
-    axios<null>(`/environs/${data.id}`).post(mapData, () => {
+    nxio<null>(`/environs/${data.id}`).post(mapData, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
       updateEnvirons()
       navigate('/')

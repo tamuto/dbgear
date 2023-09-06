@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo, SyntheticEvent } from 'react'
+import { useState, useEffect, useMemo, SyntheticEvent, useCallback } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 
 const useDataTab = () => {
-  const axios = useAxios()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { id, instance, table } = useParams()
@@ -19,16 +18,16 @@ const useDataTab = () => {
 
   const [data, setData] = useState<Data|null>(null)
 
-  const reload = async () => {
-    axios<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
+  const reload = useCallback(async () => {
+    nxio<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
       console.log(result)
       setData(result)
     })
-  }
+  }, [id, instance, table])
 
   useEffect(() => {
     reload()
-  }, [id, instance, table])
+  }, [reload])
 
   return {
     tabIndex,

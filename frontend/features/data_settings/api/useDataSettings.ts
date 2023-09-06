@@ -5,25 +5,11 @@ import { useForm } from 'react-hook-form'
 import useProject from '~/api/useProject'
 import useColumnSettings from './useColumnSettings'
 import useFieldItems from './useFieldItems'
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 
 import { FK } from './const'
 
-type FormValues = {
-  table: string
-  description: string
-  syncMode: string
-  value: string
-  caption: string
-  layout: string
-  xAxis: string
-  yAxis: string
-  cells: string[]
-  fields: { [key: string]: string }
-}
-
 const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
-  const axios = useAxios()
   const navigate = useNavigate()
   const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
@@ -53,10 +39,10 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
   } = useFieldItems()
 
   useEffect(() => {
-    axios<DataFilename[]>(`/environs/${id}/init`).get(result => {
+    nxio<DataFilename[]>(`/environs/${id}/init`).get(result => {
       setTableList(result)
     })
-  }, [])
+  }, [id])
 
   useEffect(() => {
     if (data) {
@@ -71,14 +57,14 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       setValue('cells', data.model.cells ?? [])
       setupField(data.table, data.model.settings)
     }
-  }, [data])
+  }, [data, setValue, setupField])
 
   useEffect(() => {
     // 対象テーブルのプルダウン変更時の処理
     if (!data) {
       retrieveTableInfo(table)
     }
-  }, [table])
+  }, [data, retrieveTableInfo, table])
 
   const onSubmit = handleSubmit(async (values) => {
     const [instance, tableName] = values.table.split('.')
@@ -123,7 +109,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
         newDM.settings[key].width = width
       }
     }
-    await axios<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(newDM, () => {})
+    await nxio<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(newDM, () => {})
     if (data) {
       // dataがある場合は、reloadも渡される。
       await reload!()
