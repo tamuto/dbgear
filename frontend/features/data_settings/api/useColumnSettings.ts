@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { UseFormSetValue, UseFormUnregister } from 'react-hook-form'
 import useProject from '~/api/useProject'
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 
 import { FK } from './const'
 
@@ -9,7 +10,7 @@ const _judgeDefvalue = (
   projectInfo: ProjectInfo,
   field: Field,
   settings: { [key: string]: SettingValue } | undefined
-): string | object => {
+): string => {
   if (settings && field.columnName in settings) {
     if (settings[field.columnName].type === FK) {
       const id = settings[field.columnName].id
@@ -28,9 +29,9 @@ const _judgeDefvalue = (
   return ''
 }
 
-const _judgeWidth = (field: Field, settings: { [key: string]: SettingValue } | undefined): number | string => {
+const _judgeWidth = (field: Field, settings: { [key: string]: SettingValue } | undefined): string => {
   if (settings && field.columnName in settings) {
-    return settings[field.columnName].width || ''
+    return settings[field.columnName].width?.toString() || ''
   }
   return ''
 }
@@ -53,39 +54,43 @@ const _buildField = (
   return ret
 }
 
-const useColumnSettings = (setValue: Function, unregister: Function) => {
-  const axios = useAxios()
+const useColumnSettings = (setValue: UseFormSetValue<FormValues>, unregister: UseFormUnregister<FormValues>) => {
   const projectInfo = useProject(state => state.projectInfo)
   const [columnFields, setColumnFields] = useState<ColumnSettings[]>([])
 
-  const _resetFields = (newFields: ColumnSettings[]) => {
+  const _resetFields = useCallback((newFields: ColumnSettings[]) => {
     for (const field of columnFields) {
-      unregister(field.name)
-      unregister(field.name + '_width')
+      if (field.name.startsWith('fields.')) {
+        unregister(`fields.${field.key}`)
+        unregister(`fields.${field.key}_width`)
+      }
     }
     for (const field of newFields) {
-      setValue(field.name, field.defValue)
-      setValue(field.name + '_width', field.width)
+      setValue(`fields.${field.key}`, field.defValue)
+      setValue(`fields.${field.key}_width`, field.width)
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const retrieveTableInfo = async (table: string) => {
+  const retrieveTableInfo = useCallback(async (table: string) => {
     if (table === '') {
       return
     }
     const [instance, tableName] = table.split('.')
-    axios<Table>(`/tables/${instance}/${tableName}`).get(result => {
+    nxio<Table>(`/tables/${instance}/${tableName}`).get(result => {
       const newFields = _buildField(projectInfo!, result)
       _resetFields(newFields)
       setColumnFields(newFields)
     })
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const setupField = (table: Table, settings: { [key: string]: SettingValue }) => {
+  const setupField = useCallback((table: Table, settings: { [key: string]: SettingValue }) => {
     const newFields = _buildField(projectInfo!, table, settings)
     _resetFields(newFields)
     setColumnFields(newFields)
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return {
     retrieveTableInfo,

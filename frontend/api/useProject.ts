@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import useAxios from '~/api/useAxios'
+import nxio from '~/api/nxio'
 
 type parsedPathAndInfo = (currentPath: string, environs: MappingTree[]) => ({ mainMenu: boolean, currentMapping: Mapping | null })
 
@@ -27,8 +27,7 @@ const useProject = create<ProjectState>((set, get) => ({
   dataList: [],
   refs: [],
   updateProjectInfo: async () => {
-    const axios = useAxios()
-    return axios<ProjectInfo>('/project').get(result => {
+    return nxio<ProjectInfo>('/project').get(result => {
       console.log(result)
       set({
         projectInfo: result
@@ -49,8 +48,7 @@ const useProject = create<ProjectState>((set, get) => ({
     }
   },
   updateEnvirons: async () => {
-    const axios = useAxios()
-    return axios<MappingTree[]>('/environs').get((result) => {
+    return nxio<MappingTree[]>('/environs').get((result) => {
       if (get().currentPath) {
         const parsed = parsePathAndInfo(get().currentPath!, result)
         set({
@@ -65,14 +63,13 @@ const useProject = create<ProjectState>((set, get) => ({
     })
   },
   updateDataList: async (id) => {
-    const axios = useAxios()
-    const a = axios<DataFilename[]>(`/refs`).get(result => {
+    const a = nxio<DataFilename[]>(`/refs`).get(result => {
       set({
         refs: result
       })
     })
     if (id) {
-      const b = axios<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
+      const b = nxio<DataFilename[]>(`/environs/${id}/tables`).get((result) => {
         set({
           dataList: result
         })

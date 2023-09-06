@@ -35,7 +35,7 @@ interface GridColumn {
 
 interface DataInfo {
   gridColumns: GridColumn[],
-  gridRows: [{ [key: string]: any }],
+  gridRows: [{ [key: string]: object }],
   allowLineAdditionAndRemoval: boolean,
 }
 

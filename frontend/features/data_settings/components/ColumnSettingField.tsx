@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Control } from 'react-hook-form'
 import {
   Stack,
   MenuItem
@@ -9,7 +10,7 @@ import {
 } from '@infodb/uilib'
 
 type ColumnSettingFieldProps = {
-  control: any,
+  control: Control<FormValues>,
   columnField: ColumnSettings,
   fieldItems: FieldItem[]
 }

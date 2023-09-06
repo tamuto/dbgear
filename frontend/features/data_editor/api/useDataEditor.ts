@@ -7,6 +7,11 @@ import {
 import useVisibility from './useVisibility'
 import useManipulate from './useManipulate'
 
+type ValueCaption = {
+  value: string
+  caption: string
+}
+
 const useDataEditor = () => {
   const { data } = useOutletContext<{data: Data}>()
   const apiRef = useGridApiRef()
@@ -21,8 +26,8 @@ const useDataEditor = () => {
           ...props,
           type,
           valueOptions: items,
-          getOptionValue: (option: any) => option.value,
-          getOptionLabel: (option: any) => option.caption,
+          getOptionValue: (option: ValueCaption) => option.value,
+          getOptionLabel: (option: ValueCaption) => option.caption,
         }
       ))
     }
@@ -43,7 +48,7 @@ const useDataEditor = () => {
 
   useEffect(() => {
     apiRef.current.setColumnVisibilityModel(visibility.allColumns ? {} : columnVisibilityModel)
-  }, [visibility.allColumns, columnVisibilityModel])
+  }, [apiRef, visibility.allColumns, columnVisibilityModel])
 
   return {
     apiRef,
