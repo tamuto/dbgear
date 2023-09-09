@@ -26,7 +26,10 @@ def get_referencable(request: Request) -> Result:
         map = load_model(tmpl, Mapping, id=id)
         for dat in glob(get_environ_name(proj.folder, id) + '/*.dat'):
             name = dat.split('/')[-1]
-            (ins, tbl, _) = re.split('[.@]', name)
+            if '#' in name:
+                (ins, tbl, _, _) = re.split('[.@#]', name)
+            else:
+                (ins, tbl, _) = re.split('[.@]', name)
             table = proj.schemas[ins].get_table(tbl)
             data.append(DataFilename(
                 id=id,

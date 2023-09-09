@@ -21,6 +21,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       value: '',
       caption: '',
       layout: 'table',
+      segment: '',
       xAxis: '',
       yAxis: '',
       cells: [],
@@ -52,6 +53,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       setValue('layout', data.model.layout)
       setValue('value', data.model.value ?? '')
       setValue('caption', data.model.caption ?? '')
+      setValue('segment', data.model.segment ?? '')
       setValue('xAxis', data.model.xAxis ?? '')
       setValue('yAxis', data.model.yAxis ?? '')
       setValue('cells', data.model.cells ?? [])
@@ -75,6 +77,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
       syncMode: values.syncMode,
       value: values.value,
       caption: values.caption,
+      segment: values.segment,
       xAxis: values.xAxis,
       yAxis: values.yAxis,
       cells: values.cells
