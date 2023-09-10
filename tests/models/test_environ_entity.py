@@ -27,7 +27,7 @@ class TestEnviron(unittest.TestCase):
 
         map = mapping.get(proj.folder, 'test1')
 
-        dm, table, info = entity.get(proj, map, 'main', 'tbl_child')
+        dm, table, info = entity.get(proj, map, 'main', 'tbl_child', '001')
 
         self.assertEqual(dm.id, 'test1')
         self.assertEqual(dm.instance, 'main')
@@ -36,11 +36,10 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(len(dm.settings), 3)
         self.assertEqual(dm.settings['update_date']['type'], 'now')
         self.assertEqual(table.table_name, 'tbl_child')
-        self.assertEqual(len(info.grid_columns), 5)
-        self.assertEqual(info.grid_columns[1].field, 'col_id')
-        self.assertEqual(len(info.grid_columns[1].items), 2)
-        self.assertEqual(info.grid_columns[1].items[0]['caption'], 'P001')
-        self.assertEqual(info.grid_columns[1].items[0]['value'], '001')
-        self.assertEqual(info.grid_columns[1].items[1]['caption'], 'P002')
-        self.assertEqual(info.grid_columns[1].items[1]['value'], '002')
-        self.assertEqual(info.grid_rows, [])
+        self.assertEqual(len(info.grid_columns), 4)
+        self.assertEqual(info.grid_columns[1].field, 'name')
+        self.assertEqual(len(info.segments), 2)
+        self.assertEqual(info.segments[0].caption, 'P001')
+        self.assertEqual(info.segments[0].value, '001')
+        self.assertEqual(info.current, '001')
+        self.assertEqual(len(info.grid_rows), 3)

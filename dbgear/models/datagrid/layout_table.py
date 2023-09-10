@@ -7,17 +7,27 @@ from ..schema import Field
 from .. import const
 
 from .data import DataModel
+from .data import ListItem
 from .data import GridColumn
 from .data import DataInfo
 from . import column
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str | None, data: Any) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
-    columns = build_columns(proj, map, dm, table)
-    rows = [column.build_one_row(columns, d) for d in data]
-
+    columns, seg_info = build_columns(proj, map, dm, table)
+    rows = [column.make_one_row(columns, d) for d in data]
+    if segment is None:
+        return DataInfo(
+            segments=None,
+            current=None,
+            grid_columns=columns,
+            grid_rows=rows,
+            allow_line_addition_and_removal=False
+        )
     return DataInfo(
+        segments=seg_info[1],
+        current=segment,
         grid_columns=columns,
         grid_rows=rows,
         allow_line_addition_and_removal=True
@@ -25,16 +35,32 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
 
 
 def build_one_row(proj: Project, map: Mapping, dm: DataModel, table: Table) -> dict[str, Any]:
-    columns = build_columns(proj, map, dm, table)
-    return column.build_one_row(columns, {})
+    # ここでは画面表示用のデータ生成のため、セグメントは不要。
+    columns, _ = build_columns(proj, map, dm, table)
+    return column.make_one_row(columns, {})
 
 
-def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> list[GridColumn]:
+def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> tuple[list[GridColumn], tuple[str, list[ListItem]] | None]:
     columns = []
+    items = None
     for field in table.fields:
+        if field.column_name == dm.segment:
+            # セグメントは表示しないせずに、セグメントリストを作成する。
+            setting = dm.settings[field.column_name]
+            # 仮にrefs以外が設定されていた場合にはidやinstanceなどがないので、エラーとなる。
+            assert(setting['type'] == const.BIND_TYPE_REFS)
+            id = setting['id']
+            ins = setting['instance']
+            tbl = setting['table']
+            items = column.load_for_select_items(proj.folder, id, ins, tbl)
+            if items is None:
+                raise RuntimeError('Segment items not found.')
+            continue
         grid_column = _make_grid_column_from_setting(proj, map, dm, field)
         columns.append(grid_column)
-    return columns
+    if items is None:
+        return columns, None
+    return columns, (dm.segment, items)
 
 
 def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, field: Field):
@@ -85,8 +111,19 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
     raise RuntimeError('Unknown Data Type')
 
 
-def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object) -> list[dict[str, Any]]:
+def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str | None, rows: object) -> list[dict[str, Any]]:
     # idカラムを除いて返却する。
-    columns = build_columns(proj, map, dm, table)
-    data = [column.build_one_row(columns, d, False) for d in rows]
+    columns, seg_info = build_columns(proj, map, dm, table)
+    if segment is None:
+        data = [column.make_one_row(columns, d, need_id=False) for d in rows]
+        return data
+    # セグメントが指定された場合には、セグメントカラムを作成する。
+    data = [
+        column.make_one_row(
+            columns,
+            d,
+            need_id=False,
+            segment=(True, seg_info[0], segment)
+        ) for d in rows
+    ]
     return data

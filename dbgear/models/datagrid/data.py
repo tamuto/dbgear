@@ -18,6 +18,11 @@ class DataModel(BaseSchema):
     cells: list[str] | None = None
 
 
+class ListItem(BaseSchema):
+    caption: str
+    value: str
+
+
 class GridColumn(BaseSchema):
     field: str
     type: str
@@ -25,12 +30,14 @@ class GridColumn(BaseSchema):
     width: int
     editable: bool
     hide: bool = False
-    items: list | None = None
+    items: list[ListItem] | None = None
     fixed_value: str | None = None
     call_value: str | None = None
 
 
 class DataInfo(BaseSchema):
+    segments: list[ListItem] | None
+    current: str | None
     grid_columns: list[GridColumn]
     grid_rows: list[dict[str, Any]]
     allow_line_addition_and_removal: bool

@@ -21,7 +21,7 @@ class TestDataGrid(unittest.TestCase):
 
         map = mapping.get(proj.folder, 'test2')
 
-        dm, _, info = entity.get(proj, map, 'main', 'properties')
+        dm, _, info = entity.get(proj, map, 'main', 'properties', None)
 
         self.assertEqual(dm.layout, const.LAYOUT_SINGLE)
         self.assertEqual(len(info.grid_columns), 2)
@@ -53,6 +53,6 @@ class TestDataGrid(unittest.TestCase):
             {'key': 'DDD', 'value': '', 'id': 'b2efc38a-f02b-41c7-8122-78c7bd68ba0c'}
         ]
 
-        data = grid.parse(proj, map, dm, table, rows)
+        data = grid.parse(proj, map, dm, table, None, rows)
         self.assertEqual(len(data), 4)
         self.assertEqual(data[0]['value'], 111)

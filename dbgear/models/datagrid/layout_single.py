@@ -21,16 +21,18 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -
     cells = column.make_cell_item(proj, map, dm, table)
     columns = _build_column(dm, field.display_name, row_items, cells)
 
-    matrix = {k['value']: {dm.y_axis: k['value'], '_sort_key': k['caption']} for k in row_items}
+    matrix = {k.value: {dm.y_axis: k.value, '_sort_key': k.caption} for k in row_items}
     for d in data:
         y_data = d[dm.y_axis]
         if y_data not in matrix:
             continue
         for cell in cells:
             matrix[y_data][cell.column_name] = d[cell.column_name]
-    rows = [column.build_one_row(columns, d) for d in sorted(matrix.values(), key=lambda x: x['_sort_key'])]
+    rows = [column.make_one_row(columns, d) for d in sorted(matrix.values(), key=lambda x: x['_sort_key'])]
 
     return DataInfo(
+        segments=None,
+        current=None,
         grid_columns=columns,
         grid_rows=rows,
         allow_line_addition_and_removal=False
@@ -61,4 +63,4 @@ def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, rows: object
             **{cell: row[cell] for cell in dm.cells}
         }
         for row in rows]
-    return layout_table.parse(proj, map, dm, table, expdata)
+    return layout_table.parse(proj, map, dm, table, None, expdata)

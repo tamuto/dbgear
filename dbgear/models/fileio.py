@@ -2,6 +2,7 @@ import os
 import shutil
 import yaml
 from typing import Any
+from glob import glob
 
 from . import const
 
@@ -18,7 +19,9 @@ def get_data_model_name(folder: str, id: str, instance: str, table: str) -> str:
     return f'{folder}/{id}/{instance}@{table}.yaml'
 
 
-def get_data_dat_name(folder: str, id: str, instance: str, table: str) -> str:
+def get_data_dat_name(folder: str, id: str, instance: str, table: str, seg: str | None) -> str:
+    if seg is not None:
+        return f'{folder}/{id}/{instance}@{table}#{seg}.dat'
     return f'{folder}/{id}/{instance}@{table}.dat'
 
 
@@ -42,14 +45,28 @@ def load_yaml(fname: str) -> Any:
     return data
 
 
-def _is_exist_raw_data(folder: str, id: str, ins: str, tbl: str) -> bool:
-    return os.path.isfile(get_data_dat_name(folder, id, ins, tbl))
+def _is_exist_raw_data(folder: str, id: str, ins: str, tbl: str, seg: str | None) -> bool:
+    return os.path.isfile(get_data_dat_name(folder, id, ins, tbl, seg))
 
 
-def load_data(folder: str, id: str, ins: str, tbl: str, none: bool = False) -> Any:
-    data = None if none else []
-    if _is_exist_raw_data(folder, id, ins, tbl):
-        data = load_yaml(get_data_dat_name(folder, id, ins, tbl))
+def load_data(folder: str, id: str, ins: str, tbl: str, seg: str | None) -> Any:
+    data = []
+    if _is_exist_raw_data(folder, id, ins, tbl, seg):
+        data = load_yaml(get_data_dat_name(folder, id, ins, tbl, seg))
+    return data
+
+
+def load_all_data(folder: str, id: str, ins: str, tbl: str) -> Any:
+    # セグメントで分かれていても、一つのデータとしてロードする
+    data = None
+    if _is_exist_raw_data(folder, id, ins, tbl, None):
+        return load_yaml(get_data_dat_name(folder, id, ins, tbl, None))
+
+    for f in glob(get_data_dat_name(folder, id, ins, tbl, '*')):
+        if data is None:
+            data = []
+        data.extend(load_yaml(f))
+
     return data
 
 
