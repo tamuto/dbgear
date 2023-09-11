@@ -145,6 +145,7 @@ def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
 def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any:
     '''
     valueの中にフィールドのキーがなかったら、値を補完する。
+    fixedがTrueの場合には、fixed_valueを優先する。
     '''
     if fixed and col.fixed_value is not None:
         return col.fixed_value
