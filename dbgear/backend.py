@@ -27,4 +27,4 @@ def root():
 
 def run(project: Project):
     app.state.project = project
-    uvicorn.run('dbgear.backend:app', port=5000, log_config=None)
+    uvicorn.run('dbgear.backend:app', port=5000, host='0.0.0.0', log_config=None)
