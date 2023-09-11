@@ -6,6 +6,11 @@ interface SettingValue {
   width?: number
 }
 
+interface ListItem {
+  value: string,
+  caption: string,
+}
+
 interface DataModel {
   id: string,
   instance: string,
@@ -29,12 +34,14 @@ interface GridColumn {
   width: number,
   editable: boolean,
   hide: boolean,
-  items: object[],
+  items: ListItem[],
   fixedValue?: string,
   callValue?: string,
 }
 
 interface DataInfo {
+  segments: ListItem[],
+  current: string,
   gridColumns: GridColumn[],
   gridRows: [{ [key: string]: object }],
   allowLineAdditionAndRemoval: boolean,

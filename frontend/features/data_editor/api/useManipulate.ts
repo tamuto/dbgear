@@ -8,7 +8,7 @@ import {
 
 import nxio from '~/api/nxio'
 
-const useManipulate = (apiRef: MutableRefObject<GridApiCommon>) => {
+const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string | null) => {
   const { t } = useTranslation()
   const { id, instance, table } = useParams()
 
@@ -28,7 +28,7 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>) => {
 
   const save = async () => {
     const data = apiRef.current.getSortedRows()
-    nxio<null>(`/environs/${id}/tables/${instance}/${table}`).put(data, () => {
+    nxio<null>(`/environs/${id}/tables/${instance}/${table}`, { segment }).put(data, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
     })
   }

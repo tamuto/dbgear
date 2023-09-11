@@ -4,6 +4,7 @@ from dataclasses import asdict
 from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
+from ..fileio import load_data
 from .. import const
 
 from .column import CellItem
@@ -15,7 +16,8 @@ from . import column
 from . import layout_table
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, data: Any) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table) -> DataInfo:
+    data = load_data(proj.folder, map.id, table.instance, table.table_name, None)
     row_items = column.get_axis_items(proj, map, dm.settings, dm.y_axis, dm.instance)
     items = column.get_axis_items(proj, map, dm.settings, dm.x_axis, dm.instance)
     cells = column.make_cell_item(proj, map, dm, table)

@@ -25,7 +25,7 @@ import useDataSettings from '../api/useDataSettings'
 
 type DataSettingsProps = {
   data: Data | null,
-  reload: (() => void) | null
+  reload: ((segment: string | null) => void) | null
 }
 
 const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
@@ -101,7 +101,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
         </HookFormField>
         {
           layout === 'table' &&
-          <HookFormField type='select' label={t('caption.segment')} name='segment' control={control}>
+          <HookFormField type='select' label={t('caption.dataSegment')} name='segment' control={control}>
             <MenuItem value=''>{t('caption.nothing')}</MenuItem>
             {
               columnFields.map(item => (

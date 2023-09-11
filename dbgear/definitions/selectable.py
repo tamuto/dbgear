@@ -7,7 +7,7 @@ def retrieve(folder, prefix, items, **kwargs):
     schema = Schema(prefix)
 
     for key, val in items.items():
-        table = Table(table_name=key, display_name=val)
+        table = Table(instance=prefix, table_name=key, display_name=val)
         schema.add_table(table)
 
         table.fields.append(Field(

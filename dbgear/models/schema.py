@@ -18,6 +18,7 @@ class Index(BaseSchema):
 
 
 class Table(BaseSchema):
+    instance: str
     table_name: str
     display_name: str
     fields: list[Field] = []

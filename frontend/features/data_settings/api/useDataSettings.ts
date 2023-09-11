@@ -9,7 +9,7 @@ import nxio from '~/api/nxio'
 
 import { FK } from './const'
 
-const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
+const useDataSettings = (data: Data | null, reload: ((segment: string | null) => void) | null) => {
   const navigate = useNavigate()
   const updateDataList = useProject(state => state.updateDataList)
   const { id } = useParams()
@@ -115,7 +115,7 @@ const useDataSettings = (data: Data | null, reload: (() => void) | null) => {
     await nxio<null>(`/environs/${id}/tables/${instance}/${tableName}`).post(newDM, () => {})
     if (data) {
       // dataがある場合は、reloadも渡される。
-      await reload!()
+      await reload!(null)
     } else {
       await updateDataList(id)
       navigate(`/environs/${id}/${instance}/${tableName}/_data`)

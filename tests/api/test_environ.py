@@ -47,7 +47,7 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(len(result.data), 2)
 
     def test_get_table(self):
-        result = environs.get_table('test2', 'main', 'test_table', None, self.request)
+        result = environs.get_table('test2', 'main', 'test_table', self.request, None)
         self.assertEqual(result.status, 'OK')
         self.assertEqual(result.data.model.table_name, 'test_table')
 
@@ -70,7 +70,7 @@ class TestEnviron(unittest.TestCase):
                 'id': '7b984dd6-ef1f-43d0-8b60-4e4cd4c67db8'
             }
         ]
-        result = environs.update_data('test1', 'main', 'test_table', None, self.request, data)
+        result = environs.update_data('test1', 'main', 'test_table', self.request, data, None)
         self.assertEqual(result.status, 'OK')
 
     def test_update_data_with_segment(self):
@@ -88,5 +88,5 @@ class TestEnviron(unittest.TestCase):
                 'name': 'CHILD_03',
             },
         ]
-        result = environs.update_data('test1', 'main', 'tbl_child', '001', self.request, data)
+        result = environs.update_data('test1', 'main', 'tbl_child', self.request, data, '001')
         self.assertEqual(result.status, 'OK')

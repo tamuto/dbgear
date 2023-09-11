@@ -4,7 +4,7 @@ import {
 import DataSettings from './DataSettings'
 
 const DataSettingsWrapper = () => {
-  const { data, reload } = useOutletContext<{data: Data, reload: () => void}>()
+  const { data, reload } = useOutletContext<{data: Data, reload: (segment: string | null) => void}>()
   return (
     <DataSettings data={data} reload={reload} />
   )

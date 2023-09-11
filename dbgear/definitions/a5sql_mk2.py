@@ -117,6 +117,7 @@ def convert_to_schema(p):
     for key, entities in p.instances.items():
         for entity in entities:
             tbl = Table(
+                instance=key,
                 table_name=entity.table_name,
                 display_name=entity.display_name
             )

@@ -4,6 +4,7 @@ from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
 from ..schema import Field
+from ..fileio import load_data
 from .. import const
 
 from .data import DataModel
@@ -13,11 +14,12 @@ from .data import DataInfo
 from . import column
 
 
-def build(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str | None, data: Any) -> DataInfo:
+def build(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str | None) -> DataInfo:
     # フィールドを設定に従って展開する。ForeignKeyなども設定に含まれるものとする。
     columns, seg_info = build_columns(proj, map, dm, table)
-    rows = [column.make_one_row(columns, d) for d in data]
-    if segment is None:
+    if seg_info is None:
+        data = load_data(proj.folder, map.id, table.instance, table.table_name, None)
+        rows = [column.make_one_row(columns, d) for d in data]
         return DataInfo(
             segments=None,
             current=None,
@@ -25,6 +27,13 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str
             grid_rows=rows,
             allow_line_addition_and_removal=False
         )
+
+    if segment is None:
+        segment = seg_info[1][0].value
+
+    data = load_data(proj.folder, map.id, table.instance, table.table_name, segment)
+    rows = [column.make_one_row(columns, d) for d in data]
+
     return DataInfo(
         segments=seg_info[1],
         current=segment,
@@ -114,10 +123,11 @@ def _make_grid_column_from_setting(proj: Project, map: Mapping, dm: DataModel, f
 def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str | None, rows: object) -> list[dict[str, Any]]:
     # idカラムを除いて返却する。
     columns, seg_info = build_columns(proj, map, dm, table)
-    if segment is None:
+    if seg_info is None:
         data = [column.make_one_row(columns, d, need_id=False) for d in rows]
         return data
-    # セグメントが指定された場合には、セグメントカラムを作成する。
+    # seg_infoがある場合には、セグメントカラムを作成する。
+    assert segment is not None
     data = [
         column.make_one_row(
             columns,

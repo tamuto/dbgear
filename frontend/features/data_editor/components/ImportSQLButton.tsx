@@ -17,12 +17,13 @@ import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges'
 import useImportSQL from '../api/useImportSQL'
 
 type ImpotSQLButtonProps = {
-  disabledAppendAndRemove: boolean
+  disabledAppendAndRemove: boolean,
+  segment: string | null
 }
 
-const ImpotSQLButton: FC<ImpotSQLButtonProps> = ({ disabledAppendAndRemove }) => {
+const ImpotSQLButton: FC<ImpotSQLButtonProps> = ({ disabledAppendAndRemove, segment }) => {
   const { t } = useTranslation()
-  const { setOpen, open, control, onSubmit } = useImportSQL()
+  const { setOpen, open, control, onSubmit } = useImportSQL(segment)
 
   return (
     <>

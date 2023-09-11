@@ -7,7 +7,6 @@ from ..schema import Table
 from ..fileio import load_model
 from ..fileio import save_model
 from ..fileio import save_yaml
-from ..fileio import load_data
 from ..fileio import get_data_model_name
 from ..fileio import get_data_dat_name
 from ..datagrid import grid
@@ -26,8 +25,7 @@ def get(proj: Project, map: Mapping, ins: str, tbl: str, seg: str | None) -> tup
         table_name=tbl
     )
     table = proj.schemas[ins].get_table(tbl)
-    data = load_data(proj.folder, map.id, ins, tbl, seg)
-    info = grid.build(proj, map, dm, table, seg, data)
+    info = grid.build(proj, map, dm, table, seg)
 
     return (dm, table, info)
 
