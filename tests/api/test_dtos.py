@@ -40,6 +40,7 @@ class TestDTOs(unittest.TestCase):
         data = dtos.convert_to_data_filename(
             instance='test',
             tbl=Table(
+                instance='test',
                 table_name='abc',
                 display_name='123'
             )

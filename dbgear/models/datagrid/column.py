@@ -6,12 +6,13 @@ from ..project import Project
 from ..environ.data import Mapping
 from ..schema import Table
 from ..schema import find_field
-from ..fileio import load_data
+from ..fileio import load_all_data
 from ..fileio import load_model
 from ..fileio import get_data_model_name
 from .. import const
 
 from .data import DataModel
+from .data import ListItem
 from .data import GridColumn
 
 
@@ -23,7 +24,7 @@ def make_grid_column(
         width: int = const.DEFAULT_WIDTH,
         editable: bool = True,
         hide: bool = False,
-        items: list | None = None,
+        items: list[ListItem] | None = None,
         fixed_value: str | None = None,
         call_value: str | None = None):
     '''
@@ -42,11 +43,11 @@ def make_grid_column(
     )
 
 
-def load_for_select_items(folder: str, id: str, ins: str, ref: str):
+def load_for_select_items(folder: str, id: str, ins: str, ref: str) -> list[ListItem]:
     '''
     マスタデータをロードして、選択肢用データを生成する。
     '''
-    items = load_data(folder, id, ins, ref, True)
+    items = load_all_data(folder, id, ins, ref)
     if items is not None:
         # データが見つかった場合には、DataModelをロードし、
         # caption, valueのデータを生成する
@@ -58,10 +59,10 @@ def load_for_select_items(folder: str, id: str, ins: str, ref: str):
             table_name=ref
         )
         if dm.caption is not None and dm.value is not None:
-            items = [{
-                'caption': item[dm.caption],
-                'value': item[dm.value]
-            } for item in items]
+            items = [ListItem(
+                caption=item[dm.caption],
+                value=item[dm.value]
+            ) for item in items]
         else:
             raise RuntimeError('Invalid Data Model for Master Data.')
     return items
@@ -74,7 +75,7 @@ class CellItem:
     type: str = const.FIELD_TYPE_STRING
     width: int = const.DEFAULT_WIDTH
     editable: bool = True
-    items: list[object] | None = None
+    items: list[ListItem] | None = None
     fixed_value: str | None = None
     call_value: str | None = None
 
@@ -144,6 +145,7 @@ def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
 def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any:
     '''
     valueの中にフィールドのキーがなかったら、値を補完する。
+    fixedがTrueの場合には、fixed_valueを優先する。
     '''
     if fixed and col.fixed_value is not None:
         return col.fixed_value
@@ -157,7 +159,7 @@ def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any
     return ''
 
 
-def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True, fixed: bool = False) -> dict[str, Any]:
+def make_one_row(columns: list[GridColumn], data: Any, *, need_id: bool = True, fixed: bool = False, segment: tuple = (False, None, None)) -> dict[str, Any]:
     '''
     1行分のデータを生成する。
     '''
@@ -165,12 +167,19 @@ def build_one_row(columns: list[GridColumn], data: Any, need_id: bool = True, fi
         col.field: adjust_column_value(col, data, fixed)
         for col in columns
     }
+
+    # セグメントがある場合には、セグメントの値を設定する
+    if segment[0]:
+        row[segment[1]] = segment[2]
+
+    # idが必要な場合には、idを生成する
     if need_id and 'id' not in row:
         row['id'] = str(uuid4())
+
     return row
 
 
-def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axis: str, ins: str) -> list[object]:
+def get_axis_items(proj: Project, map: Mapping, settings: dict[str, object], axis: str, ins: str) -> list[ListItem]:
     items = None
     setting = settings[axis]
     if setting['type'] == const.BIND_TYPE_REFS:

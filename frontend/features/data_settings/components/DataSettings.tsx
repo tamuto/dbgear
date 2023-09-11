@@ -25,7 +25,7 @@ import useDataSettings from '../api/useDataSettings'
 
 type DataSettingsProps = {
   data: Data | null,
-  reload: (() => void) | null
+  reload: ((segment: string | null) => void) | null
 }
 
 const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
@@ -76,6 +76,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
       <FormFieldSet label={t('caption.forListDisplay')}>
         <Typography variant='body2' color='text.secondary'>{t('message.listDisplayDesc')}</Typography>
         <HookFormField type='select' label={t('caption.valueField')} name='value' control={control}>
+          <MenuItem value=''>{t('caption.nothing')}</MenuItem>
           {
             columnFields.map(item => (
               <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
@@ -83,6 +84,7 @@ const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
           }
         </HookFormField>
         <HookFormField type='select' label={t('caption.captionField')} name='caption' control={control}>
+          <MenuItem value=''>{t('caption.nothing')}</MenuItem>
           {
             columnFields.map(item => (
               <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
@@ -97,6 +99,17 @@ const DataSettings: FC<DataSettingsProps> = ({ data, reload }) => {
           <FormControlLabel value="matrix" control={<Radio />} label={<ImageLabel img={imgMatrix} label={t('caption.matrix')} />} />
           <FormControlLabel value="single" control={<Radio />} label={<ImageLabel img={imgForm} label={t('caption.singleEntry')} />} />
         </HookFormField>
+        {
+          layout === 'table' &&
+          <HookFormField type='select' label={t('caption.dataSegment')} name='segment' control={control}>
+            <MenuItem value=''>{t('caption.nothing')}</MenuItem>
+            {
+              columnFields.map(item => (
+                <MenuItem key={item.key} value={item.key}>{item.label}</MenuItem>
+              ))
+            }
+          </HookFormField>
+        }
         {
           layout === 'matrix' &&
           <HookFormField type='select' label={t('caption.xAxis')} name='xAxis' control={control}>

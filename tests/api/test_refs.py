@@ -21,4 +21,4 @@ class TestRefs(unittest.TestCase):
         result = refs.get_referencable(self.request)
 
         # 参照できる全てのデータ件数を確認する
-        self.assertEqual(len(result.data), 8)
+        self.assertEqual(len(result.data), 9)

@@ -5,14 +5,14 @@ from .dbio import table
 
 from .models.environ import mapping
 from .models.environ.data import Mapping
-from .models.fileio import load_data
+from .models.fileio import load_all_data
 
 logger = getLogger(__name__)
 
 
 def _load_for_entry(folder: str, map: Mapping, ins: str, tbl: str):
     # 自身のデータをロードし、存在しなければ親を再帰的に遡ってロードする。
-    items = load_data(folder, map.id, ins, tbl, True)
+    items = load_all_data(folder, map.id, ins, tbl)
     if items is None:
         if map.parent is not None:
             items = _load_for_entry(folder, map.parent, ins, tbl)

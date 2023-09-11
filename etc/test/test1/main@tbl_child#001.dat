@@ -1,0 +1,15 @@
+- child_id: CHILD01
+  col_id: '001'
+  name: CHILD_01
+  update_date: NOW()
+  update_user: SYSTEM
+- child_id: CHILD02
+  col_id: '001'
+  name: CHILD_02
+  update_date: NOW()
+  update_user: SYSTEM
+- child_id: CHILD03
+  col_id: '001'
+  name: CHILD_03
+  update_date: NOW()
+  update_user: SYSTEM

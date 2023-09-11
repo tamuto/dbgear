@@ -7,7 +7,6 @@ from ..schema import Table
 from ..fileio import load_model
 from ..fileio import save_model
 from ..fileio import save_yaml
-from ..fileio import load_data
 from ..fileio import get_data_model_name
 from ..fileio import get_data_dat_name
 from ..datagrid import grid
@@ -17,7 +16,7 @@ from ..datagrid.data import DataModel
 from . import mapping
 
 
-def get(proj: Project, map: Mapping, ins: str, tbl: str) -> tuple[DataModel, Table, DataInfo]:
+def get(proj: Project, map: Mapping, ins: str, tbl: str, seg: str | None) -> tuple[DataModel, Table, DataInfo]:
     dm = load_model(
         get_data_model_name(proj.folder, map.id, ins, tbl),
         DataModel,
@@ -26,8 +25,7 @@ def get(proj: Project, map: Mapping, ins: str, tbl: str) -> tuple[DataModel, Tab
         table_name=tbl
     )
     table = proj.schemas[ins].get_table(tbl)
-    data = load_data(proj.folder, map.id, ins, tbl)
-    info = grid.build(proj, map, dm, table, data)
+    info = grid.build(proj, map, dm, table, seg)
 
     return (dm, table, info)
 
@@ -82,7 +80,7 @@ def save(proj: Project, map: Mapping, ins: str, tbl: str, data: DataModel) -> No
     )
 
 
-def save_data(proj: Project, map: Mapping, ins: str, tbl: str, rows: object) -> None:
+def save_data(proj: Project, map: Mapping, ins: str, tbl: str, seg: str | None, rows: object) -> None:
     dm = load_model(
         get_data_model_name(proj.folder, map.id, ins, tbl),
         DataModel,
@@ -91,8 +89,8 @@ def save_data(proj: Project, map: Mapping, ins: str, tbl: str, rows: object) -> 
         table_name=tbl
     )
     table = proj.schemas[ins].get_table(tbl)
-    data = grid.parse(proj, map, dm, table, rows)
+    data = grid.parse(proj, map, dm, table, seg, rows)
     save_yaml(
-        get_data_dat_name(proj.folder, map.id, ins, tbl),
+        get_data_dat_name(proj.folder, map.id, ins, tbl, seg),
         data
     )

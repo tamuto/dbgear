@@ -17,7 +17,7 @@ class TestDataGrid(unittest.TestCase):
 
         map = mapping.get(proj.folder, 'test2')
 
-        dm, _, info = entity.get(proj, map, 'main', 'test_table')
+        dm, _, info = entity.get(proj, map, 'main', 'test_table', None)
 
         self.assertEqual(dm.layout, const.LAYOUT_TABLE)
         self.assertEqual(len(info.grid_columns), 5)
@@ -30,14 +30,14 @@ class TestDataGrid(unittest.TestCase):
 
         map = mapping.get(proj.folder, 'test2')
 
-        dm, _, info = entity.get(proj, map, 'main', 'tbl_child')
+        dm, _, info = entity.get(proj, map, 'main', 'tbl_child', None)
 
         self.assertEqual(dm.layout, const.LAYOUT_TABLE)
         self.assertEqual(len(info.grid_columns), 5)
         self.assertEqual(info.grid_columns[1].field, 'col_id')
         self.assertEqual(len(info.grid_columns[1].items), 2)
-        self.assertEqual(info.grid_columns[1].items[0]['caption'], 'P001')
-        self.assertEqual(info.grid_columns[1].items[0]['value'], '001')
-        self.assertEqual(info.grid_columns[1].items[1]['caption'], 'P002')
-        self.assertEqual(info.grid_columns[1].items[1]['value'], '002')
+        self.assertEqual(info.grid_columns[1].items[0].caption, 'P001')
+        self.assertEqual(info.grid_columns[1].items[0].value, '001')
+        self.assertEqual(info.grid_columns[1].items[1].caption, 'P002')
+        self.assertEqual(info.grid_columns[1].items[1].value, '002')
         self.assertEqual(len(info.grid_rows), 4)

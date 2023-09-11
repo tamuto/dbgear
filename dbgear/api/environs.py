@@ -77,10 +77,10 @@ def get_not_exist_tables(id: str, request: Request):
 
 
 @router.get('/{id}/tables/{instance}/{table}')
-def get_table(id: str, instance: str, table: str, request: Request):
+def get_table(id: str, instance: str, table: str, request: Request, segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)
-    dm, tbl, info = entity.get(proj, map, instance, table)
+    dm, tbl, info = entity.get(proj, map, instance, table, segment)
     data = Data(
         model=dm,
         info=info,
@@ -106,16 +106,16 @@ def create_data_model(id: str, instance: str, table: str, data: NewDataModel, re
 
 
 @router.put('/{id}/tables/{instance}/{table}')
-def update_data(id: str, instance: str, table: str, request: Request, body=Body(...)):
+def update_data(id: str, instance: str, table: str, request: Request, body=Body(...), segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)
-    entity.save_data(proj, map, instance, table, body)
+    entity.save_data(proj, map, instance, table, segment, body)
     return Result()
 
 
 @router.post('/{id}/tables/{instance}/{table}/import')
-def import_data(id: str, instance: str, table: str, imp: ImportSQL, request: Request):
+def import_data(id: str, instance: str, table: str, imp: ImportSQL, request: Request, segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)
-    import_sql.execute(proj, map, instance, table, imp.host, imp.sql)
+    import_sql.execute(proj, map, instance, table, segment, imp.host, imp.sql)
     return Result()

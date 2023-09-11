@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import {
   Button,
   ButtonGroup,
+  TextField,
   Stack,
+  MenuItem
 } from '@mui/material'
 
 import CheckIcon from '@mui/icons-material/Check'
@@ -17,6 +19,9 @@ import ImportSQLButton from './ImportSQLButton'
 
 type FunctionBarProps = {
   features: {
+    segments: ListItem[] | null,
+    segment: string | null,
+    onChangeSegment: (segment: string) => void,
     disabledAppendAndRemove: boolean,
     visibility: {
       allColumns: boolean,
@@ -32,11 +37,29 @@ type FunctionBarProps = {
 
 const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
   const { t } = useTranslation()
-  const { disabledAppendAndRemove, visibility } = features
+  const { disabledAppendAndRemove, visibility, segments } = features
   const { append, remove, save } = features.manipulate
 
   return (
     <Stack direction='row'>
+      {
+        segments &&
+        <TextField
+          select
+          label={t('caption.segment')}
+          value={features.segment}
+          onChange={(e) => features.onChangeSegment(e.target.value)}
+          sx={{ width: '150px'}}
+        >
+          {
+            segments.map((segment) => (
+              <MenuItem key={segment.value} value={segment.value}>
+                {segment.caption}
+              </MenuItem>
+            ))
+          }
+        </TextField>
+      }
       <Button
         size='small'
         color='success'
@@ -73,7 +96,7 @@ const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
       >
         {t('caption.upload')}
       </Button>
-      <ImportSQLButton disabledAppendAndRemove={disabledAppendAndRemove} />
+      <ImportSQLButton disabledAppendAndRemove={disabledAppendAndRemove} segment={features.segment} />
     </Stack>
   )
 }

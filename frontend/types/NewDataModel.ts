@@ -5,6 +5,7 @@ interface NewDataModel {
   syncMode: string,
   value?: string,
   caption?: string,
+  segment: string,
   xAxis?: string,
   yAxis?: string,
   cells?: string[],

@@ -31,6 +31,7 @@ class NewDataModel(BaseSchema):
     sync_mode: str
     value: str | None = None
     caption: str | None = None
+    segment: str | None = None
     x_axis: str | None = None
     y_axis: str | None = None
     cells: list[str] | None = None

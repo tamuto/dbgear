@@ -13,11 +13,10 @@ type ValueCaption = {
 }
 
 const useDataEditor = () => {
-  const { data } = useOutletContext<{data: Data}>()
+  const { data, reload } = useOutletContext<{data: Data, reload: (segment: string | null) => void}>()
   const apiRef = useGridApiRef()
 
   const visibility = useVisibility()
-  const manipulate = useManipulate(apiRef)
 
   const columns = useMemo(() => {
     if (data.info.gridColumns) {
@@ -45,10 +44,18 @@ const useDataEditor = () => {
   const rows = useMemo(() => {
     return data.info.gridRows
   }, [data])
+  const segment = useMemo(() => {
+    return data.info.current
+  }, [data])
+  const manipulate = useManipulate(apiRef, segment)
 
   useEffect(() => {
     apiRef.current.setColumnVisibilityModel(visibility.allColumns ? {} : columnVisibilityModel)
   }, [apiRef, visibility.allColumns, columnVisibilityModel])
+
+  const onChangeSegment = (segment: string) => {
+    reload(segment)
+  }
 
   return {
     apiRef,
@@ -60,6 +67,9 @@ const useDataEditor = () => {
       }
     },
     features: {
+      segments: data.info.segments,
+      segment,
+      onChangeSegment,
       disabledAppendAndRemove: !data.info.allowLineAdditionAndRemoval,
       visibility,
       manipulate

@@ -19,6 +19,7 @@ type FormValues = {
   value: string
   caption: string
   layout: string
+  segment: string
   xAxis: string
   yAxis: string
   cells: string[]

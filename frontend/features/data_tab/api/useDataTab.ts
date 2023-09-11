@@ -18,15 +18,15 @@ const useDataTab = () => {
 
   const [data, setData] = useState<Data|null>(null)
 
-  const reload = useCallback(async () => {
-    nxio<Data>(`/environs/${id}/tables/${instance}/${table}`).get((result) => {
+  const reload = useCallback(async (segment: string | null) => {
+    nxio<Data>(`/environs/${id}/tables/${instance}/${table}`, { segment }).get((result) => {
       console.log(result)
       setData(result)
     })
   }, [id, instance, table])
 
   useEffect(() => {
-    reload()
+    reload(null)
   }, [reload])
 
   return {
