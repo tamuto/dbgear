@@ -25,7 +25,7 @@ def build(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str
             current=None,
             grid_columns=columns,
             grid_rows=rows,
-            allow_line_addition_and_removal=False
+            allow_line_addition_and_removal=True
         )
 
     if segment is None:
@@ -57,7 +57,7 @@ def build_columns(proj: Project, map: Mapping, dm: DataModel, table: Table) -> t
             # セグメントは表示しないせずに、セグメントリストを作成する。
             setting = dm.settings[field.column_name]
             # 仮にrefs以外が設定されていた場合にはidやinstanceなどがないので、エラーとなる。
-            assert(setting['type'] == const.BIND_TYPE_REFS)
+            assert setting['type'] == const.BIND_TYPE_REFS
             id = setting['id']
             ins = setting['instance']
             tbl = setting['table']

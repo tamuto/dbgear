@@ -17,7 +17,7 @@ def execute():
         help='please specify the command to execute.')
     parser.add_argument(
         '--project',
-        default='etc/database',
+        default='database',
         help='please specify the folder for the project.')
     parser.add_argument(
         '--env',

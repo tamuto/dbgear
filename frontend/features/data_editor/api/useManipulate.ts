@@ -14,15 +14,12 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string 
 
   const append = async () => {
     nxio<{ [key: string]: object }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
-      console.log(result)
       apiRef.current.updateRows([result])
     })
   }
 
   const remove = () => {
     const rows = apiRef.current.getSelectedRows()
-    console.log(rows)
-    console.log([...rows.values()].map(row => ({ ...row, _action: 'delete' })))
     apiRef.current.updateRows([...rows.values()].map(row => ({ ...row, _action: 'delete' })))
   }
 
@@ -33,10 +30,19 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string 
     })
   }
 
+  const fillData = (column: string, value: string) => {
+    const data = apiRef.current.getSortedRows()
+    for (const row of data) {
+      row[column] = value
+      apiRef.current.updateRows([row])
+    }
+  }
+
   return {
     append,
     remove,
     save,
+    fillData,
   }
 }
 

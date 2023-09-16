@@ -72,7 +72,8 @@ const useDataEditor = () => {
       onChangeSegment,
       disabledAppendAndRemove: !data.info.allowLineAdditionAndRemoval,
       visibility,
-      manipulate
+      manipulate,
+      columns: data.info.gridColumns,
     },
   }
 }

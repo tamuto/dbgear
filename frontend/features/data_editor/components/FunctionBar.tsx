@@ -16,6 +16,7 @@ import UploadIcon from '@mui/icons-material/Upload'
 
 import VisibilityButton from './VisibilityButton'
 import ImportSQLButton from './ImportSQLButton'
+import FillDataButton from './FillDataButton'
 
 type FunctionBarProps = {
   features: {
@@ -30,15 +31,17 @@ type FunctionBarProps = {
     manipulate: {
       append: () => void,
       remove: () => void,
-      save: () => void
-    }
+      save: () => void,
+      fillData: (column: string, value: string) => void
+    },
+    columns: GridColumn[],
   }
 }
 
 const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
   const { t } = useTranslation()
-  const { disabledAppendAndRemove, visibility, segments } = features
-  const { append, remove, save } = features.manipulate
+  const { disabledAppendAndRemove, visibility, segments, columns } = features
+  const { append, remove, save, fillData } = features.manipulate
 
   return (
     <Stack direction='row'>
@@ -87,6 +90,7 @@ const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
           {t('caption.remove')}
         </Button>
       </ButtonGroup>
+      <FillDataButton columns={columns} fillData={fillData} />
       <VisibilityButton visibility={visibility} />
       <Button
         size='small'
