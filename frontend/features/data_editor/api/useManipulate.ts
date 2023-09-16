@@ -15,6 +15,8 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string 
   const append = async () => {
     nxio<{ [key: string]: object }>(`/environs/${id}/tables/${instance}/${table}/row`).get(result => {
       apiRef.current.updateRows([result])
+      apiRef.current.selectRow(result.id.toString(), true, true)
+      apiRef.current.setPage(100)
     })
   }
 
