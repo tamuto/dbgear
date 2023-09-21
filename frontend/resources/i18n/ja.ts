@@ -1,3 +1,13 @@
+
+const promptFillData = `あなたはシステム開発者です。
+ユーザからの指示の元、既存データのうち指定されたカラムのデータ補完を行うタスクを実行しています。
+作成するべきテーブルには以下のカラムを持っています。(括弧の中は論理カラム名。)
+このうち、一つのカラム名が指示されますので、その該当カラムの補完データのみを生成してください。
+{replace}
+また、データの必要件数は{nn}件です。
+なお、カラム名が具体的に指定されなかった場合には、聞き返してください。
+`
+
 export const ja = {
   caption: {
     addData: 'データ追加',
@@ -9,6 +19,7 @@ export const ja = {
     cells: 'セルカラム',
     columnSettings: 'カラム設定',
     create: '作成',
+    close: '閉じる',
     dataName: 'データ名',
     dataSegment: 'データ分割管理',
     deploymentable: 'デプロイ可能',
@@ -34,6 +45,7 @@ export const ja = {
     layout: 'レイアウト',
     managedData: '管理データ',
     matrix: 'マトリクス',
+    message: 'メッセージ',
     nothing: 'なし',
     properties: 'プロパティ',
     remarks: '備考',
@@ -62,5 +74,38 @@ export const ja = {
     listDisplayDesc: '一覧表示時に使う値とキャプションのフィールドを設定します。',
     required: 'この項目は必須です。',
     saveSuccess: '保存しました。',
+    notApiKey: 'APIキーが設定されていません。',
+    initFillDataMessage: 'こんにちは。<br>どのようなデータを生成しますか？',
   },
+  prompt: {
+    fillData: {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'system',
+          content: promptFillData
+        }
+      ],
+      functions: [
+        {
+          name: 'setData',
+          description: '生成された補完データをセットします。',
+          parameters: {
+            type: 'object',
+            properties: {
+              column: {
+                type: 'string',
+                description: '指示された補完対象の論理カラム名を指定します。'
+              },
+              data: {
+                type: 'string',
+                description: '生成されたデータを改行コードで区切った文字列で指定します。'
+              }
+            },
+            required: ['column', 'data']
+          }
+        }
+      ]
+    }
+  }
 }

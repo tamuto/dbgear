@@ -27,7 +27,9 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string 
 
   const save = async () => {
     const data = apiRef.current.getSortedRows()
-    nxio<null>(`/environs/${id}/tables/${instance}/${table}`, { segment }).put(data, () => {
+    nxio<null>(`/environs/${id}/tables/${instance}/${table}`, {
+      params: { segment }
+    }).put(data, () => {
       enqueueSnackbar(t('message.saveSuccess'), { variant: 'success' })
     })
   }

@@ -70,6 +70,7 @@ class ProjectInfo(BaseSchema):
     bindings: dict[str, Binding]
     rules: dict[str, str]
     instances: list[str]
+    api_key: str | None = None
 
 
 class DataFilename(BaseSchema):

@@ -3,7 +3,7 @@ import { enqueueSnackbar } from 'notistack'
 
 import useLoading from '~/api/useLoading'
 
-const nxio = <T>(url: string, params: object | null = null) => {
+const nxio = <T>(url: string, params: object | undefined = undefined) => {
   const _resetLoading = () => {
     const isLoading = useLoading.getState().isLoading()
     isLoading && useLoading.getState().setLoading(null)
@@ -22,17 +22,17 @@ const nxio = <T>(url: string, params: object | null = null) => {
     }
   }
   const get = (cb: Callback<T>) => {
-    return axios.get(url, { params })
+    return axios.get(url, params)
       .then(result => _thenFunc(cb, result))
       .catch(_catchFunc)
   }
   const post = (data: object, cb: Callback<T>) => {
-    return axios.post(url, data, { params })
+    return axios.post(url, data, params)
       .then(result => _thenFunc(cb, result))
       .catch(_catchFunc)
   }
   const put = (data: object, cb: Callback<T>) => {
-    return axios.put(url, data, { params })
+    return axios.put(url, data, params)
       .then(result => _thenFunc(cb, result))
       .catch(_catchFunc)
   }

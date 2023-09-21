@@ -19,7 +19,9 @@ const useDataTab = () => {
   const [data, setData] = useState<Data|null>(null)
 
   const reload = useCallback(async (segment: string | null) => {
-    nxio<Data>(`/environs/${id}/tables/${instance}/${table}`, { segment }).get((result) => {
+    nxio<Data>(`/environs/${id}/tables/${instance}/${table}`, {
+        params: { segment }
+    }).get((result) => {
       console.log(result)
       setData(result)
     })
