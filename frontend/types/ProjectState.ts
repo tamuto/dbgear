@@ -10,6 +10,7 @@ interface ProjectInfo {
   bindings: {[key: string]: Binding},
   rules: {[key: string]: string},
   instances: string[],
+  apiKey: string | null
 }
 
 interface MappingTree {

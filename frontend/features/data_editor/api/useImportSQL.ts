@@ -21,7 +21,9 @@ const useImportSQL = (segment: string | null) => {
   })
 
   const onSubmit = handleSubmit(async (data) => {
-    await nxio<null>(`/environs/${id}/tables/${instance}/${table}/import`, { segment }).post(data, () => {
+    await nxio<null>(`/environs/${id}/tables/${instance}/${table}/import`, {
+      params: { segment }
+    }).post(data, () => {
       enqueueSnackbar(t('message.importSuccess'), { variant: 'success' })
       reload(segment)
     })
