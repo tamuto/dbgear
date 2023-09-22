@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 
 import useChat from '~/api/useChat'
 
-const useFillData = (columns: GridColumn[], fillData: (column: string, value: string) => void) => {
+const useFillData = (columns: GridColumn[], rowCount: number, fillData: (method: string, column: string, value: string) => void) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { control, handleSubmit, setValue, watch } = useForm({
@@ -14,7 +14,8 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
       value: '',
     }
   })
-  const [column, method] = watch(['column', 'method'])
+  const [method, column, value] = watch(['method', 'column', 'value'])
+  const [needLine, setNeedLine] = useState('')
   const [valueType, setValueType] = useState('text')
   const [items, setItems] = useState<ListItem[]>([])
   const [messages, setMessages] = useState<Message[]>([])
@@ -35,7 +36,7 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
     if (hasMessages(prompt)) {
       const msg: Message[] = prompt.messages
       msg[0].content = msg[0].content.replace('{replace}', columns.map(x => `* ${x.headerName} (${x.field})`).join('\n'))
-      msg[0].content = msg[0].content.replace('{nn}', '10')
+      msg[0].content = msg[0].content.replace('{nn}', rowCount.toString())
       for (const m of messages) {
         msg.push(m)
       }
@@ -65,6 +66,15 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
           const args = JSON.parse(message.function_call.arguments)
           setValue('column', args.column)
           setValue('value', args.data.replace('\\n', '\n'))
+          if (!message.content) {
+            setMessages(old => ([
+              ...old,
+              {
+                role: 'assistant',
+                content: t('message.fillDataSuccess')
+              } as Message
+            ]))
+          }
         }
       }
     }
@@ -93,6 +103,18 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
   }, [columns])
 
   useEffect(() => {
+    if (method === 'single') {
+      setNeedLine('')
+    } else {
+      const num = value === '' ? 0 : value.trim().split('\n').length
+      console.log(num, value)
+      setNeedLine(t('message.dataLines')
+        .replace('{nn}', num.toString())
+        .replace('{mm}', rowCount.toString()))
+    }
+  }, [method, value])
+
+  useEffect(() => {
     if (column) {
       const columnInfo = columns.find(x => x.field === column)
       if (columnInfo) {
@@ -108,7 +130,7 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
   }, [columns, column])
 
   const onSubmit = handleSubmit((data) => {
-    fillData(data.column, data.value)
+    fillData(data.method, data.column, data.value)
   })
 
   return {
@@ -119,6 +141,7 @@ const useFillData = (columns: GridColumn[], fillData: (column: string, value: st
     valueType,
     items,
     method,
+    needLine,
     applyChat: {
       chat,
       messages,

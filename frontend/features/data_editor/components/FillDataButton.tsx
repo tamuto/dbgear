@@ -11,9 +11,11 @@ import {
   MenuItem,
   Stack,
   FormControlLabel,
-  Radio
+  Radio,
+  FormHelperText
 } from '@mui/material'
 import {
+  FormFieldSet,
   HookFormField
 } from '@infodb/uilib'
 
@@ -24,7 +26,8 @@ import ChatBox from '~/cmp/ChatBox'
 
 type FillDataButtonProps = {
   columns: GridColumn[],
-  fillData: (column: string, value: string) => void
+  rowCount: number,
+  fillData: (method: string, column: string, value: string) => void
 }
 
 const DialogCss = css`
@@ -33,7 +36,7 @@ const DialogCss = css`
 }
 `
 
-const FillDataButton: FC<FillDataButtonProps> = ({ columns, fillData }) => {
+const FillDataButton: FC<FillDataButtonProps> = ({ columns, rowCount, fillData }) => {
   const { t } = useTranslation()
   const {
     setOpen,
@@ -43,8 +46,9 @@ const FillDataButton: FC<FillDataButtonProps> = ({ columns, fillData }) => {
     valueType,
     items,
     method,
+    needLine,
     applyChat,
-  } = useFillData(columns, fillData)
+  } = useFillData(columns, rowCount, fillData)
 
   return (
     <>
@@ -136,6 +140,9 @@ const FillDataButton: FC<FillDataButtonProps> = ({ columns, fillData }) => {
                         control={control}
                         rows={13}
                       />
+                      <FormFieldSet>
+                        <FormHelperText>{needLine}</FormHelperText>
+                      </FormFieldSet>
                     </>
                   )
                 }

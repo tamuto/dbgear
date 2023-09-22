@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useRef, useEffect } from 'react'
 import {
   Paper,
   Avatar,
@@ -10,9 +10,16 @@ import PersonIcon from '@mui/icons-material/Person'
 import Description from './Description'
 
 const ChatMessage: FC<Message> = ({ role, content }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollIntoView()
+    }
+  }, [])
+
   if (role === 'skeleton') {
     return (
-      <Paper sx={{ p: 1 }} component={Stack} direction='row'>
+      <Paper ref={ref} sx={{ p: 1 }} component={Stack} direction='row'>
         <Skeleton variant='circular'>
           <Avatar />
         </Skeleton>
@@ -22,7 +29,7 @@ const ChatMessage: FC<Message> = ({ role, content }) => {
   }
 
   return (
-    <Paper sx={{ p: 1 }} component={Stack} direction='row'>
+    <Paper ref={ref} sx={{ p: 1, backgroundColor: '#eee' }} component={Stack} direction='row'>
       {
         role === 'user' &&
         <Avatar sx={{ bgcolor: '#4169e1', color: 'white' }}>

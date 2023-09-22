@@ -56,7 +56,7 @@ const ChatBox: FC<ChatBoxProps> = ({ messages, chat, skeleton }) => {
     <Box css={ChatCss}>
       <Stack className='chat'>
         {
-          messages.filter(x => x.role !== 'system').reverse().map((message, index) => (
+          messages.filter(x => x.role !== 'system').map((message, index) => (
             <ChatMessage key={index} role={message.role} content={message.content} />
           ))
         }

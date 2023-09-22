@@ -32,15 +32,16 @@ type FunctionBarProps = {
       append: () => void,
       remove: () => void,
       save: () => void,
-      fillData: (column: string, value: string) => void
+      fillData: (method: string, column: string, value: string) => void
     },
     columns: GridColumn[],
+    rowCount: number
   }
 }
 
 const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
   const { t } = useTranslation()
-  const { disabledAppendAndRemove, visibility, segments, columns } = features
+  const { disabledAppendAndRemove, visibility, segments, columns, rowCount } = features
   const { append, remove, save, fillData } = features.manipulate
 
   return (
@@ -90,7 +91,7 @@ const FunctionBar: FC<FunctionBarProps> = ({ features }) => {
           {t('caption.remove')}
         </Button>
       </ButtonGroup>
-      <FillDataButton columns={columns} fillData={fillData} />
+      <FillDataButton columns={columns} rowCount={rowCount} fillData={fillData} />
       <VisibilityButton visibility={visibility} />
       <Button
         size='small'

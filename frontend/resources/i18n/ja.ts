@@ -67,15 +67,17 @@ export const ja = {
     yAxis: 'Y軸カラム',
   },
   message: {
+    dataLines: '現在{nn}件です。{mm}件のデータが必要です。',
     fillDataDesc: 'データを補完します。対象カラムと値を指定してください。',
+    fillDataSuccess: 'データを生成しました。左の欄をご確認ください。',
     importSQLDesc: 'SQLを実行してデータをインポートします。',
     importSuccess: 'インポートしました。',
+    initFillDataMessage: 'こんにちは。<br>どのようなデータを生成しますか？',
     inputFormDesc: '入力フォームのレイアウトを設定します。',
     listDisplayDesc: '一覧表示時に使う値とキャプションのフィールドを設定します。',
+    notApiKey: 'APIキーが設定されていません。',
     required: 'この項目は必須です。',
     saveSuccess: '保存しました。',
-    notApiKey: 'APIキーが設定されていません。',
-    initFillDataMessage: 'こんにちは。<br>どのようなデータを生成しますか？',
   },
   prompt: {
     fillData: {

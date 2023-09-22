@@ -74,6 +74,7 @@ const useDataEditor = () => {
       visibility,
       manipulate,
       columns: data.info.gridColumns,
+      rowCount: data.info.gridRows.length,
     },
   }
 }

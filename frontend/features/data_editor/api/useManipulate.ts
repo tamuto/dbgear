@@ -34,11 +34,23 @@ const useManipulate = (apiRef: MutableRefObject<GridApiCommon>, segment: string 
     })
   }
 
-  const fillData = (column: string, value: string) => {
+  const fillData = (method: string, column: string, value: string) => {
     const data = apiRef.current.getSortedRows()
-    for (const row of data) {
-      row[column] = value
-      apiRef.current.updateRows([row])
+    if (method === 'single') {
+      for (const row of data) {
+        row[column] = value
+        apiRef.current.updateRows([row])
+      }
+    } else {
+      const vals = value.split('\n')
+      let i = 0
+      for (const row of data) {
+        if (i >= vals.length) {
+          break
+        }
+        row[column] = vals[i++]
+        apiRef.current.updateRows([row])
+      }
     }
   }
 
