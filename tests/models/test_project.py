@@ -14,12 +14,12 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj.bindings['gen_uuid'].value, 'uuid')
         self.assertEqual(len(proj.rules), 3)
         self.assertEqual(proj.rules['update_date'], 'now')
-        self.assertEqual(proj.deployments['localhost'], 'mysql+pymysql://root:password@denv.host?charset=utf8')
+        self.assertEqual(proj.deployments['localhost'], 'mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4')
 
     def test_project_definitions(self):
         proj = Project(FOLDER_PATH)
         proj.read_definitions()
-        self.assertEqual(len(proj.instances), 2)
+        self.assertEqual(len(proj.instances), 3)
         self.assertEqual(proj.instances[0], 'main')
         self.assertEqual(len(proj.schemas['main'].get_tables()), 7)
 

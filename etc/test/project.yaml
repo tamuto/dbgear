@@ -11,6 +11,10 @@ definitions:
     items:
       y_or_n: Yes or No
       property_keys: Property Keys
+  - type: mysql
+    connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
+    mapping:
+      common: dbcmn
 
 bindings:
   uuid:
@@ -38,4 +42,4 @@ rules:
   .*_flag: y_or_n
 
 deployments:
-  localhost: mysql+pymysql://root:password@denv.host?charset=utf8
+  localhost: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
