@@ -4,6 +4,22 @@ from ..models.schema import Table
 from ..models.schema import Field
 
 
+def is_exist(conn, env: str, table: Table):
+    result = engine.select_one(
+        conn,
+        '''
+        SELECT TABLE_NAME FROM information_schema.tables
+        WHERE table_schema = :env and table_name = :table
+        ''',
+        {'env': env, 'table': table.table_name})
+    return result is not None
+
+
+def drop(conn, env: str, table: Table):
+    sql = f'DROP TABLE {env}.{table.table_name}'
+    engine.execute(conn, sql)
+
+
 def _column_sql(field: dict):
     sql = f'`{field.column_name}` {field.column_type}'
     if not field.nullable:

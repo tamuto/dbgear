@@ -19,28 +19,40 @@ def _load_for_entry(folder: str, map: Mapping, ins: str, tbl: str):
     return items
 
 
-def apply(project, env, deploy):
+def apply(project, env, target, all, deploy):
     map = mapping.get(project.folder, env)
     with engine.get_connection(project.deployments[deploy]) as conn:
         # データベース作成
-        logger.info(f'database {map.id}')
-        if database.is_exist(conn, map.id):
-            database.drop(conn, map.id)
-        database.create(conn, map.id)
-        # database.create_user(conn, 'test', '%', 'test')
-        # database.grant(conn, env, 'test', '%')
+        if all:
+            logger.info(f'database {map.id}')
+            if database.is_exist(conn, map.id):
+                database.drop(conn, map.id)
+            database.create(conn, map.id)
+        else:
+            # 個別指定だがデータベースが存在しない場合は作成する。
+            if not database.is_exist(conn, map.id):
+                logger.info(f'database {map.id} was created.')
+                database.create(conn, map.id)
 
         # テーブル作成
         for ins in map.instances:
             schema = project.schemas[ins]
             for tbl in schema.tables.values():
+                if not all and target != tbl.table_name:
+                    continue
+                # TODO 将来的なバージョンでは差分チェックか否かの判定を行う。
                 logger.info(f'table {map.id}.{tbl.table_name}')
+                if table.is_exist(conn, map.id, tbl):
+                    table.drop(conn, map.id, tbl)
                 table.create(conn, map.id, tbl)
 
         # データ投入
         for ins in map.instances:
             schema = project.schemas[ins]
             for tbl in schema.tables.values():
+                if not all and target != tbl.table_name:
+                    continue
+                # TODO 将来的なバージョンでは差分チェックか否かの判定を行う。
                 items = _load_for_entry(project.folder, map, ins, tbl.table_name)
                 if items is not None:
                     logger.info(f'insert {map.id}.{tbl.table_name}')
