@@ -1,26 +1,25 @@
+caption: ''
+cells:
+- value
+description: ''
 layout: matrix
+segment: ''
 settings:
-  row_id:
-    type: refs
-    id: test2
-    instance: main
-    table: row_table
   child_id:
-    type: refs
     id: test2
     instance: main
     table: tbl_child
-  value:
     type: refs
+  row_id:
     id: test2
-    instance: _select
-    table: y_or_n
+    instance: main
+    table: row_table
+    type: refs
   update_date:
     type: now
   update_user:
     type: update_user
 sync_mode: drop_create
+value: ''
 x_axis: child_id
 y_axis: row_id
-cells:
-  - value
