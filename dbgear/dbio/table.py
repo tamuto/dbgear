@@ -52,9 +52,8 @@ def create(conn, env: str, table: Table):
 
 def _col_value(item: dict, field: Field):
     if field.column_name in item:
-        if item[field.column_name] is None:
-            return 'NULL'
-        if type(item[field.column_name]) is str:
+        if item[field.column_name] is not None and type(item[field.column_name]) is str:
+            # 関数定義されている場合には、SQLに関数を埋め込む。
             if '(' in item[field.column_name]:
                 return item[field.column_name]
         return f':{field.column_name}'
