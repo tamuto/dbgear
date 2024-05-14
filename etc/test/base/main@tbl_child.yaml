@@ -1,15 +1,14 @@
-layout: single
+layout: table
 settings:
-  key:
+  col_id:
     type: refs
-    id: test2
-    instance: _select
-    table: property_keys
+    id: base
+    instance: main
+    table: test_table
   update_date:
     type: now
   update_user:
     type: update_user
 sync_mode: drop_create
-y_axis: key
-cells:
-  - value
+value: child_id
+caption: name

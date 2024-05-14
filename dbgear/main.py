@@ -31,8 +31,9 @@ def execute():
         help='target table.')
     apply_parser.add_argument(
         '--all',
-        action='store_true',
-        help='apply all tables.')
+        choices=['drop', 'delta'],
+        help='apply all tables. Specify "drop" to drop database before applying, or "delta" to apply only the changes since the last deployment.'
+    )
 
     args = parser.parse_args()
 

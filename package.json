@@ -13,7 +13,11 @@
     "flake8:src": "poetry run flake8 dbgear",
     "flake8:test": "poetry run flake8 tests",
     "release": "concurrently -g \"webpack --config webpack.config.js --mode production\" \"poetry build\"",
-    "publish": "poetry publish"
+    "publish": "poetry publish",
+    "run:serve": "poetry run dbgear --project ./etc/test serve",
+    "run:apply:drop": "poetry run dbgear --project ./etc/test apply localhost test1 --all drop",
+    "run:apply:delta": "poetry run dbgear --project ./etc/test apply localhost test1 --all delta",
+    "run:apply:target": "poetry run dbgear --project ./etc/test apply localhost test1 --target test_table"
   },
   "author": "tamuto <tamuto@infodb.jp>",
   "license": "MIT",

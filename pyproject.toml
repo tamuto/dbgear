@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbgear"
-version = "0.10.5"
+version = "0.11.0"
 description = ""
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"

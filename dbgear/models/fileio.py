@@ -19,6 +19,10 @@ def get_data_model_name(folder: str, id: str, instance: str, table: str) -> str:
     return f'{folder}/{id}/{instance}@{table}.yaml'
 
 
+def is_exist_data_model(folder: str, id: str, instance: str, table: str) -> bool:
+    return os.path.isfile(get_data_model_name(folder, id, instance, table))
+
+
 def get_data_dat_name(folder: str, id: str, instance: str, table: str, seg: str | None) -> str:
     if seg is not None:
         return f'{folder}/{id}/{instance}@{table}#{seg}.dat'
