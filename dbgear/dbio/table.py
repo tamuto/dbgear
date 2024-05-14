@@ -68,3 +68,24 @@ def insert(conn, env: str, table: Table, items: list[dict]):
     sql += ')'
     engine.execute(conn, sql, items)
     conn.commit()
+
+
+def backup(conn, env: str, table: Table, ymd: str):
+    sql = f'CREATE TABLE {env}.bak_{table.table_name}_{ymd} AS SELECT * FROM {env}.{table.table_name}'
+    engine.execute(conn, sql)
+
+
+def restore(conn, env: str, table: Table, ymd: str):
+    sql = f'INSERT IGNORE INTO {env}.{table.table_name} SELECT * FROM {env}.bak_{table.table_name}_{ymd}'
+    engine.execute(conn, sql)
+
+
+def is_exist_backup(conn, env: str, table: Table, ymd: str):
+    result = engine.select_one(
+        conn,
+        '''
+        SELECT TABLE_NAME FROM information_schema.tables
+        WHERE table_schema = :env and table_name = :table
+        ''',
+        {'env': env, 'table': f'bak_{table.table_name}_{ymd}'})
+    return result is not None

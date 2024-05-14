@@ -6,12 +6,12 @@ layout: matrix
 segment: ''
 settings:
   child_id:
-    id: test2
+    id: base
     instance: main
     table: tbl_child
     type: refs
   row_id:
-    id: test2
+    id: base
     instance: main
     table: row_table
     type: refs
