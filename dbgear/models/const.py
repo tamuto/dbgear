@@ -9,6 +9,7 @@ LAYOUT_SINGLE = 'single'
 # カラム定義
 BIND_TYPE_FIXED = 'fixed'
 BIND_TYPE_CALL = 'call'
+BIND_TYPE_EXTEND = 'extend'
 # カラム定義（特殊タイプ）
 BIND_TYPE_REFS = 'refs'
 BIND_TYPE_BLANK = ''

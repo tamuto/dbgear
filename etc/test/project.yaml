@@ -35,6 +35,9 @@ bindings:
   gen_uuid:
     type: call
     value: uuid
+  echo:
+    type: extend
+    value: echo
 
 rules:
   update_user: update_user

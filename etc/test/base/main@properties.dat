@@ -1,12 +1,8 @@
-- key: AAA
-  value: 111
+- key: '001'
   update_date: NOW()
-  update_user: "'SYSTEM'"
-- key: CCC
-  value: 333
+  update_user: SYSTEM
+  value: TEST,123
+- key: '002'
   update_date: NOW()
-  update_user: "'SYSTEM'"
-- key: EEE
-  value: 555
-  update_date: NOW()
-  update_user: "'SYSTEM'"
+  update_user: SYSTEM
+  value: BBB
