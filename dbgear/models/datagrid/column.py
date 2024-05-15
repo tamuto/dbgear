@@ -127,6 +127,13 @@ def make_cell_item(proj: Project, map: Mapping, dm: DataModel, table: Table) -> 
                         editable=False,
                         call_value=bind.value
                     ))
+                elif bind.type == const.BIND_TYPE_EXTEND:
+                    result.append(CellItem(
+                        column_name=field.column_name,
+                        display_name=field.display_name,
+                        width=setting['width'] if 'width' in setting else const.DEFAULT_WIDTH,
+                        editable=True
+                    ))
         else:
             result.append(CellItem(
                 column_name=field.column_name,

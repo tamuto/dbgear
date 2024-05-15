@@ -1,15 +1,22 @@
+caption: ''
+cells:
+- value
+description: ''
 layout: single
+segment: ''
 settings:
   key:
-    type: refs
     id: base
     instance: _select
     table: property_keys
+    type: refs
   update_date:
     type: now
   update_user:
     type: update_user
+  value:
+    type: echo
 sync_mode: drop_create
+value: ''
+x_axis: ''
 y_axis: key
-cells:
-  - value

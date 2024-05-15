@@ -1,5 +1,14 @@
+caption: row_name
+cells: []
+description: ''
 layout: table
-settings: {}
+segment: ''
+settings:
+  row_id:
+    type: gen_uuid
+  row_name:
+    type: echo
 sync_mode: drop_create
 value: row_id
-caption: row_name
+x_axis: ''
+y_axis: ''

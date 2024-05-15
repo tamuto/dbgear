@@ -1,3 +1,5 @@
+import importlib
+
 from logging import getLogger
 from datetime import datetime
 from .dbio import engine
@@ -12,24 +14,41 @@ from .models.fileio import load_all_data
 from .models.fileio import get_data_model_name
 from .models.fileio import is_exist_data_model
 from .models.fileio import load_model
+from .models import const
 
 logger = getLogger(__name__)
 
 
-def _load_for_entry(folder: str, map: Mapping, ins: str, tbl: str):
+def _load_for_entry(proj: Project, map: Mapping, ins: str, tbl: str, dm: DataModel):
     # 自身のデータをロードし、存在しなければ親を再帰的に遡ってロードする。
-    items = load_all_data(folder, map.id, ins, tbl)
+    items = load_all_data(proj.folder, map.id, ins, tbl)
     if items is None:
         if map.parent is not None:
-            items = _load_for_entry(folder, map.parent, ins, tbl)
+            return _load_for_entry(proj, map.parent, ins, tbl, dm)
+    # extendの処理
+        return None
+    for item in items:
+        for col, val in item.items():
+            if col in dm.settings:
+                typ = dm.settings[col]['type']
+                if typ in [const.BIND_TYPE_BLANK, const.BIND_TYPE_REFS]:
+                    continue
+                bind = proj.bindings[typ]
+                if bind is None:
+                    continue
+                if bind.type == const.BIND_TYPE_EXTEND:
+                    module = importlib.import_module(bind.value)
+                    result = module.convert(proj, map, ins, tbl, dm, *val.split(','))
+                    print(result)
+                    item[col] = result
     return items
 
 
-def _is_update_diff(proj: Project, map: Mapping, ins: str, tbl: str) -> bool:
+def _load_data_model(proj: Project, map: Mapping, ins: str, tbl: str) -> bool:
     if is_exist_data_model(proj.folder, map.id, ins, tbl) is False:
         if map.parent is None:
-            return False
-        return _is_update_diff(proj, map.parent, ins, tbl)
+            return None
+        return _load_data_model(proj, map.parent, ins, tbl)
 
     dm = load_model(
         get_data_model_name(proj.folder, map.id, ins, tbl),
@@ -38,7 +57,7 @@ def _is_update_diff(proj: Project, map: Mapping, ins: str, tbl: str) -> bool:
         instance=ins,
         table_name=tbl
     )
-    return dm.sync_mode == 'update_diff'
+    return dm
 
 
 class Operation:
@@ -99,11 +118,12 @@ class Operation:
             for tbl in schema.tables.values():
                 if not all and target != tbl.table_name:
                     continue
-                items = _load_for_entry(self.project.folder, self.map, ins, tbl.table_name)
+                dm = _load_data_model(self.project, self.map, ins, tbl.table_name)
+                items = _load_for_entry(self.project, self.map, ins, tbl.table_name, dm)
                 if items is not None:
                     logger.info(f'insert {self.map.id}.{tbl.table_name}')
                     table.insert(self.conn, self.map.id, tbl, items)
-                if _is_update_diff(self.project, self.map, ins, tbl.table_name):
+                if dm is not None and dm.sync_mode == 'update_diff':
                     # 新規作成時にはバックアップはない
                     if table.is_exist_backup(self.conn, self.map.id, tbl, self.ymd):
                         # バックアップからデータを復元
@@ -120,8 +140,8 @@ class Operation:
         # ユニットテストなどで指定したデータを挿入する。
         schema = self.project.schemas[instance]
         tbl = schema.get_table(table_name)
-        # TODO 将来的なバージョンでは差分チェックか否かの判定を行う。
-        items = _load_for_entry(self.project.folder, self.map, instance, table_name)
+        dm = _load_data_model(self.project, self.map, instance, table_name)
+        items = _load_for_entry(self.project, self.map, instance, table_name, dm)
         if items is not None:
             logger.info(f'insert {self.map.id}.{table_name}')
             table.insert(self.conn, self.map.id, tbl, items)
