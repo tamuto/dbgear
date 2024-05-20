@@ -35,6 +35,9 @@ bindings:
   gen_uuid:
     type: call
     value: uuid
+  gen_ulid:
+    type: call
+    value: ulid
   echo:
     type: extend
     value: echo
