@@ -16,6 +16,7 @@ BIND_TYPE_BLANK = ''
 
 # callのタイプ
 CALL_TYPE_UUID = 'uuid'
+CALL_TYPE_ULID = 'ulid'
 
 # FIXME セルタイプ
 FIELD_TYPE_STRING = 'string'

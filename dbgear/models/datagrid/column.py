@@ -1,6 +1,7 @@
 from typing import Any
 from dataclasses import dataclass
 from uuid import uuid4
+from ulid import ULID
 
 from ..project import Project
 from ..environ.data import Mapping
@@ -163,6 +164,8 @@ def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any
     if col.call_value is not None:
         if col.call_value == const.CALL_TYPE_UUID:
             return str(uuid4())
+        if col.call_value == const.CALL_TYPE_ULID:
+            return str(ULID())
     return ''
 
 

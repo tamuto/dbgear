@@ -5,7 +5,7 @@ layout: table
 segment: ''
 settings:
   row_id:
-    type: gen_uuid
+    type: gen_ulid
   row_name:
     type: echo
 sync_mode: drop_create

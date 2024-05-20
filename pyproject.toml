@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbgear"
-version = "0.12.1"
+version = "0.13.0"
 description = ""
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"
@@ -21,6 +21,8 @@ sqlalchemy = "^2.0.20"
 pymysql = "^1.1.0"
 fastapi = "^0.103.0"
 uvicorn = "^0.23.2"
+python-ulid = "^2.5.0"
+cryptography = "^42.0.7"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
