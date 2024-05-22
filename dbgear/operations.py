@@ -129,6 +129,7 @@ class Operation:
                         # create_tableの中で再作成されているため
                         logger.info(f'restore {self.map.id}.{tbl.table_name}')
                         table.restore(self.conn, self.map.id, tbl, self.ymd)
+                engine.commit(self.conn)
 
     def reset_all(self):
         # ユニットテストなど一括して再作成を行う場合に使用する。
