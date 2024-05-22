@@ -21,3 +21,7 @@ def select_all(conn, sql, params=None):
 
 def select_one(conn, sql, params=None):
     return execute(conn, sql, params).mappings().fetchone()
+
+
+def commit(conn):
+    conn.commit()
