@@ -38,7 +38,8 @@ def _load_for_entry(proj: Project, map: Mapping, ins: str, tbl: str, dm: DataMod
                     continue
                 if bind.type == const.BIND_TYPE_EXTEND:
                     module = importlib.import_module(bind.value)
-                    result = module.convert(proj, map, ins, tbl, dm, *val.split(','))
+                    work = val if val is not None else ''
+                    result = module.convert(proj, map, ins, tbl, dm, *work.split(','))
                     item[col] = result
     return items
 
