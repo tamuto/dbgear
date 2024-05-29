@@ -1,6 +1,0 @@
-setup.py
-echo/__init__.py
-echo_plugin.egg-info/PKG-INFO
-echo_plugin.egg-info/SOURCES.txt
-echo_plugin.egg-info/dependency_links.txt
-echo_plugin.egg-info/top_level.txt

@@ -11,10 +11,10 @@ definitions:
     items:
       y_or_n: Yes or No
       property_keys: Property Keys
-  - type: mysql
-    connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
-    mapping:
-      common: dbcmn
+  # - type: mysql
+  #   connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
+  #   mapping:
+  #     common: dbcmn
 
 bindings:
   uuid:

@@ -61,8 +61,8 @@ def load_for_select_items(folder: str, id: str, ins: str, ref: str) -> list[List
         )
         if dm.caption is not None and dm.value is not None:
             items = [ListItem(
-                caption=item[dm.caption],
-                value=item[dm.value]
+                caption=item[dm.caption] if item[dm.caption] is not None else '',
+                value=item[dm.value] if item[dm.value] is not None else ''
             ) for item in items]
         else:
             raise RuntimeError('Invalid Data Model for Master Data.')
@@ -150,7 +150,7 @@ def exclude_names(items: list[tuple[str, Any]]) -> dict[str, Any]:
     return {key: value for key, value in items if key not in ['column_name', 'display_name']}
 
 
-def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any:
+def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False, for_save: bool = False) -> Any:
     '''
     valueの中にフィールドのキーがなかったら、値を補完する。
     fixedがTrueの場合には、fixed_valueを優先する。
@@ -158,6 +158,14 @@ def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any
     if fixed and col.fixed_value is not None:
         return col.fixed_value
     if col.field in value:
+        if for_save:
+            if value[col.field] == '':
+                return None
+            if value[col.field] == "''":
+                return ''
+        else:
+            if value[col.field] == '':
+                return "''"
         return value[col.field]
     if col.fixed_value is not None:
         return col.fixed_value
@@ -166,15 +174,23 @@ def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False) -> Any
             return str(uuid4())
         if col.call_value == const.CALL_TYPE_ULID:
             return str(ULID())
-    return ''
+    return None
 
 
-def make_one_row(columns: list[GridColumn], data: Any, *, need_id: bool = True, fixed: bool = False, segment: tuple = (False, None, None)) -> dict[str, Any]:
+def make_one_row(
+        columns: list[GridColumn],
+        data: Any,
+        *,
+        need_id: bool = True,
+        fixed: bool = False,
+        segment: tuple = (False, None, None),
+        for_save: bool = False
+    ) -> dict[str, Any]:
     '''
     1行分のデータを生成する。
     '''
     row = {
-        col.field: adjust_column_value(col, data, fixed)
+        col.field: adjust_column_value(col, data, fixed, for_save)
         for col in columns
     }
 

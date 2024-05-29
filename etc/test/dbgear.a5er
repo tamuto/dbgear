@@ -1,7 +1,7 @@
-﻿# A5:ER FORMAT:17
+﻿# A5:ER FORMAT:18
 # A5:ER ENCODING:UTF8
 # A5:ER Mk-1 Copyright © 2007 m.matsubara
-# A5:SQL Mk-2 Version 2.18.3 Copyright © 1997 - 2023 m.matsubara
+# A5:SQL Mk-2 Version 2.19.1 Copyright © 1997 - 2024 m.matsubara
 #  https://a5m2.mmatsubara.com
 
 [Manager]
@@ -43,6 +43,7 @@ BugFixEntityWidth=1
 PName=test_table
 LName=テストテーブル
 Comment=
+TableInnerOption=
 TableOption=
 Page=MAIN
 Left=300
@@ -55,7 +56,7 @@ Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
-ModifiedDateTime=20230810080409
+ModifiedDateTime=20240529101047
 Position="MAIN",300,300
 ZOrder=1
 
@@ -63,6 +64,7 @@ ZOrder=1
 PName=tbl_child
 LName=子テーブル
 Comment=
+TableInnerOption=
 TableOption=
 Page=MAIN
 Left=900
@@ -104,6 +106,7 @@ ZOrder=4
 PName=properties
 LName=プロパティ
 Comment=
+TableInnerOption=
 TableOption=
 Page=MAIN
 Left=1700
@@ -123,6 +126,7 @@ ZOrder=5
 PName=row_table
 LName=行テーブル
 Comment=
+TableInnerOption=
 TableOption=
 Page=MAIN
 Left=350
@@ -140,6 +144,7 @@ ZOrder=6
 PName=tbl_matrix
 LName=マトリックステーブル
 Comment=
+TableInnerOption=
 TableOption=
 Page=MAIN
 Left=1000
@@ -202,8 +207,9 @@ ZOrder=9
 PName=tbl_cmp_table
 LName=複合キーテーブル
 Comment=
+TableInnerOption=
 TableOption=
-Page=Main
+Page=MAIN
 Left=1000
 Top=150
 Field="IDカラム","col_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
@@ -213,7 +219,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20230810163332
-Position="Main",1000,150
+Position="MAIN",1000,150
 ZOrder=10
 
 [Relation]
@@ -241,8 +247,9 @@ ZOrder=11
 PName=tbl_cmp_child
 LName=複合子テーブル
 Comment=
+TableInnerOption=
 TableOption=
-Page=Main
+Page=MAIN
 Left=1550
 Top=250
 Field="複合キー子ID","cmp_child_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
@@ -253,7 +260,7 @@ EffectMode=None
 Color=$000000
 BkColor=$FFFFFF
 ModifiedDateTime=20230810163457
-Position="Main",1550,250
+Position="MAIN",1550,250
 ZOrder=12
 
 [Relation]
@@ -276,3 +283,24 @@ Bar3=148
 TermPos1=R
 TermPos2=R
 ZOrder=13
+
+[Entity]
+PName=tbl_null_test
+LName=tbl_null_test
+Comment=
+TableInnerOption=
+TableOption=
+Page=Main
+Left=1850
+Top=850
+Field="test_id","test_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="col1","col1","char(5)",,,"","",$FFFFFFFF,""
+Field="col2","col2","varchar(10)",,,"","",$FFFFFFFF,""
+Field="col3","col3","datetime",,,"","",$FFFFFFFF,""
+Field="col4","col4","int",,,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20240529100921
+Position="Main",1850,850
+ZOrder=14
