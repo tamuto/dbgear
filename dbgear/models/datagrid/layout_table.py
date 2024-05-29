@@ -130,7 +130,7 @@ def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str
     # idカラムを除いて返却する。
     columns, seg_info = build_columns(proj, map, dm, table)
     if seg_info is None:
-        data = [column.make_one_row(columns, d, need_id=False) for d in rows]
+        data = [column.make_one_row(columns, d, need_id=False, for_save=True) for d in rows]
         return data
     # seg_infoがある場合には、セグメントカラムを作成する。
     assert segment is not None
@@ -139,7 +139,8 @@ def parse(proj: Project, map: Mapping, dm: DataModel, table: Table, segment: str
             columns,
             d,
             need_id=False,
-            segment=(True, seg_info[0], segment)
+            segment=(True, seg_info[0], segment),
+            for_save=True
         ) for d in rows
     ]
     return data

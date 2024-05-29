@@ -43,7 +43,7 @@ def _load_for_entry(proj: Project, map: Mapping, ins: str, tbl: str, dm: DataMod
     return items
 
 
-def _load_data_model(proj: Project, map: Mapping, ins: str, tbl: str) -> bool:
+def _load_data_model(proj: Project, map: Mapping, ins: str, tbl: str) -> bool | None:
     if is_exist_data_model(proj.folder, map.id, ins, tbl) is False:
         if map.parent is None:
             return None

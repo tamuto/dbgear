@@ -152,5 +152,7 @@ def retrieve(folder, filename, mapping, **kwargs):
     with open(f'{folder}/{filename}', 'r', encoding='utf-8-sig') as f:
         for idx, line in enumerate(f):
             p.parse_line(idx + 1, line.strip())
+        # 最後の空行をパースさせる。（ファイル終端で処理されないため）
+        p.parse_line(idx+1, '')
 
     return convert_to_schema(p)

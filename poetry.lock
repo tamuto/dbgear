@@ -176,7 +176,7 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "echo_plugin"
-version = "0.0.1"
+version = "0.0.4"
 description = ""
 optional = false
 python-versions = "*"
