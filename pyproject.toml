@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbgear"
-version = "0.14.2"
+version = "0.14.3"
 description = ""
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"
@@ -15,7 +15,7 @@ packages =[
 dbgear = "dbgear.main:execute"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.12"
 pyyaml = "^6.0"
 sqlalchemy = "^2.0.38"
 pymysql = "^1.1.1"
