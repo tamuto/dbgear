@@ -2,11 +2,11 @@ import unittest
 
 from unittest.mock import MagicMock
 
-from dbgear.models.project import Project
-from dbgear.api import project
+from dbgear.core.models.project import Project
+from dbgear_web.api import project
 
 
-FOLDER_PATH = './etc/test'
+FOLDER_PATH = '../../etc/test'
 
 
 class TestProject(unittest.TestCase):

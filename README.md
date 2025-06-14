@@ -341,17 +341,28 @@ npm run release
 
 ### テスト実行
 
+各パッケージでtaskipyを使用してテストを実行します：
+
 ```bash
-# Python テスト
+# Core (CLI) パッケージのテスト
 cd packages/dbgear
-poetry run python -m unittest discover
+task test           # 全テスト実行
+task test-fast      # 軽量テストのみ
+task lint           # flake8によるコードチェック
+task clean          # ビルド成果物のクリーンアップ
 
-# フロントエンド テスト
+# Web パッケージのテスト
+cd packages/dbgear-web
+task test           # 全テスト実行
+task test-fast      # 軽量テストのみ
+task lint           # flake8によるコードチェック
+task clean          # ビルド成果物のクリーンアップ
+task serve          # 開発サーバー起動
+
+# フロントエンド テスト（ルートディレクトリで実行）
 npm run test
-
-# Lint
-npm run flake8:src
-npm run eslint
+npm run build:tsc   # TypeScript型チェック
+npm run eslint      # ESLint
 ```
 
 ## 技術仕様

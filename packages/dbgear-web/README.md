@@ -71,9 +71,15 @@ cd dbgear/packages/dbgear-web
 
 # 依存関係をインストール
 poetry install
+```
 
-# 開発サーバー起動
-poetry run python -m dbgear_web.main --project ../../etc/test
+### 開発タスク
+```bash
+task test           # 全テスト実行
+task test-fast      # 軽量テストのみ
+task lint           # flake8によるコードチェック
+task clean          # ビルド成果物のクリーンアップ
+task serve          # 開発サーバー起動（テストプロジェクト使用）
 ```
 
 ### フロントエンド開発

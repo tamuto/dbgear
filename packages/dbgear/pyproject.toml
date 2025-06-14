@@ -21,9 +21,11 @@ sqlalchemy = "^2.0.38"
 pymysql = "^1.1.1"
 python-ulid = "^2.5.0"
 cryptography = "^42.0.7"
+pydantic = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^3.9.2"
+taskipy = "^1.12.0"
 
 [tool.poetry.group.plugin.dependencies]
 echo-plugin = {path = "../../etc/plugins/echo"}
@@ -31,3 +33,9 @@ echo-plugin = {path = "../../etc/plugins/echo"}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+test = "python -m unittest discover tests/ -v"
+test-fast = "python -m unittest discover tests/ -k 'not slow'"
+lint = "flake8 dbgear/ tests/"
+clean = "rm -rf dist/ build/ *.egg-info/"

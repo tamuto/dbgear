@@ -1,8 +1,8 @@
 import unittest
 
-from dbgear.api import dtos
-from dbgear.models.schema import Table
-from dbgear.models import const
+from dbgear_web.api import dtos
+from dbgear.core.models.schema import Table
+from dbgear.core.models import const
 
 
 class TestDTOs(unittest.TestCase):
