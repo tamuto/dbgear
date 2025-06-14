@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": "./src",
+    "paths": {
+      "~/api/*": ["api/*"],
+      "~/cmp/*": ["components/*"],
+      "~/img/*": ["resources/img/*"]
+    },
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "jsx": "preserve",
+    "jsxImportSource": "@emotion/react",
+    "moduleResolution": "node",
+    "incremental": true,
+    "outDir": "./.ts-cache",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

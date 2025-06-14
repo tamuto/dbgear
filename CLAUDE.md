@@ -8,10 +8,11 @@ DBGear is a **local development tool** for database initial data management. It 
 
 ## Monorepo Architecture
 
-DBGear is structured as a monorepo with two independent packages:
+DBGear is structured as a monorepo with three independent packages:
 
 - **dbgear**: Core library and CLI tools (`packages/dbgear/`)
 - **dbgear-web**: Web interface that depends on dbgear (`packages/dbgear-web/`)
+- **frontend**: React frontend package (`packages/frontend/`)
 
 ### Package Structure
 
@@ -29,13 +30,29 @@ packages/
 │   │   └── main.py           # Main CLI entry point
 │   └── pyproject.toml        # CLI package configuration
 │
-└── dbgear-web/               # Web Package (pip install dbgear-web)
-    ├── dbgear_web/
-    │   ├── api/              # FastAPI routers
-    │   ├── static/           # Frontend build artifacts
-    │   ├── backend.py        # FastAPI application
-    │   └── main.py           # Web server entry point
-    └── pyproject.toml        # Web package configuration (depends on dbgear)
+├── dbgear-web/               # Web Package (pip install dbgear-web)
+│   ├── dbgear_web/
+│   │   ├── api/              # FastAPI routers
+│   │   ├── static/           # Frontend build artifacts
+│   │   ├── backend.py        # FastAPI application
+│   │   └── main.py           # Web server entry point
+│   └── pyproject.toml        # Web package configuration (depends on dbgear)
+│
+└── frontend/                 # Frontend Package (React/TypeScript)
+    ├── src/
+    │   ├── api/              # API hooks and types
+    │   ├── components/       # Shared components
+    │   ├── features/         # Feature-specific components
+    │   ├── resources/        # Assets and i18n
+    │   ├── types/           # TypeScript type definitions
+    │   ├── main.tsx         # Entry point
+    │   └── routes.tsx       # Routing configuration
+    ├── public/
+    │   └── index.html       # HTML template
+    ├── package.json         # Frontend dependencies (pnpm)
+    ├── tsconfig.json        # TypeScript configuration
+    ├── webpack.config.js    # Build configuration
+    └── .eslintrc.yml        # ESLint configuration
 ```
 
 ### Key Components
@@ -83,20 +100,28 @@ poetry run python -m dbgear_web.main --project ../../etc/test --port 5000
 
 ### Frontend Development
 ```bash
+cd packages/frontend
+
+# Install dependencies
+pnpm install
+
 # Build for development
-npm run build
+pnpm run build
+
+# Build for production
+pnpm run build:prod
 
 # Watch mode for development
-npm run watch
+pnpm run watch
+
+# Development server
+pnpm run dev
 
 # Type checking
-npm run build:tsc
+pnpm run type-check
 
 # Lint TypeScript/React
-npm run eslint
-
-# Production build
-npm run release
+pnpm run lint
 ```
 
 ### Testing & Linting
@@ -122,21 +147,18 @@ task clean          # Clean build artifacts
 task serve          # Start development server
 ```
 
-#### Frontend Testing (from root)
+#### Frontend Testing
 ```bash
-# Frontend tests
-npm run test
-npm run build:tsc   # TypeScript type checking
-npm run eslint      # ESLint
+cd packages/frontend
 
-# Python linting (legacy - use task lint instead)
-npm run flake8:src
-npm run flake8:test
+# TypeScript type checking
+pnpm run type-check
 
-# Database operations (examples)
-npm run run:apply:drop    # Drop and recreate
-npm run run:apply:delta   # Apply changes only
-npm run run:apply:target  # Apply specific table
+# ESLint
+pnpm run lint
+
+# Build test
+pnpm run build
 ```
 
 ### Installation & Usage
@@ -162,11 +184,11 @@ dbgear-web --project ./etc/test --port 5000
 ### Path Aliases
 
 Frontend uses webpack aliases:
-- `~/api/*` → `frontend/api/*`
-- `~/cmp/*` → `frontend/components/*`  
-- `~/img/*` → `frontend/resources/img/*`
+- `~/api/*` → `packages/frontend/src/api/*`
+- `~/cmp/*` → `packages/frontend/src/components/*`  
+- `~/img/*` → `packages/frontend/src/resources/img/*`
 
-TypeScript also configured with these aliases in `tsconfig.json`.
+TypeScript also configured with these aliases in `packages/frontend/tsconfig.json`.
 
 ## Development Guidelines
 
@@ -215,12 +237,13 @@ When enhancing DBGear, focus on:
 
 ### Working with the Codebase
 
-- **Package Independence**: Each package has its own pyproject.toml and can be developed/installed independently
+- **Package Independence**: Each package has its own configuration and can be developed/installed independently
 - **Import Paths**: Use absolute imports when referencing across packages (`from dbgear.core.*`)
 - **Testing**: Test each package independently in its own directory
 - **Version Synchronization**: Keep version numbers synchronized between packages
-- Always run `npm run flake8:src` before committing Python changes
-- Use `npm run watch` for frontend development
+- **Frontend**: Use `pnpm` for package management, run `pnpm run lint` before committing frontend changes
+- **Python**: Use `task lint` before committing Python changes
+- **Frontend Development**: Use `pnpm run watch` or `pnpm run dev` for development
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
 

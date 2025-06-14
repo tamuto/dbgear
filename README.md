@@ -4,10 +4,11 @@
 
 ## モノレポ構成
 
-DBGearは2つの独立したパッケージで構成されています：
+DBGearは3つの独立したパッケージで構成されています：
 
 - **dbgear**: コアライブラリとCLIツール
 - **dbgear-web**: Webインターフェース
+- **frontend**: Reactフロントエンドパッケージ
 
 ## インストール
 
@@ -34,6 +35,10 @@ poetry install
 # Webパッケージの開発
 cd packages/dbgear-web
 poetry install
+
+# フロントエンドパッケージの開発
+cd packages/frontend
+pnpm install
 ```
 
 ## 特徴
@@ -326,17 +331,29 @@ dbgear apply production_db production --all drop
 ### フロントエンド開発
 
 ```bash
-# フロントエンドの依存関係をインストール
-npm install
+# フロントエンドディレクトリに移動
+cd packages/frontend
 
-# フロントエンドのビルド（開発用）
-npm run build
+# 依存関係をインストール
+pnpm install
 
-# フロントエンドのウォッチモード
-npm run watch
+# 開発用ビルド
+pnpm run build
 
 # 本番用ビルド
-npm run release
+pnpm run build:prod
+
+# ウォッチモード
+pnpm run watch
+
+# 開発サーバー起動
+pnpm run dev
+
+# TypeScript型チェック
+pnpm run type-check
+
+# ESLint実行
+pnpm run lint
 ```
 
 ### テスト実行
@@ -359,10 +376,11 @@ task lint           # flake8によるコードチェック
 task clean          # ビルド成果物のクリーンアップ
 task serve          # 開発サーバー起動
 
-# フロントエンド テスト（ルートディレクトリで実行）
-npm run test
-npm run build:tsc   # TypeScript型チェック
-npm run eslint      # ESLint
+# フロントエンド テスト
+cd packages/frontend
+pnpm run type-check  # TypeScript型チェック
+pnpm run lint        # ESLint
+pnpm run build       # ビルドテスト
 ```
 
 ## 技術仕様
@@ -372,7 +390,7 @@ npm run eslint      # ESLint
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
 - **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続
-- **パッケージ管理**: Poetry
+- **パッケージ管理**: Poetry (Python), pnpm (Frontend)
 
 ## ライセンス
 
