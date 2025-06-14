@@ -1,9 +1,9 @@
-from ..models.base import BaseSchema
-from ..models.schema import Table
-from ..models.project import Binding
-from ..models.environ.data import Mapping
-from ..models.datagrid.data import DataModel
-from ..models.datagrid.data import DataInfo
+from dbgear.core.models.base import BaseSchema
+from dbgear.core.models.schema import Table
+from dbgear.core.models.project import Binding
+from dbgear.core.models.environ.data import Mapping
+from dbgear.core.models.datagrid.data import DataModel
+from dbgear.core.models.datagrid.data import DataInfo
 
 # リクエスト用DTO
 

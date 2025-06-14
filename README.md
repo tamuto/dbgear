@@ -2,6 +2,40 @@
 
 データベース初期データ管理のためのローカル開発ツールです。データベースのスキーマ定義と初期データをYAML形式で管理し、Web UIを通じて直感的にデータを編集できます。
 
+## モノレポ構成
+
+DBGearは2つの独立したパッケージで構成されています：
+
+- **dbgear**: コアライブラリとCLIツール
+- **dbgear-web**: Webインターフェース
+
+## インストール
+
+### CLI使用（コアライブラリ）
+```bash
+pip install dbgear
+```
+
+### Web UI使用
+```bash
+pip install dbgear-web  # 自動的にdbgearもインストールされます
+```
+
+### 開発用インストール
+```bash
+# リポジトリをクローン
+git clone https://github.com/tamuto/dbgear.git
+cd dbgear
+
+# CLIパッケージの開発
+cd packages/dbgear
+poetry install
+
+# Webパッケージの開発
+cd packages/dbgear-web
+poetry install
+```
+
 ## 特徴
 
 - **Web UI でのデータ編集**: 直感的なインターフェースでデータベースの初期データを編集
@@ -11,12 +45,6 @@
 - **複数環境対応**: 開発・テスト・本番など、環境ごとのデータ管理
 - **プラグイン機構**: カスタムデータ変換やバインディングの拡張が可能
 - **テスト連携**: ユニットテストでの利用を想定した設計
-
-## インストール
-
-```bash
-pip install dbgear
-```
 
 ## クイックスタート
 
@@ -70,18 +98,10 @@ instances:
   - main
 ```
 
-### 3. 開発サーバーの起動
+### 3. CLI使用
 
 ```bash
-dbgear serve
-```
-
-ブラウザで http://localhost:5000 にアクセスして、Web UIでデータを編集します。
-
-### 4. データベースへの適用
-
-```bash
-# 全テーブルを削除して再作成
+# データベースへの適用
 dbgear apply localhost development --all drop
 
 # 差分のみ適用
@@ -90,6 +110,18 @@ dbgear apply localhost development --all delta
 # 特定のテーブルのみ適用
 dbgear apply localhost development --target users
 ```
+
+### 4. Web UI使用
+
+```bash
+# Webサーバーの起動
+dbgear-web --project . --port 5000
+
+# オプション指定
+dbgear-web --project ./my-project --host 0.0.0.0 --port 8080
+```
+
+ブラウザで http://localhost:5000 にアクセスして、Web UIでデータを編集します。
 
 ## プロジェクト設定
 
@@ -197,13 +229,6 @@ description: システム設定
 
 ## CLIコマンド
 
-### serve
-開発サーバーを起動します。
-
-```bash
-dbgear serve [--project PROJECT_DIR]
-```
-
 ### apply
 データベースにデータを適用します。
 
@@ -215,6 +240,21 @@ dbgear apply <deployment> <environment> [options]
 --target TABLE_NAME    # 特定のテーブルのみ適用
 --all drop            # 全テーブルを削除して再作成
 --all delta           # 差分のみ適用
+```
+
+## Webコマンド
+
+### dbgear-web
+Webサーバーを起動します。
+
+```bash
+# 基本構文
+dbgear-web [options]
+
+# オプション
+--project PROJECT_DIR  # プロジェクトディレクトリ (デフォルト: database)
+--port PORT            # ポート番号 (デフォルト: 5000)
+--host HOST            # ホスト名 (デフォルト: 0.0.0.0)
 ```
 
 ## プラグイン開発
@@ -260,13 +300,13 @@ bindings:
 # テスト環境用のデータを作成
 mkdir test
 echo "id: test_db\ninstances:\n  - main" > test/_mapping.yaml
-dbgear serve
+dbgear-web --project .
 # Web UIでテストデータを編集
 ```
 
 ### 2. ユニットテストでの利用
 ```python
-from dbgear.operations import Operation
+from dbgear.core.operations import Operation
 
 def setUp(self):
     with Operation.get_instance('./project', 'test', 'localhost') as op:
@@ -281,6 +321,39 @@ mkdir production
 dbgear apply production_db production --all drop
 ```
 
+## 開発環境セットアップ
+
+### フロントエンド開発
+
+```bash
+# フロントエンドの依存関係をインストール
+npm install
+
+# フロントエンドのビルド（開発用）
+npm run build
+
+# フロントエンドのウォッチモード
+npm run watch
+
+# 本番用ビルド
+npm run release
+```
+
+### テスト実行
+
+```bash
+# Python テスト
+cd packages/dbgear
+poetry run python -m unittest discover
+
+# フロントエンド テスト
+npm run test
+
+# Lint
+npm run flake8:src
+npm run eslint
+```
+
 ## 技術仕様
 
 - **バックエンド**: Python 3.12+, FastAPI, SQLAlchemy
@@ -288,6 +361,7 @@ dbgear apply production_db production --all drop
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
 - **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続
+- **パッケージ管理**: Poetry
 
 ## ライセンス
 

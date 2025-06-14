@@ -4,11 +4,11 @@ from glob import glob
 from fastapi import APIRouter
 from fastapi import Request
 
-from ..models.project import project
-from ..models.environ.data import Mapping
-from ..models.fileio import load_model
-from ..models.fileio import get_mapping_name
-from ..models.fileio import get_environ_name
+from dbgear.core.models.project import project
+from dbgear.core.models.environ.data import Mapping
+from dbgear.core.models.fileio import load_model
+from dbgear.core.models.fileio import get_mapping_name
+from dbgear.core.models.fileio import get_environ_name
 from .dtos import Result
 from .dtos import DataFilename
 

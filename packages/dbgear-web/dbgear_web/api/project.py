@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter
 from fastapi import Request
 
-from ..models.project import project
+from dbgear.core.models.project import project
 from .dtos import Result
 from .dtos import ProjectInfo
 
