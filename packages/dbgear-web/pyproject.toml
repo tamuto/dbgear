@@ -1,34 +1,27 @@
 [tool.poetry]
-name = "dbgear"
+name = "dbgear-web"
 version = "0.14.3"
-description = ""
+description = "Web interface for dbgear database management tools"
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"
 homepage = "https://github.com/tamuto/dbgear"
 repository = "https://github.com/tamuto/dbgear"
 
-packages =[
-    { include="dbgear", from="." }
+packages = [
+    { include = "dbgear_web", from = "." }
 ]
 
 [tool.poetry.scripts]
-dbgear = "dbgear.main:execute"
+dbgear-web = "dbgear_web.main:execute"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pyyaml = "^6.0"
-sqlalchemy = "^2.0.38"
-pymysql = "^1.1.1"
+dbgear = "^0.14.3"
 fastapi = "^0.115.8"
 uvicorn = "^0.34.0"
-python-ulid = "^2.5.0"
-cryptography = "^42.0.7"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^3.9.2"
-
-[tool.poetry.group.plugin.dependencies]
-echo-plugin = {path = "etc/plugins/echo"}
 
 [build-system]
 requires = ["poetry-core"]

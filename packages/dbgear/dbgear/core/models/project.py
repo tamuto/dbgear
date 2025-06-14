@@ -45,7 +45,7 @@ class Project:
     def read_definitions(self) -> None:
         for items in self._definitions:
             self.logger.info(f"definition: {items['type']}")
-            module = import_module(f'.{items["type"]}', 'dbgear.definitions')
+            module = import_module(f'.{items["type"]}', 'dbgear.core.definitions')
             result = module.retrieve(self.folder, **items)
 
             self._schemas.update(result)

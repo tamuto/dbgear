@@ -6,20 +6,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DBGear is a **local development tool** for database initial data management. It is designed for developers working locally and does not require production-level security features like authentication or SQL injection protection. The tool focuses on developer experience and ease of use for managing database schemas and initial data through a web interface.
 
-## Architecture Overview
+## Monorepo Architecture
 
-DBGear is a database management tool for initial data management with a web UI. It consists of:
+DBGear is structured as a monorepo with two independent packages:
 
-- **Python Backend (FastAPI)**: Main application in `dbgear/` directory with CLI entry point in `main.py`
-- **React Frontend**: TypeScript/React application in `frontend/` directory using Material-UI and Emotion
-- **Hybrid Build System**: Poetry for Python dependencies, npm/webpack for frontend assets
+- **dbgear**: Core library and CLI tools (`packages/dbgear/`)
+- **dbgear-web**: Web interface that depends on dbgear (`packages/dbgear-web/`)
+
+### Package Structure
+
+```
+packages/
+├── dbgear/                    # CLI Package (pip install dbgear)
+│   ├── dbgear/
+│   │   ├── core/             # Core functionality
+│   │   │   ├── models/       # Data models and project management
+│   │   │   ├── dbio/         # Database I/O operations
+│   │   │   ├── definitions/  # Schema definition parsers
+│   │   │   └── operations.py # Database operation orchestration
+│   │   ├── cli/              # CLI-specific functionality
+│   │   │   └── main.py       # CLI entry point
+│   │   └── main.py           # Main CLI entry point
+│   └── pyproject.toml        # CLI package configuration
+│
+└── dbgear-web/               # Web Package (pip install dbgear-web)
+    ├── dbgear_web/
+    │   ├── api/              # FastAPI routers
+    │   ├── static/           # Frontend build artifacts
+    │   ├── backend.py        # FastAPI application
+    │   └── main.py           # Web server entry point
+    └── pyproject.toml        # Web package configuration (depends on dbgear)
+```
 
 ### Key Components
 
-- **Project Management**: `dbgear/models/project.py` - Core project configuration loader reading `project.yaml`
-- **Data Models**: `dbgear/models/` - Schema definitions, data grids, and environment mappings
-- **Database Operations**: `dbgear/operations.py` - Apply/deploy data to target databases
-- **API Layer**: `dbgear/api/` - FastAPI routers for frontend communication
+- **Project Management**: `packages/dbgear/dbgear/core/models/project.py` - Core project configuration loader
+- **Data Models**: `packages/dbgear/dbgear/core/models/` - Schema definitions, data grids, and environment mappings
+- **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
+- **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
 - **Frontend State**: Uses Zustand for state management and React Router for navigation
 
 ### Data Flow
@@ -32,27 +56,32 @@ DBGear is a database management tool for initial data management with a web UI. 
 
 ## Development Commands
 
-### Python Backend
+### CLI Package Development
 ```bash
-# Run development server
-poetry run dbgear --project ./etc/test serve
+cd packages/dbgear
+
+# Install dependencies
+poetry install
+
+# Run CLI tools
+poetry run python -m dbgear.main apply localhost development --all drop
 
 # Run tests
-npm run test
-# or
 poetry run python -m unittest discover
-
-# Lint Python code
-npm run flake8:src
-npm run flake8:test
-
-# Apply database operations (examples)
-npm run run:apply:drop    # Drop and recreate
-npm run run:apply:delta   # Apply changes only
-npm run run:apply:target  # Apply specific table
 ```
 
-### Frontend
+### Web Package Development
+```bash
+cd packages/dbgear-web
+
+# Install dependencies (includes dbgear as dependency)
+poetry install
+
+# Run web server
+poetry run python -m dbgear_web.main --project ../../etc/test --port 5000
+```
+
+### Frontend Development
 ```bash
 # Build for development
 npm run build
@@ -70,26 +99,39 @@ npm run eslint
 npm run release
 ```
 
-### Project Structure
+### Testing & Linting
+```bash
+# Python linting
+npm run flake8:src
+npm run flake8:test
 
-- `dbgear/main.py` - CLI entry point with serve/apply commands
-- `dbgear/backend.py` - FastAPI application setup
-- `dbgear/models/project.py` - Project configuration management
-- `frontend/main.tsx` - React application entry point
-- `frontend/routes.tsx` - Application routing configuration
-- `webpack.config.js` - Frontend build configuration with path aliases
+# Frontend tests
+npm run test
 
-### Testing
+# Database operations (examples)
+npm run run:apply:drop    # Drop and recreate
+npm run run:apply:delta   # Apply changes only
+npm run run:apply:target  # Apply specific table
+```
 
-Test files are in `tests/` directory. The test project in `etc/test/` provides example configuration:
-- `project.yaml` - Main project configuration
-- `dbgear.a5er` - Database schema file
-- Data files in YAML format for test scenarios
+### Installation & Usage
+
+#### CLI Usage
+```bash
+pip install dbgear
+dbgear apply localhost development --all drop
+```
+
+#### Web Interface Usage
+```bash
+pip install dbgear-web  # Automatically installs dbgear dependency
+dbgear-web --project ./etc/test --port 5000
+```
 
 ### Build Output
 
-- Frontend builds to `dbgear/web/` directory
-- Backend serves static files from this directory at `/static`
+- Frontend builds to `packages/dbgear-web/dbgear_web/static/` directory
+- Web backend serves static files from this directory at `/static`
 - Root route redirects to `/static` for SPA behavior
 
 ### Path Aliases
@@ -114,13 +156,20 @@ As a local development tool, prioritize these aspects when making changes:
 
 2. **Code Maintainability**
    - Type safety with TypeScript and Pydantic
-   - Clear separation of concerns between layers
+   - Clear separation of concerns between packages and layers
    - Consistent naming conventions
 
 3. **Extensibility**
    - Plugin architecture for new definition types
    - Modular frontend components
    - Configurable data binding rules
+
+### Package Dependencies
+
+- **dbgear-web** depends on **dbgear** as an external package dependency
+- All imports in dbgear-web use `from dbgear.core.*` syntax
+- Core functionality is completely independent and reusable
+- Web interface is an optional addition that can be installed separately
 
 ### Known Limitations
 
@@ -141,10 +190,21 @@ When enhancing DBGear, focus on:
 
 ### Working with the Codebase
 
+- **Package Independence**: Each package has its own pyproject.toml and can be developed/installed independently
+- **Import Paths**: Use absolute imports when referencing across packages (`from dbgear.core.*`)
+- **Testing**: Test each package independently in its own directory
+- **Version Synchronization**: Keep version numbers synchronized between packages
 - Always run `npm run flake8:src` before committing Python changes
 - Use `npm run watch` for frontend development
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
+
+### Testing Configuration
+
+Test files are in `tests/` directory. The test project in `etc/test/` provides example configuration:
+- `project.yaml` - Main project configuration
+- `dbgear.a5er` - Database schema file
+- Data files in YAML format for test scenarios
 
 ## Future Development
 

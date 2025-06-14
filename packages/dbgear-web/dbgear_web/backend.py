@@ -9,11 +9,11 @@ from .api import tables
 from .api import environs
 from .api import refs
 
-from .models.project import Project
+from dbgear.core.models.project import Project
 
 app = FastAPI()
 
-app.mount('/static', StaticFiles(directory=f'{os.path.dirname(__file__)}/web', html=True), name='static')
+app.mount('/static', StaticFiles(directory=f'{os.path.dirname(__file__)}/static', html=True), name='static')
 app.include_router(project.router)
 app.include_router(tables.router)
 app.include_router(environs.router)
@@ -25,6 +25,6 @@ def root():
     return RedirectResponse('/static')
 
 
-def run(project: Project):
+def run(project: Project, port: int = 5000, host: str = '0.0.0.0'):
     app.state.project = project
-    uvicorn.run('dbgear.backend:app', port=5000, host='0.0.0.0', log_config=None)
+    uvicorn.run('dbgear_web.backend:app', port=port, host=host, log_config=None)

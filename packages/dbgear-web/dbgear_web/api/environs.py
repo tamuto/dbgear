@@ -2,10 +2,10 @@ from fastapi import APIRouter
 from fastapi import Request
 from fastapi import Body
 
-from ..models.project import project
-from ..models.environ import mapping
-from ..models.environ import entity
-from ..models.environ import import_sql
+from dbgear.core.models.project import project
+from dbgear.core.models.environ import mapping
+from dbgear.core.models.environ import entity
+from dbgear.core.models.environ import import_sql
 
 from .dtos import Result
 from .dtos import Data
