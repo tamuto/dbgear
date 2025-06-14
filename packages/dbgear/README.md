@@ -97,6 +97,22 @@ pip install dbgear-web
 dbgear-web --project ./my-project --port 5000
 ```
 
+## 開発
+
+### テスト実行
+```bash
+task test           # 全テスト実行
+task test-fast      # 軽量テストのみ
+task lint           # flake8によるコードチェック
+task clean          # ビルド成果物のクリーンアップ
+```
+
+### 依存関係
+```bash
+poetry install      # 依存関係のインストール
+poetry add package  # パッケージの追加
+```
+
 ## ライセンス
 
 MIT

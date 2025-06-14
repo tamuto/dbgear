@@ -2,10 +2,10 @@ import unittest
 
 from unittest.mock import MagicMock
 
-from dbgear.models.project import Project
-from dbgear.api import tables
+from dbgear.core.models.project import Project
+from dbgear_web.api import tables
 
-FOLDER_PATH = './etc/test'
+FOLDER_PATH = '../../etc/test'
 
 
 class TestTables(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestTables(unittest.TestCase):
     def test_get_tables(self):
         result = tables.get_tables(self.request)
         self.assertEqual(result.status, 'OK')
-        self.assertEqual(len(result.data['main']), 7)
+        self.assertEqual(len(result.data['main']), 8)
 
     def test_get_table(self):
         result = tables.get_table('main', 'test_table', self.request)

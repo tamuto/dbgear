@@ -100,13 +100,38 @@ npm run release
 ```
 
 ### Testing & Linting
-```bash
-# Python linting
-npm run flake8:src
-npm run flake8:test
 
+Each package uses taskipy for independent test execution:
+
+#### Core Package Testing
+```bash
+cd packages/dbgear
+task test           # Run all tests (11 tests)
+task test-fast      # Run fast tests only
+task lint           # flake8 code checking
+task clean          # Clean build artifacts
+```
+
+#### Web Package Testing
+```bash
+cd packages/dbgear-web
+task test           # Run all tests (14 tests: 11 success, 3 skipped)
+task test-fast      # Run fast tests only
+task lint           # flake8 code checking
+task clean          # Clean build artifacts
+task serve          # Start development server
+```
+
+#### Frontend Testing (from root)
+```bash
 # Frontend tests
 npm run test
+npm run build:tsc   # TypeScript type checking
+npm run eslint      # ESLint
+
+# Python linting (legacy - use task lint instead)
+npm run flake8:src
+npm run flake8:test
 
 # Database operations (examples)
 npm run run:apply:drop    # Drop and recreate

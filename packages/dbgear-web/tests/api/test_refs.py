@@ -2,10 +2,10 @@ import unittest
 
 from unittest.mock import MagicMock
 
-from dbgear.models.project import Project
-from dbgear.api import refs
+from dbgear.core.models.project import Project
+from dbgear_web.api import refs
 
-FOLDER_PATH = './etc/test'
+FOLDER_PATH = '../../etc/test'
 
 
 class TestRefs(unittest.TestCase):
@@ -21,4 +21,4 @@ class TestRefs(unittest.TestCase):
         result = refs.get_referencable(self.request)
 
         # 参照できる全てのデータ件数を確認する
-        self.assertEqual(len(result.data), 9)
+        self.assertEqual(len(result.data), 10)
