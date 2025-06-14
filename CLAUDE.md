@@ -254,6 +254,14 @@ Test files are in `tests/` directory. The test project in `etc/test/` provides e
 - `dbgear.a5er` - Database schema file
 - Data files in YAML format for test scenarios
 
+**Important**: When adding new unit tests, always update the test documentation in `docs/spec_tests.md` to include:
+- Test case descriptions and what they validate
+- New test categories or modules
+- Updated test counts and coverage metrics
+- Any new testing patterns or methodologies used
+
+This ensures the testing documentation stays current and serves as a comprehensive guide for ongoing test development and maintenance.
+
 ## Future Development
 
 See `ROADMAP.md` for planned feature enhancements including:
