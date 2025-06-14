@@ -32,15 +32,15 @@ class TestProject(unittest.TestCase):
     def test_project_configuration_validation(self):
         """プロジェクト設定の検証"""
         proj = Project(FOLDER_PATH)
-        
+
         # プロジェクト名の検証
         self.assertEqual(proj.project_name, 'Test')
-        
+
         # bindings設定の検証
         self.assertIn('uuid', proj.bindings)
         self.assertIn('now', proj.bindings)
         self.assertEqual(proj.bindings['gen_uuid'].value, 'uuid')
-        
+
         # deployments設定の検証
         self.assertIn('localhost', proj.deployments)
         self.assertTrue(proj.deployments['localhost'].startswith('mysql+pymysql://'))
