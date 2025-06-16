@@ -20,12 +20,36 @@ def drop(conn, env: str, table: Table):
     engine.execute(conn, sql)
 
 
-def _column_sql(field: dict):
+def _column_sql(field: Field):
     sql = f'`{field.column_name}` {field.column_type}'
+    
+    # Add character set and collation for string columns
+    if field.charset is not None:
+        sql += f' CHARACTER SET {field.charset}'
+    if field.collation is not None:
+        sql += f' COLLATE {field.collation}'
+    
+    # Add nullable constraint
     if not field.nullable:
         sql += ' NOT NULL'
-    if field.default_value is not None:
+    
+    # Add AUTO_INCREMENT
+    if field.auto_increment:
+        sql += ' AUTO_INCREMENT'
+    
+    # Add generated column expression or default value
+    if field.expression is not None:
+        storage_type = 'STORED' if field.stored else 'VIRTUAL'
+        sql += f' GENERATED ALWAYS AS ({field.expression}) {storage_type}'
+    elif field.default_value is not None:
         sql += f' DEFAULT {field.default_value}'
+    
+    # Add comment
+    if field.comment is not None:
+        # Escape single quotes in comment
+        escaped_comment = field.comment.replace("'", "''")
+        sql += f" COMMENT '{escaped_comment}'"
+    
     return sql
 
 
@@ -61,10 +85,13 @@ def _col_value(item: dict, field: Field):
 
 
 def insert(conn, env: str, table: Table, items: list[dict]):
+    # Filter out generated columns (expression fields) from INSERT
+    insertable_fields = [f for f in table.fields if f.expression is None]
+    
     sql = f'INSERT INTO {env}.{table.table_name} ('
-    sql += ', '.join([f'`{f.column_name}`' for f in table.fields])
+    sql += ', '.join([f'`{f.column_name}`' for f in insertable_fields])
     sql += ') VALUES ('
-    sql += ', '.join([_col_value(items[0], f) for f in table.fields])
+    sql += ', '.join([_col_value(items[0], f) for f in insertable_fields])
     sql += ')'
     engine.execute(conn, sql, items)
     conn.commit()
