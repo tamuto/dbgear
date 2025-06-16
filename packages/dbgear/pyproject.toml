@@ -35,7 +35,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.taskipy.tasks]
-test = "python -m unittest discover tests/ -v"
-test-fast = "python -m unittest discover tests/ -k 'not slow'"
-lint = "flake8 dbgear/ tests/"
+test = "poetry run python -m unittest discover tests/ -v"
+test-fast = "poetry run python -m unittest discover tests/ -k 'not slow'"
+lint = "poetry run flake8 dbgear/ tests/"
 clean = "rm -rf dist/ build/ *.egg-info/"

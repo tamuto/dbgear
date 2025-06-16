@@ -64,6 +64,8 @@ packages/
 - **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
 - **Definition Parsers**: `packages/dbgear/dbgear/core/definitions/` - Support for a5sql_mk2, mysql, selectable, and dbgear_schema formats
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
+  - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_fields.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
+  - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
 - **Frontend State**: Uses Zustand for state management and React Router for navigation
 
 ### Data Flow
