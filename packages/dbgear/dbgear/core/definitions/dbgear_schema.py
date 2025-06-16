@@ -14,7 +14,12 @@ def parse_field_definition(field_data: Dict[str, Any]) -> Field:
         primary_key=field_data.get('primary_key'),
         default_value=field_data.get('default_value'),
         foreign_key=field_data.get('foreign_key'),
-        comment=field_data.get('comment')
+        comment=field_data.get('comment'),
+        expression=field_data.get('expression'),
+        stored=field_data.get('stored', False),
+        auto_increment=field_data.get('auto_increment', False),
+        charset=field_data.get('charset'),
+        collation=field_data.get('collation')
     )
 
 

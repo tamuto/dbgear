@@ -47,7 +47,7 @@ with Operation(project, "development", "localhost") as op:
 manager = SchemaManager("./my-project")
 schema = manager.create_schema("main")
 
-# テーブル追加
+# テーブル追加（表現式対応）
 table = Table(
     instance="main",
     table_name="users",
@@ -58,7 +58,24 @@ table = Table(
             display_name="ID",
             column_type="BIGINT",
             nullable=False,
-            primary_key=1
+            primary_key=1,
+            auto_increment=True
+        ),
+        Field(
+            column_name="name",
+            display_name="名前",
+            column_type="VARCHAR(100)",
+            nullable=False,
+            charset="utf8mb4",
+            collation="utf8mb4_unicode_ci"
+        ),
+        Field(
+            column_name="full_name",
+            display_name="フルネーム",
+            column_type="VARCHAR(201)",
+            nullable=False,
+            expression="CONCAT(first_name, ' ', last_name)",
+            stored=True
         )
     ]
 )
@@ -70,6 +87,8 @@ manager.save()  # YAML保存
 
 - **データベーススキーマ管理**: A5:SQL Mk-2、MySQL直接接続、独自YAML形式対応
 - **スキーマ操作**: テーブル・フィールド・インデックスの追加・更新・削除
+- **カラム式サポート**: MySQL生成カラム（GENERATED ALWAYS AS）対応
+- **拡張フィールド属性**: AUTO_INCREMENT、文字セット、照合順序指定
 - **初期データ管理**: YAML形式でのデータ定義
 - **環境管理**: 開発・テスト・本番環境の分離
 - **データバインディング**: 自動的な値設定（UUID、現在時刻等）
@@ -121,34 +140,130 @@ schemas:
       users:
         display_name: ユーザー
         fields:
+          # 主キー（AUTO_INCREMENT）
           - column_name: id
             display_name: ID
             column_type: BIGINT
             nullable: false
             primary_key: 1
-          - column_name: name
-            display_name: 名前
-            column_type: VARCHAR(100)
+            auto_increment: true
+            
+          # 文字セット指定
+          - column_name: first_name
+            display_name: 名
+            column_type: VARCHAR(50)
             nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+          - column_name: last_name
+            display_name: 姓
+            column_type: VARCHAR(50)
+            nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
           - column_name: email
             display_name: メールアドレス
             column_type: VARCHAR(255)
-            nullable: true
+            nullable: false
             foreign_key: contacts.email
+            
+          # 生成カラム（STORED）
+          - column_name: full_name
+            display_name: フルネーム
+            column_type: VARCHAR(101)
+            nullable: false
+            expression: "CONCAT(last_name, ' ', first_name)"
+            stored: true
+            
+          # 生成カラム（VIRTUAL）
+          - column_name: email_domain
+            display_name: メールドメイン
+            column_type: VARCHAR(255)
+            nullable: true
+            expression: "SUBSTRING_INDEX(email, '@', -1)"
+            stored: false
+            
+          # 複雑な式（CASE文）
+          - column_name: user_type
+            display_name: ユーザー種別
+            column_type: VARCHAR(20)
+            nullable: false
+            expression: "CASE WHEN email LIKE '%@company.com' THEN '社員' ELSE '一般' END"
+            stored: true
+            
+          # タイムスタンプ
+          - column_name: created_at
+            display_name: 作成日時
+            column_type: TIMESTAMP
+            nullable: false
+            default_value: "CURRENT_TIMESTAMP"
+            
         indexes:
           - index_name: idx_email
             columns: [email]
+          - index_name: idx_full_name
+            columns: [full_name]
 ```
 
 ## ライブラリ構成
 
 - `dbgear.core.models`: データモデルとプロジェクト管理
-  - `schema_manager`: スキーマCRUD操作
+  - `schema_manager`: スキーマCRUD操作・表現式検証
+  - `schema`: Field/Table/Schemaクラス（表現式属性対応）
 - `dbgear.core.dbio`: データベースI/O操作
 - `dbgear.core.definitions`: スキーマ定義パーサー
-  - `dbgear_schema`: 独自YAML形式パーサー
+  - `dbgear_schema`: 独自YAML形式パーサー（表現式対応）
+  - `a5sql_mk2`: A5:SQL Mk-2形式パーサー
+  - `mysql`: MySQL直接接続パーサー
 - `dbgear.core.operations`: データベース操作オーケストレーション
 - `dbgear.cli`: CLIインターフェース
+
+## 表現式機能
+
+### サポートする拡張フィールド属性
+
+- **expression**: 生成カラムの式（MySQL GENERATED ALWAYS AS）
+- **stored**: STORED（true）またはVIRTUAL（false）の指定
+- **auto_increment**: AUTO_INCREMENT属性
+- **charset**: 文字セット（VARCHAR等の文字列型で使用）
+- **collation**: 照合順序（文字列型で使用）
+
+### 使用例
+
+```python
+# 生成カラムの定義
+calculated_field = Field(
+    column_name="total_price",
+    column_type="DECIMAL(10,2)",
+    expression="price * (1 + tax_rate)",
+    stored=True  # STORED列として保存
+)
+
+# AUTO_INCREMENT主キー
+id_field = Field(
+    column_name="id",
+    column_type="BIGINT",
+    primary_key=1,
+    auto_increment=True
+)
+
+# 文字セット指定
+name_field = Field(
+    column_name="name",
+    column_type="VARCHAR(100)",
+    charset="utf8mb4",
+    collation="utf8mb4_unicode_ci"
+)
+```
+
+### 制約・検証ルール
+
+- 表現式カラムは `default_value`, `primary_key`, `foreign_key` と併用不可
+- AUTO_INCREMENTは主キー必須、nullable不可
+- 外部キー参照の整合性チェック
+- フィールド名・テーブル名の重複チェック
 
 ## Web UIが必要な場合
 

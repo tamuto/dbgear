@@ -48,6 +48,33 @@ class SchemaValidator:
         if field.primary_key is not None and field.primary_key < 1:
             errors.append("Primary key order must be positive integer")
 
+        # Validate expression columns
+        if field.expression:
+            # Expression columns cannot have default values
+            if field.default_value:
+                errors.append("Expression column cannot have default_value")
+            
+            # Expression columns cannot be primary keys
+            if field.primary_key:
+                errors.append("Expression column cannot be primary key")
+            
+            # Expression columns cannot be foreign keys
+            if field.foreign_key:
+                errors.append("Expression column cannot be foreign key")
+            
+            # Expression columns cannot be auto increment
+            if field.auto_increment:
+                errors.append("Expression column cannot be auto increment")
+
+        # Validate AUTO_INCREMENT columns
+        if field.auto_increment:
+            if field.primary_key is None:
+                errors.append("AUTO_INCREMENT column must be part of primary key")
+            if field.nullable:
+                errors.append("AUTO_INCREMENT column cannot be nullable")
+            if field.expression:
+                errors.append("AUTO_INCREMENT column cannot be expression column")
+
         return errors
 
     @staticmethod
@@ -131,6 +158,18 @@ class SchemaManager:
                         field_dict["foreign_key"] = field.foreign_key
                     if field.comment is not None:
                         field_dict["comment"] = field.comment
+                    
+                    # Add new expression-related fields
+                    if field.expression is not None:
+                        field_dict["expression"] = field.expression
+                    if field.stored:
+                        field_dict["stored"] = field.stored
+                    if field.auto_increment:
+                        field_dict["auto_increment"] = field.auto_increment
+                    if field.charset is not None:
+                        field_dict["charset"] = field.charset
+                    if field.collation is not None:
+                        field_dict["collation"] = field.collation
 
                     table_dict["fields"].append(field_dict)
 

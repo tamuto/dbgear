@@ -10,6 +10,13 @@ class Field(BaseSchema):
     default_value: str | None
     foreign_key: str | None
     comment: str | None
+    
+    # Column expression support
+    expression: str | None = None  # Generated column expression
+    stored: bool = False          # STORED/VIRTUAL distinction
+    auto_increment: bool = False  # AUTO_INCREMENT attribute
+    charset: str | None = None    # Character set for string columns
+    collation: str | None = None  # Collation for string columns
 
 
 class Index(BaseSchema):

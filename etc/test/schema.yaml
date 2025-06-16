@@ -13,6 +13,8 @@ schemas:
             display_name: 名前
             column_type: varchar(100)
             nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
           - column_name: num
             display_name: 数字
             column_type: int
@@ -25,6 +27,8 @@ schemas:
             display_name: 更新者
             column_type: varchar(64)
             nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
 
       tbl_child:
         display_name: 子テーブル
@@ -179,3 +183,125 @@ schemas:
             display_name: col4
             column_type: int
             nullable: true
+
+      # Expression column examples
+      users:
+        display_name: ユーザー
+        fields:
+          - column_name: id
+            display_name: ID
+            column_type: BIGINT
+            nullable: false
+            primary_key: 1
+            auto_increment: true
+            
+          - column_name: first_name
+            display_name: 名
+            column_type: VARCHAR(50)
+            nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+          - column_name: last_name
+            display_name: 姓
+            column_type: VARCHAR(50)
+            nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+          - column_name: email
+            display_name: メールアドレス
+            column_type: VARCHAR(255)
+            nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+          - column_name: birth_date
+            display_name: 生年月日
+            column_type: DATE
+            nullable: true
+            
+          - column_name: full_name
+            display_name: フルネーム
+            column_type: VARCHAR(101)
+            nullable: false
+            expression: "CONCAT(last_name, ' ', first_name)"
+            stored: true
+            
+          - column_name: email_domain
+            display_name: メールドメイン
+            column_type: VARCHAR(255)
+            nullable: true  
+            expression: "SUBSTRING_INDEX(email, '@', -1)"
+            stored: false
+            
+          - column_name: age
+            display_name: 年齢
+            column_type: INT
+            nullable: true
+            expression: "TIMESTAMPDIFF(YEAR, birth_date, CURDATE())"
+            stored: false
+            
+          - column_name: created_at
+            display_name: 作成日時
+            column_type: TIMESTAMP
+            nullable: false
+            default_value: "CURRENT_TIMESTAMP"
+            
+        indexes:
+          - index_name: idx_email
+            columns: [email]
+          - index_name: idx_full_name
+            columns: [full_name]
+            
+      products:
+        display_name: 商品
+        fields:
+          - column_name: id
+            display_name: ID
+            column_type: BIGINT
+            nullable: false
+            primary_key: 1
+            auto_increment: true
+            
+          - column_name: name
+            display_name: 商品名
+            column_type: VARCHAR(255)
+            nullable: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+          - column_name: price
+            display_name: 単価
+            column_type: DECIMAL(10,2)
+            nullable: false
+            
+          - column_name: tax_rate
+            display_name: 税率
+            column_type: DECIMAL(5,4)
+            nullable: false
+            default_value: "0.1000"
+            comment: "デフォルト10%の消費税"
+            
+          - column_name: total_price
+            display_name: 税込価格
+            column_type: DECIMAL(10,2)
+            nullable: false
+            expression: "price * (1 + tax_rate)"
+            stored: true
+            comment: "税込み適用後の価格"
+            
+          - column_name: price_category
+            display_name: 価格帯
+            column_type: VARCHAR(20)
+            nullable: false
+            expression: "CASE WHEN price < 1000 THEN '低価格' WHEN price < 5000 THEN '中価格' ELSE '高価格' END"
+            stored: false
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            
+        indexes:
+          - index_name: idx_name
+            columns: [name]
+          - index_name: idx_price
+            columns: [price]
