@@ -75,14 +75,61 @@ class Table(BaseSchema):
         return None
 
 
+class ViewColumn(BaseSchema):
+    """View column definition (auto-generated from SQL parsing)"""
+    column_name: str
+    display_name: str
+    column_type: str
+    nullable: bool
+    source_table: str | None = None  # 参照元テーブル
+    source_column: str | None = None  # 参照元カラム
+    is_computed: bool = False  # 計算列かどうか
+    comment: str | None = None
+
+
+class View(BaseSchema):
+    """Database view definition"""
+    instance: str
+    view_name: str
+    display_name: str
+    select_statement: str
+    comment: str | None = None
+    
+    # 以下は将来のSQL解析で自動生成される予定
+    _parsed_columns: list[ViewColumn] = []  # SQL解析結果をキャッシュ
+    _dependencies: list[str] = []  # 参照テーブル/ビューを自動検出
+    _is_parsed: bool = False  # 解析済みフラグ
+    
+    def get_columns(self, schema_registry=None) -> list[ViewColumn]:
+        """Get view columns (future: parse SQL automatically)"""
+        if not self._is_parsed and schema_registry:
+            self._parse_sql(schema_registry)
+        return self._parsed_columns
+    
+    def get_dependencies(self, schema_registry=None) -> list[str]:
+        """Get dependencies (future: parse SQL automatically)"""
+        if not self._is_parsed and schema_registry:
+            self._parse_sql(schema_registry)
+        return self._dependencies
+    
+    def _parse_sql(self, schema_registry):
+        """Future: Parse SQL and extract columns/dependencies"""
+        # TODO: SQL解析実装
+        # - FROM句からテーブル/ビュー依存関係を抽出
+        # - SELECT句からカラム定義を推定
+        # - 参照先テーブルの型情報から自動でViewColumnを生成
+        pass
+
+
 class Schema:
 
     def __init__(self, name):
         self.name = name
         self.tables = {}
+        self.views = {}
 
     def __repr__(self) -> str:
-        return f'{self.tables}'
+        return f'Tables: {self.tables}, Views: {self.views}'
 
     def add_table(self, table: Table) -> None:
         self.tables[table.table_name] = table
@@ -105,6 +152,28 @@ class Schema:
 
     def get_tables(self) -> dict[str, Table]:
         return self.tables
+
+    def add_view(self, view: View) -> None:
+        self.views[view.view_name] = view
+
+    def remove_view(self, view_name: str) -> None:
+        if view_name not in self.views:
+            raise KeyError(f"View '{view_name}' not found in schema '{self.name}'")
+        del self.views[view_name]
+
+    def update_view(self, view_name: str, view: View) -> None:
+        if view_name not in self.views:
+            raise KeyError(f"View '{view_name}' not found in schema '{self.name}'")
+        self.views[view_name] = view
+
+    def view_exists(self, view_name: str) -> bool:
+        return view_name in self.views
+
+    def get_view(self, view_name: str) -> View:
+        return self.views[view_name]
+
+    def get_views(self) -> dict[str, View]:
+        return self.views
 
 
 def find_field(fields: list[Field], name: str):
