@@ -8,6 +8,12 @@ from .api import project
 from .api import tables
 from .api import environs
 from .api import refs
+from .api import schemas
+from .api import schema_tables
+from .api import schema_fields
+from .api import schema_indexes
+from .api import schema_views
+from .api import schema_validation
 
 from dbgear.core.models.project import Project
 
@@ -18,6 +24,14 @@ app.include_router(project.router)
 app.include_router(tables.router)
 app.include_router(environs.router)
 app.include_router(refs.router)
+
+# スキーマ管理API
+app.include_router(schemas.router, prefix='/api')
+app.include_router(schema_tables.router, prefix='/api')
+app.include_router(schema_fields.router, prefix='/api')
+app.include_router(schema_indexes.router, prefix='/api')
+app.include_router(schema_views.router, prefix='/api')
+app.include_router(schema_validation.router, prefix='/api')
 
 
 @app.get('/')

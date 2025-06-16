@@ -10,7 +10,7 @@ class Field(BaseSchema):
     default_value: str | None
     foreign_key: str | None
     comment: str | None
-    
+
     # Column expression support
     expression: str | None = None  # Generated column expression
     stored: bool = False          # STORED/VIRTUAL distinction
@@ -31,43 +31,43 @@ class Table(BaseSchema):
     fields: list[Field] = []
     indexes: list[Index] = []
     # FIXME 参照元をデータとして持たせるか？
-    
+
     def add_field(self, field: Field) -> None:
         if self.field_exists(field.column_name):
             raise ValueError(f"Field '{field.column_name}' already exists in table '{self.table_name}'")
         self.fields.append(field)
-    
+
     def remove_field(self, field_name: str) -> None:
         field = self.get_field(field_name)
         self.fields.remove(field)
-    
+
     def update_field(self, field_name: str, field: Field) -> None:
         for i, existing_field in enumerate(self.fields):
             if existing_field.column_name == field_name:
                 self.fields[i] = field
                 return
         raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
-    
+
     def get_field(self, field_name: str) -> Field:
         for field in self.fields:
             if field.column_name == field_name:
                 return field
         raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
-    
+
     def field_exists(self, field_name: str) -> bool:
         return any(field.column_name == field_name for field in self.fields)
-    
+
     def add_index(self, index: Index) -> None:
         if index.index_name and self.get_index(index.index_name) is not None:
             raise ValueError(f"Index '{index.index_name}' already exists in table '{self.table_name}'")
         self.indexes.append(index)
-    
+
     def remove_index(self, index_name: str) -> None:
         index = self.get_index(index_name)
         if index is None:
             raise KeyError(f"Index '{index_name}' not found in table '{self.table_name}'")
         self.indexes.remove(index)
-    
+
     def get_index(self, index_name: str) -> Index | None:
         for index in self.indexes:
             if index.index_name == index_name:
@@ -94,24 +94,24 @@ class View(BaseSchema):
     display_name: str
     select_statement: str
     comment: str | None = None
-    
+
     # 以下は将来のSQL解析で自動生成される予定
     _parsed_columns: list[ViewColumn] = []  # SQL解析結果をキャッシュ
     _dependencies: list[str] = []  # 参照テーブル/ビューを自動検出
     _is_parsed: bool = False  # 解析済みフラグ
-    
+
     def get_columns(self, schema_registry=None) -> list[ViewColumn]:
         """Get view columns (future: parse SQL automatically)"""
         if not self._is_parsed and schema_registry:
             self._parse_sql(schema_registry)
         return self._parsed_columns
-    
+
     def get_dependencies(self, schema_registry=None) -> list[str]:
         """Get dependencies (future: parse SQL automatically)"""
         if not self._is_parsed and schema_registry:
             self._parse_sql(schema_registry)
         return self._dependencies
-    
+
     def _parse_sql(self, schema_registry):
         """Future: Parse SQL and extract columns/dependencies"""
         # TODO: SQL解析実装
