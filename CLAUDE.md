@@ -59,17 +59,21 @@ packages/
 
 - **Project Management**: `packages/dbgear/dbgear/core/models/project.py` - Core project configuration loader
 - **Data Models**: `packages/dbgear/dbgear/core/models/` - Schema definitions, data grids, and environment mappings
+- **Schema Management**: `packages/dbgear/dbgear/core/models/schema_manager.py` - CRUD operations for schema definitions
+- **Schema Validation**: `packages/dbgear/dbgear/core/models/schema_manager.py` - Validation utilities for tables, fields, and foreign keys
 - **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
+- **Definition Parsers**: `packages/dbgear/dbgear/core/definitions/` - Support for a5sql_mk2, mysql, selectable, and dbgear_schema formats
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
 - **Frontend State**: Uses Zustand for state management and React Router for navigation
 
 ### Data Flow
 
 1. Project definitions loaded from `project.yaml` (see `etc/test/project.yaml` for example)
-2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable)
+2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable, dbgear_schema)
 3. Data stored in YAML format for version control
 4. Frontend communicates with backend via REST API
 5. Database operations apply data through SQLAlchemy
+6. Schema modifications managed through SchemaManager with validation and persistence
 
 ## Development Commands
 
@@ -131,7 +135,7 @@ Each package uses taskipy for independent test execution:
 #### Core Package Testing
 ```bash
 cd packages/dbgear
-task test           # Run all tests (11 tests)
+task test           # Run all tests (32+ tests including schema management)
 task test-fast      # Run fast tests only
 task lint           # flake8 code checking
 task clean          # Clean build artifacts
@@ -247,12 +251,45 @@ When enhancing DBGear, focus on:
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
 
+### Schema Management Guidelines
+
+When working with schema management features:
+
+1. **Schema Validation**: Always validate schema changes using `SchemaValidator` before persistence
+2. **Referential Integrity**: Use `SchemaManager` methods to ensure foreign key constraints are maintained
+3. **Error Handling**: Provide clear error messages for validation failures and constraint violations
+4. **Testing**: Include both positive and negative test cases for CRUD operations
+5. **Persistence**: Use `manager.save()` to persist changes to YAML files
+6. **Format Compatibility**: Support both A5:SQL Mk-2 import and native YAML format
+
+### Schema Definition Format
+
+The native `dbgear_schema` format supports:
+- **Multiple schemas** in a single YAML file
+- **Field attributes**: column_name, display_name, column_type, nullable, primary_key, default_value, foreign_key, comment
+- **Index definitions**: index_name, columns list
+- **Schema mapping** for environment-specific names
+- **Foreign key validation** across tables within the same schema collection
+
 ### Testing Configuration
 
 Test files are in `tests/` directory. The test project in `etc/test/` provides example configuration:
 - `project.yaml` - Main project configuration
-- `dbgear.a5er` - Database schema file
+- `dbgear.a5er` - Database schema file (A5:SQL Mk-2 format)
+- `schema.yaml` - Database schema file (DBGear native YAML format)
 - Data files in YAML format for test scenarios
+
+### Schema Management Testing
+
+The schema management functionality includes comprehensive test coverage:
+- **SchemaValidator Tests**: Field validation, table validation, foreign key validation
+- **SchemaManager Tests**: CRUD operations, persistence, referential integrity
+- **Schema Model Tests**: Table/field/index operations, data model integrity
+- **Definition Parser Tests**: YAML parsing, format validation, error handling
+
+Test files located in:
+- `tests/models/test_schema_manager.py` - Schema management CRUD operations (18 tests)
+- `tests/definitions/test_dbgear_schema.py` - YAML format parsing (7 tests)
 
 **Important**: When adding new unit tests, always update the test documentation in `docs/spec_tests.md` to include:
 - Test case descriptions and what they validate

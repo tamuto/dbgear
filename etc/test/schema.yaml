@@ -1,0 +1,181 @@
+schemas:
+  main:
+    tables:
+      test_table:
+        display_name: テストテーブル
+        fields:
+          - column_name: col_id
+            display_name: IDカラム
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+          - column_name: name
+            display_name: 名前
+            column_type: varchar(100)
+            nullable: false
+          - column_name: num
+            display_name: 数字
+            column_type: int
+            nullable: true
+          - column_name: update_date
+            display_name: 更新日時
+            column_type: datetime
+            nullable: false
+          - column_name: update_user
+            display_name: 更新者
+            column_type: varchar(64)
+            nullable: false
+
+      tbl_child:
+        display_name: 子テーブル
+        fields:
+          - column_name: child_id
+            display_name: 子ID
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+          - column_name: col_id
+            display_name: IDカラム
+            column_type: varchar(36)
+            nullable: false
+            foreign_key: test_table.col_id
+          - column_name: name
+            display_name: 名前
+            column_type: varchar(100)
+            nullable: false
+          - column_name: update_date
+            display_name: 更新日時
+            column_type: datetime
+            nullable: false
+          - column_name: update_user
+            display_name: 更新者
+            column_type: varchar(64)
+            nullable: false
+
+      properties:
+        display_name: プロパティ
+        fields:
+          - column_name: key
+            display_name: キー
+            column_type: varchar(32)
+            nullable: false
+            primary_key: 1
+          - column_name: value
+            display_name: 値
+            column_type: varchar(64)
+            nullable: false
+          - column_name: update_date
+            display_name: 更新日時
+            column_type: datetime
+            nullable: false
+          - column_name: update_user
+            display_name: 更新者
+            column_type: varchar(64)
+            nullable: false
+
+      row_table:
+        display_name: 行テーブル
+        fields:
+          - column_name: row_id
+            display_name: ID
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+          - column_name: row_name
+            display_name: 名前
+            column_type: varchar(64)
+            nullable: false
+
+      tbl_matrix:
+        display_name: マトリックステーブル
+        fields:
+          - column_name: row_id
+            display_name: ID
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+            foreign_key: row_table.row_id
+          - column_name: child_id
+            display_name: 子ID
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 2
+            foreign_key: tbl_child.child_id
+          - column_name: value
+            display_name: 値
+            column_type: varchar(20)
+            nullable: false
+          - column_name: update_date
+            display_name: 更新日時
+            column_type: datetime
+            nullable: false
+          - column_name: update_user
+            display_name: 更新者
+            column_type: varchar(64)
+            nullable: false
+
+      tbl_cmp_table:
+        display_name: 複合キーテーブル
+        fields:
+          - column_name: col_id
+            display_name: IDカラム
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+            foreign_key: test_table.col_id
+          - column_name: seq
+            display_name: シーケンス
+            column_type: int
+            nullable: false
+            primary_key: 2
+          - column_name: name
+            display_name: 名前
+            column_type: varchar(64)
+            nullable: false
+
+      tbl_cmp_child:
+        display_name: 複合子テーブル
+        fields:
+          - column_name: cmp_child_id
+            display_name: 複合キー子ID
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+          - column_name: col_id
+            display_name: IDカラム
+            column_type: varchar(36)
+            nullable: false
+            # Note: Complex foreign key reference (col_id,seq) -> tbl_cmp_table(col_id,seq)
+          - column_name: seq
+            display_name: シーケンス
+            column_type: int
+            nullable: false
+          - column_name: name
+            display_name: 名前
+            column_type: varchar(64)
+            nullable: false
+
+      tbl_null_test:
+        display_name: tbl_null_test
+        fields:
+          - column_name: test_id
+            display_name: test_id
+            column_type: varchar(36)
+            nullable: false
+            primary_key: 1
+          - column_name: col1
+            display_name: col1
+            column_type: char(5)
+            nullable: true
+          - column_name: col2
+            display_name: col2
+            column_type: varchar(10)
+            nullable: true
+          - column_name: col3
+            display_name: col3
+            column_type: datetime
+            nullable: true
+          - column_name: col4
+            display_name: col4
+            column_type: int
+            nullable: true
