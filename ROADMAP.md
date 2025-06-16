@@ -274,7 +274,155 @@ dbgear mcp --port 3000             # ポート指定起動
 
 ---
 
-### 5. DB適用コマンドの拡充
+### 5. ビュー管理機能の拡張
+
+**目的**: 現在のシンプルなビュー定義から高度なSQL解析・依存関係管理への発展
+
+**現在の実装状況**:
+- ✅ 基本的なビュー定義 (YAML形式でSQL文のみ記述)
+- ✅ データベースビューのCRUD操作
+- ✅ 基本的な依存関係チェック機能
+- ✅ テスト環境の整備 (19テストケース)
+
+**将来の拡張機能**:
+
+#### Phase 1: SQL解析エンジンの導入
+```python
+# dbgear/analysis/ モジュール
+dbgear/
+  analysis/
+    __init__.py
+    sql_parser.py       # sqlparseまたはpglast使用
+    dependency_resolver.py  # 依存関係自動検出
+    column_inference.py     # カラム定義自動推定
+    validation.py          # 高度な検証機能
+```
+
+**機能詳細**:
+```python
+class SQLParser:
+    def parse_view_dependencies(self, select_statement: str) -> list[str]:
+        """FROM句、JOIN句からテーブル/ビュー依存関係を自動抽出"""
+        
+    def parse_view_columns(self, select_statement: str, schema_registry: dict) -> list[ViewColumn]:
+        """SELECT句からカラム定義を自動生成（型情報は参照先から継承）"""
+        
+    def detect_circular_dependencies(self, views: dict[str, View]) -> list[str]:
+        """循環依存を検出"""
+        
+    def validate_sql_syntax(self, select_statement: str, dialect: str = 'mysql') -> ValidationResult:
+        """SQL文法チェック"""
+```
+
+#### Phase 2: 自動カラム定義生成
+```yaml
+# 現在: 手動でSQLのみ定義
+views:
+  user_summary:
+    select_statement: |
+      SELECT u.id, u.name, COUNT(o.id) as order_count
+      FROM users u LEFT JOIN orders o ON u.id = o.user_id
+      GROUP BY u.id, u.name
+
+# 将来: 自動でカラム定義を生成
+views:
+  user_summary:
+    select_statement: |
+      SELECT u.id, u.name, COUNT(o.id) as order_count
+      FROM users u LEFT JOIN orders o ON u.id = o.user_id
+      GROUP BY u.id, u.name
+    # 以下は自動生成される
+    _auto_generated_columns:
+      - column_name: id
+        column_type: BIGINT
+        nullable: false
+        source_table: users
+        source_column: id
+      - column_name: name  
+        column_type: VARCHAR(100)
+        nullable: false
+        source_table: users
+        source_column: name
+      - column_name: order_count
+        column_type: BIGINT
+        nullable: false
+        is_computed: true
+    _dependencies: [users, orders]
+    _dependency_graph: 
+      users: [id, name]
+      orders: [id, user_id]
+```
+
+#### Phase 3: 高度な依存関係管理
+```python
+class ViewDependencyManager:
+    def analyze_impact(self, table_name: str) -> ImpactAnalysis:
+        """テーブル変更時の影響範囲を分析"""
+        
+    def suggest_view_updates(self, schema_changes: list[SchemaChange]) -> list[ViewUpdate]:
+        """スキーマ変更に応じたビュー更新を提案"""
+        
+    def generate_view_creation_order(self, views: dict[str, View]) -> list[str]:
+        """依存関係を考慮したビュー作成順序を生成"""
+        
+    def validate_view_consistency(self, views: dict[str, View]) -> ValidationResult:
+        """ビュー間の整合性を検証"""
+```
+
+#### Phase 4: CLI機能拡張
+```bash
+# ビュー専用コマンド群
+dbgear view list                           # ビュー一覧表示
+dbgear view analyze user_summary           # 指定ビューの分析
+dbgear view dependencies user_summary      # 依存関係表示
+dbgear view impact users                   # テーブル変更の影響分析
+dbgear view validate                       # 全ビューの整合性チェック
+dbgear view refresh user_summary           # ビューの再作成
+dbgear view graph --output deps.svg        # 依存関係グラフ生成
+```
+
+#### Phase 5: Web UI連携
+- ビューエディター (SQL構文ハイライト、補完機能)
+- 依存関係グラフの可視化
+- ビュー作成ウィザード
+- パフォーマンス分析機能
+
+**技術的依存関係**:
+- sqlparse or pglast (SQL解析)
+- networkx (依存関係グラフ)
+- graphviz (図表生成)
+
+**実装ステップ**:
+```bash
+# Phase 1: SQL解析基盤 (2週間)
+- sqlparseライブラリの統合
+- 基本的な依存関係検出機能
+- 単体テストの作成
+
+# Phase 2: カラム推定機能 (2週間)  
+- スキーマレジストリとの連携
+- 型情報の自動推定
+- エラーハンドリングの強化
+
+# Phase 3: 高度な検証機能 (2週間)
+- 循環依存検出
+- 影響範囲分析
+- パフォーマンス最適化
+
+# Phase 4: CLI・Web UI統合 (2週間)
+- 新コマンドの実装
+- Web UIへの統合
+- ドキュメント更新
+```
+
+**現在の設計との互換性**:
+- 既存のView/ViewColumnクラスは維持
+- `_parse_sql()` メソッドの実装を拡張
+- 段階的な機能追加により後方互換性を保持
+
+---
+
+### 6. DB適用コマンドの拡充
 
 **目的**: より安全で柔軟なデータベース操作機能
 
@@ -355,16 +503,20 @@ class AdvancedOperation(Operation):
    - 既存機能の拡張
    - リスクが低い
 
+3. **ビュー管理機能の拡張** (2ヶ月)
+   - 現在の基本実装から高度な機能への発展
+   - SQL解析エンジンは他機能でも活用可能
+
 ### Phase 2 (中優先度) - 機能拡張
-3. **ドキュメント生成機能** (1.5ヶ月)
+4. **ドキュメント生成機能** (1.5ヶ月)
    - スキーマ管理システムに依存
 
-4. **MCPサーバー化** (2ヶ月)
+5. **MCPサーバー化** (2ヶ月)
    - 独立した機能
    - 新しい価値を提供
 
 ### Phase 3 (低優先度) - UI改善
-5. **Shadcn/UI移行** (3ヶ月)
+6. **Shadcn/UI移行** (3ヶ月)
    - 大規模なリファクタリング
    - 機能への影響は少ない
 

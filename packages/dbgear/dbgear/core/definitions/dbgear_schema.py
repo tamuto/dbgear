@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from ..models.schema import Schema, Table, Field, Index
+from ..models.schema import Schema, Table, Field, Index, View, ViewColumn
 from ..models.fileio import load_yaml
 
 
@@ -52,6 +52,17 @@ def parse_table_definition(table_name: str, table_data: Dict[str, Any], instance
     )
 
 
+def parse_view_definition(view_name: str, view_data: Dict[str, Any], instance: str) -> View:
+    """Parse view definition from YAML data."""
+    return View(
+        instance=instance,
+        view_name=view_name,
+        display_name=view_data.get('display_name', view_name),
+        select_statement=view_data['select_statement'],
+        comment=view_data.get('comment')
+    )
+
+
 def retrieve(folder: str, filename: str, mapping: Optional[Dict[str, str]] = None, **kwargs) -> Dict[str, Schema]:
     """Retrieve schema definitions from YAML file."""
     file_path = f'{folder}/{filename}'
@@ -73,6 +84,11 @@ def retrieve(folder: str, filename: str, mapping: Optional[Dict[str, str]] = Non
             for table_name, table_data in schema_content['tables'].items():
                 table = parse_table_definition(table_name, table_data, instance_name)
                 schema.add_table(table)
+
+        if 'views' in schema_content:
+            for view_name, view_data in schema_content['views'].items():
+                view = parse_view_definition(view_name, view_data, instance_name)
+                schema.add_view(view)
 
         schemas[instance_name] = schema
 

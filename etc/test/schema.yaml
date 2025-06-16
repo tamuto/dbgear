@@ -305,3 +305,46 @@ schemas:
             columns: [name]
           - index_name: idx_price
             columns: [price]
+
+    views:
+      user_summary:
+        display_name: ユーザー集計ビュー
+        select_statement: |
+          SELECT 
+            u.id,
+            u.full_name,
+            u.email,
+            u.age,
+            COUNT(o.id) as order_count,
+            COALESCE(SUM(o.total_amount), 0) as total_spent
+          FROM users u
+          LEFT JOIN orders o ON u.id = o.user_id
+          GROUP BY u.id, u.full_name, u.email, u.age
+        comment: ユーザーごとの注文集計情報を表示
+
+      active_products:
+        display_name: アクティブ商品ビュー
+        select_statement: |
+          SELECT 
+            p.id,
+            p.name,
+            p.price,
+            p.total_price,
+            p.price_category,
+            p.created_at
+          FROM products p
+          WHERE p.price > 0
+        comment: 価格が設定された商品のみを表示
+
+      test_summary:
+        display_name: テストデータ集計ビュー
+        select_statement: |
+          SELECT 
+            t.col_id,
+            t.name as test_name,
+            COUNT(c.child_id) as child_count,
+            MAX(c.update_date) as last_child_update
+          FROM test_table t
+          LEFT JOIN tbl_child c ON t.col_id = c.col_id
+          GROUP BY t.col_id, t.name
+        comment: テストテーブルと子テーブルの集計情報

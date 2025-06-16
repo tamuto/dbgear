@@ -46,6 +46,7 @@ pnpm install
 - **Web UI でのデータ編集**: 直感的なインターフェースでデータベースの初期データを編集
 - **スキーマ連携**: テーブル定義に基づいたデータ入力支援と制約チェック
 - **関連データ管理**: 外部キー参照の自動解決により、IDのコピペ作業が不要
+- **ビュー管理**: データベースビューの定義と管理に対応
 - **バージョン管理対応**: YAML形式でのデータ保存により、Gitでの差分管理が可能
 - **複数環境対応**: 開発・テスト・本番など、環境ごとのデータ管理
 - **プラグイン機構**: カスタムデータ変換やバインディングの拡張が可能
@@ -152,6 +153,15 @@ definitions:
       schema_name: instance_name
 ```
 
+#### DBGear ネイティブ形式
+```yaml
+definitions:
+  - type: dbgear_schema
+    filename: ./schema.yaml
+    mapping:
+      main: main
+```
+
 #### 選択リスト定義
 ```yaml
 definitions:
@@ -161,6 +171,56 @@ definitions:
       status: ステータス
       category: カテゴリ
 ```
+
+## スキーマ定義
+
+### DBGear ネイティブ形式
+
+DBGearのネイティブYAML形式では、テーブルとビューの両方を定義できます。
+
+```yaml
+schemas:
+  main:
+    tables:
+      users:
+        display_name: ユーザー
+        fields:
+          - column_name: id
+            display_name: ID
+            column_type: BIGINT
+            nullable: false
+            primary_key: 1
+            auto_increment: true
+          - column_name: name
+            display_name: 名前
+            column_type: VARCHAR(100)
+            nullable: false
+          - column_name: email
+            display_name: メールアドレス
+            column_type: VARCHAR(255)
+            nullable: true
+        indexes:
+          - index_name: idx_email
+            columns: [email]
+
+    views:
+      active_users:
+        display_name: アクティブユーザー
+        select_statement: |
+          SELECT 
+            id,
+            name,
+            email
+          FROM users
+          WHERE email IS NOT NULL
+        comment: メールアドレスが設定されたユーザーのみを表示
+```
+
+### ビュー定義の特徴
+
+- **シンプルな定義**: SQL文のみを記述、カラム定義の重複を回避
+- **依存関係管理**: 参照先テーブル/ビューの存在チェック
+- **将来拡張対応**: SQL解析による自動依存関係検出の土台
 
 ### bindings
 
@@ -389,7 +449,8 @@ pnpm run build       # ビルドテスト
 - **フロントエンド**: React, TypeScript, Material-UI
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
-- **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続
+- **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続, DBGearネイティブ形式
+- **ビュー管理**: データベースビューの作成・削除・依存関係管理
 - **パッケージ管理**: Poetry (Python), pnpm (Frontend)
 
 ## ライセンス
