@@ -259,6 +259,56 @@ When enhancing DBGear, focus on:
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
 
+### Frontend API Management Guidelines
+
+The new frontend uses a modern API management system that replaces the legacy `nxio.ts` approach:
+
+1. **Use TanStack Query Hooks**: Always use the provided API hooks instead of direct axios calls
+   ```typescript
+   // ✅ Correct - Use declarative hooks
+   const { data, isLoading, error } = useProjects()
+   const createProject = useApiPost('/projects')
+   
+   // ❌ Avoid - Direct API calls
+   axios.get('/api/projects').then(...)
+   ```
+
+2. **Error Handling**: Leverage the integrated error handling system
+   ```typescript
+   // Automatic error notifications and retry logic
+   const { data } = useProjects({
+     onError: (error) => {
+       // Custom error handling if needed
+       console.error('Failed to load projects:', error)
+     }
+   })
+   ```
+
+3. **Type Safety**: Use proper TypeScript types for all API operations
+   ```typescript
+   interface Project { id: string; name: string }
+   const { data } = useApiQuery<Project[]>(queryKeys.projects(), '/projects')
+   ```
+
+4. **Cache Management**: Use invalidation hooks for data consistency
+   ```typescript
+   const { invalidateProjects } = useInvalidateQueries()
+   // Call after mutations to refresh data
+   ```
+
+5. **Notifications**: Use the Sonner-based notification system
+   ```typescript
+   import { notifications } from '@/hooks/use-toast-notifications'
+   notifications.success('Operation completed')
+   notifications.error('Something went wrong')
+   ```
+
+6. **Provider Setup**: Ensure `Providers` component wraps your app root
+   ```typescript
+   import { Providers } from '@/lib/providers'
+   // Wrap your app with <Providers> for TanStack Query and notifications
+   ```
+
 ### Schema Management Guidelines
 
 When working with schema management features:

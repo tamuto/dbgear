@@ -1,8 +1,8 @@
-# Rspack Project
+# DBGear Frontend
 
-このプロジェクトは[create-myproj](https://www.npmjs.com/package/@infodb/create-myproj)によって生成されました。
+このプロジェクトはDBGearの新しいフロントエンドパッケージです。
 
-> ⚡️ **Rspack** + **React 19** + **TailwindCSS** + **shadcn/ui** を使用した現代的なWebアプリケーション
+> ⚡️ **Rspack** + **React 19** + **TailwindCSS** + **shadcn/ui** + **TanStack Query** + **TanStack Router** を使用した現代的なWebアプリケーション
 
 ## 🚀 クイックスタート
 
@@ -19,11 +19,8 @@ pnpm dev
 ### プロダクションビルド
 
 ```bash
-# 最適化されたビルドを作成
+# 最適化されたビルドを作成（../dbgear-web/dbgear_web/static/ に出力）
 pnpm build
-
-# ビルド結果をプレビュー
-pnpm preview
 ```
 
 ## 🎨 shadcn/uiコンポーネントの追加
@@ -61,6 +58,163 @@ export default function ExampleComponent() {
 }
 ```
 
+## 🔌 API管理システム
+
+このプロジェクトは旧`nxio.ts`に代わる新しいAPI管理システムを使用しています。
+
+### 基本的な使用方法
+
+#### 1. アプリのセットアップ
+
+まず、`main.tsx`でProvidersを設定してください：
+
+```tsx
+import { Providers } from '@/lib/providers'
+import { Toaster } from '@/components/ui/sonner'
+
+// アプリ全体をProvidersでラップ
+ReactDOM.render(
+  <Providers>
+    <App />
+  </Providers>,
+  document.getElementById('root')
+)
+```
+
+#### 2. データフェッチング（読み取り）
+
+宣言的なAPIフックを使用：
+
+```tsx
+import { useProjects, useProject } from '@/hooks/use-api'
+
+function ProjectList() {
+  // 自動的にローディング状態、エラー状態、キャッシュを管理
+  const { data: projects, isLoading, error, refetch } = useProjects()
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+
+  return (
+    <div>
+      {projects?.map(project => (
+        <div key={project.id}>{project.name}</div>
+      ))}
+    </div>
+  )
+}
+```
+
+#### 3. データ変更（作成・更新・削除）
+
+ミューテーションフックを使用：
+
+```tsx
+import { useApiPost, useInvalidateQueries } from '@/hooks/use-api'
+import { notifications } from '@/hooks/use-toast-notifications'
+
+function CreateProject() {
+  const { invalidateProjects } = useInvalidateQueries()
+  
+  const createProject = useApiPost('/projects', {
+    onSuccess: (data) => {
+      notifications.success(`Project "${data.name}" created!`)
+      invalidateProjects() // リストを更新
+    },
+    onError: (error) => {
+      notifications.error(error.message)
+    }
+  })
+
+  const handleSubmit = (formData) => {
+    createProject.mutate(formData)
+  }
+
+  return (
+    <button 
+      onClick={() => handleSubmit({ name: 'New Project' })}
+      disabled={createProject.isLoading}
+    >
+      {createProject.isLoading ? 'Creating...' : 'Create Project'}
+    </button>
+  )
+}
+```
+
+#### 4. 通知システム
+
+Sonnerベースの通知システム：
+
+```tsx
+import { notifications } from '@/hooks/use-toast-notifications'
+
+// 成功通知
+notifications.success('Operation completed successfully')
+
+// エラー通知
+notifications.error('Something went wrong')
+
+// 警告通知
+notifications.warning('Please check your input')
+
+// 情報通知
+notifications.info('New feature available')
+
+// プロミスベース通知（非同期処理用）
+notifications.promise(
+  apiCall(),
+  {
+    loading: 'Processing...',
+    success: 'Done!',
+    error: 'Failed!'
+  }
+)
+```
+
+#### 5. カスタムAPIエンドポイント
+
+独自のAPIエンドポイント用：
+
+```tsx
+import { useApiQuery, useApiMutation } from '@/hooks/use-api'
+
+// カスタムクエリ
+function useCustomData(id: string) {
+  return useApiQuery(
+    ['custom', id],
+    `/custom-endpoint/${id}`,
+    undefined,
+    {
+      enabled: !!id,
+      staleTime: 10 * 60 * 1000, // 10分間キャッシュ
+    }
+  )
+}
+
+// カスタムミューテーション
+function useCustomAction() {
+  return useApiMutation(
+    (data) => api.post('/custom-action', data),
+    {
+      onSuccess: () => {
+        notifications.success('Action completed')
+      }
+    }
+  )
+}
+```
+
+### 旧システムとの比較
+
+| 項目 | 旧 nxio.ts | 新システム |
+|------|------------|------------|
+| **データフェッチ** | `nxio('/api').get(callback)` | `useProjects()` |
+| **エラーハンドリング** | 手動 | 自動 + カスタマイズ可能 |
+| **ローディング状態** | 手動管理 | 自動 |
+| **キャッシュ** | なし | 自動キャッシュ + 無効化 |
+| **型安全性** | 弱い | 完全な型安全性 |
+| **リトライ** | なし | 自動リトライ |
+
 ## 🛠️ 開発のヒント
 
 ### TailwindCSSクラスの活用
@@ -79,38 +233,45 @@ export default function ExampleComponent() {
 </div>
 ```
 
-### カスタムカラーの設定
+### ルーティングシステム
 
-`tailwind.config.js`でブランドカラーを追加：
+TanStack Routerを使用した型安全なルーティング：
 
-```js
-export default {
-  theme: {
-    extend: {
-      colors: {
-        brand: {
-          50: '#f0f9ff',
-          500: '#3b82f6',
-          900: '#1e3a8a',
-        }
-      }
-    },
-  },
+```tsx
+// src/routes/projects/$projectId.tsx
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/projects/$projectId')({
+  component: ProjectDetail,
+})
+
+function ProjectDetail() {
+  const { projectId } = Route.useParams()
+  const { data: project } = useProject(projectId)
+  
+  return <div>Project: {project?.name}</div>
 }
 ```
 
-### 環境変数の使用
+## 📁 プロジェクト構造
 
-`.env`ファイルでAPIエンドポイントなどを管理：
-
-```bash
-REACT_APP_API_URL=https://api.example.com
-REACT_APP_NAME=My Awesome App
 ```
-
-```tsx
-// 使用例
-const apiUrl = process.env.REACT_APP_API_URL
+src/
+├── components/          # Shadcn/UI コンポーネント
+│   └── ui/             # 自動生成UIコンポーネント
+├── hooks/              # カスタムReactフック
+│   ├── use-api.ts      # API管理フック
+│   └── use-toast-notifications.ts  # 通知システム
+├── lib/                # ユーティリティとプロバイダー
+│   ├── api-client.ts   # Axios設定
+│   ├── error-handler.ts # エラーハンドリング
+│   ├── providers.tsx   # アプリプロバイダー
+│   └── utils.ts        # 共通ユーティリティ
+├── routes/             # TanStack Router ルート定義
+├── types/              # TypeScript型定義
+│   └── api.ts          # API関連の型
+├── globals.css         # グローバルスタイル
+└── main.tsx           # アプリエントリーポイント
 ```
 
 ## 📚 詳細情報
@@ -118,8 +279,10 @@ const apiUrl = process.env.REACT_APP_API_URL
 - [React Documentation](https://react.dev/)
 - [TailwindCSS Documentation](https://tailwindcss.com/docs)
 - [shadcn/ui Components](https://ui.shadcn.com/)
+- [TanStack Query](https://tanstack.com/query/latest)
+- [TanStack Router](https://tanstack.com/router/latest)
 - [Rspack Documentation](https://rspack.dev/)
-- [create-myproj GitHub](https://github.com/tamuto/infodb-cli/tree/main/create-myproj)
+- [Sonner Notifications](https://sonner.emilkowal.ski/)
 
 ---
 
