@@ -7,8 +7,9 @@
 DBGearは3つの独立したパッケージで構成されています：
 
 - **dbgear**: コアライブラリとCLIツール
-- **dbgear-web**: Webインターフェース
-- **frontend**: Reactフロントエンドパッケージ
+- **dbgear-web**: Webインターフェース（FastAPI、APIエンドポイントは `/api` プレフィックス）
+- **frontend**: 新しいReactフロントエンドパッケージ（Shadcn/UI + TanStack Router + RSBuild）
+- **frontend.bak**: 旧フロントエンドパッケージ（Material-UI + React Router + Webpack）
 
 ## インストール
 
@@ -36,7 +37,7 @@ poetry install
 cd packages/dbgear-web
 poetry install
 
-# フロントエンドパッケージの開発
+# 新しいフロントエンドパッケージの開発
 cd packages/frontend
 pnpm install
 ```
@@ -391,8 +392,24 @@ dbgear apply production_db production --all drop
 ### フロントエンド開発
 
 ```bash
-# フロントエンドディレクトリに移動
+# 新しいフロントエンドディレクトリに移動
 cd packages/frontend
+
+# 依存関係をインストール
+pnpm install
+
+# 開発サーバー起動（ポート8080）
+pnpm run dev
+
+# 本番用ビルド（../dbgear-web/dbgear_web/static/ に出力）
+pnpm run build
+```
+
+#### 旧フロントエンド（frontend.bak）の開発
+
+```bash
+# 旧フロントエンドディレクトリに移動
+cd packages/frontend.bak
 
 # 依存関係をインストール
 pnpm install
@@ -436,8 +453,12 @@ task lint           # flake8によるコードチェック
 task clean          # ビルド成果物のクリーンアップ
 task serve          # 開発サーバー起動
 
-# フロントエンド テスト
+# 新しいフロントエンドのテスト
 cd packages/frontend
+pnpm run build       # ビルドテスト
+
+# 旧フロントエンド（frontend.bak）のテスト
+cd packages/frontend.bak
 pnpm run type-check  # TypeScript型チェック
 pnpm run lint        # ESLint
 pnpm run build       # ビルドテスト
@@ -446,7 +467,9 @@ pnpm run build       # ビルドテスト
 ## 技術仕様
 
 - **バックエンド**: Python 3.12+, FastAPI, SQLAlchemy
-- **フロントエンド**: React, TypeScript, Material-UI
+- **フロントエンド**: 
+  - **新**: React 19, TypeScript, Shadcn/UI, TanStack Router, RSBuild, Tailwind CSS
+  - **旧（frontend.bak）**: React, TypeScript, Material-UI, React Router, Webpack
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
 - **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続, DBGearネイティブ形式

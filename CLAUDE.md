@@ -38,7 +38,27 @@ packages/
 │   │   └── main.py           # Web server entry point
 │   └── pyproject.toml        # Web package configuration (depends on dbgear)
 │
-└── frontend/                 # Frontend Package (React/TypeScript)
+├── frontend/                 # New Frontend Package (React/TypeScript + Shadcn/UI)
+│   ├── src/
+│   │   ├── components/       # Shadcn/UI components
+│   │   │   └── ui/          # Generated UI components
+│   │   ├── lib/             # Utility functions
+│   │   │   └── utils.ts     # Tailwind utility functions
+│   │   ├── routes/          # TanStack Router routes
+│   │   │   ├── __root.tsx   # Root layout
+│   │   │   ├── index.tsx    # Home page
+│   │   │   └── about.tsx    # About page
+│   │   ├── main.tsx         # Entry point
+│   │   ├── routeTree.gen.ts # Generated route tree
+│   │   └── globals.css      # Global styles with Tailwind
+│   ├── index.html           # HTML template
+│   ├── package.json         # Frontend dependencies (pnpm)
+│   ├── rsbuild.config.ts    # RSBuild configuration
+│   ├── tailwind.config.js   # Tailwind CSS configuration
+│   ├── components.json      # Shadcn/UI configuration
+│   └── tsconfig.json        # TypeScript configuration
+│
+└── frontend.bak/            # Previous Frontend (Material-UI based)
     ├── src/
     │   ├── api/              # API hooks and types
     │   ├── components/       # Shared components
@@ -51,8 +71,7 @@ packages/
     │   └── index.html       # HTML template
     ├── package.json         # Frontend dependencies (pnpm)
     ├── tsconfig.json        # TypeScript configuration
-    ├── webpack.config.js    # Build configuration
-    └── .eslintrc.yml        # ESLint configuration
+    └── webpack.config.js    # Build configuration
 ```
 
 ### Key Components
@@ -66,14 +85,14 @@ packages/
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
   - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_fields.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
   - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
-- **Frontend State**: Uses Zustand for state management and React Router for navigation
+- **Frontend Architecture**: New frontend uses Shadcn/UI components with TanStack Router for type-safe routing and RSBuild for fast bundling
 
 ### Data Flow
 
 1. Project definitions loaded from `project.yaml` (see `etc/test/project.yaml` for example)
 2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable, dbgear_schema)
 3. Data stored in YAML format for version control
-4. Frontend communicates with backend via REST API
+4. Frontend communicates with backend via REST API (all endpoints prefixed with `/api`)
 5. Database operations apply data through SQLAlchemy
 6. Schema modifications managed through SchemaManager with validation and persistence
 
@@ -111,23 +130,11 @@ cd packages/frontend
 # Install dependencies
 pnpm install
 
-# Build for development
-pnpm run build
-
-# Build for production
-pnpm run build:prod
-
-# Watch mode for development
-pnpm run watch
-
-# Development server
+# Development server (port 8080)
 pnpm run dev
 
-# Type checking
-pnpm run type-check
-
-# Lint TypeScript/React
-pnpm run lint
+# Build for production (outputs to ../dbgear-web/dbgear_web/static/)
+pnpm run build
 ```
 
 ### Testing & Linting
@@ -157,12 +164,6 @@ task serve          # Start development server
 ```bash
 cd packages/frontend
 
-# TypeScript type checking
-pnpm run type-check
-
-# ESLint
-pnpm run lint
-
 # Build test
 pnpm run build
 ```
@@ -183,18 +184,23 @@ dbgear-web --project ./etc/test --port 5000
 
 ### Build Output
 
-- Frontend builds to `packages/dbgear-web/dbgear_web/static/` directory
-- Web backend serves static files from this directory at `/static`
-- Root route redirects to `/static` for SPA behavior
+- New frontend builds to `packages/dbgear-web/dbgear_web/static/` directory via RSBuild
+- Web backend serves static files from this directory at root `/`
+- All API endpoints are prefixed with `/api` to avoid conflicts with frontend routes
+- TanStack Router handles client-side routing for SPA behavior
 
 ### Path Aliases
 
-Frontend uses webpack aliases:
+New frontend uses Shadcn/UI aliases:
+- `@/components` → `src/components`
+- `@/lib` → `src/lib`
+- `@/components/ui` → `src/components/ui`
+- `@/hooks` → `src/hooks`
+
+Legacy frontend (frontend.bak) used webpack aliases:
 - `~/api/*` → `packages/frontend/src/api/*`
 - `~/cmp/*` → `packages/frontend/src/components/*`  
 - `~/img/*` → `packages/frontend/src/resources/img/*`
-
-TypeScript also configured with these aliases in `packages/frontend/tsconfig.json`.
 
 ## Development Guidelines
 
@@ -247,9 +253,9 @@ When enhancing DBGear, focus on:
 - **Import Paths**: Use absolute imports when referencing across packages (`from dbgear.core.*`)
 - **Testing**: Test each package independently in its own directory
 - **Version Synchronization**: Keep version numbers synchronized between packages
-- **Frontend**: Use `pnpm` for package management, run `pnpm run lint` before committing frontend changes
+- **Frontend**: Use `pnpm` for package management, new frontend uses RSBuild + TanStack Router + Shadcn/UI
 - **Python**: Use `task lint` before committing Python changes
-- **Frontend Development**: Use `pnpm run watch` or `pnpm run dev` for development
+- **Frontend Development**: Use `pnpm run dev` for development server on port 8080
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
 
@@ -304,7 +310,9 @@ This ensures the testing documentation stays current and serves as a comprehensi
 ## Future Development
 
 See `ROADMAP.md` for planned feature enhancements including:
-- UI framework migration (Material-UI → Shadcn/UI)
+- ✅ UI framework migration (Material-UI → Shadcn/UI) - **COMPLETED**
+- ✅ Modern routing system (React Router → TanStack Router) - **COMPLETED**
+- ✅ Modern build system (Webpack → RSBuild) - **COMPLETED**
 - Internal schema version management system
 - Document generation (ER diagrams, table specifications)
 - MCP server integration for LLM operations

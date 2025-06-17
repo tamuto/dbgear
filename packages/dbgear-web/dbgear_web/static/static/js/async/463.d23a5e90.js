@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([["463"],{314:function(e,n,t){t.r(n),t.d(n,{component:()=>r});var l=t(93);let r=function(){return(0,l.jsx)("div",{className:"p-5",children:(0,l.jsx)("h1",{className:"text-3xl font-bold underline text-red-400",children:"Hello world!"})})}}}]);
