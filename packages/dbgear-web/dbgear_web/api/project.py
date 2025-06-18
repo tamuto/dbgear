@@ -6,10 +6,10 @@ from dbgear.core.models.project import project
 from .dtos import Result
 from .dtos import ProjectInfo
 
-router = APIRouter(prefix='/project')
+router = APIRouter()
 
 
-@router.get('', response_model=Result)
+@router.get('/project', response_model=Result)
 def get_project_info(request: Request) -> Result:
     proj = project(request)
     api_key = os.environ.get('API_KEY', None)

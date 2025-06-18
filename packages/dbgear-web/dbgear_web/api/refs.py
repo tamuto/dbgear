@@ -12,10 +12,10 @@ from dbgear.core.models.fileio import get_environ_name
 from .dtos import Result
 from .dtos import DataFilename
 
-router = APIRouter(prefix='/refs')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/refs')
 def get_referencable(request: Request) -> Result:
     proj = project(request)
 

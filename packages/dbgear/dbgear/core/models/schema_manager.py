@@ -1,9 +1,8 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 from pathlib import Path
-import os
 
 from .schema import Schema, Table, Field, Index
-from .fileio import load_yaml, save_yaml
+from .fileio import save_yaml
 from ..definitions.dbgear_schema import retrieve
 
 
@@ -53,15 +52,15 @@ class SchemaValidator:
             # Expression columns cannot have default values
             if field.default_value:
                 errors.append("Expression column cannot have default_value")
-            
+
             # Expression columns cannot be primary keys
             if field.primary_key:
                 errors.append("Expression column cannot be primary key")
-            
+
             # Expression columns cannot be foreign keys
             if field.foreign_key:
                 errors.append("Expression column cannot be foreign key")
-            
+
             # Expression columns cannot be auto increment
             if field.auto_increment:
                 errors.append("Expression column cannot be auto increment")
@@ -158,7 +157,7 @@ class SchemaManager:
                         field_dict["foreign_key"] = field.foreign_key
                     if field.comment is not None:
                         field_dict["comment"] = field.comment
-                    
+
                     # Add new expression-related fields
                     if field.expression is not None:
                         field_dict["expression"] = field.expression
@@ -311,7 +310,9 @@ class SchemaManager:
             for other_table in other_schema.get_tables().values():
                 for other_field in other_table.fields:
                     if other_field.foreign_key == f"{table_name}.{field_name}":
-                        raise ValueError(f"Cannot delete field '{field_name}': referenced by field '{other_field.column_name}' in table '{other_table.table_name}'")
+                        raise ValueError(
+                            f"Cannot delete field '{field_name}': referenced by field '{other_table.table_name}.{other_field.column_name}'"
+                        )
 
         table.remove_field(field_name)
 

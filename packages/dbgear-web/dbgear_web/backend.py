@@ -1,6 +1,6 @@
 import os
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 
 from .api import project
@@ -18,19 +18,26 @@ from dbgear.core.models.project import Project
 
 app = FastAPI()
 
-app.mount('/', StaticFiles(directory=f'{os.path.dirname(__file__)}/static', html=True), name='static')
-app.include_router(project.router, prefix='/api')
-app.include_router(tables.router, prefix='/api')
-app.include_router(environs.router, prefix='/api')
-app.include_router(refs.router, prefix='/api')
+# Main API router that consolidates all sub-routers
+api_router = APIRouter(prefix="/api")
 
-# スキーマ管理API
-app.include_router(schemas.router, prefix='/api')
-app.include_router(schema_tables.router, prefix='/api')
-app.include_router(schema_fields.router, prefix='/api')
-app.include_router(schema_indexes.router, prefix='/api')
-app.include_router(schema_views.router, prefix='/api')
-app.include_router(schema_validation.router, prefix='/api')
+# Include all sub-routers
+api_router.include_router(project.router)
+api_router.include_router(tables.router)
+api_router.include_router(environs.router)
+api_router.include_router(refs.router)
+
+# Schema management APIs
+api_router.include_router(schemas.router)
+api_router.include_router(schema_tables.router)
+api_router.include_router(schema_fields.router)
+api_router.include_router(schema_indexes.router)
+api_router.include_router(schema_views.router)
+api_router.include_router(schema_validation.router)
+
+# Mount the API router and static files
+app.include_router(api_router)
+app.mount('/', StaticFiles(directory=f'{os.path.dirname(__file__)}/static', html=True), name='static')
 
 
 def run(project: Project, port: int = 5000, host: str = '0.0.0.0'):

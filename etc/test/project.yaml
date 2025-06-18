@@ -6,6 +6,8 @@ definitions:
     filename: ./dbgear.a5er
     mapping:
       MAIN: main
+  - type: dbgear_schema
+    filename: ./schema.yaml
   - type: selectable
     prefix: _select
     items:

@@ -3,10 +3,10 @@ from dbgear.core.models.project import project
 from dbgear.core.models.schema_manager import SchemaManager
 from .dtos import Result, CreateViewRequest, UpdateViewRequest, convert_to_view
 
-router = APIRouter(prefix='/schemas/{schema_name}/views')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/schemas/{schema_name}/views')
 def get_views(schema_name: str, request: Request) -> Result:
     """スキーマ内のビュー一覧を取得"""
     try:
@@ -25,7 +25,7 @@ def get_views(schema_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('')
+@router.post('/schemas/{schema_name}/views')
 def create_view(schema_name: str, request: Request, view_request: CreateViewRequest) -> Result:
     """新規ビューを作成"""
     try:
@@ -52,7 +52,7 @@ def create_view(schema_name: str, request: Request, view_request: CreateViewRequ
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get('/{view_name}')
+@router.get('/schemas/{schema_name}/views/{view_name}')
 def get_view(schema_name: str, view_name: str, request: Request) -> Result:
     """特定ビューの詳細を取得"""
     try:
@@ -75,7 +75,7 @@ def get_view(schema_name: str, view_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put('/{view_name}')
+@router.put('/schemas/{schema_name}/views/{view_name}')
 def update_view(schema_name: str, view_name: str, request: Request, view_request: UpdateViewRequest) -> Result:
     """ビューを更新"""
     try:
@@ -110,7 +110,7 @@ def update_view(schema_name: str, view_name: str, request: Request, view_request
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{view_name}')
+@router.delete('/schemas/{schema_name}/views/{view_name}')
 def delete_view(schema_name: str, view_name: str, request: Request) -> Result:
     """ビューを削除"""
     try:

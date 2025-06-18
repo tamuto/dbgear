@@ -17,10 +17,10 @@ from .dtos import convert_to_data_filename
 from .dtos import convert_to_mapping
 from .dtos import convert_to_data_model
 
-router = APIRouter(prefix='/environs')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/environs')
 def get_mappings(request: Request):
     proj = project(request)
     maps = mapping.items(proj.folder)
@@ -34,7 +34,7 @@ def get_mappings(request: Request):
     return Result(data=[*groupTree.values()])
 
 
-@router.post('/{id}')
+@router.post('/environs/{id}')
 def create_mapping(id: str, data: NewMapping, request: Request) -> Result:
     proj = project(request)
     if mapping.is_exist(proj.folder, id):
@@ -46,7 +46,7 @@ def create_mapping(id: str, data: NewMapping, request: Request) -> Result:
     return Result()
 
 
-@router.get('/{id}/tables')
+@router.get('/environs/{id}/tables')
 def get_tables(id: str, request: Request):
     '''
     既に存在するテーブル一覧。
@@ -63,7 +63,7 @@ def get_tables(id: str, request: Request):
     return Result(data=tables)
 
 
-@router.get('/{id}/init')
+@router.get('/environs/{id}/init')
 def get_not_exist_tables(id: str, request: Request):
     '''
     新規作成時のテーブル一覧。既に存在するものは除く
@@ -76,7 +76,7 @@ def get_not_exist_tables(id: str, request: Request):
     return Result(data=tables)
 
 
-@router.get('/{id}/tables/{instance}/{table}')
+@router.get('/environs/{id}/tables/{instance}/{table}')
 def get_table(id: str, instance: str, table: str, request: Request, segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)
@@ -89,7 +89,7 @@ def get_table(id: str, instance: str, table: str, request: Request, segment: str
     return Result(data=data)
 
 
-@router.get('/{id}/tables/{instance}/{table}/row')
+@router.get('/environs/{id}/tables/{instance}/{table}/row')
 def get_row(id: str, instance: str, table: str, request: Request):
     proj = project(request)
     map = mapping.get(proj.folder, id)
@@ -97,7 +97,7 @@ def get_row(id: str, instance: str, table: str, request: Request):
     return Result(data=row)
 
 
-@router.post('/{id}/tables/{instance}/{table}')
+@router.post('/environs/{id}/tables/{instance}/{table}')
 def create_data_model(id: str, instance: str, table: str, data: NewDataModel, request: Request):
     proj = project(request)
     map = mapping.get(proj.folder, id)
@@ -105,7 +105,7 @@ def create_data_model(id: str, instance: str, table: str, data: NewDataModel, re
     return Result()
 
 
-@router.put('/{id}/tables/{instance}/{table}')
+@router.put('/environs/{id}/tables/{instance}/{table}')
 def update_data(id: str, instance: str, table: str, request: Request, body=Body(...), segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)
@@ -113,7 +113,7 @@ def update_data(id: str, instance: str, table: str, request: Request, body=Body(
     return Result()
 
 
-@router.post('/{id}/tables/{instance}/{table}/import')
+@router.post('/environs/{id}/tables/{instance}/{table}/import')
 def import_data(id: str, instance: str, table: str, imp: ImportSQL, request: Request, segment: str | None = None):
     proj = project(request)
     map = mapping.get(proj.folder, id)

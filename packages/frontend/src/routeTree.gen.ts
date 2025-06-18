@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SchemasSchemaIdTablesTableIdEditRouteImport } from './routes/schemas/$schemaId/tables/$tableId/edit'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -22,31 +23,41 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchemasSchemaIdTablesTableIdEditRoute =
+  SchemasSchemaIdTablesTableIdEditRouteImport.update({
+    id: '/schemas/$schemaId/tables/$tableId/edit',
+    path: '/schemas/$schemaId/tables/$tableId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/schemas/$schemaId/tables/$tableId/edit': typeof SchemasSchemaIdTablesTableIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/schemas/$schemaId/tables/$tableId/edit': typeof SchemasSchemaIdTablesTableIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/schemas/$schemaId/tables/$tableId/edit': typeof SchemasSchemaIdTablesTableIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/about' | '/schemas/$schemaId/tables/$tableId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to: '/' | '/about' | '/schemas/$schemaId/tables/$tableId/edit'
+  id: '__root__' | '/' | '/about' | '/schemas/$schemaId/tables/$tableId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  SchemasSchemaIdTablesTableIdEditRoute: typeof SchemasSchemaIdTablesTableIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +76,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/schemas/$schemaId/tables/$tableId/edit': {
+      id: '/schemas/$schemaId/tables/$tableId/edit'
+      path: '/schemas/$schemaId/tables/$tableId/edit'
+      fullPath: '/schemas/$schemaId/tables/$tableId/edit'
+      preLoaderRoute: typeof SchemasSchemaIdTablesTableIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  SchemasSchemaIdTablesTableIdEditRoute: SchemasSchemaIdTablesTableIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

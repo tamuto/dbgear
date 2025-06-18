@@ -3,10 +3,10 @@ from dbgear.core.models.project import project
 from dbgear.core.models.schema_manager import SchemaManager
 from .dtos import Result, CreateTableRequest, convert_to_table
 
-router = APIRouter(prefix='/schemas/{schema_name}/tables')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/schemas/{schema_name}/tables')
 def get_tables(schema_name: str, request: Request) -> Result:
     """スキーマ内のテーブル一覧を取得"""
     try:
@@ -25,7 +25,7 @@ def get_tables(schema_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('')
+@router.post('/schemas/{schema_name}/tables')
 def create_table(schema_name: str, request: Request, table_request: CreateTableRequest) -> Result:
     """新規テーブルを作成"""
     try:
@@ -46,7 +46,7 @@ def create_table(schema_name: str, request: Request, table_request: CreateTableR
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get('/{table_name}')
+@router.get('/schemas/{schema_name}/tables/{table_name}')
 def get_table(schema_name: str, table_name: str, request: Request) -> Result:
     """特定テーブルの詳細を取得"""
     try:
@@ -67,7 +67,7 @@ def get_table(schema_name: str, table_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put('/{table_name}')
+@router.put('/schemas/{schema_name}/tables/{table_name}')
 def update_table(schema_name: str, table_name: str, request: Request, table_request: CreateTableRequest) -> Result:
     """テーブルを更新"""
     try:
@@ -96,7 +96,7 @@ def update_table(schema_name: str, table_name: str, request: Request, table_requ
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{table_name}')
+@router.delete('/schemas/{schema_name}/tables/{table_name}')
 def delete_table(schema_name: str, table_name: str, request: Request) -> Result:
     """テーブルを削除"""
     try:
