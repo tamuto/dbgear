@@ -92,16 +92,16 @@ Cardinality2=*
         # To test parsed fields, we need to use convert_to_schema
         schemas = convert_to_schema(parser)
         main_schema = schemas.get_schema('main')
-        users_table = main_schema.tables['users']
+        users_table = main_schema.get_table('users')
 
         # Check parsed fields
-        id_field = users_table.fields[0]
+        id_field = users_table.columns[0]
         self.assertEqual(id_field.column_name, 'id')
         self.assertEqual(id_field.column_type, 'int')
         self.assertFalse(id_field.nullable)
         self.assertEqual(id_field.primary_key, 0)
 
-        name_field = users_table.fields[1]
+        name_field = users_table.columns[1]
         self.assertEqual(name_field.column_name, 'name')
         self.assertEqual(name_field.column_type, 'varchar(100)')
         self.assertFalse(name_field.nullable)
@@ -251,20 +251,20 @@ Cardinality2=*
         main_schema = schemas.get_schema('main')
         self.assertEqual(len(main_schema.tables), 1)
 
-        users_table = main_schema.tables['users']
+        users_table = main_schema.get_table('users')
         self.assertEqual(users_table.table_name, 'users')
         self.assertEqual(users_table.display_name, 'Users')
-        self.assertEqual(len(users_table.fields), 3)
+        self.assertEqual(len(users_table.columns), 3)
         self.assertEqual(len(users_table.indexes), 1)
 
         # Check primary key field
-        primary_field = users_table.fields[0]
+        primary_field = users_table.columns[0]
         self.assertEqual(primary_field.column_name, 'user_id')
         self.assertEqual(primary_field.primary_key, 0)
         self.assertFalse(primary_field.nullable)
 
         # Check nullable field
-        email_field = users_table.fields[2]
+        email_field = users_table.columns[2]
         self.assertEqual(email_field.column_name, 'email')
         self.assertIsNone(email_field.primary_key)
         self.assertTrue(email_field.nullable)
@@ -278,9 +278,9 @@ Cardinality2=*
         sub_schema = schemas.get_schema('sub')
         self.assertEqual(len(sub_schema.tables), 1)
 
-        orders_table = sub_schema.tables['orders']
+        orders_table = sub_schema.get_table('orders')
         self.assertEqual(orders_table.table_name, 'orders')
-        self.assertEqual(len(orders_table.fields), 2)
+        self.assertEqual(len(orders_table.columns), 2)
         self.assertEqual(len(orders_table.indexes), 0)
 
     def test_retrieve_full_integration(self):
@@ -304,20 +304,20 @@ Cardinality2=*
             self.assertEqual(len(main_schema.tables), 2)
 
             # Check test_table
-            test_table = main_schema.tables['test_table']
+            test_table = main_schema.get_table('test_table')
             self.assertEqual(test_table.display_name, 'テストテーブル')
-            self.assertEqual(len(test_table.fields), 4)
+            self.assertEqual(len(test_table.columns), 4)
             self.assertEqual(len(test_table.indexes), 0)  # No indexes in simplified test
 
             # Check primary key
-            id_field = test_table.fields[0]
+            id_field = test_table.columns[0]
             self.assertEqual(id_field.column_name, 'col_id')
             self.assertEqual(id_field.primary_key, 0)
 
             # Check child_table
-            child_table = main_schema.tables['child_table']
+            child_table = main_schema.get_table('child_table')
             self.assertEqual(child_table.display_name, '子テーブル')
-            self.assertEqual(len(child_table.fields), 3)
+            self.assertEqual(len(child_table.columns), 3)
             self.assertEqual(len(child_table.indexes), 0)  # No indexes in simplified test
 
         finally:
@@ -393,18 +393,18 @@ Cardinality2=*
         # To test parsed fields, we need to use convert_to_schema
         schemas = convert_to_schema(parser)
         main_schema = schemas.get_schema('main')
-        edge_table = main_schema.tables['edge_case_table']
+        edge_table = main_schema.get_table('edge_case_table')
 
         # Check parsed fields
-        col1_field = edge_table.fields[0]
+        col1_field = edge_table.columns[0]
         self.assertEqual(col1_field.column_name, 'col1')
         self.assertTrue(col1_field.nullable)
 
-        col2_field = edge_table.fields[1]
+        col2_field = edge_table.columns[1]
         self.assertEqual(col2_field.display_name, 'Quoted,Field')
         self.assertEqual(col2_field.default_value, 'default')
 
-        unicode_field = edge_table.fields[2]
+        unicode_field = edge_table.columns[2]
         self.assertEqual(unicode_field.column_name, 'unicode_col')
         self.assertEqual(unicode_field.default_value, 'デフォルト')
 
@@ -439,7 +439,7 @@ Field="ID","id","int","NOT NULL",0,"",""
             main_schema = schemas.get_schema('main')
             self.assertEqual(main_schema.name, 'main')
             self.assertEqual(len(main_schema.tables), 1)
-            self.assertEqual(main_schema.tables['mapped_table'].table_name, 'mapped_table')
+            self.assertEqual(main_schema.get_table('mapped_table').table_name, 'mapped_table')
 
         finally:
             os.unlink(temp_file)
@@ -463,7 +463,7 @@ Field="ID","id","int","NOT NULL",0,"",""
 
             main_schema = schemas.get_schema('main')
             self.assertEqual(len(main_schema.tables), 1)
-            self.assertEqual(main_schema.tables['bom_table'].table_name, 'bom_table')
+            self.assertEqual(main_schema.get_table('bom_table').table_name, 'bom_table')
 
         finally:
             os.unlink(temp_file)

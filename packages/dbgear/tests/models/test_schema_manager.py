@@ -2,7 +2,7 @@ import tempfile
 import unittest
 
 from dbgear.core.models.schema import SchemaManager
-from dbgear.core.models.schema import Schema, Table, Field
+from dbgear.core.models.schema import Schema, Table, Column
 
 
 class TestSchemaManager(unittest.TestCase):
@@ -43,8 +43,8 @@ class TestSchemaManager(unittest.TestCase):
             instance="test",
             table_name="users",
             display_name="Users",
-            fields=[
-                Field(
+            columns=[
+                Column(
                     column_name="id",
                     display_name="ID",
                     column_type="BIGINT",

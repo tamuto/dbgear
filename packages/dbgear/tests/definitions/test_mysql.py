@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch, call
 
-from dbgear.core.definitions.mysql import retrieve, build_fields, build_statistics
-from dbgear.core.models.schema import Field, Index
+from dbgear.core.definitions.mysql import retrieve, build_columns, build_statistics
+from dbgear.core.models.schema import Column, Index
 
 
 class MockRow:
@@ -23,7 +23,7 @@ class TestMySQLDefinitions(unittest.TestCase):
         }
 
     @patch('dbgear.core.definitions.mysql.describe')
-    def test_build_fields_basic(self, mock_describe):
+    def test_build_columns_basic(self, mock_describe):
         """Test basic field building from database metadata"""
         # Mock column data
         mock_columns = [
@@ -56,16 +56,16 @@ class TestMySQLDefinitions(unittest.TestCase):
         mock_describe.columns.return_value = mock_columns
 
         # Test field building
-        fields = build_fields(self.mock_connection, 'test_db', 'users', {'id': 1})
+        columns = build_columns(self.mock_connection, 'test_db', 'users', {'id': 1})
 
         # Verify describe.columns was called correctly
         mock_describe.columns.assert_called_once_with(self.mock_connection, 'test_db', 'users')
 
         # Verify field results
-        self.assertEqual(len(fields), 3)
+        self.assertEqual(len(columns), 3)
 
         # Check primary key field
-        id_field = fields[0]
+        id_field = columns[0]
         self.assertEqual(id_field.column_name, 'id')
         self.assertEqual(id_field.column_type, 'int(11)')
         self.assertFalse(id_field.nullable)
@@ -73,7 +73,7 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(id_field.comment, 'Primary key')
 
         # Check nullable field
-        name_field = fields[1]
+        name_field = columns[1]
         self.assertEqual(name_field.column_name, 'name')
         self.assertEqual(name_field.column_type, 'varchar(100)')
         self.assertTrue(name_field.nullable)
@@ -81,7 +81,7 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(name_field.comment, 'User name')
 
         # Check unique field
-        email_field = fields[2]
+        email_field = columns[2]
         self.assertEqual(email_field.column_name, 'email')
         self.assertEqual(email_field.column_type, 'varchar(255)')
         self.assertFalse(email_field.nullable)
@@ -146,10 +146,10 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(compound_index.columns, ['name', 'email'])
 
     @patch('dbgear.core.definitions.mysql.build_statistics')
-    @patch('dbgear.core.definitions.mysql.build_fields')
+    @patch('dbgear.core.definitions.mysql.build_columns')
     @patch('dbgear.core.definitions.mysql.describe')
     @patch('dbgear.core.definitions.mysql.engine')
-    def test_retrieve_full_schema(self, mock_engine, mock_describe, mock_build_fields, mock_build_statistics):
+    def test_retrieve_full_schema(self, mock_engine, mock_describe, mock_build_columns, mock_build_statistics):
         """Test full schema retrieval from database"""
         # Mock engine and connection
         mock_engine.get_connection.return_value.__enter__.return_value = self.mock_connection
@@ -163,25 +163,25 @@ class TestMySQLDefinitions(unittest.TestCase):
         mock_describe.tables.return_value = mock_tables
 
         # Mock fields and statistics for each table
-        mock_build_fields.side_effect = [
+        mock_build_columns.side_effect = [
             [
-                Field(
+                Column(
                     column_name='id', display_name='id', column_type='int(11)',
                     nullable=False, primary_key=1, default_value=None, foreign_key=None, comment='')
             ],
             [
-                Field(
+                Column(
                     column_name='id', display_name='id', column_type='int(11)',
                     nullable=False, primary_key=1, default_value=None, foreign_key=None, comment=''),
-                Field(
+                Column(
                     column_name='user_id', display_name='user_id', column_type='int(11)',
                     nullable=False, primary_key=None, default_value=None, foreign_key=None, comment='')
             ],
             [
-                Field(
+                Column(
                     column_name='id', display_name='id', column_type='int(11)',
                     nullable=False, primary_key=1, default_value=None, foreign_key=None, comment=''),
-                Field(
+                Column(
                     column_name='name', display_name='name', column_type='varchar(255)',
                     nullable=False, primary_key=None, default_value=None, foreign_key=None, comment='')
             ]
@@ -208,7 +208,7 @@ class TestMySQLDefinitions(unittest.TestCase):
             call(self.mock_connection, 'test_db', 'orders', {'id': 1}),
             call(self.mock_connection, 'test_db', 'products', {'id': 1})
         ]
-        mock_build_fields.assert_has_calls(expected_field_calls)
+        mock_build_columns.assert_has_calls(expected_field_calls)
         mock_build_statistics.assert_has_calls([
             call(self.mock_connection, 'test_db', 'users'),
             call(self.mock_connection, 'test_db', 'orders'),
@@ -234,13 +234,13 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(orders_table.indexes[0].index_name, 'idx_user')
 
     @patch('dbgear.core.definitions.mysql.describe')
-    def test_build_fields_empty_result(self, mock_describe):
+    def test_build_columns_empty_result(self, mock_describe):
         """Test handling of empty column results"""
         mock_describe.columns.return_value = []
 
-        fields = build_fields(self.mock_connection, 'test_db', 'empty_table', [])
+        columns = build_columns(self.mock_connection, 'test_db', 'empty_table', [])
 
-        self.assertEqual(len(fields), 0)
+        self.assertEqual(len(columns), 0)
 
     @patch('dbgear.core.definitions.mysql.describe')
     def test_build_statistics_no_indexes(self, mock_describe):
@@ -305,10 +305,10 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertIn("Connection failed", str(context.exception))
 
     @patch('dbgear.core.definitions.mysql.build_statistics')
-    @patch('dbgear.core.definitions.mysql.build_fields')
+    @patch('dbgear.core.definitions.mysql.build_columns')
     @patch('dbgear.core.definitions.mysql.describe')
     @patch('dbgear.core.definitions.mysql.engine')
-    def test_retrieve_multiple_schemas(self, mock_engine, mock_describe, mock_build_fields, mock_build_statistics):
+    def test_retrieve_multiple_schemas(self, mock_engine, mock_describe, mock_build_columns, mock_build_statistics):
         """Test retrieval with multiple database schemas mapped to different instances"""
         # Mock engine and connection
         mock_engine.get_connection.return_value.__enter__.return_value = self.mock_connection
@@ -325,11 +325,11 @@ class TestMySQLDefinitions(unittest.TestCase):
             [MockRow(TABLE_NAME='logs')]    # db2 tables
         ]
 
-        mock_build_fields.side_effect = [
-            [Field(
+        mock_build_columns.side_effect = [
+            [Column(
                 column_name='id', display_name='id', column_type='int(11)',
                 nullable=False, primary_key=1, default_value=None, foreign_key=None, comment='')],  # db1.users
-            [Field(
+            [Column(
                 column_name='id', display_name='id', column_type='int(11)',
                 nullable=False, primary_key=1, default_value=None, foreign_key=None, comment='')]   # db2.logs
         ]

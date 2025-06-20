@@ -5,7 +5,7 @@ from dataclasses import field
 from ..models.schema import SchemaManager
 from ..models.schema import Schema
 from ..models.schema import Table
-from ..models.schema import Field
+from ..models.schema import Column
 from ..models.schema import Index
 
 
@@ -128,7 +128,7 @@ def convert_to_schema(p):
             relation = p.relations[entity.table_name] if entity.table_name in p.relations else {}
             for row in csv.reader(entity.fields):
                 # FIXME 恐らくdefault_valueの空文字初期化はうまく設定できない。
-                field = Field(
+                column = Column(
                     display_name=row[0],
                     column_name=row[1],
                     column_type=row[2],
@@ -138,14 +138,14 @@ def convert_to_schema(p):
                     foreign_key=relation[row[1]].entity1 if row[1] in relation else None,
                     comment=row[6] if row[6] != '' else None
                 )
-                tbl.fields.append(field)
+                tbl.add_column(column)
 
             for row in csv.reader(entity.indexes):
                 idx = Index(
                     index_name=None,
                     columns=row[1:]
                 )
-                tbl.indexes.append(idx)
+                tbl.add_index(idx)
 
     return schemas
 

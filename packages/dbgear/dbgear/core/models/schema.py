@@ -3,7 +3,7 @@ import pydantic
 from .base import BaseSchema
 
 
-class Field(BaseSchema):
+class Column(BaseSchema):
     column_name: str
     display_name: str
     column_type: str
@@ -30,34 +30,34 @@ class Table(BaseSchema):
     instance: str = pydantic.Field(exclude=True)
     table_name: str = pydantic.Field(exclude=True)
     display_name: str
-    fields: list[Field] = []
+    columns: list[Column] = []
     indexes: list[Index] = []
     # FIXME 参照元をデータとして持たせるか？
 
-    def add_field(self, field: Field) -> None:
-        if self.field_exists(field.column_name):
-            raise ValueError(f"Field '{field.column_name}' already exists in table '{self.table_name}'")
-        self.fields.append(field)
+    def add_column(self, column: Column) -> None:
+        if self.column_exists(column.column_name):
+            raise ValueError(f"Column '{column.column_name}' already exists in table '{self.table_name}'")
+        self.columns.append(column)
 
-    def remove_field(self, field_name: str) -> None:
-        field = self.get_field(field_name)
-        self.fields.remove(field)
+    def remove_column(self, column_name: str) -> None:
+        column = self.get_column(column_name)
+        self.columns.remove(column)
 
-    def update_field(self, field_name: str, field: Field) -> None:
-        for i, existing_field in enumerate(self.fields):
-            if existing_field.column_name == field_name:
-                self.fields[i] = field
+    def update_column(self, column_name: str, column: Column) -> None:
+        for i, existing_column in enumerate(self.columns):
+            if existing_column.column_name == column_name:
+                self.columns[i] = column
                 return
-        raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
+        raise KeyError(f"Column '{column_name}' not found in table '{self.table_name}'")
 
-    def get_field(self, field_name: str) -> Field:
-        for field in self.fields:
-            if field.column_name == field_name:
-                return field
-        raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
+    def get_column(self, column_name: str) -> Column:
+        for column in self.columns:
+            if column.column_name == column_name:
+                return column
+        raise KeyError(f"Column '{column_name}' not found in table '{self.table_name}'")
 
-    def field_exists(self, field_name: str) -> bool:
-        return any(field.column_name == field_name for field in self.fields)
+    def column_exists(self, column_name: str) -> bool:
+        return any(column.column_name == column_name for column in self.columns)
 
     def add_index(self, index: Index) -> None:
         if index.index_name and self.get_index(index.index_name) is not None:
@@ -201,8 +201,8 @@ class SchemaManager(BaseSchema):
         return name in self.schemas
 
 
-def find_field(fields: list[Field], name: str):
-    field = next(filter(lambda x: x.column_name == name, fields), None)
-    if field is None:
-        raise RuntimeError(f'Could not find field. ({name})')
-    return field
+# def find_field(fields: list[Field], name: str):
+#     field = next(filter(lambda x: x.column_name == name, fields), None)
+#     if field is None:
+#         raise RuntimeError(f'Could not find field. ({name})')
+#     return field
