@@ -1,6 +1,7 @@
 from ..dbio import engine
 from ..dbio import describe
 
+from ..models.schema import SchemaManager
 from ..models.schema import Schema
 from ..models.schema import Table
 from ..models.schema import Field
@@ -41,15 +42,15 @@ def build_statistics(conn, schema, table):
 
 
 def retrieve(folder, connect, mapping, **kwargs):
-    schemas = {}
+    schemas = SchemaManager()
     with engine.get_connection(connect) as conn:
         for instance, schema in mapping.items():
-            schemas[schema] = Schema(schema)
+            schemas.add_schema(Schema(name=schema))
 
             for t in describe.tables(conn, instance):
                 primary_key, indexes = build_statistics(conn, instance, t.TABLE_NAME)
                 fields = build_fields(conn, instance, t.TABLE_NAME, primary_key)
-                schemas[schema].add_table(Table(
+                schemas.get_schema(schema).add_table(Table(
                     instance=instance,
                     table_name=t.TABLE_NAME,
                     display_name=t.TABLE_NAME,

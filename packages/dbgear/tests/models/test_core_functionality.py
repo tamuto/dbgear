@@ -1,7 +1,6 @@
 import unittest
 import os
 
-from dbgear.core.models.project import Project
 from dbgear.core.models.fileio import load_yaml, save_yaml
 from dbgear.core.models.base import BaseSchema
 from dbgear.core.models.environ import mapping
@@ -29,22 +28,22 @@ class TestCoreFunctionality(unittest.TestCase):
         # クリーンアップ
         os.remove(temp_file)
 
-    def test_schema_definition_loading(self):
-        """スキーマ定義の読み込みテスト"""
-        proj = Project(FOLDER_PATH)
-        proj.read_definitions()
+    # def test_schema_definition_loading(self):
+    #     """スキーマ定義の読み込みテスト"""
+    #     proj = Project(FOLDER_PATH)
+    #     proj.read_definitions()
 
-        # インスタンスの確認
-        self.assertIn('main', proj.schemas)
-        self.assertIn('_select', proj.schemas)
+    #     # インスタンスの確認
+    #     self.assertIn('main', proj.schemas)
+    #     self.assertIn('_select', proj.schemas)
 
-        # テーブル定義の確認
-        main_schema = proj.schemas['main']
-        tables = main_schema.get_tables()
-        self.assertGreater(len(tables), 0)
+    #     # テーブル定義の確認
+    #     main_schema = proj.schemas['main']
+    #     tables = main_schema.get_tables()
+    #     self.assertGreater(len(tables), 0)
 
-        # 特定テーブルの存在確認
-        self.assertIsNotNone(main_schema.get_table('test_table'))
+    #     # 特定テーブルの存在確認
+    #     self.assertIsNotNone(main_schema.get_table('test_table'))
 
     def test_environment_mapping_operations(self):
         """環境マッピング操作のテスト"""

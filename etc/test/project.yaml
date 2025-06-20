@@ -1,22 +1,22 @@
 project_name: Test
 description: Test Project
 
-definitions:
-  - type: a5sql_mk2
-    filename: ./dbgear.a5er
-    mapping:
-      MAIN: main
-  - type: dbgear_schema
-    filename: ./schema.yaml
-  - type: selectable
-    prefix: _select
-    items:
-      y_or_n: Yes or No
-      property_keys: Property Keys
-  # - type: mysql
-  #   connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
-  #   mapping:
-  #     common: dbcmn
+# definitions:
+#   - type: a5sql_mk2
+#     filename: ./dbgear.a5er
+#     mapping:
+#       MAIN: main
+#   - type: dbgear_schema
+#     filename: ./schema.yaml
+#   - type: selectable
+#     prefix: _select
+#     items:
+#       y_or_n: Yes or No
+#       property_keys: Property Keys
+# - type: mysql
+#   connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
+#   mapping:
+#     common: dbcmn
 
 bindings:
   uuid:

@@ -2,6 +2,7 @@ import csv
 from dataclasses import dataclass
 from dataclasses import field
 
+from ..models.schema import SchemaManager
 from ..models.schema import Schema
 from ..models.schema import Table
 from ..models.schema import Field
@@ -112,7 +113,9 @@ class Parser:
 
 
 def convert_to_schema(p):
-    schemas = {k: Schema(k) for k in p.instances.keys()}
+    schemas = SchemaManager()
+    for k in p.instances.keys():
+        schemas.add_schema(Schema(name=k))
 
     for key, entities in p.instances.items():
         for entity in entities:
@@ -121,7 +124,7 @@ def convert_to_schema(p):
                 table_name=entity.table_name,
                 display_name=entity.display_name
             )
-            schemas[key].add_table(tbl)
+            schemas.get_schema(key).add_table(tbl)
             relation = p.relations[entity.table_name] if entity.table_name in p.relations else {}
             for row in csv.reader(entity.fields):
                 # FIXME 恐らくdefault_valueの空文字初期化はうまく設定できない。

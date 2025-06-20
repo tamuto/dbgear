@@ -4,7 +4,7 @@ from ..models.schema import Field
 
 
 def retrieve(folder, prefix, items, **kwargs):
-    schema = Schema(prefix)
+    schema = Schema(name=prefix)
 
     for key, val in items.items():
         table = Table(instance=prefix, table_name=key, display_name=val)

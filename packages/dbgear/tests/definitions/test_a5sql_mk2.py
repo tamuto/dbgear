@@ -91,7 +91,7 @@ Cardinality2=*
 
         # To test parsed fields, we need to use convert_to_schema
         schemas = convert_to_schema(parser)
-        main_schema = schemas['main']
+        main_schema = schemas.get_schema('main')
         users_table = main_schema.tables['users']
 
         # Check parsed fields
@@ -197,8 +197,8 @@ Cardinality2=*
 
         # Convert to schema to test index processing
         schemas = convert_to_schema(parser)
-        main_schema = schemas['main']
-        test_table = main_schema.tables['test_table']
+        main_schema = schemas.get_schema('main')
+        test_table = main_schema.get_table('test_table')
 
         # Verify index was processed correctly in schema
         self.assertEqual(len(test_table.indexes), 1)
@@ -245,10 +245,10 @@ Cardinality2=*
         schemas = convert_to_schema(parser)
 
         # Should create two schemas (one for each instance)
-        self.assertEqual(len(schemas), 2)
+        self.assertEqual(len(schemas.get_schemas()), 2)
 
         # Find main schema
-        main_schema = schemas['main']
+        main_schema = schemas.get_schema('main')
         self.assertEqual(len(main_schema.tables), 1)
 
         users_table = main_schema.tables['users']
@@ -275,7 +275,7 @@ Cardinality2=*
         self.assertEqual(email_index.columns, ['email'])
 
         # Find sub schema
-        sub_schema = schemas['sub']
+        sub_schema = schemas.get_schema('sub')
         self.assertEqual(len(sub_schema.tables), 1)
 
         orders_table = sub_schema.tables['orders']
@@ -297,9 +297,9 @@ Cardinality2=*
             )
 
             # Verify schemas
-            self.assertEqual(len(schemas), 1)  # Only MAIN instance has entities
+            self.assertEqual(len(schemas.get_schemas()), 1)  # Only MAIN instance has entities
 
-            main_schema = schemas['main']
+            main_schema = schemas.get_schema('main')
             self.assertEqual(main_schema.name, 'main')
             self.assertEqual(len(main_schema.tables), 2)
 
@@ -392,7 +392,7 @@ Cardinality2=*
 
         # To test parsed fields, we need to use convert_to_schema
         schemas = convert_to_schema(parser)
-        main_schema = schemas['main']
+        main_schema = schemas.get_schema('main')
         edge_table = main_schema.tables['edge_case_table']
 
         # Check parsed fields
@@ -434,9 +434,9 @@ Field="ID","id","int","NOT NULL",0,"",""
             )
 
             # Should only return schemas for mapped instances
-            self.assertEqual(len(schemas), 1)
+            self.assertEqual(len(schemas.get_schemas()), 1)
 
-            main_schema = schemas['main']
+            main_schema = schemas.get_schema('main')
             self.assertEqual(main_schema.name, 'main')
             self.assertEqual(len(main_schema.tables), 1)
             self.assertEqual(main_schema.tables['mapped_table'].table_name, 'mapped_table')
@@ -459,9 +459,9 @@ Field="ID","id","int","NOT NULL",0,"",""
             )
 
             # Should handle BOM correctly
-            self.assertEqual(len(schemas), 1)
+            self.assertEqual(len(schemas.get_schemas()), 1)
 
-            main_schema = schemas['main']
+            main_schema = schemas.get_schema('main')
             self.assertEqual(len(main_schema.tables), 1)
             self.assertEqual(main_schema.tables['bom_table'].table_name, 'bom_table')
 

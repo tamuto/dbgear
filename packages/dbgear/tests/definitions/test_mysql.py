@@ -216,9 +216,9 @@ class TestMySQLDefinitions(unittest.TestCase):
         ])
 
         # Verify schema results (returns dict, not list)
-        self.assertEqual(len(schemas), 1)
+        self.assertEqual(len(schemas.get_schemas()), 1)
 
-        schema = schemas['main']
+        schema = schemas.get_schema('main')
         self.assertEqual(schema.name, 'main')
         self.assertEqual(len(schema.tables), 3)
 
@@ -343,11 +343,11 @@ class TestMySQLDefinitions(unittest.TestCase):
         schemas = retrieve('test_folder', 'mysql+pymysql://user:pass@localhost', multi_mapping)
 
         # Verify two schemas returned
-        self.assertEqual(len(schemas), 2)
+        self.assertEqual(len(schemas.get_schemas()), 2)
 
         # Check schema instances
-        self.assertIn('main', schemas)
-        self.assertIn('secondary', schemas)
+        self.assertIn('main', schemas.get_schemas())
+        self.assertIn('secondary', schemas.get_schemas())
 
         # Verify describe.tables called for each schema
         expected_calls = [

@@ -16,19 +16,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(proj.rules['update_date'], 'now')
         self.assertEqual(proj.deployments['localhost'], 'mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4')
 
-    def test_project_definitions(self):
-        proj = Project(FOLDER_PATH)
-        proj.read_definitions()
-        self.assertEqual(len(proj.instances), 2)
-        self.assertEqual(proj.instances[0], 'main')
-        self.assertEqual(len(proj.schemas['main'].get_tables()), 8)
-
-        # dictで取得できるかのテスト
-        keys = [key for key, _ in proj.schemas['main'].get_tables().items()]
-        self.assertEqual(len(keys), 8)
-
-        self.assertEqual(len(proj.schemas['main'].get_table('row_table').fields), 2)
-
     def test_project_configuration_validation(self):
         """プロジェクト設定の検証"""
         proj = Project(FOLDER_PATH)

@@ -4,6 +4,8 @@ import yaml
 from typing import Any
 from glob import glob
 
+from ..models.schema import SchemaManager
+from ..utils.populate import auto_populate_from_keys
 from . import const
 
 
@@ -81,3 +83,31 @@ def make_folder(dirname: str) -> None:
 
 def delete_folder(dirname: str) -> None:
     shutil.rmtree(dirname)
+
+
+def load_schema(filename: str):
+    """Load schemas from a YAML file"""
+    with open(filename, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+    populated_data = auto_populate_from_keys(data, {
+        'schemas.$1.name': '$1',
+        'schemas.$1.tables.$2.instance': '$1',
+        'schemas.$1.tables.$2.table_name': '$2',
+        'schemas.$1.views.$2.instance': '$1',
+        'schemas.$1.views.$2.view_name': '$2',
+    })
+    return SchemaManager(**populated_data)
+
+
+def save_schema(schemas: SchemaManager, filename: str) -> None:
+    """Save schemas to a YAML file"""
+    with open(filename, 'w', encoding='utf-8') as f:
+        yaml.dump(
+            schemas.model_dump(
+                exclude_none=True,
+                exclude_defaults=True
+            ),
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False)

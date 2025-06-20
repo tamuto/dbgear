@@ -1,3 +1,5 @@
+import pydantic
+
 from .base import BaseSchema
 
 
@@ -6,10 +8,10 @@ class Field(BaseSchema):
     display_name: str
     column_type: str
     nullable: bool
-    primary_key: int | None
-    default_value: str | None
-    foreign_key: str | None
-    comment: str | None
+    primary_key: int | None = None
+    default_value: str | None = None
+    foreign_key: str | None = None
+    comment: str | None = None
 
     # Column expression support
     expression: str | None = None  # Generated column expression
@@ -25,8 +27,8 @@ class Index(BaseSchema):
 
 
 class Table(BaseSchema):
-    instance: str
-    table_name: str
+    instance: str = pydantic.Field(exclude=True)
+    table_name: str = pydantic.Field(exclude=True)
     display_name: str
     fields: list[Field] = []
     indexes: list[Index] = []
@@ -121,12 +123,11 @@ class View(BaseSchema):
         pass
 
 
-class Schema:
-
-    def __init__(self, name):
-        self.name = name
-        self.tables = {}
-        self.views = {}
+class Schema(BaseSchema):
+    """Database schema containing tables and views"""
+    name: str = pydantic.Field(exclude=True)
+    tables: dict[str, Table] = {}
+    views: dict[str, View] = {}
 
     def __repr__(self) -> str:
         return f'Tables: {self.tables}, Views: {self.views}'
@@ -174,6 +175,30 @@ class Schema:
 
     def get_views(self) -> dict[str, View]:
         return self.views
+
+
+class SchemaManager(BaseSchema):
+    """Manages multiple schemas in a database project"""
+    schemas: dict[str, Schema] = {}
+
+    def add_schema(self, schema: Schema) -> None:
+        if schema.name in self.schemas:
+            raise ValueError(f"Schema '{schema.name}' already exists")
+        self.schemas[schema.name] = schema
+
+    def remove_schema(self, name: str) -> None:
+        if name not in self.schemas:
+            raise KeyError(f"Schema '{name}' not found")
+        del self.schemas[name]
+
+    def get_schema(self, name: str) -> Schema:
+        return self.schemas[name]
+
+    def get_schemas(self) -> dict[str, Schema]:
+        return self.schemas
+
+    def schema_exists(self, name: str) -> bool:
+        return name in self.schemas
 
 
 def find_field(fields: list[Field], name: str):
