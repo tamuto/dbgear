@@ -82,6 +82,7 @@ packages/
 - **Schema Validation**: Built-in validation in schema models for tables, columns, and foreign keys
 - **File I/O**: `packages/dbgear/dbgear/core/models/fileio.py` - YAML-based schema persistence and loading
 - **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
+- **SQL Template Engine**: `packages/dbgear/dbgear/core/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
 - **Definition Parsers**: `packages/dbgear/dbgear/core/definitions/` - Support for a5sql_mk2, mysql, selectable, and dbgear_schema formats
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
   - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_columns.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
@@ -94,7 +95,7 @@ packages/
 2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable)
 3. Data stored in YAML format for version control
 4. Frontend communicates with backend via REST API (all endpoints prefixed with `/api`)
-5. Database operations apply data through SQLAlchemy
+5. Database operations apply data through SQLAlchemy with Jinja2-based SQL template engine
 6. Schema modifications managed through built-in model methods with validation and YAML persistence
 
 ## Development Commands
@@ -392,6 +393,65 @@ The core package uses 3 consolidated test cases in `tests/test_core_yaml.py`:
 - Any new testing patterns or methodologies used
 
 This ensures the testing documentation stays current and serves as a comprehensive guide for ongoing test development and maintenance.
+
+### SQL Template Engine Architecture
+
+DBGear uses a Jinja2-based SQL template engine for all database operations, providing maintainable and consistent SQL generation:
+
+#### Architecture Overview
+```
+packages/dbgear/dbgear/core/dbio/templates/
+├── __init__.py              # Basic module
+├── engine.py                # SQLTemplateEngine class with Jinja2 integration
+└── mysql/
+    └── __init__.py          # MySQL-specific templates (18 templates total)
+```
+
+#### Template Categories
+- **Database Operations**: CREATE/DROP/CHECK DATABASE (3 templates)
+- **Table Operations**: CREATE/DROP/CHECK tables, backup/restore (7 templates)  
+- **View Operations**: CREATE/DROP/CHECK views, dependencies (6 templates)
+- **Index Operations**: CREATE with advanced MySQL features (1 template)
+- **Data Operations**: INSERT with parameter binding (1 template)
+
+#### Key Features
+- **Jinja2 Integration**: Full template rendering with custom filters
+- **Parameter Binding**: Secure SQL generation with proper escaping
+- **MySQL Optimization**: Support for advanced MySQL features (generated columns, character sets, foreign keys)
+- **Template Naming**: Consistent `mysql_*` convention for easy identification
+- **Error Handling**: Template validation and rendering error management
+
+#### Custom Filters
+- `join_columns`: Joins column names with backticks (`column1`, `column2`)
+- `escape_identifier`: Escapes SQL identifiers with backticks
+- `escape_string`: Escapes SQL string values with proper quote handling
+
+#### Usage Example
+```python
+from dbgear.core.dbio.templates.mysql import template_engine
+
+# Generate CREATE TABLE SQL
+sql = template_engine.render('mysql_create_table', env='production', table=table_model)
+
+# Generate with parameters
+sql = template_engine.render('mysql_check_table_exists')
+result = engine.select_one(conn, sql, {'env': 'testdb', 'table_name': 'users'})
+```
+
+#### Template Testing
+All templates are comprehensively tested in `tests/test_template_engine.py`:
+- 12 test cases covering all template categories
+- Generated SQL output for manual verification
+- Error handling and edge case validation
+- Integration with schema model objects
+
+#### Migration from Direct SQL
+All dbio modules have been migrated from direct SQL generation to template-based approach:
+- ✅ `database.py`: Complete template migration (3 functions)
+- ✅ `table.py`: Complete template migration (7 functions)
+- ✅ `view.py`: Complete template migration (6 functions)
+
+This provides a solid foundation for future database engine support while maintaining current MySQL functionality.
 
 ## Current Implementation State
 
