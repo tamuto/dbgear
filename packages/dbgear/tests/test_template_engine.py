@@ -311,6 +311,89 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIn('SELECT', sql)
         self.assertIn('FROM users', sql)
     
+    def test_view_operations(self):
+        """Test view utility operations (check existence, drop, create or replace, etc.)."""
+        # Test CHECK VIEW EXISTS
+        check_sql = template_engine.render('mysql_check_view_exists')
+        
+        self.assertIsInstance(check_sql, str)
+        self.assertTrue(len(check_sql) > 0)
+        
+        print("\n=== Check View Exists ===")
+        print(check_sql)
+        
+        self.assertIn('SELECT TABLE_NAME', check_sql)
+        self.assertIn('information_schema.views', check_sql)
+        self.assertIn('table_schema = :env', check_sql)
+        self.assertIn('table_name = :view_name', check_sql)
+        
+        # Test DROP VIEW
+        drop_sql = template_engine.render(
+            'mysql_drop_view',
+            env='testdb',
+            view_name='old_view'
+        )
+        
+        self.assertIsInstance(drop_sql, str)
+        self.assertTrue(len(drop_sql) > 0)
+        
+        print("\n=== Drop View ===")
+        print(drop_sql)
+        
+        self.assertIn('DROP VIEW IF EXISTS testdb.old_view', drop_sql)
+        
+        # Test CREATE OR REPLACE VIEW
+        create_or_replace_sql = template_engine.render(
+            'mysql_create_or_replace_view',
+            env='production',
+            view_name='stats_view',
+            view_select_statement='SELECT COUNT(*) as total FROM users'
+        )
+        
+        self.assertIsInstance(create_or_replace_sql, str)
+        self.assertTrue(len(create_or_replace_sql) > 0)
+        
+        print("\n=== Create or Replace View ===")
+        print(create_or_replace_sql)
+        
+        self.assertIn('CREATE OR REPLACE VIEW production.stats_view', create_or_replace_sql)
+        self.assertIn('SELECT COUNT(*) as total FROM users', create_or_replace_sql)
+        
+        # Test GET VIEW DEFINITION
+        get_definition_sql = template_engine.render('mysql_get_view_definition')
+        
+        self.assertIsInstance(get_definition_sql, str)
+        self.assertTrue(len(get_definition_sql) > 0)
+        
+        print("\n=== Get View Definition ===")
+        print(get_definition_sql)
+        
+        self.assertIn('SELECT VIEW_DEFINITION', get_definition_sql)
+        self.assertIn('information_schema.views', get_definition_sql)
+        
+        # Test DEPENDENCY CHECKS
+        check_table_dependency_sql = template_engine.render('mysql_check_dependency_exists')
+        
+        self.assertIsInstance(check_table_dependency_sql, str)
+        self.assertTrue(len(check_table_dependency_sql) > 0)
+        
+        print("\n=== Check Table Dependency ===")
+        print(check_table_dependency_sql)
+        
+        self.assertIn('information_schema.tables', check_table_dependency_sql)
+        self.assertIn('dependency_name', check_table_dependency_sql)
+        
+        check_view_dependency_sql = template_engine.render('mysql_check_view_dependency_exists')
+        
+        self.assertIsInstance(check_view_dependency_sql, str)
+        self.assertTrue(len(check_view_dependency_sql) > 0)
+        
+        print("\n=== Check View Dependency ===")
+        print(check_view_dependency_sql)
+        
+        self.assertIn('information_schema.views', check_view_dependency_sql)
+        self.assertIn('dependency_name', check_view_dependency_sql)
+    
     def test_database_operations(self):
         """Test database creation and deletion templates."""
         # Test CREATE DATABASE

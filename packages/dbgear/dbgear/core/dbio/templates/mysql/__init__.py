@@ -108,6 +108,41 @@ CHECK_DATABASE_EXISTS_TEMPLATE = """
 SHOW DATABASES LIKE :database_name
 """
 
+# CHECK VIEW EXISTS template
+CHECK_VIEW_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.views
+WHERE table_schema = :env AND table_name = :view_name
+"""
+
+# DROP VIEW template
+DROP_VIEW_TEMPLATE = """
+DROP VIEW IF EXISTS {{ env }}.{{ view_name }}
+"""
+
+# CREATE OR REPLACE VIEW template
+CREATE_OR_REPLACE_VIEW_TEMPLATE = """
+CREATE OR REPLACE VIEW {{ env }}.{{ view_name }} AS
+{{ view_select_statement }}
+"""
+
+# GET VIEW DEFINITION template
+GET_VIEW_DEFINITION_TEMPLATE = """
+SELECT VIEW_DEFINITION FROM information_schema.views
+WHERE table_schema = :env AND table_name = :view_name
+"""
+
+# CHECK DEPENDENCY EXISTS template (for tables and views)
+CHECK_DEPENDENCY_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.tables
+WHERE table_schema = :env AND table_name = :dependency_name
+"""
+
+# CHECK VIEW DEPENDENCY EXISTS template
+CHECK_VIEW_DEPENDENCY_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.views
+WHERE table_schema = :env AND table_name = :dependency_name
+"""
+
 # Register templates
 template_engine.add_template('mysql_create_table', CREATE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_create_index', CREATE_INDEX_TEMPLATE)
@@ -121,3 +156,9 @@ template_engine.add_template('mysql_backup_table', BACKUP_TABLE_TEMPLATE)
 template_engine.add_template('mysql_restore_table', RESTORE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_check_backup_exists', CHECK_BACKUP_EXISTS_TEMPLATE)
 template_engine.add_template('mysql_check_database_exists', CHECK_DATABASE_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_check_view_exists', CHECK_VIEW_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_drop_view', DROP_VIEW_TEMPLATE)
+template_engine.add_template('mysql_create_or_replace_view', CREATE_OR_REPLACE_VIEW_TEMPLATE)
+template_engine.add_template('mysql_get_view_definition', GET_VIEW_DEFINITION_TEMPLATE)
+template_engine.add_template('mysql_check_dependency_exists', CHECK_DEPENDENCY_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_check_view_dependency_exists', CHECK_VIEW_DEPENDENCY_EXISTS_TEMPLATE)
