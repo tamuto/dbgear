@@ -68,9 +68,97 @@ DROP_DATABASE_TEMPLATE = """
 DROP DATABASE {{ database_name }}
 """
 
+# CHECK TABLE EXISTS template
+CHECK_TABLE_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.tables
+WHERE table_schema = :env AND table_name = :table_name
+"""
+
+# DROP TABLE template
+DROP_TABLE_TEMPLATE = """
+DROP TABLE {{ env }}.{{ table_name }}
+"""
+
+# INSERT INTO template
+INSERT_INTO_TEMPLATE = """
+INSERT INTO {{ env }}.{{ table_name }} ({{ column_names | join_columns }})
+VALUES ({{ value_placeholders | join(', ') }})
+"""
+
+# BACKUP TABLE template (CREATE TABLE AS SELECT)
+BACKUP_TABLE_TEMPLATE = """
+CREATE TABLE {{ env }}.bak_{{ table_name }}_{{ ymd }} AS 
+SELECT * FROM {{ env }}.{{ table_name }}
+"""
+
+# RESTORE TABLE template (INSERT IGNORE SELECT)
+RESTORE_TABLE_TEMPLATE = """
+INSERT IGNORE INTO {{ env }}.{{ table_name }} 
+SELECT * FROM {{ env }}.bak_{{ table_name }}_{{ ymd }}
+"""
+
+# CHECK BACKUP EXISTS template
+CHECK_BACKUP_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.tables
+WHERE table_schema = :env AND table_name = :backup_table_name
+"""
+
+# CHECK DATABASE EXISTS template
+CHECK_DATABASE_EXISTS_TEMPLATE = """
+SHOW DATABASES LIKE :database_name
+"""
+
+# CHECK VIEW EXISTS template
+CHECK_VIEW_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.views
+WHERE table_schema = :env AND table_name = :view_name
+"""
+
+# DROP VIEW template
+DROP_VIEW_TEMPLATE = """
+DROP VIEW IF EXISTS {{ env }}.{{ view_name }}
+"""
+
+# CREATE OR REPLACE VIEW template
+CREATE_OR_REPLACE_VIEW_TEMPLATE = """
+CREATE OR REPLACE VIEW {{ env }}.{{ view_name }} AS
+{{ view_select_statement }}
+"""
+
+# GET VIEW DEFINITION template
+GET_VIEW_DEFINITION_TEMPLATE = """
+SELECT VIEW_DEFINITION FROM information_schema.views
+WHERE table_schema = :env AND table_name = :view_name
+"""
+
+# CHECK DEPENDENCY EXISTS template (for tables and views)
+CHECK_DEPENDENCY_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.tables
+WHERE table_schema = :env AND table_name = :dependency_name
+"""
+
+# CHECK VIEW DEPENDENCY EXISTS template
+CHECK_VIEW_DEPENDENCY_EXISTS_TEMPLATE = """
+SELECT TABLE_NAME FROM information_schema.views
+WHERE table_schema = :env AND table_name = :dependency_name
+"""
+
 # Register templates
 template_engine.add_template('mysql_create_table', CREATE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_create_index', CREATE_INDEX_TEMPLATE)
 template_engine.add_template('mysql_create_view', CREATE_VIEW_TEMPLATE)
 template_engine.add_template('mysql_create_database', CREATE_DATABASE_TEMPLATE)
 template_engine.add_template('mysql_drop_database', DROP_DATABASE_TEMPLATE)
+template_engine.add_template('mysql_check_table_exists', CHECK_TABLE_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_drop_table', DROP_TABLE_TEMPLATE)
+template_engine.add_template('mysql_insert_into', INSERT_INTO_TEMPLATE)
+template_engine.add_template('mysql_backup_table', BACKUP_TABLE_TEMPLATE)
+template_engine.add_template('mysql_restore_table', RESTORE_TABLE_TEMPLATE)
+template_engine.add_template('mysql_check_backup_exists', CHECK_BACKUP_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_check_database_exists', CHECK_DATABASE_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_check_view_exists', CHECK_VIEW_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_drop_view', DROP_VIEW_TEMPLATE)
+template_engine.add_template('mysql_create_or_replace_view', CREATE_OR_REPLACE_VIEW_TEMPLATE)
+template_engine.add_template('mysql_get_view_definition', GET_VIEW_DEFINITION_TEMPLATE)
+template_engine.add_template('mysql_check_dependency_exists', CHECK_DEPENDENCY_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_check_view_dependency_exists', CHECK_VIEW_DEPENDENCY_EXISTS_TEMPLATE)

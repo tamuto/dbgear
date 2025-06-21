@@ -3,7 +3,8 @@ from .templates.mysql import template_engine
 
 
 def is_exist(conn, database):
-    result = engine.select_one(conn, 'SHOW DATABASES LIKE :database', {'database': database})
+    sql = template_engine.render('mysql_check_database_exists')
+    result = engine.select_one(conn, sql, {'database_name': database})
     return result is not None
 
 

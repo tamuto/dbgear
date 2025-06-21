@@ -6,18 +6,13 @@ from ..models.schema import Column
 
 
 def is_exist(conn, env: str, table: Table):
-    result = engine.select_one(
-        conn,
-        '''
-        SELECT TABLE_NAME FROM information_schema.tables
-        WHERE table_schema = :env and table_name = :table
-        ''',
-        {'env': env, 'table': table.table_name})
+    sql = template_engine.render('mysql_check_table_exists')
+    result = engine.select_one(conn, sql, {'env': env, 'table_name': table.table_name})
     return result is not None
 
 
 def drop(conn, env: str, table: Table):
-    sql = f'DROP TABLE {env}.{table.table_name}'
+    sql = template_engine.render('mysql_drop_table', env=env, table_name=table.table_name)
     engine.execute(conn, sql)
 
 
@@ -53,31 +48,43 @@ def insert(conn, env: str, table: Table, items: list[dict]):
     # Filter out generated columns (expression fields) from INSERT
     insertable_columns = [c for c in table.columns if c.expression is None]
 
-    sql = f'INSERT INTO {env}.{table.table_name} ('
-    sql += ', '.join([f'`{c.column_name}`' for c in insertable_columns])
-    sql += ') VALUES ('
-    sql += ', '.join([_col_value(items[0], c) for c in insertable_columns])
-    sql += ')'
+    # Prepare column names and value placeholders
+    column_names = [c.column_name for c in insertable_columns]
+    value_placeholders = [_col_value(items[0], c) for c in insertable_columns]
+
+    sql = template_engine.render(
+        'mysql_insert_into',
+        env=env,
+        table_name=table.table_name,
+        column_names=column_names,
+        value_placeholders=value_placeholders
+    )
     engine.execute(conn, sql, items)
     conn.commit()
 
 
 def backup(conn, env: str, table: Table, ymd: str):
-    sql = f'CREATE TABLE {env}.bak_{table.table_name}_{ymd} AS SELECT * FROM {env}.{table.table_name}'
+    sql = template_engine.render(
+        'mysql_backup_table',
+        env=env,
+        table_name=table.table_name,
+        ymd=ymd
+    )
     engine.execute(conn, sql)
 
 
 def restore(conn, env: str, table: Table, ymd: str):
-    sql = f'INSERT IGNORE INTO {env}.{table.table_name} SELECT * FROM {env}.bak_{table.table_name}_{ymd}'
+    sql = template_engine.render(
+        'mysql_restore_table',
+        env=env,
+        table_name=table.table_name,
+        ymd=ymd
+    )
     engine.execute(conn, sql)
 
 
 def is_exist_backup(conn, env: str, table: Table, ymd: str):
-    result = engine.select_one(
-        conn,
-        '''
-        SELECT TABLE_NAME FROM information_schema.tables
-        WHERE table_schema = :env and table_name = :table
-        ''',
-        {'env': env, 'table': f'bak_{table.table_name}_{ymd}'})
+    sql = template_engine.render('mysql_check_backup_exists')
+    backup_table_name = f'bak_{table.table_name}_{ymd}'
+    result = engine.select_one(conn, sql, {'env': env, 'backup_table_name': backup_table_name})
     return result is not None

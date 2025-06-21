@@ -91,6 +91,7 @@ manager.save()  # YAML保存
 - **カラム式サポート**: MySQL生成カラム（GENERATED ALWAYS AS）対応
 - **拡張カラム属性**: AUTO_INCREMENT、文字セット、照合順序指定
 - **ビュー管理**: データベースビューの定義と依存関係管理
+- **SQLテンプレートエンジン**: Jinja2ベースの統一されたSQL生成システム
 - **初期データ管理**: YAML形式でのデータ定義
 - **環境管理**: 開発・テスト・本番環境の分離
 - **データバインディング**: 自動的な値設定（UUID、現在時刻等）
@@ -216,6 +217,7 @@ schemas:
   - `project`: プロジェクト設定管理
   - `fileio`: YAML形式でのスキーマ読み書き
 - `dbgear.core.dbio`: データベースI/O操作
+  - `templates`: Jinja2ベースSQLテンプレートエンジン（18テンプレート）
 - `dbgear.core.definitions`: スキーマ定義パーサー
   - `a5sql_mk2`: A5:SQL Mk-2形式パーサー
   - `mysql`: MySQL直接接続パーサー
