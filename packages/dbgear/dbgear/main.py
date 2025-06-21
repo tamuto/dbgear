@@ -1,9 +1,8 @@
 import logging
 from argparse import ArgumentParser
 
-from .models.project import Project
-from . import backend
-from . import operations
+from .core.models.fileio import save_model
+from .core.importer import import_schema
 
 
 def execute():
@@ -17,7 +16,21 @@ def execute():
         help='please specify the folder for the project.')
 
     sub = parser.add_subparsers(dest='command', help='sub-command help')
-    sub.add_parser('serve', help='serve help')
+
+    # Import command
+    import_parser = sub.add_parser('import', help='import schema from external formats')
+    import_parser.add_argument(
+        'format',
+        help='source format (e.g., a5sql_mk2)')
+    import_parser.add_argument(
+        'source_file',
+        help='source file path')
+    import_parser.add_argument(
+        '--output',
+        help='output YAML file path (default: schema.yaml)')
+    import_parser.add_argument(
+        '--mapping',
+        help='schema mapping in format "KEY:VALUE,KEY2:VALUE2" (default: MAIN:main)')
 
     apply_parser = sub.add_parser('apply', help='apply help')
     apply_parser.add_argument(
@@ -44,13 +57,43 @@ def execute():
         parser.print_help()
         return
 
-    project = Project(args.project)
-    project.read_definitions()
+    if args.command == 'import':
+        # Parse mapping parameter
+        mapping = {'MAIN': 'main'}  # default
+        if args.mapping:
+            mapping = {}
+            for pair in args.mapping.split(','):
+                key, value = pair.split(':')
+                mapping[key.strip()] = value.strip()
 
-    if args.command == 'serve':
-        backend.run(project)
-    if args.command == 'apply':
-        if not args.all and args.target is None:
-            logging.error('please specify --target or --all')
+        # Determine source file directory and filename
+        from pathlib import Path
+        source_path = Path(args.source_file)
+        folder = str(source_path.parent)
+        filename = source_path.name
+
+        # Import schema
+        try:
+            logging.info(f'Importing schema from {args.source_file} using {args.format} format...')
+            schema_manager = import_schema(args.format, folder, filename, mapping)
+
+            # Save to YAML file
+            output_path = args.output or 'schema.yaml'
+            save_model(output_path, schema_manager)
+            logging.info(f'Schema successfully imported and saved to {output_path}')
+
+        except Exception as e:
+            logging.error(f'Import failed: {e}')
             return
-        operations.apply(project, args.env, args.target, args.all, args.deploy)
+    else:
+        # For other commands, load project and required modules
+        from .core.models.project import Project
+        from .core import operations
+
+        project = Project(args.project)
+
+        if args.command == 'apply':
+            if not args.all and args.target is None:
+                logging.error('please specify --target or --all')
+                return
+            operations.apply(project, args.env, args.target, args.all, args.deploy)

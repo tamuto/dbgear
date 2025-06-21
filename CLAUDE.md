@@ -23,7 +23,8 @@ packages/
 │   │   ├── core/             # Core functionality
 │   │   │   ├── models/       # Data models and project management
 │   │   │   ├── dbio/         # Database I/O operations
-│   │   │   ├── definitions/  # Schema definition parsers
+│   │   │   ├── importer.py   # Generic schema importer
+│   │   │   ├── importers/    # Schema importer modules
 │   │   │   └── operations.py # Database operation orchestration
 │   │   ├── cli/              # CLI-specific functionality
 │   │   │   └── main.py       # CLI entry point
@@ -83,7 +84,7 @@ packages/
 - **File I/O**: `packages/dbgear/dbgear/core/models/fileio.py` - YAML-based schema persistence and loading
 - **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
 - **SQL Template Engine**: `packages/dbgear/dbgear/core/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
-- **Definition Parsers**: `packages/dbgear/dbgear/core/definitions/` - Support for a5sql_mk2, mysql, selectable, and dbgear_schema formats
+- **Schema Importers**: `packages/dbgear/dbgear/core/importer.py` & `packages/dbgear/dbgear/core/importers/` - Dynamic schema import system with A5:SQL Mk-2 support
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
   - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_columns.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
   - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
@@ -92,7 +93,7 @@ packages/
 ### Data Flow
 
 1. Project definitions loaded from `project.yaml` (see `etc/test/project.yaml` for example)
-2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable)
+2. Schema definitions imported via dynamic importer system (`dbgear import` command or programmatic API)
 3. Data stored in YAML format for version control
 4. Frontend communicates with backend via REST API (all endpoints prefixed with `/api`)
 5. Database operations apply data through SQLAlchemy with Jinja2-based SQL template engine
@@ -106,6 +107,9 @@ cd packages/dbgear
 
 # Install dependencies
 poetry install
+
+# Import A5:SQL Mk-2 schema
+poetry run python -m dbgear.main import a5sql_mk2 ../../etc/test/dbgear.a5er --output schema.yaml
 
 # Run CLI tools
 poetry run python -m dbgear.main apply localhost development --all drop
@@ -175,6 +179,11 @@ pnpm run build
 #### CLI Usage
 ```bash
 pip install dbgear
+
+# Import A5:SQL Mk-2 schema
+dbgear import a5sql_mk2 schema.a5er --output schema.yaml
+
+# Apply database changes
 dbgear apply localhost development --all drop
 ```
 
@@ -452,6 +461,82 @@ All dbio modules have been migrated from direct SQL generation to template-based
 - ✅ `view.py`: Complete template migration (6 functions)
 
 This provides a solid foundation for future database engine support while maintaining current MySQL functionality.
+
+### Schema Import System Architecture
+
+DBGear implements a dynamic schema import system using importlib for extensible format support:
+
+#### Architecture Overview
+```
+packages/dbgear/dbgear/core/
+├── importer.py                  # Generic importer with dynamic loading
+└── importers/                   # Importer modules directory
+    ├── __init__.py              # Interface documentation
+    └── a5sql_mk2.py             # A5:SQL Mk-2 format importer
+```
+
+#### Core Design Principles
+- **Dynamic Loading**: Uses importlib to load importer modules at runtime
+- **Unified Interface**: All importers implement the same `retrieve(folder, filename, mapping, **kwargs)` function
+- **Extensible**: New formats can be added by creating new modules in `importers/`
+- **CLI Integration**: Available via `dbgear import` command
+- **Error Handling**: Comprehensive error handling with clear user feedback
+
+#### Import Function Interface
+```python
+def retrieve(folder: str, filename: str, mapping: dict, **kwargs) -> SchemaManager:
+    '''
+    Import schema from the specified file and return a SchemaManager object.
+    
+    Args:
+        folder: Directory path containing the file
+        filename: Name of the file to import  
+        mapping: Schema mapping dictionary (e.g., {'MAIN': 'main'})
+        **kwargs: Additional options
+        
+    Returns:
+        SchemaManager: The imported schema manager object
+    '''
+```
+
+#### A5:SQL Mk-2 Importer Features
+- **Column Type Conversion**: Automatic conversion to `ColumnType` objects using `parse_column_type()`
+- **Foreign Key Support**: Parses A5:SQL relationship definitions into foreign key references
+- **Index Support**: Converts A5:SQL index definitions to DBGear index objects
+- **Comment Preservation**: Imports field comments as `Note` objects
+- **Error Resilience**: Graceful handling of parsing errors with fallback strategies
+
+#### CLI Usage Examples
+```bash
+# Import A5:SQL Mk-2 file
+dbgear import a5sql_mk2 schema.a5er
+
+# Custom output file
+dbgear import a5sql_mk2 schema.a5er --output production_schema.yaml
+
+# Schema mapping
+dbgear import a5sql_mk2 schema.a5er --mapping "MAIN:production,TEST:development"
+```
+
+#### Programmatic Usage
+```python
+from dbgear.core.importer import import_schema
+from dbgear.core.models.fileio import save_model
+
+# Import schema
+schema_manager = import_schema('a5sql_mk2', 'path/to', 'schema.a5er', {'MAIN': 'main'})
+
+# Save to YAML
+save_model('schema.yaml', schema_manager)
+```
+
+#### Migration from Legacy Definitions
+The import system replaces the previous `definitions/` module structure:
+- ✅ `definitions/a5sql_mk2.py` → `importers/a5sql_mk2.py` (enhanced with ColumnType support)
+- ✅ `definitions/selectable.py` → Removed (not needed for core functionality)
+- ✅ `import.py` → Removed (experimental implementation)
+
+This provides a clean, extensible foundation for supporting additional schema formats in the future while maintaining backward compatibility for A5:SQL Mk-2 workflows.
 
 ## Current Implementation State
 

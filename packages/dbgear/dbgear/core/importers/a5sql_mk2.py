@@ -1,3 +1,10 @@
+"""
+A5:SQL Mk-2 (.a5er) file importer.
+
+This module imports database schema definitions from A5:SQL Mk-2 files
+and converts them to DBGear's native schema format.
+"""
+
 import csv
 from dataclasses import dataclass
 from dataclasses import field
@@ -7,6 +14,8 @@ from ..models.schema import Schema
 from ..models.schema import Table
 from ..models.schema import Column
 from ..models.schema import Index
+from ..models.schema import Note
+from ..utils.column_type import parse_column_type
 
 
 @dataclass
@@ -127,16 +136,28 @@ def convert_to_schema(p):
             schemas.get_schema(key).add_table(tbl)
             relation = p.relations[entity.table_name] if entity.table_name in p.relations else {}
             for row in csv.reader(entity.fields):
-                # FIXME 恐らくdefault_valueの空文字初期化はうまく設定できない。
+                # Convert column type string to ColumnType object
+                try:
+                    column_type_obj = parse_column_type(row[2])
+                except (ValueError, IndexError) as e:
+                    # Fallback to simple string if parsing fails
+                    from ..models.schema import ColumnType
+                    column_type_obj = ColumnType(column_type=row[2], base_type=row[2])
+
+                # Create notes list if comment exists
+                notes = []
+                if len(row) > 6 and row[6]:
+                    notes.append(Note(title="Import Comment", content=row[6]))
+
                 column = Column(
                     display_name=row[0],
                     column_name=row[1],
-                    column_type=row[2],
+                    column_type=column_type_obj,
                     nullable=row[3] != 'NOT NULL',
                     primary_key=int(row[4]) if row[4] != '' else None,
                     default_value=row[5] if row[5] != '' else None,
                     foreign_key=relation[row[1]].entity1 if row[1] in relation else None,
-                    comment=row[6] if row[6] != '' else None
+                    notes=notes
                 )
                 tbl.add_column(column)
 
@@ -151,6 +172,18 @@ def convert_to_schema(p):
 
 
 def retrieve(folder, filename, mapping, **kwargs):
+    """
+    Import schema from A5:SQL Mk-2 (.a5er) file.
+    
+    Args:
+        folder: Directory path containing the file
+        filename: Name of the .a5er file to import
+        mapping: Schema mapping dictionary (e.g., {'MAIN': 'main'})
+        **kwargs: Additional options (unused)
+        
+    Returns:
+        SchemaManager: The imported schema manager object
+    """
     p = Parser(mapping)
     with open(f'{folder}/{filename}', 'r', encoding='utf-8-sig') as f:
         for idx, line in enumerate(f):

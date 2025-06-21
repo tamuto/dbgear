@@ -1,0 +1,691 @@
+notes: []
+schemas:
+  main:
+    notes: []
+    tables:
+      properties:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: key
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(32)
+            items: null
+            json_schema: null
+            length: 32
+            precision: null
+            scale: null
+          default_value: null
+          display_name: キー
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: value
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 値
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_date
+          column_type:
+            base_type: DATETIME
+            column_type: DATETIME
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新日時
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_user
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新者
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: プロパティ
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      row_table:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: row_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: ID
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: row_name
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 名前
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: 行テーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      tbl_child:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: child_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 子ID
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: IDカラム
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: name
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(100)
+            items: null
+            json_schema: null
+            length: 100
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 名前
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_date
+          column_type:
+            base_type: DATETIME
+            column_type: DATETIME
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新日時
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_user
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新者
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: 子テーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      tbl_cmp_child:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: cmp_child_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 複合キー子ID
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: IDカラム
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: seq
+          column_type:
+            base_type: INT
+            column_type: INT
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: シーケンス
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: name
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 名前
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: 複合子テーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      tbl_cmp_table:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: IDカラム
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: seq
+          column_type:
+            base_type: INT
+            column_type: INT
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: シーケンス
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 1
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: name
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 名前
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: 複合キーテーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      tbl_matrix:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: row_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: ID
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: child_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 子ID
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 1
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: value
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(20)
+            items: null
+            json_schema: null
+            length: 20
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 値
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_date
+          column_type:
+            base_type: DATETIME
+            column_type: DATETIME
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新日時
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_user
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新者
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: マトリックステーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      tbl_null_test:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: test_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: test_id
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col1
+          column_type:
+            base_type: CHAR
+            column_type: CHAR(5)
+            items: null
+            json_schema: null
+            length: 5
+            precision: null
+            scale: null
+          default_value: null
+          display_name: col1
+          expression: null
+          notes: []
+          nullable: true
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col2
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(10)
+            items: null
+            json_schema: null
+            length: 10
+            precision: null
+            scale: null
+          default_value: null
+          display_name: col2
+          expression: null
+          notes: []
+          nullable: true
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col3
+          column_type:
+            base_type: DATETIME
+            column_type: DATETIME
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: col3
+          expression: null
+          notes: []
+          nullable: true
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col4
+          column_type:
+            base_type: INT
+            column_type: INT
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: col4
+          expression: null
+          notes: []
+          nullable: true
+          primary_key: null
+          stored: false
+        display_name: tbl_null_test
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+      test_table:
+        columns:
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: col_id
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(36)
+            items: null
+            json_schema: null
+            length: 36
+            precision: null
+            scale: null
+          default_value: null
+          display_name: IDカラム
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: 0
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: name
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(100)
+            items: null
+            json_schema: null
+            length: 100
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 名前
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: num
+          column_type:
+            base_type: INT
+            column_type: INT
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 数字
+          expression: null
+          notes: []
+          nullable: true
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_date
+          column_type:
+            base_type: DATETIME
+            column_type: DATETIME
+            items: null
+            json_schema: null
+            length: null
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新日時
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        - auto_increment: false
+          charset: null
+          collation: null
+          column_name: update_user
+          column_type:
+            base_type: VARCHAR
+            column_type: VARCHAR(64)
+            items: null
+            json_schema: null
+            length: 64
+            precision: null
+            scale: null
+          default_value: null
+          display_name: 更新者
+          expression: null
+          notes: []
+          nullable: false
+          primary_key: null
+          stored: false
+        display_name: テストテーブル
+        indexes: []
+        mysql_options: null
+        notes: []
+        relations: []
+    views: {}
+types:
+  types: {}
