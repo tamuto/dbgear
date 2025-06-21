@@ -70,7 +70,6 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(id_field.column_type, 'int(11)')
         self.assertFalse(id_field.nullable)
         self.assertEqual(id_field.primary_key, 1)
-        self.assertEqual(id_field.comment, 'Primary key')
 
         # Check nullable field
         name_field = columns[1]
@@ -78,7 +77,6 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(name_field.column_type, 'varchar(100)')
         self.assertTrue(name_field.nullable)
         self.assertIsNone(name_field.primary_key)
-        self.assertEqual(name_field.comment, 'User name')
 
         # Check unique field
         email_field = columns[2]
@@ -86,7 +84,6 @@ class TestMySQLDefinitions(unittest.TestCase):
         self.assertEqual(email_field.column_type, 'varchar(255)')
         self.assertFalse(email_field.nullable)
         self.assertIsNone(email_field.primary_key)
-        self.assertEqual(email_field.comment, '')
 
     @patch('dbgear.core.definitions.mysql.describe')
     def test_build_statistics_primary_and_indexes(self, mock_describe):

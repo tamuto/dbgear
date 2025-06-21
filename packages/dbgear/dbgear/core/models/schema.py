@@ -26,7 +26,6 @@ class Column(BaseSchema):
     nullable: bool
     primary_key: int | None = None
     default_value: str | None = None
-    comment: str | None = None
 
     # Column expression support
     expression: str | None = None  # Generated column expression
@@ -45,12 +44,31 @@ class Index(BaseSchema):
     notes: list[Note] = []  # List of notes/comments for the index
 
 
+class EntityInfo(BaseSchema):
+    schema: str
+    table_name: str
+
+
+class BindColumn(BaseSchema):
+    source_column: str
+    target_column: str
+
+
+class Relation(BaseSchema):
+    """Represents a relationship between two tables"""
+    target: EntityInfo
+    bind_columns: list[BindColumn]  # List of columns that bind the source and target
+    cardinarity_source: str = '1'  # '1', '0..1', '0..*', '1..*'
+    cardinarity_target: str = '1'  # '1', '0..1', '0..*', '1..*'
+
+
 class Table(BaseSchema):
     instance: str = pydantic.Field(exclude=True)
     table_name: str = pydantic.Field(exclude=True)
     display_name: str
     columns: list[Column] = []
     indexes: list[Index] = []
+    relations: list[Relation] = []  # List of relations to other tables
     notes: list[Note] = []  # List of notes/comments for the table
 
     def add_column(self, column: Column) -> None:
@@ -105,16 +123,15 @@ class ViewColumn(BaseSchema):
     source_table: str | None = None  # 参照元テーブル
     source_column: str | None = None  # 参照元カラム
     is_computed: bool = False  # 計算列かどうか
-    comment: str | None = None
 
 
 class View(BaseSchema):
     """Database view definition"""
-    instance: str
-    view_name: str
+    instance: str = pydantic.Field(exclude=True)
+    view_name: str = pydantic.Field(exclude=True)
     display_name: str
     select_statement: str
-    comment: str | None = None
+    notes: list[Note] = []  # List of notes/comments for the view
 
     # 以下は将来のSQL解析で自動生成される予定
     _parsed_columns: list[ViewColumn] = []  # SQL解析結果をキャッシュ
@@ -142,31 +159,12 @@ class View(BaseSchema):
         pass
 
 
-class EntityInfo(BaseSchema):
-    schema: str
-    table_name: str
-
-
-class BindColumn(BaseSchema):
-    source_column: str
-    target_column: str
-
-
-class Relation(BaseSchema):
-    """Represents a relationship between two tables"""
-    source: EntityInfo
-    target: EntityInfo
-    bind_columns: list[BindColumn]  # List of columns that bind the source and target
-    cardinarity_source: str = '1'  # '1', '0..1', '0..*', '1..*'
-    cardinarity_target: str = '1'  # '1', '0..1', '0..*', '1..*'
-
-
 class Schema(BaseSchema):
     """Database schema containing tables and views"""
     name: str = pydantic.Field(exclude=True)
     tables: dict[str, Table] = {}
     views: dict[str, View] = {}
-    relations: list[Relation] = []
+    notes: list[Note] = []  # List of notes/comments for the schema
 
     def __repr__(self) -> str:
         return f'Tables: {self.tables}, Views: {self.views}'
@@ -233,6 +231,7 @@ class SchemaManager(BaseSchema):
     """Manages multiple schemas in a database project"""
     schemas: dict[str, Schema] = {}
     types: ColumnTypeRegistry = ColumnTypeRegistry()
+    notes: list[Note] = []  # List of notes/comments for the schema manager
 
     def add_schema(self, schema: Schema) -> None:
         if schema.name in self.schemas:

@@ -19,7 +19,6 @@ def build_columns(conn, schema, table, primary_key):
             primary_key=None if c.COLUMN_NAME not in primary_key else primary_key[c.COLUMN_NAME],
             default_value=c.COLUMN_DEFAULT,
             foreign_key=None,
-            comment=c.COLUMN_COMMENT,
         ))
     return columns
 
