@@ -1,16 +1,16 @@
 from ..models.schema import Schema
 from ..models.schema import Table
-from ..models.schema import Field
+from ..models.schema import Column
 
 
 def retrieve(folder, prefix, items, **kwargs):
-    schema = Schema(prefix)
+    schema = Schema(name=prefix)
 
     for key, val in items.items():
         table = Table(instance=prefix, table_name=key, display_name=val)
         schema.add_table(table)
 
-        table.fields.append(Field(
+        table.add_column(Column(
             column_name='value',
             display_name='Value',
             column_type='varchar',
@@ -20,7 +20,7 @@ def retrieve(folder, prefix, items, **kwargs):
             foreign_key=None,
             comment=None
         ))
-        table.fields.append(Field(
+        table.add_column(Column(
             column_name='caption',
             display_name='Caption',
             column_type='varchar',

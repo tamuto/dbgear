@@ -1,4 +1,5 @@
 from . import engine
+from .templates.mysql import template_engine
 
 
 def is_exist(conn, database):
@@ -7,12 +8,16 @@ def is_exist(conn, database):
 
 
 def create(conn, database, charset='utf8mb4', collation='utf8mb4_unicode_ci'):
-    sql = f'CREATE DATABASE {database} DEFAULT CHARACTER SET {charset} COLLATE {collation}'
+    sql = template_engine.render(
+        'mysql_create_database',
+        database_name=database,
+        charset=charset,
+        collation=collation)
     engine.execute(conn, sql)
 
 
 def drop(conn, database):
-    sql = f'DROP DATABASE {database}'
+    sql = template_engine.render('mysql_drop_database', database_name=database)
     engine.execute(conn, sql)
 
 

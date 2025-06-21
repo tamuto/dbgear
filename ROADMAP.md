@@ -545,4 +545,159 @@ class AdvancedOperation(Operation):
 
 ---
 
+## 🔧 dbio拡張対応（緊急・高優先度）
+
+**目的**: 拡張されたschema機能に対応するためのdbio module修正
+
+### 必要な対応（優先度順）
+
+#### 🚨 緊急対応（システム動作に必須）
+1. **Field→Column移行対応**
+   - `packages/dbgear/dbgear/core/dbio/table.py:4` - `Field`を`Column`にimport修正
+   - `table.fields` → `table.columns` の属性名変更
+   - 全ての`Field`型参照を`Column`型に変更
+
+2. **ColumnType対応**
+   - 現在：文字列の`column_type`を想定
+   - 新規：`ColumnType`オブジェクトから`column_type`文字列を抽出する処理追加
+
+#### 🔧 高優先度対応（主要機能拡張）
+3. **MySQL表オプション対応**
+   - `MySQLTableOptions`の`CREATE TABLE`文への反映
+   - エンジン、文字セット、照合順序、パーティション対応
+
+4. **外部キー制約対応**
+   - `Relation`モデルから物理FK制約の生成
+   - `constraint_name`, `on_delete`, `on_update`オプション対応
+   - FK制約の作成・削除機能
+
+5. **高度なインデックス対応**
+   - インデックスタイプ（BTREE, HASH, FULLTEXT等）
+   - UNIQUE制約
+   - 複合インデックスの詳細設定
+
+### SQL テンプレートエンジン化の提案
+
+**目的**: SQLの生成を保守しやすいテンプレート形式で管理
+
+#### アーキテクチャ案
+
+```python
+# dbgear/core/dbio/templates/ モジュール
+dbgear/
+  core/
+    dbio/
+      templates/
+        __init__.py
+        engine.py              # テンプレートエンジン基盤
+        mysql/
+          __init__.py
+          table_ddl.py         # CREATE TABLE テンプレート
+          index_ddl.py         # CREATE INDEX テンプレート
+          constraint_ddl.py    # 制約関連テンプレート
+          view_ddl.py          # CREATE VIEW テンプレート
+        postgresql/           # 将来の拡張用
+          __init__.py
+        sqlite/              # 将来の拡張用
+          __init__.py
+```
+
+#### テンプレートエンジン選択肢
+
+1. **Jinja2**（推奨）
+   ```python
+   # CREATE TABLE テンプレート例
+   CREATE TABLE {{ table.table_name }} (
+   {%- for column in table.columns %}
+     {{ column.column_name }} {{ column.column_type.column_type }}
+     {%- if column.column_type.length %} ({{ column.column_type.length }}){% endif %}
+     {%- if not column.nullable %} NOT NULL{% endif %}
+     {%- if column.auto_increment %} AUTO_INCREMENT{% endif %}
+     {%- if column.default_value %} DEFAULT {{ column.default_value }}{% endif %}
+     {%- if column.expression %} AS ({{ column.expression }}) {% if column.stored %}STORED{% else %}VIRTUAL{% endif %}{% endif %}
+     {%- if column.charset %} CHARACTER SET {{ column.charset }}{% endif %}
+     {%- if column.collation %} COLLATE {{ column.collation }}{% endif %}
+     {%- if not loop.last %},{% endif %}
+   {%- endfor %}
+   {%- if table.get_primary_key_columns() %}
+     , PRIMARY KEY ({{ table.get_primary_key_columns() | join(', ') }})
+   {%- endif %}
+   {%- for relation in table.relations %}
+     {%- if relation.constraint_name %}
+     , CONSTRAINT {{ relation.constraint_name }} 
+       FOREIGN KEY ({{ relation.bind_columns | map(attribute='source_column') | join(', ') }})
+       REFERENCES {{ relation.target.table_name }} ({{ relation.bind_columns | map(attribute='target_column') | join(', ') }})
+       {%- if relation.on_delete != 'RESTRICT' %} ON DELETE {{ relation.on_delete }}{% endif %}
+       {%- if relation.on_update != 'RESTRICT' %} ON UPDATE {{ relation.on_update }}{% endif %}
+     {%- endif %}
+   {%- endfor %}
+   )
+   {%- if table.mysql_options %}
+   {%- if table.mysql_options.engine %} ENGINE={{ table.mysql_options.engine }}{% endif %}
+   {%- if table.mysql_options.charset %} DEFAULT CHARSET={{ table.mysql_options.charset }}{% endif %}
+   {%- if table.mysql_options.collation %} COLLATE={{ table.mysql_options.collation }}{% endif %}
+   {%- if table.mysql_options.auto_increment %} AUTO_INCREMENT={{ table.mysql_options.auto_increment }}{% endif %}
+   {%- endif %}
+   ```
+
+2. **Python string.Template**（軽量）
+   ```python
+   CREATE_TABLE_TEMPLATE = """
+   CREATE TABLE $table_name (
+       $column_definitions
+       $primary_key_constraint
+       $foreign_key_constraints
+   ) $table_options
+   """
+   ```
+
+3. **カスタムビルダー**（型安全）
+   ```python
+   class MySQLTableBuilder:
+       def __init__(self, table: Table):
+           self.table = table
+           
+       def build_create_statement(self) -> str:
+           parts = [
+               f"CREATE TABLE {self.table.table_name} (",
+               self._build_column_definitions(),
+               self._build_constraints(),
+               f") {self._build_table_options()}"
+           ]
+           return "\n".join(parts)
+   ```
+
+#### 実装ステップ（推奨：Jinja2）
+
+```bash
+# Phase 1: テンプレートエンジン基盤 (1週間)
+- Jinja2の統合
+- 基本テンプレート構造の設計
+- MySQL用テンプレートファイルの作成
+
+# Phase 2: 既存機能の移行 (1週間)
+- table.py の CREATE TABLE 生成をテンプレート化
+- index.py の CREATE INDEX 生成をテンプレート化
+- view.py の CREATE VIEW 生成をテンプレート化
+
+# Phase 3: 新機能の実装 (2週間)
+- 外部キー制約テンプレート
+- MySQL表オプションテンプレート
+- 高度なインデックステンプレート
+
+# Phase 4: テスト・検証 (1週間)
+- 生成されるSQLの検証
+- 既存テストの修正
+- 新機能のテストケース追加
+```
+
+#### 利点
+- **保守性**: SQLロジックとPythonロジックの分離
+- **可読性**: テンプレートファイルで直観的にSQL構造を把握
+- **拡張性**: 新しいDB種別やオプションの追加が容易
+- **テスト性**: テンプレートとデータを分離してテスト可能
+- **一貫性**: 全てのSQL生成が統一されたパターンに従う
+
+---
+
 *このロードマップは開発の進捗に応じて随時更新されます。*

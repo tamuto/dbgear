@@ -1,15 +1,31 @@
+import pydantic
+
 from .base import BaseSchema
 
 
-class Field(BaseSchema):
+class Note(BaseSchema):
+    """Represents a note or comment in the schema"""
+    title: str
+    content: str
+    checked: bool = False  # Whether the note has been reviewed
+
+
+class ColumnType(BaseSchema):
+    column_type: str
+    base_type: str  # Base type (e.g., INT, VARCHAR, etc.)
+    length: int | None = None  # Length for VARCHAR, CHAR, etc.
+    precision: int | None = None  # Precision for DECIMAL, NUMERIC, etc.
+    scale: int | None = None  # Scale for DECIMAL, NUMERIC, etc.
+    items: list[str] | None = None  # For ENUM or SET types
+
+
+class Column(BaseSchema):
     column_name: str
     display_name: str
-    column_type: str
+    column_type: ColumnType  # Column type is now always a ColumnType object
     nullable: bool
-    primary_key: int | None
-    default_value: str | None
-    foreign_key: str | None
-    comment: str | None
+    primary_key: int | None = None
+    default_value: str | None = None
 
     # Column expression support
     expression: str | None = None  # Generated column expression
@@ -18,44 +34,109 @@ class Field(BaseSchema):
     charset: str | None = None    # Character set for string columns
     collation: str | None = None  # Collation for string columns
 
+    notes: list[Note] = []  # List of notes/comments for the column
+
 
 class Index(BaseSchema):
     index_name: str | None
     columns: list[str]
+    index_type: str = "BTREE"  # BTREE, HASH, FULLTEXT, SPATIAL, etc.
+    unique: bool = False
+    partial_condition: str | None = None  # WHERE clause for partial indexes (PostgreSQL)
+    include_columns: list[str] | None = None  # INCLUDE columns (PostgreSQL)
+    storage_parameters: dict[str, str] | None = None  # Storage parameters
+    tablespace: str | None = None  # Tablespace name
+
+    notes: list[Note] = []  # List of notes/comments for the index
+
+
+class EntityInfo(BaseSchema):
+    schema: str
+    table_name: str
+
+
+class BindColumn(BaseSchema):
+    source_column: str
+    target_column: str
+
+
+class MySQLTableOptions(BaseSchema):
+    """MySQL-specific table options"""
+    # ストレージエンジン
+    engine: str = "InnoDB"  # InnoDB, MyISAM, MEMORY, etc.
+
+    # 文字セット・照合順序
+    charset: str | None = None  # utf8mb4, latin1, etc.
+    collation: str | None = None  # utf8mb4_unicode_ci, etc.
+
+    # AUTO_INCREMENT
+    auto_increment: int | None = None  # 開始値
+
+    # 行フォーマット
+    row_format: str | None = None  # DYNAMIC, COMPRESSED, REDUNDANT, COMPACT
+
+    # パーティション（MySQL）
+    partition_by: str | None = None  # RANGE, LIST, HASH, KEY
+    partition_expression: str | None = None
+    partition_count: int | None = None  # HASH/KEY用のパーティション数
+
+
+class Relation(BaseSchema):
+    """Represents a relationship between two tables"""
+    target: EntityInfo
+    bind_columns: list[BindColumn]  # List of columns that bind the source and target
+    cardinarity_source: str = '1'  # '1', '0..1', '0..*', '1..*'
+    cardinarity_target: str = '1'  # '1', '0..1', '0..*', '1..*'
+
+    # Physical foreign key constraint information
+    constraint_name: str | None = None  # FK constraint name
+    on_delete: str = "RESTRICT"  # CASCADE, SET NULL, SET DEFAULT, RESTRICT, NO ACTION
+    on_update: str = "RESTRICT"  # CASCADE, SET NULL, SET DEFAULT, RESTRICT, NO ACTION
+    deferrable: bool = False     # Whether the constraint is deferrable
+    initially_deferred: bool = False  # Whether the constraint is initially deferred
+    match_type: str = "SIMPLE"   # SIMPLE, FULL, PARTIAL (PostgreSQL)
+
+    # Logical relationship information
+    relationship_type: str = "association"  # association, composition, aggregation
+    description: str | None = None  # Human-readable description of the relationship
 
 
 class Table(BaseSchema):
-    instance: str
-    table_name: str
+    instance: str = pydantic.Field(exclude=True)
+    table_name: str = pydantic.Field(exclude=True)
     display_name: str
-    fields: list[Field] = []
+    columns: list[Column] = []
     indexes: list[Index] = []
-    # FIXME 参照元をデータとして持たせるか？
+    relations: list[Relation] = []  # List of relations to other tables
+    notes: list[Note] = []  # List of notes/comments for the table
 
-    def add_field(self, field: Field) -> None:
-        if self.field_exists(field.column_name):
-            raise ValueError(f"Field '{field.column_name}' already exists in table '{self.table_name}'")
-        self.fields.append(field)
+    # MySQL固有のテーブルオプション
+    mysql_options: MySQLTableOptions | None = None
 
-    def remove_field(self, field_name: str) -> None:
-        field = self.get_field(field_name)
-        self.fields.remove(field)
+    def add_column(self, column: Column) -> None:
+        if self.column_exists(column.column_name):
+            raise ValueError(f"Column '{column.column_name}' already exists in table '{self.table_name}'")
+        self.columns.append(column)
 
-    def update_field(self, field_name: str, field: Field) -> None:
-        for i, existing_field in enumerate(self.fields):
-            if existing_field.column_name == field_name:
-                self.fields[i] = field
+    def remove_column(self, column_name: str) -> None:
+        column = self.get_column(column_name)
+        self.columns.remove(column)
+
+    def update_column(self, column_name: str, column: Column) -> None:
+        for i, existing_column in enumerate(self.columns):
+            if existing_column.column_name == column_name:
+                self.columns[i] = column
                 return
-        raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
+        raise KeyError(f"Column '{column_name}' not found in table '{self.table_name}'")
 
-    def get_field(self, field_name: str) -> Field:
-        for field in self.fields:
-            if field.column_name == field_name:
-                return field
-        raise KeyError(f"Field '{field_name}' not found in table '{self.table_name}'")
+    def get_column(self, column_name: str) -> Column:
+        for column in self.columns:
+            if column.column_name == column_name:
+                return column
+        raise KeyError(f"Column '{column_name}' not found in table '{self.table_name}'")
 
-    def field_exists(self, field_name: str) -> bool:
-        return any(field.column_name == field_name for field in self.fields)
+    def column_exists(self, column_name: str) -> bool:
+        return any(column.column_name == column_name for column in self.columns)
 
     def add_index(self, index: Index) -> None:
         if index.index_name and self.get_index(index.index_name) is not None:
@@ -84,16 +165,15 @@ class ViewColumn(BaseSchema):
     source_table: str | None = None  # 参照元テーブル
     source_column: str | None = None  # 参照元カラム
     is_computed: bool = False  # 計算列かどうか
-    comment: str | None = None
 
 
 class View(BaseSchema):
     """Database view definition"""
-    instance: str
-    view_name: str
+    instance: str = pydantic.Field(exclude=True)
+    view_name: str = pydantic.Field(exclude=True)
     display_name: str
     select_statement: str
-    comment: str | None = None
+    notes: list[Note] = []  # List of notes/comments for the view
 
     # 以下は将来のSQL解析で自動生成される予定
     _parsed_columns: list[ViewColumn] = []  # SQL解析結果をキャッシュ
@@ -121,12 +201,12 @@ class View(BaseSchema):
         pass
 
 
-class Schema:
-
-    def __init__(self, name):
-        self.name = name
-        self.tables = {}
-        self.views = {}
+class Schema(BaseSchema):
+    """Database schema containing tables and views"""
+    name: str = pydantic.Field(exclude=True)
+    tables: dict[str, Table] = {}
+    views: dict[str, View] = {}
+    notes: list[Note] = []  # List of notes/comments for the schema
 
     def __repr__(self) -> str:
         return f'Tables: {self.tables}, Views: {self.views}'
@@ -176,8 +256,47 @@ class Schema:
         return self.views
 
 
-def find_field(fields: list[Field], name: str):
-    field = next(filter(lambda x: x.column_name == name, fields), None)
-    if field is None:
-        raise RuntimeError(f'Could not find field. ({name})')
-    return field
+class ColumnTypeRegistry(BaseSchema):
+    """Registry for column types"""
+    types: dict[str, ColumnType] = {}
+
+    def add_type(self, column_type: ColumnType) -> None:
+        if column_type.column_type in self.types:
+            raise ValueError(f"Column type '{column_type.column_type}' already exists")
+        self.types[column_type.column_type] = column_type
+
+    def get_type(self, column_type: str) -> ColumnType:
+        return self.types.get(column_type)
+
+
+class SchemaManager(BaseSchema):
+    """Manages multiple schemas in a database project"""
+    schemas: dict[str, Schema] = {}
+    types: ColumnTypeRegistry = ColumnTypeRegistry()
+    notes: list[Note] = []  # List of notes/comments for the schema manager
+
+    def add_schema(self, schema: Schema) -> None:
+        if schema.name in self.schemas:
+            raise ValueError(f"Schema '{schema.name}' already exists")
+        self.schemas[schema.name] = schema
+
+    def remove_schema(self, name: str) -> None:
+        if name not in self.schemas:
+            raise KeyError(f"Schema '{name}' not found")
+        del self.schemas[name]
+
+    def get_schema(self, name: str) -> Schema:
+        return self.schemas[name]
+
+    def get_schemas(self) -> dict[str, Schema]:
+        return self.schemas
+
+    def schema_exists(self, name: str) -> bool:
+        return name in self.schemas
+
+
+# def find_field(fields: list[Field], name: str):
+#     field = next(filter(lambda x: x.column_name == name, fields), None)
+#     if field is None:
+#         raise RuntimeError(f'Could not find field. ({name})')
+#     return field

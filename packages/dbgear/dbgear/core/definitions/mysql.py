@@ -1,16 +1,17 @@
 from ..dbio import engine
 from ..dbio import describe
 
+from ..models.schema import SchemaManager
 from ..models.schema import Schema
 from ..models.schema import Table
-from ..models.schema import Field
+from ..models.schema import Column
 from ..models.schema import Index
 
 
-def build_fields(conn, schema, table, primary_key):
-    fields = []
+def build_columns(conn, schema, table, primary_key):
+    columns = []
     for c in describe.columns(conn, schema, table):
-        fields.append(Field(
+        columns.append(Column(
             column_name=c.COLUMN_NAME,
             display_name=c.COLUMN_NAME,
             column_type=c.COLUMN_TYPE,
@@ -18,9 +19,8 @@ def build_fields(conn, schema, table, primary_key):
             primary_key=None if c.COLUMN_NAME not in primary_key else primary_key[c.COLUMN_NAME],
             default_value=c.COLUMN_DEFAULT,
             foreign_key=None,
-            comment=c.COLUMN_COMMENT,
         ))
-    return fields
+    return columns
 
 
 def build_statistics(conn, schema, table):
@@ -41,19 +41,19 @@ def build_statistics(conn, schema, table):
 
 
 def retrieve(folder, connect, mapping, **kwargs):
-    schemas = {}
+    schemas = SchemaManager()
     with engine.get_connection(connect) as conn:
         for instance, schema in mapping.items():
-            schemas[schema] = Schema(schema)
+            schemas.add_schema(Schema(name=schema))
 
             for t in describe.tables(conn, instance):
                 primary_key, indexes = build_statistics(conn, instance, t.TABLE_NAME)
-                fields = build_fields(conn, instance, t.TABLE_NAME, primary_key)
-                schemas[schema].add_table(Table(
+                columns = build_columns(conn, instance, t.TABLE_NAME, primary_key)
+                schemas.get_schema(schema).add_table(Table(
                     instance=instance,
                     table_name=t.TABLE_NAME,
                     display_name=t.TABLE_NAME,
-                    fields=fields,
+                    columns=columns,
                     indexes=list(indexes.values()),
                 ))
 

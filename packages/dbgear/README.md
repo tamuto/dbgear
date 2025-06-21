@@ -31,8 +31,7 @@ dbgear apply localhost development --target users
 ```python
 from dbgear.core.models.project import Project
 from dbgear.core.operations import Operation
-from dbgear.core.models.schema_manager import SchemaManager
-from dbgear.core.models.schema import Table, Field
+from dbgear.core.models.schema import SchemaManager, Table, Column
 
 # プロジェクト読み込み
 project = Project("./my-project")
@@ -49,46 +48,49 @@ schema = manager.create_schema("main")
 
 # テーブル追加（表現式対応）
 table = Table(
-    instance="main",
     table_name="users",
-    display_name="ユーザー",
-    fields=[
-        Field(
-            column_name="id",
-            display_name="ID",
-            column_type="BIGINT",
-            nullable=False,
-            primary_key=1,
-            auto_increment=True
-        ),
-        Field(
-            column_name="name",
-            display_name="名前",
-            column_type="VARCHAR(100)",
-            nullable=False,
-            charset="utf8mb4",
-            collation="utf8mb4_unicode_ci"
-        ),
-        Field(
-            column_name="full_name",
-            display_name="フルネーム",
-            column_type="VARCHAR(201)",
-            nullable=False,
-            expression="CONCAT(first_name, ' ', last_name)",
-            stored=True
-        )
-    ]
+    display_name="ユーザー"
 )
-manager.add_table("main", table)
+
+# カラムを追加
+table.add_column(Column(
+    column_name="id",
+    display_name="ID",
+    column_type="BIGINT",
+    nullable=False,
+    primary_key=1,
+    auto_increment=True
+))
+
+table.add_column(Column(
+    column_name="name",
+    display_name="名前",
+    column_type="VARCHAR(100)",
+    nullable=False,
+    charset="utf8mb4",
+    collation="utf8mb4_unicode_ci"
+))
+
+table.add_column(Column(
+    column_name="full_name",
+    display_name="フルネーム",
+    column_type="VARCHAR(201)",
+    nullable=False,
+    expression="CONCAT(first_name, ' ', last_name)",
+    stored=True
+))
+
+schema.add_table(table)
 manager.save()  # YAML保存
 ```
 
 ## 機能
 
 - **データベーススキーマ管理**: A5:SQL Mk-2、MySQL直接接続、独自YAML形式対応
-- **スキーマ操作**: テーブル・フィールド・インデックスの追加・更新・削除
+- **スキーマ操作**: テーブル・カラム・インデックス・ビューの追加・更新・削除
 - **カラム式サポート**: MySQL生成カラム（GENERATED ALWAYS AS）対応
-- **拡張フィールド属性**: AUTO_INCREMENT、文字セット、照合順序指定
+- **拡張カラム属性**: AUTO_INCREMENT、文字セット、照合順序指定
+- **ビュー管理**: データベースビューの定義と依存関係管理
 - **初期データ管理**: YAML形式でのデータ定義
 - **環境管理**: 開発・テスト・本番環境の分離
 - **データバインディング**: 自動的な値設定（UUID、現在時刻等）
@@ -139,7 +141,7 @@ schemas:
     tables:
       users:
         display_name: ユーザー
-        fields:
+        columns:
           # 主キー（AUTO_INCREMENT）
           - column_name: id
             display_name: ID
@@ -210,19 +212,20 @@ schemas:
 ## ライブラリ構成
 
 - `dbgear.core.models`: データモデルとプロジェクト管理
-  - `schema_manager`: スキーマCRUD操作・表現式検証
-  - `schema`: Field/Table/Schemaクラス（表現式属性対応）
+  - `schema`: Column/Table/View/Schemaクラス（表現式属性対応）
+  - `project`: プロジェクト設定管理
+  - `fileio`: YAML形式でのスキーマ読み書き
 - `dbgear.core.dbio`: データベースI/O操作
 - `dbgear.core.definitions`: スキーマ定義パーサー
-  - `dbgear_schema`: 独自YAML形式パーサー（表現式対応）
   - `a5sql_mk2`: A5:SQL Mk-2形式パーサー
   - `mysql`: MySQL直接接続パーサー
+  - `selectable`: 選択リスト定義パーサー
 - `dbgear.core.operations`: データベース操作オーケストレーション
 - `dbgear.cli`: CLIインターフェース
 
 ## 表現式機能
 
-### サポートする拡張フィールド属性
+### サポートする拡張カラム属性
 
 - **expression**: 生成カラムの式（MySQL GENERATED ALWAYS AS）
 - **stored**: STORED（true）またはVIRTUAL（false）の指定
@@ -234,7 +237,7 @@ schemas:
 
 ```python
 # 生成カラムの定義
-calculated_field = Field(
+calculated_field = Column(
     column_name="total_price",
     column_type="DECIMAL(10,2)",
     expression="price * (1 + tax_rate)",
@@ -242,7 +245,7 @@ calculated_field = Field(
 )
 
 # AUTO_INCREMENT主キー
-id_field = Field(
+id_field = Column(
     column_name="id",
     column_type="BIGINT",
     primary_key=1,
@@ -250,7 +253,7 @@ id_field = Field(
 )
 
 # 文字セット指定
-name_field = Field(
+name_field = Column(
     column_name="name",
     column_type="VARCHAR(100)",
     charset="utf8mb4",

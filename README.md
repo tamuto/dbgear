@@ -7,8 +7,9 @@
 DBGearは3つの独立したパッケージで構成されています：
 
 - **dbgear**: コアライブラリとCLIツール
-- **dbgear-web**: Webインターフェース
-- **frontend**: Reactフロントエンドパッケージ
+- **dbgear-web**: Webインターフェース（FastAPI、APIエンドポイントは `/api` プレフィックス）
+- **frontend**: 新しいReactフロントエンドパッケージ（Shadcn/UI + TanStack Router + RSBuild）
+- **frontend.bak**: 旧フロントエンドパッケージ（Material-UI + React Router + Webpack）
 
 ## インストール
 
@@ -36,7 +37,7 @@ poetry install
 cd packages/dbgear-web
 poetry install
 
-# フロントエンドパッケージの開発
+# 新しいフロントエンドパッケージの開発
 cd packages/frontend
 pnpm install
 ```
@@ -176,7 +177,7 @@ definitions:
 
 ### DBGear ネイティブ形式
 
-DBGearのネイティブYAML形式では、テーブルとビューの両方を定義できます。
+DBGearのネイティブYAML形式では、テーブル、ビュー、インデックス、リレーションを定義できます。
 
 ```yaml
 schemas:
@@ -184,24 +185,55 @@ schemas:
     tables:
       users:
         display_name: ユーザー
-        fields:
+        columns:
           - column_name: id
             display_name: ID
-            column_type: BIGINT
+            column_type:
+              column_type: BIGINT
+              base_type: BIGINT
             nullable: false
             primary_key: 1
             auto_increment: true
           - column_name: name
             display_name: 名前
-            column_type: VARCHAR(100)
+            column_type:
+              column_type: VARCHAR(100)
+              base_type: VARCHAR
+              length: 100
             nullable: false
           - column_name: email
             display_name: メールアドレス
-            column_type: VARCHAR(255)
+            column_type:
+              column_type: VARCHAR(255)
+              base_type: VARCHAR
+              length: 255
             nullable: true
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
         indexes:
           - index_name: idx_email
             columns: [email]
+            unique: true
+            index_type: BTREE
+        relations:
+          - target:
+              schema: main
+              table_name: departments
+            bind_columns:
+              - source_column: department_id
+                target_column: id
+            constraint_name: fk_user_department
+            on_delete: CASCADE
+            on_update: RESTRICT
+        mysql_options:
+          engine: InnoDB
+          charset: utf8mb4
+          collation: utf8mb4_unicode_ci
+          auto_increment: 1000
+        notes:
+          - title: 設計メモ
+            content: ユーザーマスターテーブル
+            checked: false
 
     views:
       active_users:
@@ -213,14 +245,43 @@ schemas:
             email
           FROM users
           WHERE email IS NOT NULL
-        comment: メールアドレスが設定されたユーザーのみを表示
+        notes:
+          - title: 用途
+            content: メールアドレスが設定されたユーザーのみを表示
+            checked: true
 ```
 
-### ビュー定義の特徴
+### スキーマ定義の特徴
 
+#### カラム定義
+- **型安全性**: ColumnTypeオブジェクトによる詳細な型定義
+- **MySQL対応**: 文字セット、照合順序、生成カラム対応
+- **拡張属性**: AUTO_INCREMENT、DEFAULT値、式ベースカラム
+
+#### インデックス定義
+- **詳細設定**: インデックスタイプ（BTREE/HASH等）、UNIQUE制約
+- **部分インデックス**: PostgreSQL部分インデックス対応（将来）
+- **包含カラム**: PostgreSQL INCLUDE対応（将来）
+
+#### リレーション定義
+- **物理制約**: FK制約名、ON DELETE/UPDATE動作
+- **論理関係**: カーディナリティ、関係タイプ（UML）
+- **複合キー**: 複数カラムによる関係定義
+
+#### MySQL固有オプション
+- **ストレージエンジン**: InnoDB、MyISAM等の指定
+- **パーティション**: RANGE、LIST、HASH、KEY対応
+- **文字セット**: テーブル単位での文字セット設定
+
+#### ビュー定義
 - **シンプルな定義**: SQL文のみを記述、カラム定義の重複を回避
 - **依存関係管理**: 参照先テーブル/ビューの存在チェック
 - **将来拡張対応**: SQL解析による自動依存関係検出の土台
+
+#### ノートシステム
+- **ドキュメント管理**: タイトル付きメモ、レビュー状態管理
+- **設計情報**: テーブル、カラム、インデックス、ビューごとの説明
+- **開発者向け**: DB物理コメントとは独立した管理情報
 
 ### bindings
 
@@ -391,8 +452,24 @@ dbgear apply production_db production --all drop
 ### フロントエンド開発
 
 ```bash
-# フロントエンドディレクトリに移動
+# 新しいフロントエンドディレクトリに移動
 cd packages/frontend
+
+# 依存関係をインストール
+pnpm install
+
+# 開発サーバー起動（ポート8080）
+pnpm run dev
+
+# 本番用ビルド（../dbgear-web/dbgear_web/static/ に出力）
+pnpm run build
+```
+
+#### 旧フロントエンド（frontend.bak）の開発
+
+```bash
+# 旧フロントエンドディレクトリに移動
+cd packages/frontend.bak
 
 # 依存関係をインストール
 pnpm install
@@ -436,8 +513,12 @@ task lint           # flake8によるコードチェック
 task clean          # ビルド成果物のクリーンアップ
 task serve          # 開発サーバー起動
 
-# フロントエンド テスト
+# 新しいフロントエンドのテスト
 cd packages/frontend
+pnpm run build       # ビルドテスト
+
+# 旧フロントエンド（frontend.bak）のテスト
+cd packages/frontend.bak
 pnpm run type-check  # TypeScript型チェック
 pnpm run lint        # ESLint
 pnpm run build       # ビルドテスト
@@ -446,11 +527,15 @@ pnpm run build       # ビルドテスト
 ## 技術仕様
 
 - **バックエンド**: Python 3.12+, FastAPI, SQLAlchemy
-- **フロントエンド**: React, TypeScript, Material-UI
+- **フロントエンド**: 
+  - **新**: React 19, TypeScript, Shadcn/UI, TanStack Router, RSBuild, Tailwind CSS
+  - **旧（frontend.bak）**: React, TypeScript, Material-UI, React Router, Webpack
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
 - **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続, DBGearネイティブ形式
-- **ビュー管理**: データベースビューの作成・削除・依存関係管理
+- **スキーマ管理**: テーブル、ビュー、インデックス、リレーション、制約の統合管理
+- **MySQL特化**: パーティション、ストレージエンジン、文字セット等の詳細設定
+- **型システム**: 厳密な型定義による設計時検証とコード生成支援
 - **パッケージ管理**: Poetry (Python), pnpm (Frontend)
 
 ## ライセンス

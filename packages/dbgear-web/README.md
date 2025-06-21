@@ -42,10 +42,10 @@ dbgear-web --project ./my-project --port 8080 --host 0.0.0.0
 ### スキーマ管理機能（新機能）
 - **スキーマ管理**: データベーススキーマの作成・削除・更新
 - **テーブル管理**: テーブル定義のCRUD操作
-- **フィールド管理**: カラム定義の作成・編集・削除
+- **カラム管理**: カラム定義の作成・編集・削除
 - **インデックス管理**: インデックスの作成・削除（自動命名対応）
 - **ビュー管理**: データベースビューの定義・編集
-- **スキーマ検証**: テーブル・フィールド・外部キー制約の検証
+- **スキーマ検証**: テーブル・カラム・外部キー制約の検証
 
 ### 対応データレイアウト
 - **Table**: 通常のテーブル形式
@@ -84,12 +84,12 @@ DBGear Webを使用するには、事前にプロジェクト設定が必要で�
 - `PUT /api/schemas/{schema_name}/tables/{table_name}` - テーブル更新
 - `DELETE /api/schemas/{schema_name}/tables/{table_name}` - テーブル削除
 
-#### フィールド管理API
-- `GET /api/schemas/{schema_name}/tables/{table_name}/fields` - フィールド一覧取得
-- `POST /api/schemas/{schema_name}/tables/{table_name}/fields` - フィールド作成
-- `GET /api/schemas/{schema_name}/tables/{table_name}/fields/{field_name}` - フィールド詳細取得
-- `PUT /api/schemas/{schema_name}/tables/{table_name}/fields/{field_name}` - フィールド更新
-- `DELETE /api/schemas/{schema_name}/tables/{table_name}/fields/{field_name}` - フィールド削除
+#### カラム管理API
+- `GET /api/schemas/{schema_name}/tables/{table_name}/columns` - カラム一覧取得
+- `POST /api/schemas/{schema_name}/tables/{table_name}/columns` - カラム作成
+- `GET /api/schemas/{schema_name}/tables/{table_name}/columns/{column_name}` - カラム詳細取得
+- `PUT /api/schemas/{schema_name}/tables/{table_name}/columns/{column_name}` - カラム更新
+- `DELETE /api/schemas/{schema_name}/tables/{table_name}/columns/{column_name}` - カラム削除
 
 #### インデックス管理API
 - `GET /api/schemas/{schema_name}/tables/{table_name}/indexes` - インデックス一覧取得
@@ -105,7 +105,7 @@ DBGear Webを使用するには、事前にプロジェクト設定が必要で�
 
 #### スキーマ検証API
 - `POST /api/schemas/validate/table` - テーブル検証
-- `POST /api/schemas/validate/field` - フィールド検証
+- `POST /api/schemas/validate/column` - カラム検証
 - `POST /api/schemas/validate/foreign-key` - 外部キー検証
 - `GET /api/schemas/{schema_name}/validate` - スキーマ全体検証
 

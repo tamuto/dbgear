@@ -178,14 +178,14 @@ def adjust_column_value(col: GridColumn, value: Any, fixed: bool = False, for_sa
 
 
 def make_one_row(
-        columns: list[GridColumn],
-        data: Any,
-        *,
-        need_id: bool = True,
-        fixed: bool = False,
-        segment: tuple = (False, None, None),
-        for_save: bool = False
-    ) -> dict[str, Any]:
+    columns: list[GridColumn],
+    data: Any,
+    *,
+    need_id: bool = True,
+    fixed: bool = False,
+    segment: tuple = (False, None, None),
+    for_save: bool = False
+) -> dict[str, Any]:
     '''
     1行分のデータを生成する。
     '''

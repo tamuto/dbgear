@@ -3,10 +3,10 @@ from dbgear.core.models.project import project
 from dbgear.core.models.schema_manager import SchemaManager
 from .dtos import Result, CreateFieldRequest, UpdateFieldRequest, convert_to_field
 
-router = APIRouter(prefix='/schemas/{schema_name}/tables/{table_name}/fields')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/schemas/{schema_name}/tables/{table_name}/fields')
 def get_fields(schema_name: str, table_name: str, request: Request) -> Result:
     """テーブル内のフィールド一覧を取得"""
     try:
@@ -28,7 +28,7 @@ def get_fields(schema_name: str, table_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('')
+@router.post('/schemas/{schema_name}/tables/{table_name}/fields')
 def create_field(schema_name: str, table_name: str, request: Request, field_request: CreateFieldRequest) -> Result:
     """新規フィールドを追加"""
     try:
@@ -53,7 +53,7 @@ def create_field(schema_name: str, table_name: str, request: Request, field_requ
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get('/{field_name}')
+@router.get('/schemas/{schema_name}/tables/{table_name}/fields/{field_name}')
 def get_field(schema_name: str, table_name: str, field_name: str, request: Request) -> Result:
     """特定フィールドの詳細を取得"""
     try:
@@ -78,7 +78,7 @@ def get_field(schema_name: str, table_name: str, field_name: str, request: Reque
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put('/{field_name}')
+@router.put('/schemas/{schema_name}/tables/{table_name}/fields/{field_name}')
 def update_field(schema_name: str, table_name: str, field_name: str, request: Request, field_request: UpdateFieldRequest) -> Result:
     """フィールドを更新"""
     try:
@@ -114,7 +114,7 @@ def update_field(schema_name: str, table_name: str, field_name: str, request: Re
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{field_name}')
+@router.delete('/schemas/{schema_name}/tables/{table_name}/fields/{field_name}')
 def delete_field(schema_name: str, table_name: str, field_name: str, request: Request) -> Result:
     """フィールドを削除"""
     try:

@@ -3,10 +3,10 @@ from dbgear.core.models.project import project
 from dbgear.core.models.schema_manager import SchemaManager
 from .dtos import Result, CreateSchemaRequest
 
-router = APIRouter(prefix='/schemas')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/schemas')
 def get_schemas(request: Request) -> Result:
     """スキーマ一覧を取得"""
     try:
@@ -15,10 +15,11 @@ def get_schemas(request: Request) -> Result:
         schemas = manager.get_schemas()
         return Result(data=list(schemas.keys()))
     except Exception as e:
+        print(f"Error retrieving schemas: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('')
+@router.post('/schemas')
 def create_schema(request: Request, schema_request: CreateSchemaRequest) -> Result:
     """新規スキーマを作成"""
     try:
@@ -38,7 +39,7 @@ def create_schema(request: Request, schema_request: CreateSchemaRequest) -> Resu
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get('/{schema_name}')
+@router.get('/schemas/{schema_name}')
 def get_schema(schema_name: str, request: Request) -> Result:
     """特定スキーマの詳細を取得"""
     try:
@@ -56,7 +57,7 @@ def get_schema(schema_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{schema_name}')
+@router.delete('/schemas/{schema_name}')
 def delete_schema(schema_name: str, request: Request) -> Result:
     """スキーマを削除"""
     try:
@@ -76,7 +77,7 @@ def delete_schema(schema_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('/reload')
+@router.post('/schemas/reload')
 def reload_schemas(request: Request) -> Result:
     """スキーマファイルを再読み込み"""
     try:
@@ -89,7 +90,7 @@ def reload_schemas(request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('/save')
+@router.post('/schemas/save')
 def save_schemas(request: Request) -> Result:
     """スキーマファイルを保存"""
     try:

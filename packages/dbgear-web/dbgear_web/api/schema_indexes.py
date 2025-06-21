@@ -3,10 +3,10 @@ from dbgear.core.models.project import project
 from dbgear.core.models.schema_manager import SchemaManager
 from .dtos import Result, CreateIndexRequest, convert_to_index
 
-router = APIRouter(prefix='/schemas/{schema_name}/tables/{table_name}/indexes')
+router = APIRouter()
 
 
-@router.get('')
+@router.get('/schemas/{schema_name}/tables/{table_name}/indexes')
 def get_indexes(schema_name: str, table_name: str, request: Request) -> Result:
     """テーブル内のインデックス一覧を取得"""
     try:
@@ -28,7 +28,7 @@ def get_indexes(schema_name: str, table_name: str, request: Request) -> Result:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('')
+@router.post('/schemas/{schema_name}/tables/{table_name}/indexes')
 def create_index(schema_name: str, table_name: str, request: Request, index_request: CreateIndexRequest) -> Result:
     """新規インデックスを作成"""
     try:
@@ -57,7 +57,7 @@ def create_index(schema_name: str, table_name: str, request: Request, index_requ
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{index_name}')
+@router.delete('/schemas/{schema_name}/tables/{table_name}/indexes/{index_name}')
 def delete_index(schema_name: str, table_name: str, index_name: str, request: Request) -> Result:
     """インデックスを削除"""
     try:

@@ -1,38 +1,39 @@
-import { createRoot } from 'react-dom/client'
-import {
-  createHashRouter,
-  RouterProvider
-} from 'react-router-dom'
-import {
-  ThemeProvider,
-  CssBaseline
-} from '@mui/material'
-import { SnackbarProvider } from 'notistack'
-import { useTranslation } from 'react-i18next'
-import { initIn4UILib } from '@infodb/uilib'
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 
-import routes from './routes'
-import theme from './theme'
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
-import './resources/i18n/configs'
+// Import the generated route tree
+import { routeTree } from "./routeTree.gen";
+import "./globals.css";
 
-const router = createHashRouter(routes)
+// Create a new router instance
+const router = createRouter({ routeTree });
 
-const App = () => {
-  const { t } = useTranslation()
-  initIn4UILib({
-    requiredLabel: t('caption.required'),
-  })
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 1000 * 60 * 5, // 5 minutes
+			retry: 1,
+		},
+	},
+});
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <SnackbarProvider>
-        <RouterProvider router={router} />
-      </SnackbarProvider>
-    </ThemeProvider>
-  )
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+	interface Register {
+		router: typeof router;
+	}
 }
 
-const root = createRoot(document.getElementById("app") as HTMLElement)
-root.render(<App />)
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+	<StrictMode>
+		<QueryClientProvider client={queryClient}>
+			<RouterProvider router={router} />
+			<Toaster />
+		</QueryClientProvider>
+	</StrictMode>,
+);

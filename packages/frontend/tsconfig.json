@@ -1,28 +1,26 @@
 {
-  "compilerOptions": {
-    "noEmit": true,
-    "baseUrl": "./src",
-    "paths": {
-      "~/api/*": ["api/*"],
-      "~/cmp/*": ["components/*"],
-      "~/img/*": ["resources/img/*"]
-    },
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
-    "module": "ESNext",
-    "jsx": "preserve",
-    "jsxImportSource": "@emotion/react",
-    "moduleResolution": "node",
-    "incremental": true,
-    "outDir": "./.ts-cache",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
-  },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"target": "ES2020",
+		"lib": ["DOM", "ES2020"],
+		"module": "ESNext",
+		"jsx": "react-jsx",
+		"strict": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "bundler",
+		"useDefineForClassFields": true,
+		"allowImportingTsExtensions": true
+	},
+	"include": ["src"],
+	"ts-node": {
+		"compilerOptions": {
+			"module": "CommonJS"
+		}
+	}
 }
