@@ -17,6 +17,7 @@ class ColumnType(BaseSchema):
     precision: int | None = None  # Precision for DECIMAL, NUMERIC, etc.
     scale: int | None = None  # Scale for DECIMAL, NUMERIC, etc.
     items: list[str] | None = None  # For ENUM or SET types
+    json_schema: dict | None = None  # JSON Schema for JSON column types
 
 
 class Column(BaseSchema):
