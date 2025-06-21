@@ -3,14 +3,29 @@ import pydantic
 from .base import BaseSchema
 
 
+class Note(BaseSchema):
+    """Represents a note or comment in the schema"""
+    title: str
+    content: str
+    checked: bool = False  # Whether the note has been reviewed
+
+
+class ColumnType(BaseSchema):
+    column_type: str
+    base_type: str  # Base type (e.g., INT, VARCHAR, etc.)
+    length: int | None = None  # Length for VARCHAR, CHAR, etc.
+    precision: int | None = None  # Precision for DECIMAL, NUMERIC, etc.
+    scale: int | None = None  # Scale for DECIMAL, NUMERIC, etc.
+    items: list[str] | None = None  # For ENUM or SET types
+
+
 class Column(BaseSchema):
     column_name: str
     display_name: str
-    column_type: str
+    column_type: ColumnType | str  # Column type can be a string or a ColumnType object
     nullable: bool
     primary_key: int | None = None
     default_value: str | None = None
-    foreign_key: str | None = None
     comment: str | None = None
 
     # Column expression support
@@ -20,10 +35,14 @@ class Column(BaseSchema):
     charset: str | None = None    # Character set for string columns
     collation: str | None = None  # Collation for string columns
 
+    notes: list[Note] = []  # List of notes/comments for the column
+
 
 class Index(BaseSchema):
     index_name: str | None
     columns: list[str]
+
+    notes: list[Note] = []  # List of notes/comments for the index
 
 
 class Table(BaseSchema):
@@ -32,7 +51,7 @@ class Table(BaseSchema):
     display_name: str
     columns: list[Column] = []
     indexes: list[Index] = []
-    # FIXME 参照元をデータとして持たせるか？
+    notes: list[Note] = []  # List of notes/comments for the table
 
     def add_column(self, column: Column) -> None:
         if self.column_exists(column.column_name):
@@ -123,11 +142,31 @@ class View(BaseSchema):
         pass
 
 
+class EntityInfo(BaseSchema):
+    schema: str
+    table_name: str
+
+
+class BindColumn(BaseSchema):
+    source_column: str
+    target_column: str
+
+
+class Relation(BaseSchema):
+    """Represents a relationship between two tables"""
+    source: EntityInfo
+    target: EntityInfo
+    bind_columns: list[BindColumn]  # List of columns that bind the source and target
+    cardinarity_source: str = '1'  # '1', '0..1', '0..*', '1..*'
+    cardinarity_target: str = '1'  # '1', '0..1', '0..*', '1..*'
+
+
 class Schema(BaseSchema):
     """Database schema containing tables and views"""
     name: str = pydantic.Field(exclude=True)
     tables: dict[str, Table] = {}
     views: dict[str, View] = {}
+    relations: list[Relation] = []
 
     def __repr__(self) -> str:
         return f'Tables: {self.tables}, Views: {self.views}'
@@ -177,9 +216,23 @@ class Schema(BaseSchema):
         return self.views
 
 
+class ColumnTypeRegistry(BaseSchema):
+    """Registry for column types"""
+    types: dict[str, ColumnType] = {}
+
+    def add_type(self, column_type: ColumnType) -> None:
+        if column_type.column_type in self.types:
+            raise ValueError(f"Column type '{column_type.column_type}' already exists")
+        self.types[column_type.column_type] = column_type
+
+    def get_type(self, column_type: str) -> ColumnType:
+        return self.types.get(column_type)
+
+
 class SchemaManager(BaseSchema):
     """Manages multiple schemas in a database project"""
     schemas: dict[str, Schema] = {}
+    types: ColumnTypeRegistry = ColumnTypeRegistry()
 
     def add_schema(self, schema: Schema) -> None:
         if schema.name in self.schemas:
