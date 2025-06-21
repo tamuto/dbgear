@@ -177,7 +177,7 @@ definitions:
 
 ### DBGear ネイティブ形式
 
-DBGearのネイティブYAML形式では、テーブルとビューの両方を定義できます。
+DBGearのネイティブYAML形式では、テーブル、ビュー、インデックスを定義できます。
 
 ```yaml
 schemas:
@@ -185,7 +185,7 @@ schemas:
     tables:
       users:
         display_name: ユーザー
-        fields:
+        columns:
           - column_name: id
             display_name: ID
             column_type: BIGINT

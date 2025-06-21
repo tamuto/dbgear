@@ -78,23 +78,24 @@ packages/
 
 - **Project Management**: `packages/dbgear/dbgear/core/models/project.py` - Core project configuration loader
 - **Data Models**: `packages/dbgear/dbgear/core/models/` - Schema definitions, data grids, and environment mappings
-- **Schema Management**: `packages/dbgear/dbgear/core/models/schema_manager.py` - CRUD operations for schema definitions
-- **Schema Validation**: `packages/dbgear/dbgear/core/models/schema_manager.py` - Validation utilities for tables, fields, and foreign keys
+- **Schema Management**: `packages/dbgear/dbgear/core/models/schema.py` - Schema, Table, Column, View, and Index models with CRUD operations
+- **Schema Validation**: Built-in validation in schema models for tables, columns, and foreign keys
+- **File I/O**: `packages/dbgear/dbgear/core/models/fileio.py` - YAML-based schema persistence and loading
 - **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
 - **Definition Parsers**: `packages/dbgear/dbgear/core/definitions/` - Support for a5sql_mk2, mysql, selectable, and dbgear_schema formats
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
-  - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_fields.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
+  - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_columns.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
   - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
 - **Frontend Architecture**: New frontend uses Shadcn/UI components with TanStack Router for type-safe routing and RSBuild for fast bundling
 
 ### Data Flow
 
 1. Project definitions loaded from `project.yaml` (see `etc/test/project.yaml` for example)
-2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable, dbgear_schema)
+2. Schema definitions imported via pluggable definition types (a5sql_mk2, mysql, selectable)
 3. Data stored in YAML format for version control
 4. Frontend communicates with backend via REST API (all endpoints prefixed with `/api`)
 5. Database operations apply data through SQLAlchemy
-6. Schema modifications managed through SchemaManager with validation and persistence
+6. Schema modifications managed through built-in model methods with validation and YAML persistence
 
 ## Development Commands
 
@@ -313,19 +314,20 @@ The new frontend uses a modern API management system that replaces the legacy `n
 
 When working with schema management features:
 
-1. **Schema Validation**: Always validate schema changes using `SchemaValidator` before persistence
-2. **Referential Integrity**: Use `SchemaManager` methods to ensure foreign key constraints are maintained
+1. **Schema Validation**: Use built-in model validation for schema changes before persistence
+2. **Referential Integrity**: Use schema model methods to ensure foreign key constraints are maintained
 3. **Error Handling**: Provide clear error messages for validation failures and constraint violations
 4. **Testing**: Include both positive and negative test cases for CRUD operations
-5. **Persistence**: Use `manager.save()` to persist changes to YAML files
+5. **Persistence**: Use `fileio.save_schema()` to persist changes to YAML files
 6. **Format Compatibility**: Support both A5:SQL Mk-2 import and native YAML format
 
 ### Schema Definition Format
 
-The native `dbgear_schema` format supports:
+The native YAML schema format supports:
 - **Multiple schemas** in a single YAML file
-- **Field attributes**: column_name, display_name, column_type, nullable, primary_key, default_value, foreign_key, comment
+- **Column attributes**: column_name, display_name, column_type, nullable, primary_key, default_value, foreign_key, comment, expression, stored, auto_increment, charset, collation
 - **Index definitions**: index_name, columns list
+- **View definitions**: SQL statements with dependency tracking
 - **Schema mapping** for environment-specific names
 - **Foreign key validation** across tables within the same schema collection
 
@@ -334,20 +336,19 @@ The native `dbgear_schema` format supports:
 Test files are in `tests/` directory. The test project in `etc/test/` provides example configuration:
 - `project.yaml` - Main project configuration
 - `dbgear.a5er` - Database schema file (A5:SQL Mk-2 format)
-- `schema.yaml` - Database schema file (DBGear native YAML format)
+- `schema.yaml` - Database schema file (Native YAML format)
 - Data files in YAML format for test scenarios
 
 ### Schema Management Testing
 
 The schema management functionality includes comprehensive test coverage:
-- **SchemaValidator Tests**: Field validation, table validation, foreign key validation
-- **SchemaManager Tests**: CRUD operations, persistence, referential integrity
-- **Schema Model Tests**: Table/field/index operations, data model integrity
-- **Definition Parser Tests**: YAML parsing, format validation, error handling
+- **Schema Model Tests**: Column/table/view/index operations, data model integrity
+- **Definition Parser Tests**: A5:SQL Mk-2 parsing, MySQL introspection, format validation, error handling
+- **File I/O Tests**: YAML persistence, loading, and validation
 
 Test files located in:
-- `tests/models/test_schema_manager.py` - Schema management CRUD operations (18 tests)
-- `tests/definitions/test_dbgear_schema.py` - YAML format parsing (7 tests)
+- `tests/models/test_*.py` - Core model testing
+- `tests/definitions/test_*.py` - Definition parser testing
 
 **Important**: When adding new unit tests, always update the test documentation in `docs/spec_tests.md` to include:
 - Test case descriptions and what they validate
@@ -356,6 +357,33 @@ Test files located in:
 - Any new testing patterns or methodologies used
 
 This ensures the testing documentation stays current and serves as a comprehensive guide for ongoing test development and maintenance.
+
+## Current Implementation State
+
+The schema management system has been significantly modernized with the following key changes:
+
+### ✅ Completed Features
+- **Field → Column Rename**: All references to "Field" have been updated to "Column" throughout the codebase
+- **Enhanced Column Model**: Support for expressions, charset, collation, auto_increment, and stored properties
+- **View Support**: Full support for database views with SQL statements and dependency tracking
+- **Note System**: Built-in note/comment system for schema documentation
+- **Relation Modeling**: Support for table relationships with cardinality
+- **File I/O**: YAML-based persistence using `fileio.py` module
+- **Type System**: Advanced column type system with ColumnTypeRegistry
+
+### 🚧 Integration Status
+- **Core Models**: ✅ Fully implemented in `packages/dbgear/dbgear/core/models/schema.py`
+- **Web APIs**: ⚠️ Defined but may require testing against current model structure
+- **Frontend**: ⚠️ May need updates to match Field→Column changes
+- **Definition Parsers**: ✅ A5:SQL Mk-2 and MySQL parsers functional
+
+### 🔄 Architectural Changes
+- Schema management is now centralized in the `schema.py` module rather than separate manager classes
+- Built-in validation and CRUD operations in model classes
+- Simplified file persistence through dedicated I/O functions
+- Enhanced support for MySQL-specific features (generated columns, character sets)
+
+When working with schema functionality, refer to the current implementation in `packages/dbgear/dbgear/core/models/schema.py` rather than legacy documentation references.
 
 ## Future Development
 
