@@ -1,7 +1,8 @@
 from . import engine
+from .templates.mysql import template_engine
 
 from ..models.schema import Table
-from ..models.schema import Field
+from ..models.schema import Column
 
 
 def is_exist(conn, env: str, table: Table):
@@ -20,78 +21,42 @@ def drop(conn, env: str, table: Table):
     engine.execute(conn, sql)
 
 
-def _column_sql(field: Field):
-    sql = f'`{field.column_name}` {field.column_type}'
-    
-    # Add character set and collation for string columns
-    if field.charset is not None:
-        sql += f' CHARACTER SET {field.charset}'
-    if field.collation is not None:
-        sql += f' COLLATE {field.collation}'
-    
-    # Add nullable constraint
-    if not field.nullable:
-        sql += ' NOT NULL'
-    
-    # Add AUTO_INCREMENT
-    if field.auto_increment:
-        sql += ' AUTO_INCREMENT'
-    
-    # Add generated column expression or default value
-    if field.expression is not None:
-        storage_type = 'STORED' if field.stored else 'VIRTUAL'
-        sql += f' GENERATED ALWAYS AS ({field.expression}) {storage_type}'
-    elif field.default_value is not None:
-        sql += f' DEFAULT {field.default_value}'
-    
-    # Add comment
-    if field.comment is not None:
-        # Escape single quotes in comment
-        escaped_comment = field.comment.replace("'", "''")
-        sql += f" COMMENT '{escaped_comment}'"
-    
-    return sql
-
-
 def create(conn, env: str, table: Table):
-    pk = sorted(
-        [f for f in table.fields if f.primary_key is not None],
-        key=lambda x: x.primary_key
-    )
-    sql = f'CREATE TABLE {env}.{table.table_name} ('
-    sql += ', '.join([_column_sql(f) for f in table.fields])
-    sql += f', constraint {table.table_name}_PKC primary key '
-    sql += '(' + ', '.join([f'`{f.column_name}`' for f in pk]) + ')'
-    sql += ')'
+    # Use template engine for CREATE TABLE
+    sql = template_engine.render('mysql_create_table', env=env, table=table)
     engine.execute(conn, sql)
 
+    # Create indexes using template engine
     for idx, index in enumerate(table.indexes):
-        sql = 'CREATE INDEX '
-        sql += f'{table.table_name}_IX{idx} ' if index.index_name is None else f'{index.index_name} '
-        sql += f'ON {env}.{table.table_name} ('
-        sql += ', '.join(index.columns)
-        sql += ')'
+        # Set loop context for template
+        loop_context = type('LoopContext', (), {'index0': idx})()
+        sql = template_engine.render(
+            'mysql_create_index',
+            env=env,
+            table=table,
+            index=index,
+            loop=loop_context)
         engine.execute(conn, sql)
 
 
-def _col_value(item: dict, field: Field):
-    if field.column_name in item:
-        if item[field.column_name] is not None and type(item[field.column_name]) is str:
+def _col_value(item: dict, column: Column):
+    if column.column_name in item:
+        if item[column.column_name] is not None and type(item[column.column_name]) is str:
             # 関数定義されている場合には、SQLに関数を埋め込む。
-            if '(' in item[field.column_name]:
-                return item[field.column_name]
-        return f':{field.column_name}'
+            if '(' in item[column.column_name]:
+                return item[column.column_name]
+        return f':{column.column_name}'
     return 'NULL'
 
 
 def insert(conn, env: str, table: Table, items: list[dict]):
     # Filter out generated columns (expression fields) from INSERT
-    insertable_fields = [f for f in table.fields if f.expression is None]
-    
+    insertable_columns = [c for c in table.columns if c.expression is None]
+
     sql = f'INSERT INTO {env}.{table.table_name} ('
-    sql += ', '.join([f'`{f.column_name}`' for f in insertable_fields])
+    sql += ', '.join([f'`{c.column_name}`' for c in insertable_columns])
     sql += ') VALUES ('
-    sql += ', '.join([_col_value(items[0], f) for f in insertable_fields])
+    sql += ', '.join([_col_value(items[0], c) for c in insertable_columns])
     sql += ')'
     engine.execute(conn, sql, items)
     conn.commit()

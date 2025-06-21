@@ -1,4 +1,5 @@
 from . import engine
+from .templates.mysql import template_engine
 from ..models.schema import View
 
 
@@ -22,13 +23,14 @@ def drop(conn, env: str, view: View):
 
 def create(conn, env: str, view: View):
     """Create view"""
-    sql = f'CREATE VIEW {env}.{view.view_name} AS {view.select_statement}'
+    sql = template_engine.render('mysql_create_view', env=env, view=view)
     engine.execute(conn, sql)
 
 
 def create_or_replace(conn, env: str, view: View):
     """Create or replace view"""
-    sql = f'CREATE OR REPLACE VIEW {env}.{view.view_name} AS {view.select_statement}'
+    # Template engine doesn't have CREATE OR REPLACE template yet, use direct SQL
+    sql = f'CREATE OR REPLACE VIEW {env}.{view.view_name} AS\n{view.select_statement}'
     engine.execute(conn, sql)
 
 
@@ -55,7 +57,7 @@ def validate_dependencies(conn, env: str, view: View):
             WHERE table_schema = :env and table_name = :dependency
             ''',
             {'env': env, 'dependency': dependency})
-        
+
         # Check if dependency is a view
         view_exists = engine.select_one(
             conn,
@@ -64,6 +66,6 @@ def validate_dependencies(conn, env: str, view: View):
             WHERE table_schema = :env and table_name = :dependency
             ''',
             {'env': env, 'dependency': dependency})
-        
+
         if not table_exists and not view_exists:
             raise ValueError(f"Dependency '{dependency}' not found for view '{view.view_name}'")
