@@ -1,0 +1,259 @@
+schemas:
+  main:
+    tables:
+      test_table:
+        display_name: テストテーブル
+        columns:
+        - column_name: col_id
+          display_name: IDカラム
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: name
+          display_name: 名前
+          column_type:
+            column_type: VARCHAR(100)
+            base_type: VARCHAR
+            length: 100
+          nullable: false
+        - column_name: num
+          display_name: 数字
+          column_type:
+            column_type: INT
+            base_type: INT
+          nullable: true
+        - column_name: update_date
+          display_name: 更新日時
+          column_type:
+            column_type: DATETIME
+            base_type: DATETIME
+          nullable: false
+        - column_name: update_user
+          display_name: 更新者
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      tbl_child:
+        display_name: 子テーブル
+        columns:
+        - column_name: child_id
+          display_name: 子ID
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: col_id
+          display_name: IDカラム
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+        - column_name: name
+          display_name: 名前
+          column_type:
+            column_type: VARCHAR(100)
+            base_type: VARCHAR
+            length: 100
+          nullable: false
+        - column_name: update_date
+          display_name: 更新日時
+          column_type:
+            column_type: DATETIME
+            base_type: DATETIME
+          nullable: false
+        - column_name: update_user
+          display_name: 更新者
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      properties:
+        display_name: プロパティ
+        columns:
+        - column_name: key
+          display_name: キー
+          column_type:
+            column_type: VARCHAR(32)
+            base_type: VARCHAR
+            length: 32
+          nullable: false
+          primary_key: 0
+        - column_name: value
+          display_name: 値
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+        - column_name: update_date
+          display_name: 更新日時
+          column_type:
+            column_type: DATETIME
+            base_type: DATETIME
+          nullable: false
+        - column_name: update_user
+          display_name: 更新者
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      row_table:
+        display_name: 行テーブル
+        columns:
+        - column_name: row_id
+          display_name: ID
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: row_name
+          display_name: 名前
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      tbl_matrix:
+        display_name: マトリックステーブル
+        columns:
+        - column_name: row_id
+          display_name: ID
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: child_id
+          display_name: 子ID
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 1
+        - column_name: value
+          display_name: 値
+          column_type:
+            column_type: VARCHAR(20)
+            base_type: VARCHAR
+            length: 20
+          nullable: false
+        - column_name: update_date
+          display_name: 更新日時
+          column_type:
+            column_type: DATETIME
+            base_type: DATETIME
+          nullable: false
+        - column_name: update_user
+          display_name: 更新者
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      tbl_cmp_table:
+        display_name: 複合キーテーブル
+        columns:
+        - column_name: col_id
+          display_name: IDカラム
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: seq
+          display_name: シーケンス
+          column_type:
+            column_type: INT
+            base_type: INT
+          nullable: false
+          primary_key: 1
+        - column_name: name
+          display_name: 名前
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      tbl_cmp_child:
+        display_name: 複合子テーブル
+        columns:
+        - column_name: cmp_child_id
+          display_name: 複合キー子ID
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: col_id
+          display_name: IDカラム
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+        - column_name: seq
+          display_name: シーケンス
+          column_type:
+            column_type: INT
+            base_type: INT
+          nullable: false
+        - column_name: name
+          display_name: 名前
+          column_type:
+            column_type: VARCHAR(64)
+            base_type: VARCHAR
+            length: 64
+          nullable: false
+      tbl_null_test:
+        display_name: tbl_null_test
+        columns:
+        - column_name: test_id
+          display_name: test_id
+          column_type:
+            column_type: VARCHAR(36)
+            base_type: VARCHAR
+            length: 36
+          nullable: false
+          primary_key: 0
+        - column_name: col1
+          display_name: col1
+          column_type:
+            column_type: CHAR(5)
+            base_type: CHAR
+            length: 5
+          nullable: true
+        - column_name: col2
+          display_name: col2
+          column_type:
+            column_type: VARCHAR(10)
+            base_type: VARCHAR
+            length: 10
+          nullable: true
+        - column_name: col3
+          display_name: col3
+          column_type:
+            column_type: DATETIME
+            base_type: DATETIME
+          nullable: true
+        - column_name: col4
+          display_name: col4
+          column_type:
+            column_type: INT
+            base_type: INT
+          nullable: true
