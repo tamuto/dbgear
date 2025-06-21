@@ -22,7 +22,7 @@ class ColumnType(BaseSchema):
 class Column(BaseSchema):
     column_name: str
     display_name: str
-    column_type: ColumnType | str  # Column type can be a string or a ColumnType object
+    column_type: ColumnType  # Column type is now always a ColumnType object
     nullable: bool
     primary_key: int | None = None
     default_value: str | None = None
@@ -40,6 +40,12 @@ class Column(BaseSchema):
 class Index(BaseSchema):
     index_name: str | None
     columns: list[str]
+    index_type: str = "BTREE"  # BTREE, HASH, FULLTEXT, SPATIAL, etc.
+    unique: bool = False
+    partial_condition: str | None = None  # WHERE clause for partial indexes (PostgreSQL)
+    include_columns: list[str] | None = None  # INCLUDE columns (PostgreSQL)
+    storage_parameters: dict[str, str] | None = None  # Storage parameters
+    tablespace: str | None = None  # Tablespace name
 
     notes: list[Note] = []  # List of notes/comments for the index
 
@@ -54,12 +60,45 @@ class BindColumn(BaseSchema):
     target_column: str
 
 
+class MySQLTableOptions(BaseSchema):
+    """MySQL-specific table options"""
+    # ストレージエンジン
+    engine: str = "InnoDB"  # InnoDB, MyISAM, MEMORY, etc.
+
+    # 文字セット・照合順序
+    charset: str | None = None  # utf8mb4, latin1, etc.
+    collation: str | None = None  # utf8mb4_unicode_ci, etc.
+
+    # AUTO_INCREMENT
+    auto_increment: int | None = None  # 開始値
+
+    # 行フォーマット
+    row_format: str | None = None  # DYNAMIC, COMPRESSED, REDUNDANT, COMPACT
+
+    # パーティション（MySQL）
+    partition_by: str | None = None  # RANGE, LIST, HASH, KEY
+    partition_expression: str | None = None
+    partition_count: int | None = None  # HASH/KEY用のパーティション数
+
+
 class Relation(BaseSchema):
     """Represents a relationship between two tables"""
     target: EntityInfo
     bind_columns: list[BindColumn]  # List of columns that bind the source and target
     cardinarity_source: str = '1'  # '1', '0..1', '0..*', '1..*'
     cardinarity_target: str = '1'  # '1', '0..1', '0..*', '1..*'
+
+    # Physical foreign key constraint information
+    constraint_name: str | None = None  # FK constraint name
+    on_delete: str = "RESTRICT"  # CASCADE, SET NULL, SET DEFAULT, RESTRICT, NO ACTION
+    on_update: str = "RESTRICT"  # CASCADE, SET NULL, SET DEFAULT, RESTRICT, NO ACTION
+    deferrable: bool = False     # Whether the constraint is deferrable
+    initially_deferred: bool = False  # Whether the constraint is initially deferred
+    match_type: str = "SIMPLE"   # SIMPLE, FULL, PARTIAL (PostgreSQL)
+
+    # Logical relationship information
+    relationship_type: str = "association"  # association, composition, aggregation
+    description: str | None = None  # Human-readable description of the relationship
 
 
 class Table(BaseSchema):
@@ -70,6 +109,9 @@ class Table(BaseSchema):
     indexes: list[Index] = []
     relations: list[Relation] = []  # List of relations to other tables
     notes: list[Note] = []  # List of notes/comments for the table
+
+    # MySQL固有のテーブルオプション
+    mysql_options: MySQLTableOptions | None = None
 
     def add_column(self, column: Column) -> None:
         if self.column_exists(column.column_name):
