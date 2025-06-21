@@ -1,1 +1,0 @@
-# Tests for dbgear.core.definitions module

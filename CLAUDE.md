@@ -350,6 +350,41 @@ Test files located in:
 - `tests/models/test_*.py` - Core model testing
 - `tests/definitions/test_*.py` - Definition parser testing
 
+### Unit Testing Philosophy
+
+DBGear follows a **pragmatic, simple testing approach** prioritizing maintainability over exhaustive coverage:
+
+#### Core Testing Principles
+1. **Comprehensive over Granular**: Use fewer tests that cover more functionality comprehensively
+2. **Functionality-Focused**: Test actual use cases rather than individual method calls
+3. **Resilient to Change**: Avoid tests that break with implementation details changes
+4. **Essential Coverage Only**: Focus on core functionality (YAML read/write, data integrity)
+
+#### Current Test Structure
+The core package uses 3 consolidated test cases in `tests/test_core_yaml.py`:
+- `test_comprehensive_yaml_roundtrip`: Main functionality with complex schema data
+- `test_error_handling`: Exception handling for invalid inputs  
+- `test_edge_cases`: Minimal configurations and boundary conditions
+
+#### Testing Guidelines
+- **Favor Integration Tests**: Test complete workflows (load project → verify data → save → reload → verify)
+- **Avoid Micro-Tests**: Don't test individual getters/setters or simple property access
+- **Test Real Scenarios**: Use realistic test data that mirrors actual usage
+- **Keep Tests Simple**: Each test should be understandable without deep implementation knowledge
+- **Minimize Test Maintenance**: Structure tests to survive refactoring and feature additions
+
+#### When to Add New Tests
+- New core functionality (new file formats, major feature additions)
+- New error conditions that need explicit handling
+- Edge cases discovered through actual usage
+- Integration points with external systems
+
+#### When NOT to Add Tests
+- Internal implementation details
+- Simple property access or basic CRUD operations
+- Every possible parameter combination
+- Functionality already covered by existing comprehensive tests
+
 **Important**: When adding new unit tests, always update the test documentation in `docs/spec_tests.md` to include:
 - Test case descriptions and what they validate
 - New test categories or modules
