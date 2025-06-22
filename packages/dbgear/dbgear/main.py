@@ -1,8 +1,8 @@
 import logging
 from argparse import ArgumentParser
 
-from .core.models.fileio import save_schema
-from .core.importer import import_schema
+from .models.fileio import save_schema
+from .cli.importer import import_schema
 
 
 def execute():

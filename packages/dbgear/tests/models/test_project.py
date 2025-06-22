@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from dbgear.core.models.project import Project
+from dbgear.models.project import Project
 
 
 class TestProject(unittest.TestCase):

@@ -3,8 +3,8 @@ import tempfile
 import os
 import yaml
 
-from dbgear.core.models.project import Project
-from dbgear.core.models.schema import SchemaManager
+from dbgear.models.project import Project
+from dbgear.models.schema import SchemaManager
 
 
 class TestCoreYamlOperations(unittest.TestCase):

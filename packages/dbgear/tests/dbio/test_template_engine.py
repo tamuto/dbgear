@@ -1,14 +1,14 @@
 """Unit tests for SQL template engine functionality."""
 
 import unittest
-from dbgear.core.models.column_type import ColumnType
-from dbgear.core.models.column import Column
-from dbgear.core.models.table import Table, MySQLTableOptions
-from dbgear.core.models.index import Index
-from dbgear.core.models.relation import Relation, BindColumn, EntityInfo
-from dbgear.core.models.view import View
-from dbgear.core.models.notes import Note
-from dbgear.core.dbio.templates.mysql import template_engine
+from dbgear.models.column_type import ColumnType
+from dbgear.models.column import Column
+from dbgear.models.table import Table, MySQLTableOptions
+from dbgear.models.index import Index
+from dbgear.models.relation import Relation, BindColumn, EntityInfo
+from dbgear.models.view import View
+from dbgear.models.notes import Note
+from dbgear.dbio.templates.mysql import template_engine
 
 
 class TestTemplateEngine(unittest.TestCase):
