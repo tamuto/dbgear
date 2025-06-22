@@ -79,7 +79,7 @@ def execute():
 
             # Save to YAML file
             output_path = args.output or 'schema.yaml'
-            save_schema(schema_manager, output_path)
+            save_schema(output_path, schema_manager)
             logging.info(f'Schema successfully imported and saved to {output_path}')
 
         except Exception as e:

@@ -246,7 +246,7 @@ class TestCoreYamlOperations(unittest.TestCase):
         # === SCHEMA SAVE/LOAD ROUNDTRIP TEST ===
         # Save the loaded schema back to file
         roundtrip_schema_path = os.path.join(self.temp_dir, 'roundtrip_schema.yaml')
-        save_schema(project.schemas, roundtrip_schema_path)
+        save_schema(roundtrip_schema_path, project.schemas)
 
         # Load it back
         reloaded_schema_manager = load_schema(roundtrip_schema_path)
@@ -312,7 +312,7 @@ class TestCoreYamlOperations(unittest.TestCase):
         # Test empty schema roundtrip
         empty_manager = SchemaManager(schemas={})
         empty_schema_path = os.path.join(self.temp_dir, 'empty_schema.yaml')
-        save_schema(empty_manager, empty_schema_path)
+        save_schema(empty_schema_path, empty_manager)
 
         reloaded_empty = load_schema(empty_schema_path)
         self.assertEqual(len(reloaded_empty.schemas), 0)

@@ -99,7 +99,7 @@ def load_schema(filename: str):
     return SchemaManager(**populated_data)
 
 
-def save_schema(schemas: SchemaManager, filename: str) -> None:
+def save_schema(filename: str, schemas: SchemaManager) -> None:
     """Save schemas to a YAML file"""
     with open(filename, 'w', encoding='utf-8') as f:
         yaml.dump(
