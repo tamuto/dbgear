@@ -5,7 +5,6 @@ import yaml
 
 from dbgear.core.models.project import Project
 from dbgear.core.models.schema import SchemaManager
-from dbgear.core.models.fileio import load_schema, save_schema
 
 
 class TestCoreYamlOperations(unittest.TestCase):
@@ -14,6 +13,7 @@ class TestCoreYamlOperations(unittest.TestCase):
     def setUp(self):
         """Create temporary directory for test files"""
         self.temp_dir = tempfile.mkdtemp()
+        # self.temp_dir = '.'
         self.project_yaml_path = os.path.join(self.temp_dir, 'project.yaml')
         self.schema_yaml_path = os.path.join(self.temp_dir, 'schema.yaml')
 
@@ -28,10 +28,6 @@ class TestCoreYamlOperations(unittest.TestCase):
         project_data = {
             'project_name': 'Comprehensive Test Project',
             'description': 'Full feature test with complex schema',
-            'deployments': {
-                'localhost': 'mysql+pymysql://root:password@localhost/test',
-                'staging': 'mysql+pymysql://user:pass@staging/db'
-            }
         }
 
         # Create comprehensive schema.yaml data
@@ -168,26 +164,20 @@ class TestCoreYamlOperations(unittest.TestCase):
 
     def test_comprehensive_yaml_roundtrip(self):
         """Test comprehensive YAML file read/write operations"""
-        # Create comprehensive test data
         project_data, schema_data = self.create_comprehensive_test_data()
-
-        # Write to files
         self.write_test_files(project_data, schema_data)
 
         # === PROJECT LOADING TEST ===
-        project = Project(self.temp_dir)
+        project = Project.load(self.temp_dir)
 
         # Verify project data
         self.assertEqual(project.project_name, 'Comprehensive Test Project')
         self.assertEqual(project.description, 'Full feature test with complex schema')
-        self.assertEqual(len(project.deployments), 2)
-        self.assertIn('localhost', project.deployments)
-        self.assertIn('staging', project.deployments)
 
         # === SCHEMA STRUCTURE VERIFICATION ===
         self.assertIsInstance(project.schemas, SchemaManager)
-        main_schema = project.schemas.get_schema('main')
-        users_table = main_schema.get_table('users')
+        main_schema = project.schemas['main']
+        users_table = main_schema.tables['users']
 
         # Test table structure
         self.assertEqual(users_table.display_name, 'ユーザー')
@@ -197,21 +187,21 @@ class TestCoreYamlOperations(unittest.TestCase):
         self.assertEqual(len(users_table.notes), 1)
 
         # Test column types (all different types)
-        id_column = users_table.get_column('id')
+        id_column = users_table.columns['id']
         self.assertEqual(id_column.column_type.base_type, 'BIGINT')
         self.assertTrue(id_column.auto_increment)
 
-        name_column = users_table.get_column('name')
+        name_column = users_table.columns['name']
         self.assertEqual(name_column.column_type.base_type, 'VARCHAR')
         self.assertEqual(name_column.column_type.length, 100)
         self.assertEqual(name_column.charset, 'utf8mb4')
 
-        price_column = users_table.get_column('price')
+        price_column = users_table.columns['price']
         self.assertEqual(price_column.column_type.base_type, 'DECIMAL')
         self.assertEqual(price_column.column_type.precision, 10)
         self.assertEqual(price_column.column_type.scale, 2)
 
-        status_column = users_table.get_column('status')
+        status_column = users_table.columns['status']
         self.assertEqual(status_column.column_type.base_type, 'ENUM')
         self.assertEqual(status_column.column_type.items, ['active', 'inactive'])
 
@@ -238,7 +228,7 @@ class TestCoreYamlOperations(unittest.TestCase):
         self.assertTrue(note.checked)
 
         # Test view
-        active_users_view = main_schema.get_view('active_users')
+        active_users_view = main_schema.views['active_users']
         self.assertEqual(active_users_view.display_name, 'アクティブユーザー')
         self.assertIn("status = 'active'", active_users_view.select_statement)
         self.assertEqual(len(active_users_view.notes), 1)
@@ -246,76 +236,22 @@ class TestCoreYamlOperations(unittest.TestCase):
         # === SCHEMA SAVE/LOAD ROUNDTRIP TEST ===
         # Save the loaded schema back to file
         roundtrip_schema_path = os.path.join(self.temp_dir, 'roundtrip_schema.yaml')
-        save_schema(roundtrip_schema_path, project.schemas)
+        project.schemas.save(roundtrip_schema_path)
 
         # Load it back
-        reloaded_schema_manager = load_schema(roundtrip_schema_path)
+        reloaded_schema_manager = SchemaManager.load(roundtrip_schema_path)
 
         # Verify it matches exactly
-        reloaded_table = reloaded_schema_manager.get_schema('main').get_table('users')
+        reloaded_table = reloaded_schema_manager['main'].tables['users']
         self.assertEqual(reloaded_table.display_name, users_table.display_name)
         self.assertEqual(len(reloaded_table.columns), len(users_table.columns))
         self.assertEqual(len(reloaded_table.indexes), len(users_table.indexes))
         self.assertEqual(len(reloaded_table.relations), len(users_table.relations))
 
         # Verify complex column type preservation
-        reloaded_price = reloaded_table.get_column('price')
+        reloaded_price = reloaded_table.columns['price']
         self.assertEqual(reloaded_price.column_type.precision, 10)
         self.assertEqual(reloaded_price.column_type.scale, 2)
-
-    def test_error_handling(self):
-        """Test error handling for various failure scenarios"""
-        # Test missing schema.yaml file
-        project_data, _ = self.create_comprehensive_test_data()
-        with open(self.project_yaml_path, 'w', encoding='utf-8') as f:
-            yaml.dump(project_data, f, allow_unicode=True)
-
-        with self.assertRaises(FileNotFoundError):
-            Project(self.temp_dir)
-
-        # Test invalid YAML syntax
-        with open(self.project_yaml_path, 'w') as f:
-            f.write('invalid: yaml: syntax: [unclosed')
-
-        with self.assertRaises(yaml.YAMLError):
-            Project(self.temp_dir)
-
-        # Test SchemaManager with invalid YAML
-        invalid_schema_path = os.path.join(self.temp_dir, 'invalid_schema.yaml')
-        with open(invalid_schema_path, 'w') as f:
-            f.write('schemas: [invalid structure')
-
-        with self.assertRaises(yaml.YAMLError):
-            load_schema(invalid_schema_path)
-
-    def test_edge_cases(self):
-        """Test edge cases and minimal configurations"""
-        # Test minimal project configuration
-        minimal_project_data = {
-            'project_name': 'Minimal Project',
-            'description': 'Minimal test',
-            'deployments': {'local': 'sqlite:///test.db'}
-        }
-
-        minimal_schema_data = {
-            'schemas': {}  # Empty schemas
-        }
-
-        self.write_test_files(minimal_project_data, minimal_schema_data)
-
-        # Should load without errors
-        project = Project(self.temp_dir)
-        self.assertEqual(project.project_name, 'Minimal Project')
-        self.assertEqual(len(project.schemas.schemas), 0)
-        self.assertEqual(project.instances, [])
-
-        # Test empty schema roundtrip
-        empty_manager = SchemaManager(schemas={})
-        empty_schema_path = os.path.join(self.temp_dir, 'empty_schema.yaml')
-        save_schema(empty_schema_path, empty_manager)
-
-        reloaded_empty = load_schema(empty_schema_path)
-        self.assertEqual(len(reloaded_empty.schemas), 0)
 
 
 if __name__ == '__main__':

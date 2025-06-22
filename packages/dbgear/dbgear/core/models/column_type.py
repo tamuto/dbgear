@@ -1,10 +1,45 @@
-"""
-Utility functions for handling ColumnType creation and parsing.
-"""
-
 import re
 from typing import Optional, List
-from ..models.schema import ColumnType
+
+from .base import BaseSchema
+
+
+class ColumnType(BaseSchema):
+    column_type: str
+    base_type: str  # Base type (e.g., INT, VARCHAR, etc.)
+    length: int | None = None  # Length for VARCHAR, CHAR, etc.
+    precision: int | None = None  # Precision for DECIMAL, NUMERIC, etc.
+    scale: int | None = None  # Scale for DECIMAL, NUMERIC, etc.
+    items: list[str] | None = None  # For ENUM or SET types
+    json_schema: dict | None = None  # JSON Schema for JSON column types
+
+
+class ColumnTypeRegistry:
+
+    def __init__(self, types: dict[str, ColumnType]):
+        self.types = types
+
+    def __getitem__(self, key: str) -> ColumnType:
+        return self.types.get(key)
+
+    def __iter__(self):
+        yield from self.types.values()
+
+    def __len__(self) -> int:
+        return len(self.types)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.types
+
+    def add(self, column_type: ColumnType) -> None:
+        if column_type.column_type in self.types:
+            raise ValueError(f"Column type '{column_type.column_type}' already exists")
+        self.types[column_type.column_type] = column_type
+
+    def remove(self, column_type: str) -> None:
+        if column_type not in self.types:
+            raise KeyError(f"Column type '{column_type}' not found")
+        del self.types[column_type]
 
 
 def parse_column_type(type_string: str) -> ColumnType:
