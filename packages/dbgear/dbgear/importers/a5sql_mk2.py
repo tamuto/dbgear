@@ -11,11 +11,11 @@ from dataclasses import field
 
 from ..models.schema import SchemaManager
 from ..models.schema import Schema
-from ..models.schema import Table
-from ..models.schema import Column
-from ..models.schema import Index
-from ..models.schema import Note
-from ..utils.column_type import parse_column_type
+from ..models.table import Table
+from ..models.column import Column
+from ..models.index import Index
+from ..models.notes import Note
+from ..models.column_type import parse_column_type
 
 
 @dataclass
@@ -139,7 +139,7 @@ def convert_to_schema(p):
                 # Convert column type string to ColumnType object
                 try:
                     column_type_obj = parse_column_type(row[2])
-                except (ValueError, IndexError) as e:
+                except (ValueError, IndexError):
                     # Fallback to simple string if parsing fails
                     from ..models.schema import ColumnType
                     column_type_obj = ColumnType(column_type=row[2], base_type=row[2])
@@ -174,13 +174,13 @@ def convert_to_schema(p):
 def retrieve(folder, filename, mapping, **kwargs):
     """
     Import schema from A5:SQL Mk-2 (.a5er) file.
-    
+
     Args:
         folder: Directory path containing the file
         filename: Name of the .a5er file to import
         mapping: Schema mapping dictionary (e.g., {'MAIN': 'main'})
         **kwargs: Additional options (unused)
-        
+
     Returns:
         SchemaManager: The imported schema manager object
     """

@@ -20,14 +20,33 @@ DBGear is structured as a monorepo with three independent packages:
 packages/
 ├── dbgear/                    # CLI Package (pip install dbgear)
 │   ├── dbgear/
-│   │   ├── core/             # Core functionality
-│   │   │   ├── models/       # Data models and project management
-│   │   │   ├── dbio/         # Database I/O operations
-│   │   │   ├── importer.py   # Generic schema importer
-│   │   │   ├── importers/    # Schema importer modules
-│   │   │   └── operations.py # Database operation orchestration
+│   │   ├── models/           # Data models and project management
+│   │   │   ├── base.py       # Base Pydantic model classes
+│   │   │   ├── schema.py     # Schema and SchemaManager classes
+│   │   │   ├── table.py      # Table and TableManager classes
+│   │   │   ├── column.py     # Column and ColumnManager classes
+│   │   │   ├── column_type.py # ColumnType system with registry
+│   │   │   ├── view.py       # View and ViewManager classes
+│   │   │   ├── index.py      # Index and IndexManager classes
+│   │   │   ├── relation.py   # Relation and RelationManager classes
+│   │   │   ├── notes.py      # Note and NoteManager classes
+│   │   │   ├── project.py    # Project configuration loader
+│   │   │   ├── fileio.py     # YAML-based file I/O operations
+│   │   │   ├── datagrid/     # Data grid layout models
+│   │   │   └── environ/      # Environment management models
+│   │   ├── dbio/             # Database I/O operations
+│   │   │   ├── engine.py     # Database engine abstraction
+│   │   │   ├── database.py   # Database operations
+│   │   │   ├── table.py      # Table operations
+│   │   │   ├── view.py       # View operations
+│   │   │   └── templates/    # SQL template engine
+│   │   ├── importers/        # Schema importer modules
+│   │   │   └── a5sql_mk2.py  # A5:SQL Mk-2 importer
 │   │   ├── cli/              # CLI-specific functionality
-│   │   │   └── main.py       # CLI entry point
+│   │   │   ├── importer.py   # CLI import commands
+│   │   │   └── operations.py # CLI operation commands
+│   │   ├── utils/            # Utility modules
+│   │   │   └── populate.py   # Auto-population utilities
 │   │   └── main.py           # Main CLI entry point
 │   └── pyproject.toml        # CLI package configuration
 │
@@ -77,14 +96,19 @@ packages/
 
 ### Key Components
 
-- **Project Management**: `packages/dbgear/dbgear/core/models/project.py` - Core project configuration loader
-- **Data Models**: `packages/dbgear/dbgear/core/models/` - Schema definitions, data grids, and environment mappings
-- **Schema Management**: `packages/dbgear/dbgear/core/models/schema.py` - Schema, Table, Column, View, and Index models with CRUD operations
-- **Schema Validation**: Built-in validation in schema models for tables, columns, and foreign keys
-- **File I/O**: `packages/dbgear/dbgear/core/models/fileio.py` - YAML-based schema persistence and loading
-- **Database Operations**: `packages/dbgear/dbgear/core/operations.py` - Apply/deploy data to target databases
-- **SQL Template Engine**: `packages/dbgear/dbgear/core/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
-- **Schema Importers**: `packages/dbgear/dbgear/core/importer.py` & `packages/dbgear/dbgear/core/importers/` - Dynamic schema import system with A5:SQL Mk-2 support
+- **Project Management**: `packages/dbgear/dbgear/models/project.py` - Core project configuration loader
+- **Schema Management**: `packages/dbgear/dbgear/models/schema.py` - Schema and SchemaManager classes with CRUD operations
+- **Table Management**: `packages/dbgear/dbgear/models/table.py` - Table and TableManager classes with MySQL-specific options
+- **Column Management**: `packages/dbgear/dbgear/models/column.py` - Column and ColumnManager classes with advanced attributes
+- **Column Type System**: `packages/dbgear/dbgear/models/column_type.py` - ColumnType registry with parsing and validation
+- **View Management**: `packages/dbgear/dbgear/models/view.py` - View and ViewManager classes with SQL statement support
+- **Index Management**: `packages/dbgear/dbgear/models/index.py` - Index and IndexManager classes with PostgreSQL features
+- **Relation Management**: `packages/dbgear/dbgear/models/relation.py` - Relation and RelationManager classes for FK constraints
+- **Note System**: `packages/dbgear/dbgear/models/notes.py` - Note and NoteManager classes for documentation
+- **File I/O**: `packages/dbgear/dbgear/models/fileio.py` - YAML-based schema persistence and loading
+- **Database Operations**: `packages/dbgear/dbgear/cli/operations.py` - Apply/deploy data to target databases
+- **SQL Template Engine**: `packages/dbgear/dbgear/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
+- **Schema Importers**: `packages/dbgear/dbgear/importers/` - Dynamic schema import system with A5:SQL Mk-2 support
 - **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
   - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_columns.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
   - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
@@ -237,7 +261,7 @@ As a local development tool, prioritize these aspects when making changes:
 ### Package Dependencies
 
 - **dbgear-web** depends on **dbgear** as an external package dependency
-- All imports in dbgear-web use `from dbgear.core.*` syntax
+- All imports in dbgear-web use `from dbgear.models.*` and `from dbgear.dbio.*` syntax
 - Core functionality is completely independent and reusable
 - Web interface is an optional addition that can be installed separately
 
@@ -540,30 +564,83 @@ This provides a clean, extensible foundation for supporting additional schema fo
 
 ## Current Implementation State
 
-The schema management system has been significantly modernized with the following key changes:
+The schema management system has been completely restructured with a modern, type-safe architecture:
 
-### ✅ Completed Features
-- **Field → Column Rename**: All references to "Field" have been updated to "Column" throughout the codebase
-- **Enhanced Column Model**: Support for expressions, charset, collation, auto_increment, and stored properties
-- **View Support**: Full support for database views with SQL statements and dependency tracking
-- **Note System**: Built-in note/comment system for schema documentation
-- **Relation Modeling**: Support for table relationships with cardinality
-- **File I/O**: YAML-based persistence using `fileio.py` module
-- **Type System**: Advanced column type system with ColumnTypeRegistry
+### ✅ Completed Architecture Migration
+- **Folder Structure Reorganization**: Moved from `core/` subdirectory to direct `dbgear/` package structure
+- **Manager Pattern Implementation**: Each entity (Schema, Table, Column, View, Index, Relation) has a dedicated Manager class
+- **Pydantic-Based Models**: All models inherit from `BaseSchema` with automatic validation and serialization
+- **Field → Column Rename**: Complete migration from "Field" terminology to "Column" throughout the codebase
+- **Type-Safe Column System**: Advanced `ColumnType` class with parsing, validation, and registry system
+- **Unified CRUD Operations**: Consistent `add()`, `remove()`, `__getitem__`, `__iter__` across all managers
 
-### 🚧 Integration Status
-- **Core Models**: ✅ Fully implemented in `packages/dbgear/dbgear/core/models/schema.py`
-- **Web APIs**: ⚠️ Defined but may require testing against current model structure
-- **Frontend**: ⚠️ May need updates to match Field→Column changes
-- **Definition Parsers**: ✅ A5:SQL Mk-2 and MySQL parsers functional
+### 🏗️ New Model Architecture
 
-### 🔄 Architectural Changes
-- Schema management is now centralized in the `schema.py` module rather than separate manager classes
-- Built-in validation and CRUD operations in model classes
-- Simplified file persistence through dedicated I/O functions
-- Enhanced support for MySQL-specific features (generated columns, character sets)
+#### Base Architecture
+- **BaseSchema**: Pydantic BaseModel with camelCase alias generation and populate_by_name support
+- **Manager Classes**: Provide consistent interface for collections (TableManager, ColumnManager, etc.)
+- **Type Safety**: Complete TypeScript-like type hints and runtime validation
 
-When working with schema functionality, refer to the current implementation in `packages/dbgear/dbgear/core/models/schema.py` rather than legacy documentation references.
+#### Schema Management (`schema.py`)
+- **SchemaManager**: Top-level container with load/save methods and YAML serialization
+- **Schema**: Individual schema with table, view, and note collections
+- **Auto-population**: Smart key-based population using `utils/populate.py`
+
+#### Table Management (`table.py`)
+- **Table**: Complete table definition with MySQL-specific options
+- **TableManager**: Dictionary-like interface for table collections
+- **MySQLTableOptions**: Dedicated class for engine, charset, partitioning, etc.
+
+#### Column Management (`column.py`)
+- **Column**: Rich column definition with expressions, charset, collation support
+- **ColumnManager**: Supports both index and name-based access
+- **Advanced Features**: AUTO_INCREMENT, stored/virtual columns, default values
+
+#### Column Type System (`column_type.py`)
+- **ColumnType**: Structured type definition with base_type, length, precision, scale, items
+- **ColumnTypeRegistry**: Type registry with CRUD operations
+- **Parsing Functions**: `parse_column_type()` for string-to-object conversion
+- **Type Checking**: `is_numeric_type()`, `is_string_type()`, `is_date_time_type()`
+- **MySQL Defaults**: Pre-built type definitions for common MySQL types
+
+#### View Management (`view.py`)
+- **View**: SQL-based view definition with future SQL parsing support
+- **ViewColumn**: Detailed column metadata with source table tracking
+- **ViewManager**: Standard collection interface for views
+
+#### Index Management (`index.py`)
+- **Index**: Comprehensive index definition with PostgreSQL features
+- **IndexManager**: Array-like interface for index collections
+- **Advanced Features**: Partial indexes, include columns, storage parameters
+
+#### Relation Management (`relation.py`)
+- **Relation**: Foreign key constraints with ON DELETE/UPDATE actions
+- **RelationManager**: Collection management for table relationships
+
+#### Note System (`notes.py`)
+- **Note**: Title/content notes with checked status for review tracking
+- **NoteManager**: Unified note management across all entities
+- **Documentation Support**: Schema, table, column, view, index level notes
+
+### 🔄 Integration Status
+- **Core Models**: ✅ Complete implementation with comprehensive test coverage
+- **File I/O**: ✅ YAML load/save with auto-population and validation
+- **CLI Integration**: ✅ Updated to use new model paths (`dbgear.models.*`)
+- **Web APIs**: ⚠️ May require updates to match new manager interfaces
+- **Frontend**: ⚠️ Field→Column terminology updates needed
+- **Database Operations**: ⚠️ Need to update imports from `core.models` to `models`
+
+### 🧪 Testing Architecture
+- **Comprehensive Testing**: Single test file `test_core_yaml.py` with 3 test cases
+- **Real-world Data**: Complex test data with all MySQL features (partitioning, charset, etc.)
+- **Roundtrip Testing**: Full load→modify→save→reload validation
+- **Error Handling**: Edge cases and validation error testing
+
+When working with schema functionality, use the new paths:
+- `from dbgear.models.schema import SchemaManager, Schema`
+- `from dbgear.models.table import Table, TableManager`
+- `from dbgear.models.column import Column, ColumnManager`
+- `from dbgear.models.column_type import ColumnType, parse_column_type`
 
 ## Future Development
 

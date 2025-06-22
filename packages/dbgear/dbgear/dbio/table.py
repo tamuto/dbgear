@@ -2,7 +2,7 @@ from . import engine
 from .templates.mysql import template_engine
 
 from ..models.schema import Table
-from ..models.schema import Column
+from ..models.column import Column
 
 
 def is_exist(conn, env: str, table: Table):

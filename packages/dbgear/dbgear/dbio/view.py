@@ -1,6 +1,6 @@
 from . import engine
 from .templates.mysql import template_engine
-from ..models.schema import View
+from ..models.view import View
 
 
 def is_exist(conn, env: str, view: View):
