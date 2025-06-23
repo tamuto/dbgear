@@ -258,6 +258,38 @@ As a local development tool, prioritize these aspects when making changes:
    - Modular frontend components
    - Configurable data binding rules
 
+### Design Philosophy
+
+When proposing solutions or architectural changes, follow this design hierarchy:
+
+1. **Simple Solution First**
+   - Always propose the simplest solution that meets requirements first
+   - Ask: "Can this be solved by organizing files differently?"
+   - Ask: "Can existing classes/functions handle this with minor modifications?"
+   - Avoid creating new abstractions unless absolutely necessary
+
+2. **Reuse Over Rebuild**
+   - Leverage existing models, managers, and utilities before creating new ones
+   - If `SchemaManager` works for the base case, try using it for extensions too
+   - Look for patterns already established in the codebase
+
+3. **Filesystem and OS Features**
+   - Consider directory structure as part of the solution
+   - Use file organization to represent logical relationships
+   - Example: `envs/development/schema.yaml` vs. complex in-memory merging
+
+4. **Avoid Over-Engineering**
+   - Resist the urge to create "enterprise-grade" solutions for simple problems
+   - Don't add layers of abstraction for future flexibility unless that flexibility is explicitly required
+   - "Perfect is the enemy of good" - working solutions are better than theoretically perfect ones
+
+5. **Practical Implementation**
+   - Prioritize solutions that are easy to understand and maintain
+   - Choose approaches that minimize code changes and complexity
+   - Consider how the solution will be used in practice, not just in theory
+
+**Example**: For environment-specific schemas, prefer `EnvironManager.get_schema(env_name) -> SchemaManager` over creating new wrapper classes with complex merging logic.
+
 ### Package Dependencies
 
 - **dbgear-web** depends on **dbgear** as an external package dependency
