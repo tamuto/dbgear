@@ -5,7 +5,7 @@ from .notes import Note, NoteManager
 
 
 class EntityInfo(BaseSchema):
-    schema: str
+    schema_name: str
     table_name: str
 
 

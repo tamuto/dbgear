@@ -4,6 +4,7 @@ import pydantic
 
 from .base import BaseSchema
 from .schema import SchemaManager
+from .environ import EnvironManager
 
 
 # class Binding(BaseSchema):
@@ -47,6 +48,10 @@ class Project(BaseSchema):
         if self._schemas is None:
             self._schemas = SchemaManager.load(f'{self.folder}/schema.yaml')
         return self._schemas
+
+    @property
+    def envs(self) -> EnvironManager:
+        return EnvironManager(self.folder)
 
     # @property
     # def bindings(self) -> dict[str, Binding]:

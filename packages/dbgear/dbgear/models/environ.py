@@ -1,21 +1,33 @@
 import pydantic
-import glob
+import pathlib
 import os
 import yaml
 
 from .base import BaseSchema
+from .schema import SchemaManager
 
 
 class Environ(BaseSchema):
+    folder: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
     description: str
 
+    _schemas: SchemaManager | None = None
+
     @classmethod
-    def load(cls, filename: str) -> None:
-        with open(filename, 'r', encoding='utf-8') as f:
+    def load(cls, folder: str, name: str) -> None:
+        with open(f'{folder}/{name}/environ.yaml', 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
-        data['name'] = os.path.basename(filename.replace('/environ.yaml', ''))
-        return cls(**data)
+        return cls(
+            folder=folder,
+            name=name,
+            **data)
+
+    @property
+    def schemas(self) -> SchemaManager:
+        if self._schemas is None:
+            self._schemas = SchemaManager.load(f'{self.folder}/{self.name}/schema.yaml')
+        return self._schemas
 
 
 class EnvironManager:
@@ -30,8 +42,9 @@ class EnvironManager:
         raise KeyError(f'Environment {key} does not exist in {self.folder}')
 
     def __iter__(self):
-        for path in sorted(glob.glob(os.path.join(self.folder, '*', 'environ.yaml'))):
-            yield Environ.load(path)
+        for path in sorted(pathlib.Path(self.folder).glob('*/environ.yaml')):
+            name = str(path.parent.relative_to(self.folder))
+            yield Environ.load(self.folder, name)
 
     def add(self, name: str, environ: Environ) -> None:
         path = os.path.join(self.folder, name)
@@ -66,6 +79,6 @@ if __name__ == '__main__':
     # Example usage
     envs = EnvironManager('../../etc/test')
     for environ in envs:
-        print(environ.description)
+        print(environ)
 
-    envs.remove('env2')
+    # envs.remove('env2')
