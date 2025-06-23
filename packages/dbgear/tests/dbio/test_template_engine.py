@@ -134,7 +134,7 @@ class TestTemplateEngine(unittest.TestCase):
         )
 
         # Create foreign key relation
-        target_entity = EntityInfo(schema='testdb', table_name='categories')
+        target_entity = EntityInfo(schema_name='testdb', table_name='categories')
         bind_column = BindColumn(source_column='category_id', target_column='id')
         relation = Relation(
             target=target_entity,
@@ -623,7 +623,7 @@ class TestTemplateEngine(unittest.TestCase):
 
         # Foreign key relation
         relation = Relation(
-            target=EntityInfo(schema='testdb', table_name='categories'),
+            target=EntityInfo(schema_name='testdb', table_name='categories'),
             bind_columns=[BindColumn(source_column='category_id', target_column='id')],
             constraint_name='fk_product_category',
             on_delete='SET NULL',

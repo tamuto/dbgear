@@ -102,7 +102,7 @@ class TestCoreYamlOperations(unittest.TestCase):
                             'relations': [
                                 {
                                     'target': {
-                                        'schema': 'main',
+                                        'schema_name': 'main',
                                         'table_name': 'departments'
                                     },
                                     'bind_columns': [
