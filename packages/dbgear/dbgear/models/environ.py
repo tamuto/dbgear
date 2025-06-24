@@ -5,6 +5,8 @@ import yaml
 
 from .base import BaseSchema
 from .schema import SchemaManager
+from .mapping import MappingManager
+from .tenant import TenantRegistry
 
 
 class Environ(BaseSchema):
@@ -13,6 +15,7 @@ class Environ(BaseSchema):
     description: str
 
     _schemas: SchemaManager | None = None
+    _tenants: TenantRegistry | None = None
 
     @classmethod
     def load(cls, folder: str, name: str) -> None:
@@ -29,6 +32,16 @@ class Environ(BaseSchema):
             self._schemas = SchemaManager.load(f'{self.folder}/{self.name}/schema.yaml')
         return self._schemas
 
+    @property
+    def tenants(self):
+        if self._tenants is None:
+            self._tenants = TenantRegistry.load(f'{self.folder}/{self.name}/tenant.yaml')
+        return self._tenants
+
+    @property
+    def mappings(self) -> 'MappingManager':
+        return MappingManager(self.folder, self.name)
+
 
 class EnvironManager:
 
@@ -36,20 +49,17 @@ class EnvironManager:
         self.folder = folder
 
     def __getitem__(self, key: str) -> Environ:
-        path = os.path.join(self.folder, key, 'environ.yaml')
-        if os.path.isfile(path):
-            return Environ.load(path)
-        raise KeyError(f'Environment {key} does not exist in {self.folder}')
+        return Environ.load(self.folder, key)
 
     def __iter__(self):
         for path in sorted(pathlib.Path(self.folder).glob('*/environ.yaml')):
             name = str(path.parent.relative_to(self.folder))
             yield Environ.load(self.folder, name)
 
-    def add(self, name: str, environ: Environ) -> None:
-        path = os.path.join(self.folder, name)
+    def add(self, environ: Environ) -> None:
+        path = os.path.join(self.folder, environ.name)
         if os.path.exists(path):
-            raise FileExistsError(f'Environment {name} already exists in {self.folder}')
+            raise FileExistsError(f'Environment {environ.name} already exists in {self.folder}')
 
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, 'environ.yaml'), 'w', encoding='utf-8') as f:
