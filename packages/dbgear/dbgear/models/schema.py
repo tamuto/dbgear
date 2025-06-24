@@ -1,11 +1,15 @@
-import yaml
 import pydantic
+import yaml
 
 from .base import BaseSchema
-from .column_type import ColumnType, ColumnTypeRegistry
-from .table import Table, TableManager
-from .view import View, ViewManager
-from .notes import Note, NoteManager
+from .column_type import ColumnType
+from .column_type import ColumnTypeRegistry
+from .table import Table
+from .table import TableManager
+from .view import View
+from .view import ViewManager
+from .notes import Note
+from .notes import NoteManager
 from ..utils.populate import auto_populate_from_keys
 
 

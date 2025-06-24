@@ -1,7 +1,8 @@
 import pydantic
 
 from .base import BaseSchema
-from .notes import Note, NoteManager
+from .notes import Note
+from .notes import NoteManager
 
 
 class EntityInfo(BaseSchema):

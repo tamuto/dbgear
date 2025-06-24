@@ -1,6 +1,6 @@
 # from importlib import import_module
-import yaml
 import pydantic
+import yaml
 
 from .base import BaseSchema
 from .schema import SchemaManager

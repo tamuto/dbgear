@@ -1,10 +1,14 @@
 import pydantic
 
 from .base import BaseSchema
-from .column import Column, ColumnManager
-from .index import Index, IndexManager
-from .relation import Relation, RelationManager
-from .notes import Note, NoteManager
+from .column import Column
+from .column import ColumnManager
+from .index import Index
+from .index import IndexManager
+from .relation import Relation
+from .relation import RelationManager
+from .notes import Note
+from .notes import NoteManager
 
 
 class MySQLTableOptions(BaseSchema):
