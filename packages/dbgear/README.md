@@ -12,6 +12,22 @@ pip install dbgear
 
 ### CLIコマンド
 
+#### スキーマインポート
+```bash
+# A5:SQL Mk-2ファイルからスキーマをインポート
+dbgear import a5sql_mk2 schema.a5er
+
+# 出力ファイルを指定
+dbgear import a5sql_mk2 schema.a5er --output my_schema.yaml
+
+# スキーママッピングを指定
+dbgear import a5sql_mk2 schema.a5er --mapping "MAIN:production,SUB:development"
+
+# ヘルプ表示
+dbgear import --help
+```
+
+#### データベース適用
 ```bash
 # データベースへの適用
 dbgear apply <deployment> <environment> [options]
@@ -28,6 +44,19 @@ dbgear apply localhost development --target users
 
 ### プログラムでの利用
 
+#### スキーマインポート
+```python
+from dbgear.core.importer import import_schema
+
+# A5:SQL Mk-2ファイルからインポート
+schema_manager = import_schema('a5sql_mk2', 'path/to', 'schema.a5er', {'MAIN': 'main'})
+
+# YAMLファイルに保存
+from dbgear.core.models.fileio import save_model
+save_model('schema.yaml', schema_manager)
+```
+
+#### プロジェクト管理
 ```python
 from dbgear.core.models.project import Project
 from dbgear.core.operations import Operation
@@ -86,12 +115,21 @@ manager.save()  # YAML保存
 
 ## 機能
 
-- **データベーススキーマ管理**: A5:SQL Mk-2、MySQL直接接続、独自YAML形式対応
+### スキーマインポート
+- **A5:SQL Mk-2インポート**: .a5erファイルからDBGear形式への変換
+- **動的インポーター**: importlibによる拡張可能なアーキテクチャ
+- **スキーママッピング**: 外部形式からDBGearスキーマ名への柔軟なマッピング
+- **CLIサポート**: `dbgear import`コマンドによる簡単な変換
+
+### データベーススキーマ管理
+- **多形式対応**: A5:SQL Mk-2、MySQL直接接続、独自YAML形式対応
 - **スキーマ操作**: テーブル・カラム・インデックス・ビューの追加・更新・削除
 - **カラム式サポート**: MySQL生成カラム（GENERATED ALWAYS AS）対応
 - **拡張カラム属性**: AUTO_INCREMENT、文字セット、照合順序指定
 - **ビュー管理**: データベースビューの定義と依存関係管理
 - **SQLテンプレートエンジン**: Jinja2ベースの統一されたSQL生成システム
+
+### データ管理
 - **初期データ管理**: YAML形式でのデータ定義
 - **環境管理**: 開発・テスト・本番環境の分離
 - **データバインディング**: 自動的な値設定（UUID、現在時刻等）
@@ -218,10 +256,10 @@ schemas:
   - `fileio`: YAML形式でのスキーマ読み書き
 - `dbgear.core.dbio`: データベースI/O操作
   - `templates`: Jinja2ベースSQLテンプレートエンジン（18テンプレート）
-- `dbgear.core.definitions`: スキーマ定義パーサー
-  - `a5sql_mk2`: A5:SQL Mk-2形式パーサー
-  - `mysql`: MySQL直接接続パーサー
-  - `selectable`: 選択リスト定義パーサー
+- `dbgear.core.importer`: スキーマインポート機能
+  - 動的インポーターローダー（importlibベース）
+- `dbgear.core.importers`: インポーターモジュール
+  - `a5sql_mk2`: A5:SQL Mk-2形式インポーター
 - `dbgear.core.operations`: データベース操作オーケストレーション
 - `dbgear.cli`: CLIインターフェース
 

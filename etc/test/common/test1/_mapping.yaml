@@ -1,0 +1,4 @@
+instances:
+- main
+description: テスト1データベース
+deployment: true

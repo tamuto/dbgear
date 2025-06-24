@@ -1,0 +1,23 @@
+tenants:
+  localhost:
+    name: localhost
+    ref: base
+    prefix: ""
+    databases:
+      - name: main
+        database: testdb
+        description: Test database
+        active: true
+  docker:
+    name: docker
+    ref: base
+    prefix: "docker_"
+    databases:
+      - name: main
+        database: testdb
+        description: Docker test database
+        active: true
+      - name: backup
+        database: testdb_backup
+        description: Backup database
+        active: false

@@ -1,6 +1,0 @@
-instances:
-- main
-name: テスト1
-group: Test
-base: base
-deployment: true
