@@ -1,7 +1,4 @@
 instances:
 - main
-name: ベース
 description: ベースデータベース
-group: Test
-base: null
 deployment: false

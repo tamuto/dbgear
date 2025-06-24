@@ -1,0 +1,10 @@
+tenants:
+  development:
+    name: development
+    ref: development_base
+    prefix: "dev_"
+    databases:
+      - name: main
+        database: dev_testdb
+        description: Development database
+        active: true

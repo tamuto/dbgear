@@ -1,6 +1,4 @@
 instances:
 - main
-name: テスト1
-group: Test
-base: base
+description: テスト1データベース
 deployment: true
