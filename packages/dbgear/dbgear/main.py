@@ -1,7 +1,6 @@
 import logging
 from argparse import ArgumentParser
 
-from .models.fileio import save_schema
 from .cli.importer import import_schema
 
 
@@ -79,7 +78,7 @@ def execute():
 
             # Save to YAML file
             output_path = args.output or 'schema.yaml'
-            save_schema(output_path, schema_manager)
+            schema_manager.save(output_path)
             logging.info(f'Schema successfully imported and saved to {output_path}')
 
         except Exception as e:
@@ -87,8 +86,8 @@ def execute():
             return
     else:
         # For other commands, load project and required modules
-        from .core.models.project import Project
-        from .core import operations
+        from .models.project import Project
+        from .cli import operations
 
         project = Project(args.project)
 

@@ -16,6 +16,7 @@ from ..models.column import Column
 from ..models.index import Index
 from ..models.notes import Note
 from ..models.column_type import parse_column_type
+from ..models.relation import Relation, EntityInfo, BindColumn
 
 
 @dataclass
@@ -28,7 +29,7 @@ class Entity:
 
 
 @dataclass
-class Relation:
+class A5ERRelation:
     entity1: str = None
     entity2: str = None
     fields1: str = None
@@ -83,7 +84,7 @@ class Parser:
                 self.session = Entity()
             elif line == '[Relation]':
                 self.mode = 3
-                self.session = Relation()
+                self.session = A5ERRelation()
             elif line == '[Comment]':
                 self.mode = 4
             else:
@@ -124,7 +125,7 @@ class Parser:
 def convert_to_schema(p):
     schemas = SchemaManager()
     for k in p.instances.keys():
-        schemas.add_schema(Schema(name=k))
+        schemas.add(Schema(name=k))
 
     for key, entities in p.instances.items():
         for entity in entities:
@@ -133,7 +134,7 @@ def convert_to_schema(p):
                 table_name=entity.table_name,
                 display_name=entity.display_name
             )
-            schemas.get_schema(key).add_table(tbl)
+            schemas[key].tables.add(tbl)
             relation = p.relations[entity.table_name] if entity.table_name in p.relations else {}
             for row in csv.reader(entity.fields):
                 # Convert column type string to ColumnType object
@@ -141,7 +142,7 @@ def convert_to_schema(p):
                     column_type_obj = parse_column_type(row[2])
                 except (ValueError, IndexError):
                     # Fallback to simple string if parsing fails
-                    from ..models.schema import ColumnType
+                    from ..models.column_type import ColumnType
                     column_type_obj = ColumnType(column_type=row[2], base_type=row[2])
 
                 # Create notes list if comment exists
@@ -156,17 +157,45 @@ def convert_to_schema(p):
                     nullable=row[3] != 'NOT NULL',
                     primary_key=int(row[4]) if row[4] != '' else None,
                     default_value=row[5] if row[5] != '' else None,
-                    foreign_key=relation[row[1]].entity1 if row[1] in relation else None,
                     notes=notes
                 )
-                tbl.add_column(column)
+                tbl.columns.add(column)
 
             for row in csv.reader(entity.indexes):
                 idx = Index(
                     index_name=None,
                     columns=row[1:]
                 )
-                tbl.add_index(idx)
+                tbl.indexes.add(idx)
+
+    # Process relations after all tables are created
+    for key, entities in p.instances.items():
+        for entity in entities:
+            tbl = schemas[key].tables[entity.table_name]
+            relation_info = p.relations.get(entity.table_name, {})
+
+            for column_name, relation in relation_info.items():
+                # Create relation from child table to parent table
+                target_entity = EntityInfo(
+                    schema_name=key,  # Assuming same schema
+                    table_name=relation.entity1
+                )
+
+                bind_column = BindColumn(
+                    source_column=column_name,
+                    target_column=relation.fields1.split(',')[0]  # Take first field if multiple
+                )
+
+                rel = Relation(
+                    target=target_entity,
+                    bind_columns=[bind_column],
+                    cardinarity_source='*',  # Many-to-one relationship
+                    cardinarity_target='1',
+                    constraint_name=f"FK_{entity.table_name}_{relation.entity1}",
+                    description=f"Foreign key from {entity.table_name}.{column_name} to {relation.entity1}.{relation.fields1}"
+                )
+
+                tbl.relations.add(rel)
 
     return schemas
 
