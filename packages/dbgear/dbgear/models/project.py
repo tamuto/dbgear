@@ -41,7 +41,18 @@ class Project(BaseSchema):
 
     def save(self) -> None:
         with open(f'{self.folder}/project.yaml', 'w', encoding='utf-8') as f:
-            yaml.dump(self.model_dump(), f, indent=2, allow_unicode=True)
+            yaml.dump(
+                self.model_dump(
+                    by_alias=True,
+                    exclude_none=True,
+                    exclude_defaults=True
+                ),
+                f,
+                indent=2,
+                allow_unicode=True,
+                default_flow_style=False,
+                sort_keys=False
+            )
 
     @property
     def schemas(self) -> SchemaManager:

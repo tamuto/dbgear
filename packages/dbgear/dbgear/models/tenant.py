@@ -15,7 +15,7 @@ class DatabaseInfo(BaseSchema):
 
 class TenantConfig(BaseSchema):
     name: str
-    bind: str
+    ref: str
 
     # tenant variables
     prefix: str = ''

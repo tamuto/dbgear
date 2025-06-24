@@ -40,7 +40,7 @@ class MappingManager:
 
     def __iter__(self):
         for path in sorted(pathlib.Path(self.folder).glob(f'{self.environ}/*/_mapping.yaml')):
-            name = str(path.parent.relative_to(self.folder))
+            name = str(path.parent.relative_to(pathlib.Path(self.folder) / self.environ))
             yield Mapping.load(self.folder, self.environ, name)
 
     def add(self, mapping: Mapping) -> None:
