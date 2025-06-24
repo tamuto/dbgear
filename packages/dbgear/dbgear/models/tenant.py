@@ -2,6 +2,8 @@ import pydantic
 import yaml
 
 from .base import BaseSchema
+from .exceptions import DBGearEntityExistsError
+from .exceptions import DBGearEntityNotFoundError
 
 
 class DatabaseInfo(BaseSchema):
@@ -60,10 +62,10 @@ class TenantRegistry(BaseSchema):
 
     def add(self, tenant: TenantConfig) -> None:
         if tenant.name in self.tenants:
-            raise ValueError(f'Tenant {tenant.name} already exists')
+            raise DBGearEntityExistsError(f'Tenant {tenant.name} already exists')
         self.tenants[tenant.name] = tenant
 
     def remove(self, name: str) -> None:
         if name not in self.tenants:
-            raise ValueError(f'Tenant {name} does not exist')
+            raise DBGearEntityNotFoundError(f'Tenant {name} does not exist')
         del self.tenants[name]

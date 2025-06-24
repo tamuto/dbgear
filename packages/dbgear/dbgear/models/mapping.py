@@ -4,6 +4,9 @@ import pathlib
 import os
 
 from .base import BaseSchema
+from .exceptions import DBGearEntityExistsError
+from .exceptions import DBGearEntityNotFoundError
+from .exceptions import DBGearEntityRemovalError
 
 
 class Mapping(BaseSchema):
@@ -43,7 +46,7 @@ class MappingManager:
     def add(self, mapping: Mapping) -> None:
         path = os.path.join(self.folder, mapping.environ, mapping.name)
         if os.path.exists(path):
-            raise FileExistsError(f'Mapping {mapping.name} already exists in {self.folder}/{mapping.environ}')
+            raise DBGearEntityExistsError(f'Mapping {mapping.name} already exists in {self.folder}/{mapping.environ}')
 
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, '_mapping.yaml'), 'w', encoding='utf-8') as f:
@@ -62,9 +65,9 @@ class MappingManager:
     def remove(self, name: str) -> None:
         path = os.path.join(self.folder, self.environ, name)
         if not os.path.exists(path):
-            raise FileNotFoundError(f'Mapping {name} does not exist in {self.folder}/{self.environ}')
+            raise DBGearEntityNotFoundError(f'Mapping {name} does not exist in {self.folder}/{self.environ}')
         files = [f for f in os.listdir(path) if f != '_mapping.yaml']
         if files:
-            raise Exception(f'Cannot remove {path}: files other than _mapping.yaml exist')
+            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than _mapping.yaml exist')
         os.remove(os.path.join(path, '_mapping.yaml'))
         os.rmdir(path)

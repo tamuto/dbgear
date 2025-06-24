@@ -1,12 +1,15 @@
 import pydantic
+import yaml
 import pathlib
 import os
-import yaml
 
 from .base import BaseSchema
 from .schema import SchemaManager
 from .mapping import MappingManager
 from .tenant import TenantRegistry
+from .exceptions import DBGearEntityExistsError
+from .exceptions import DBGearEntityNotFoundError
+from .exceptions import DBGearEntityRemovalError
 
 
 class Environ(BaseSchema):
@@ -59,7 +62,7 @@ class EnvironManager:
     def add(self, environ: Environ) -> None:
         path = os.path.join(self.folder, environ.name)
         if os.path.exists(path):
-            raise FileExistsError(f'Environment {environ.name} already exists in {self.folder}')
+            raise DBGearEntityExistsError(f'Environment {environ.name} already exists in {self.folder}')
 
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, 'environ.yaml'), 'w', encoding='utf-8') as f:
@@ -77,10 +80,10 @@ class EnvironManager:
     def remove(self, name: str) -> None:
         path = os.path.join(self.folder, name)
         if not os.path.exists(path):
-            raise KeyError(f'Environment {name} does not exist in {self.folder}')
+            raise DBGearEntityNotFoundError(f'Environment {name} does not exist in {self.folder}')
         files = [f for f in os.listdir(path) if f != 'environ.yaml']
         if files:
-            raise Exception(f'Cannot remove {path}: files other than environ.yaml exist')
+            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than environ.yaml exist')
         os.remove(os.path.join(path, 'environ.yaml'))
         os.rmdir(path)
 
