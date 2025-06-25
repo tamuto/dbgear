@@ -1,6 +1,5 @@
 import pydantic
 import yaml
-import enum
 import pathlib
 import os
 
@@ -11,13 +10,8 @@ from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityRemovalError
 
 
-class SettingType(enum.Enum):
-    COLUMN = 'column'
-    REF = 'ref'
-
-
 class SettingInfo(BaseSchema):
-    type: SettingType
+    type: str
     width: int | None = None
     environ: str | None = None
     schema_name: str | None = None

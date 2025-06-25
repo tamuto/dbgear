@@ -28,3 +28,6 @@ SYNC_MODE_DROP_CREATE = 'drop_create'
 
 # フィールド幅
 DEFAULT_WIDTH = 150
+
+SETTING_TYPE_COLUMN = 'column'
+SETTING_TYPE_REF = 'ref'
