@@ -251,44 +251,82 @@ schemas:
             checked: true
 ```
 
-### スキーマ定義の特徴
+### 最新のコアモデル仕様
 
-#### モデル構造の刷新
-- **Managerパターン**: 各エンティティ（Table、Column、View、Index）にManagerクラス追加
-- **統一されたCRUD操作**: add(), remove(), __getitem__, __iter__ による統一されたアクセス方法
-- **型安全性**: Pydantic BaseModelによる厳密なデータ検証
+DBGearは、Pydanticベースの型安全なデータモデルシステムを採用し、包括的なデータベーススキーマ管理を実現しています。
 
-#### カラム定義
-- **ColumnTypeオブジェクト**: parse_column_type()による文字列からのパース機能
-- **MySQL対応**: 文字セット、照合順序、生成カラム対応
-- **拡張属性**: AUTO_INCREMENT、DEFAULT値、式ベースカラム
-- **型チェック機能**: is_numeric_type(), is_string_type(), is_date_time_type()
+#### アーキテクチャの特徴
+- **Pydanticベース**: すべてのモデルが`BaseSchema`を継承し、自動検証とJSON/YAMLシリアライゼーションを提供
+- **Managerパターン**: 各エンティティコレクション（Schema、Table、Column、View、Index、Relation）は専用のManagerクラスで管理
+- **統一されたCRUD操作**: `add()`, `remove()`, `__getitem__`, `__iter__`, `__contains__`による一貫したアクセス方法
+- **型安全性**: TypeScriptライクな完全な型ヒントとランタイム検証
 
-#### インデックス定義
-- **詳細設定**: インデックスタイプ（BTREE/HASH等）、UNIQUE制約
-- **PostgreSQL対応**: 部分インデックス、包含カラム、ストレージパラメータ
-- **拡張可能**: 将来のDBエンジン対応を見据えた設計
+#### コアエンティティモデル
 
-#### リレーション定義
-- **物理制約**: FK制約名、ON DELETE/UPDATE動作
-- **論理関係**: カーディナリティ、関係タイプ（UML）
-- **複合キー**: 複数カラムによる関係定義
+**Schema & SchemaManager**
+- 複数スキーマの管理とYAML永続化
+- 自動入力機能によるスキーマ/テーブル名の自動設定
+- カラムタイプレジストリとグローバルノート管理
 
-#### MySQL固有オプション
-- **ストレージエンジン**: InnoDB、MyISAM等の指定
-- **パーティション**: RANGE、LIST、HASH、KEY対応
-- **文字セット**: テーブル単位での文字セット設定
-- **高度なオプション**: 行フォーマット、AUTO_INCREMENT開始値
+**Table & TableManager**
+- 包括的なMySQLサポート（ストレージエンジン、パーティション、文字セット）
+- `MySQLTableOptions`による高度なテーブル設定
+- カラム、インデックス、リレーションの統合管理
 
-#### ビュー定義
-- **ViewColumn**: ビューカラムの詳細定義（参照元テーブル・カラム）
-- **依存関係管理**: 参照先テーブル/ビューの自動検出準備
-- **SQL解析対応**: 将来のSQL解析による自動カラム検出の土台
+**Column & ColumnManager**
+- 構造化された`ColumnType`オブジェクトによる型管理
+- MySQL固有機能：AUTO_INCREMENT、生成カラム（STORED/VIRTUAL）、文字セット・照合順序
+- 名前とインデックス両方でのアクセス対応
 
-#### ノートシステム
-- **統一されたノート管理**: Schema、Table、Column、View、Index全てでノート対応
-- **NoteManager**: 一貫したインターフェースによるノート操作
-- **設計情報**: DB物理コメントとは独立した管理情報
+**ColumnType & ColumnTypeRegistry**
+- `parse_column_type()`による文字列からの自動解析
+- MySQL全タイプサポート（VARCHAR、INT、DECIMAL、ENUM/SET、JSON等）
+- 型チェック機能：`is_numeric_type()`, `is_string_type()`, `is_date_time_type()`
+- カスタム型の登録・管理機能
+
+**View & ViewManager**
+- SQL文ベースのビュー定義
+- 将来のSQL解析機能に対応した`ViewColumn`準備
+- 依存関係自動検出の基盤
+
+**Index & IndexManager**
+- PostgreSQL機能を含む包括的なインデックス定義
+- 部分インデックス、包含カラム、ストレージパラメータ対応
+- 複数のインデックスタイプ（BTREE、HASH、FULLTEXT、SPATIAL）
+
+**Relation & RelationManager**
+- 物理制約と論理関係の統合管理
+- 外部キー制約（ON DELETE/UPDATE動作、遅延制約）
+- カーディナリティとUML関係タイプの表現
+
+**Note & NoteManager**
+- 全エンティティ統一のノートシステム
+- レビュー追跡機能（`checked`フラグ）
+- DB物理コメントとは独立した設計情報管理
+
+#### データ管理・環境モデル
+
+**DataModel & DataSource**
+- Webインターフェース用のデータグリッドレイアウト設定
+- テーブル、マトリックス、単一値の3つのレイアウト対応
+- YAMLベースのデータファイル管理（セグメント化対応）
+
+**Environ & Environment Management**
+- 環境ごとのスキーマ・テナント・マッピング管理
+- 遅延読み込みによる効率的なリソース管理
+
+**Tenant & Multi-tenant Support**
+- マルチテナント設定レジストリ
+- データベース接続情報とプレフィックス管理
+
+**Project Management**
+- トップレベルプロジェクト設定
+- 環境とスキーマの統合管理
+
+#### 例外処理とエラーハンドリング
+- 統一された例外階層（`DBGearError`基底クラス）
+- エンティティ操作の安全性確保
+- 制約違反の適切な通知
 
 ### bindings
 
@@ -403,11 +441,11 @@ def convert(project, mapping, instance, table, data_model, *args):
     カスタムデータ変換処理
     
     Args:
-        project: プロジェクト情報
-        mapping: 環境マッピング
-        instance: インスタンス名
+        project: Projectオブジェクト（project.py）
+        mapping: Mappingオブジェクト（mapping.py）
+        instance: スキーマインスタンス名
         table: テーブル名
-        data_model: データモデル
+        data_model: DataModelオブジェクト（datamodel.py）
         *args: バインディング定義からの引数
     
     Returns:
@@ -439,12 +477,18 @@ dbgear-web --project .
 
 ### 2. ユニットテストでの利用
 ```python
-from dbgear.core.operations import Operation
+from dbgear.models.project import Project
+from dbgear.models.environ import EnvironManager
 
 def setUp(self):
-    with Operation.get_instance('./project', 'test', 'localhost') as op:
-        op.reset_all()  # テストデータベースをリセット
-        op.require('main', 'users')  # 必要なデータを挿入
+    # 最新のモデルAPIを使用
+    project = Project.load('./project')
+    environ_manager = project.envs
+    test_env = environ_manager['test']
+    
+    # スキーマとデータモデルにアクセス
+    schemas = test_env.schemas
+    data_models = test_env.data_models  # DataModelManagerアクセス
 ```
 
 ### 3. 本番データの準備
@@ -540,9 +584,11 @@ pnpm run build       # ビルドテスト
 - **データ形式**: YAML
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
 - **スキーマ形式**: A5:SQL Mk-2, MySQL直接接続, DBGearネイティブ形式
-- **スキーマ管理**: テーブル、ビュー、インデックス、リレーション、制約の統合管理
-- **MySQL特化**: パーティション、ストレージエンジン、文字セット等の詳細設定
-- **型システム**: 厳密な型定義による設計時検証とコード生成支援
+- **スキーマ管理**: Pydanticベースの型安全なモデルによるテーブル、ビュー、インデックス、リレーション、制約の統合管理
+- **MySQL特化**: パーティション、ストレージエンジン、文字セット、生成カラム等の詳細設定対応
+- **型システム**: ColumnTypeオブジェクトによる厳密な型定義とMySQL全タイプサポート
+- **統合ノートシステム**: 全エンティティ対応のドキュメント管理機能
+- **環境管理**: DataModel、Environ、Tenant、Mappingによる包括的な環境設定
 - **パッケージ管理**: Poetry (Python), pnpm (Frontend)
 
 ## ライセンス
