@@ -1,0 +1,109 @@
+# environ.yaml 仕様書
+
+## 概要
+
+`environ.yaml`は、DBGearプロジェクトの環境固有設定を定義するファイルです。開発・テスト・本番などの環境ごとの説明情報を管理し、環境別のスキーマ、テナント、マッピング情報への統合アクセスを提供します。
+
+## ファイル配置
+
+`environ.yaml`は各環境ディレクトリ内に配置します。
+
+```
+project-root/
+├── project.yaml          # プロジェクト設定ファイル
+├── schema.yaml           # スキーマ定義ファイル
+├── development/          # 開発環境ディレクトリ
+│   ├── environ.yaml      # 環境設定ファイル（本ファイル）
+│   ├── schema.yaml       # 環境固有スキーマ（オプション）
+│   ├── tenant.yaml       # テナント設定（オプション）
+│   └── _mapping.yaml     # マッピング設定（オプション）
+├── test/                 # テスト環境ディレクトリ
+│   └── environ.yaml      # 環境設定ファイル
+└── production/           # 本番環境ディレクトリ
+    └── environ.yaml      # 環境設定ファイル
+```
+
+## 基本構造
+
+### 必須項目
+
+```yaml
+description: Environment description
+```
+
+### オプション項目
+
+```yaml
+deployment:
+  environment_name: "connection_string"
+```
+
+### 項目詳細
+
+#### description
+- **型**: 文字列
+- **必須**: はい
+- **説明**: 環境の概要説明。日本語使用可能
+- **例**: `開発環境`, `テスト環境設定`, `本番環境（MySQL 8.0）`
+
+#### deployment
+- **型**: 辞書（環境名 → 接続文字列）
+- **必須**: いいえ
+- **デフォルト**: 空辞書 (`{}`)
+- **説明**: 環境別のデータベース接続情報マッピング
+- **例**: 
+  - `{'production': 'mysql://user:pass@prod-host:3306/mydb'}`
+  - `{'development': 'mysql://user:pass@dev-host:3306/mydb', 'staging': 'mysql://user:pass@stage-host:3306/mydb'}`
+
+## 関連ファイル
+
+環境ディレクトリには以下のファイルが配置される場合があります：
+
+#### schema.yaml
+- **説明**: 環境固有のスキーマ定義（存在する場合はプロジェクトルートのschema.yamlより優先）
+- **用途**: 環境ごとのテーブル構造やデータ定義の差分管理
+
+#### tenant.yaml
+- **説明**: マルチテナント設定
+- **用途**: テナント別のデータベース接続情報とプレフィックス管理
+
+#### _mapping.yaml
+- **説明**: マッピング設定
+- **用途**: データベース接続とスキーマインスタンスのマッピング定義
+
+## 設定例
+
+### 開発環境の設定例
+
+```yaml
+description: 開発環境
+deployment:
+  development: "mysql://dev:password@localhost:3306/myapp_dev"
+```
+
+### テスト環境の設定例
+
+```yaml
+description: テスト環境設定
+deployment:
+  testing: "mysql://test:password@test-server:3306/myapp_test"
+  staging: "mysql://stage:password@stage-server:3306/myapp_stage"
+```
+
+### 本番環境の設定例
+
+```yaml
+description: 本番環境（MySQL 8.0）
+deployment:
+  production: "mysql://prod:secret@prod-server:3306/myapp"
+```
+
+## 環境管理
+
+環境は`EnvironManager`によって管理され、以下の機能を提供します：
+
+- **遅延読み込み**: 環境固有のスキーマ、テナント、マッピング情報の効率的な管理
+- **統合アクセス**: `Project.envs[環境名]`による環境情報への一元アクセス
+- **自動検出**: 環境ディレクトリの自動探索と環境一覧の取得
+
+この仕様により、DBGearプロジェクトの環境別設定を統一的に管理できます。

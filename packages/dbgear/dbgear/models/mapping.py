@@ -15,7 +15,7 @@ class Mapping(BaseSchema):
     name: str = pydantic.Field(exclude=True)
     description: str
     instances: list[str] = []
-    deployment: bool = False
+    deploy: bool = False
 
     @classmethod
     def load(cls, folder: str, environ: str, name: str):

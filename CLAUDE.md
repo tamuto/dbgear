@@ -31,9 +31,12 @@ packages/
 │   │   │   ├── relation.py   # Relation and RelationManager classes
 │   │   │   ├── notes.py      # Note and NoteManager classes
 │   │   │   ├── project.py    # Project configuration loader
-│   │   │   ├── fileio.py     # YAML-based file I/O operations
-│   │   │   ├── datagrid/     # Data grid layout models
-│   │   │   └── environ/      # Environment management models
+│   │   │   ├── datamodel.py  # Data grid layout models (DataModel, DataSource, SettingInfo)
+│   │   │   ├── environ.py    # Environment management models (Environ, EnvironManager)
+│   │   │   ├── mapping.py    # Mapping management models (Mapping, MappingManager)
+│   │   │   ├── tenant.py     # Multi-tenant models (TenantConfig, TenantRegistry, DatabaseInfo)
+│   │   │   ├── const.py      # Constants and enums
+│   │   │   └── exceptions.py # Unified exception classes
 │   │   ├── dbio/             # Database I/O operations
 │   │   │   ├── engine.py     # Database engine abstraction
 │   │   │   ├── database.py   # Database operations
@@ -97,15 +100,20 @@ packages/
 ### Key Components
 
 - **Project Management**: `packages/dbgear/dbgear/models/project.py` - Core project configuration loader
-- **Schema Management**: `packages/dbgear/dbgear/models/schema.py` - Schema and SchemaManager classes with CRUD operations
-- **Table Management**: `packages/dbgear/dbgear/models/table.py` - Table and TableManager classes with MySQL-specific options
-- **Column Management**: `packages/dbgear/dbgear/models/column.py` - Column and ColumnManager classes with advanced attributes
-- **Column Type System**: `packages/dbgear/dbgear/models/column_type.py` - ColumnType registry with parsing and validation
-- **View Management**: `packages/dbgear/dbgear/models/view.py` - View and ViewManager classes with SQL statement support
-- **Index Management**: `packages/dbgear/dbgear/models/index.py` - Index and IndexManager classes with PostgreSQL features
-- **Relation Management**: `packages/dbgear/dbgear/models/relation.py` - Relation and RelationManager classes for FK constraints
-- **Note System**: `packages/dbgear/dbgear/models/notes.py` - Note and NoteManager classes for documentation
-- **File I/O**: `packages/dbgear/dbgear/models/fileio.py` - YAML-based schema persistence and loading
+- **Schema Management**: `packages/dbgear/dbgear/models/schema.py` - Schema and SchemaManager classes with CRUD operations and YAML persistence
+- **Table Management**: `packages/dbgear/dbgear/models/table.py` - Table and TableManager classes with comprehensive MySQL support (MySQLTableOptions)
+- **Column Management**: `packages/dbgear/dbgear/models/column.py` - Column and ColumnManager classes with advanced MySQL attributes (AUTO_INCREMENT, generated columns, charset/collation)
+- **Column Type System**: `packages/dbgear/dbgear/models/column_type.py` - ColumnType objects with parsing, validation, and MySQL type registry
+- **View Management**: `packages/dbgear/dbgear/models/view.py` - View and ViewManager classes with SQL statement support and future SQL parsing preparation
+- **Index Management**: `packages/dbgear/dbgear/models/index.py` - Index and IndexManager classes with PostgreSQL features (partial indexes, include columns)
+- **Relation Management**: `packages/dbgear/dbgear/models/relation.py` - Relation and RelationManager classes for comprehensive FK constraints and logical relationships
+- **Note System**: `packages/dbgear/dbgear/models/notes.py` - Unified Note and NoteManager classes for documentation across all entities
+- **Data Models**: `packages/dbgear/dbgear/models/datamodel.py` - DataModel, DataSource, and DataModelManager for web interface data grid layouts
+- **Environment Management**: `packages/dbgear/dbgear/models/environ.py` - Environ and EnvironManager for environment-specific configurations
+- **Mapping Management**: `packages/dbgear/dbgear/models/mapping.py` - Mapping and MappingManager for deployment configurations
+- **Tenant Management**: `packages/dbgear/dbgear/models/tenant.py` - TenantConfig, TenantRegistry, and DatabaseInfo for multi-tenant support
+- **Constants**: `packages/dbgear/dbgear/models/const.py` - Layout types, binding types, and UI constants
+- **Exception Handling**: `packages/dbgear/dbgear/models/exceptions.py` - Unified exception hierarchy (DBGearError, DBGearEntityExistsError, etc.)
 - **Database Operations**: `packages/dbgear/dbgear/cli/operations.py` - Apply/deploy data to target databases
 - **SQL Template Engine**: `packages/dbgear/dbgear/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
 - **Schema Importers**: `packages/dbgear/dbgear/importers/` - Dynamic schema import system with A5:SQL Mk-2 support
@@ -380,22 +388,41 @@ The new frontend uses a modern API management system that replaces the legacy `n
 
 When working with schema management features:
 
-1. **Schema Validation**: Use built-in model validation for schema changes before persistence
+1. **Schema Validation**: Use Pydantic-based model validation for schema changes before persistence
 2. **Referential Integrity**: Use schema model methods to ensure foreign key constraints are maintained
-3. **Error Handling**: Provide clear error messages for validation failures and constraint violations
-4. **Testing**: Include both positive and negative test cases for CRUD operations
-5. **Persistence**: Use `fileio.save_schema()` to persist changes to YAML files
-6. **Format Compatibility**: Support both A5:SQL Mk-2 import and native YAML format
+3. **Error Handling**: Use unified exception hierarchy (DBGearError base class) for clear error messages
+4. **Testing**: Include both positive and negative test cases for CRUD operations across all Manager classes
+5. **Persistence**: Use `SchemaManager.save()` method for YAML persistence with auto-population
+6. **Format Compatibility**: Support A5:SQL Mk-2 import and native YAML format through dynamic importer system
+7. **Model Usage**: Access entities through Manager classes (TableManager, ColumnManager, etc.) for consistent CRUD operations
+8. **Type Safety**: Leverage ColumnType objects and type checking functions for robust schema definitions
 
 ### Schema Definition Format
 
-The native YAML schema format supports:
-- **Multiple schemas** in a single YAML file
-- **Column attributes**: column_name, display_name, column_type, nullable, primary_key, default_value, foreign_key, comment, expression, stored, auto_increment, charset, collation
-- **Index definitions**: index_name, columns list
-- **View definitions**: SQL statements with dependency tracking
-- **Schema mapping** for environment-specific names
-- **Foreign key validation** across tables within the same schema collection
+The native YAML schema format supports comprehensive database schema definitions:
+
+#### Core Schema Structure
+- **Multiple schemas** in a single YAML file with hierarchical organization
+- **Auto-population** rules for automatic name assignment based on YAML keys
+- **Column type registry** for custom type definitions and reuse
+- **Global notes** for schema-level documentation
+
+#### Table Definitions
+- **Column attributes**: column_name, display_name, column_type (ColumnType object), nullable, primary_key, default_value, expression, stored, auto_increment, charset, collation
+- **MySQL-specific options**: engine (InnoDB/MyISAM), charset, collation, auto_increment start value, row_format, partitioning (RANGE/LIST/HASH/KEY)
+- **Index definitions**: comprehensive index support with type specification (BTREE/HASH/FULLTEXT/SPATIAL), unique constraints, PostgreSQL features (partial indexes, include columns)
+- **Relation definitions**: physical FK constraints with ON DELETE/UPDATE actions, logical relationships with cardinality, multi-column binding support
+
+#### View Definitions
+- **SQL statements** with SELECT statement storage
+- **Future SQL parsing** preparation with ViewColumn placeholders
+- **Dependency tracking** foundation for table/view references
+
+#### Advanced Features
+- **Note system**: unified documentation across all entities (Schema, Table, Column, View, Index, Relation)
+- **Environment integration**: support for environment-specific schema variations
+- **Type safety**: ColumnType parsing and validation with MySQL type support (VARCHAR, INT, DECIMAL, ENUM/SET, JSON, etc.)
+- **Exception handling**: unified error management with specific exception types
 
 ### Testing Configuration
 
@@ -576,14 +603,14 @@ dbgear import a5sql_mk2 schema.a5er --mapping "MAIN:production,TEST:development"
 
 #### Programmatic Usage
 ```python
-from dbgear.core.importer import import_schema
-from dbgear.core.models.fileio import save_model
+from dbgear.importer import import_schema
+from dbgear.models.schema import SchemaManager
 
 # Import schema
 schema_manager = import_schema('a5sql_mk2', 'path/to', 'schema.a5er', {'MAIN': 'main'})
 
 # Save to YAML
-save_model('schema.yaml', schema_manager)
+schema_manager.save('schema.yaml')
 ```
 
 #### Migration from Legacy Definitions
@@ -668,11 +695,21 @@ The schema management system has been completely restructured with a modern, typ
 - **Roundtrip Testing**: Full load→modify→save→reload validation
 - **Error Handling**: Edge cases and validation error testing
 
-When working with schema functionality, use the new paths:
+When working with schema functionality, use the new model paths:
 - `from dbgear.models.schema import SchemaManager, Schema`
-- `from dbgear.models.table import Table, TableManager`
+- `from dbgear.models.table import Table, TableManager, MySQLTableOptions`
 - `from dbgear.models.column import Column, ColumnManager`
-- `from dbgear.models.column_type import ColumnType, parse_column_type`
+- `from dbgear.models.column_type import ColumnType, ColumnTypeRegistry, parse_column_type, create_simple_column_type`
+- `from dbgear.models.view import View, ViewManager, ViewColumn`
+- `from dbgear.models.index import Index, IndexManager`
+- `from dbgear.models.relation import Relation, RelationManager, EntityInfo, BindColumn`
+- `from dbgear.models.notes import Note, NoteManager`
+- `from dbgear.models.project import Project`
+- `from dbgear.models.environ import Environ, EnvironManager`
+- `from dbgear.models.datamodel import DataModel, DataSource, DataModelManager, SettingInfo`
+- `from dbgear.models.mapping import Mapping, MappingManager`
+- `from dbgear.models.tenant import TenantConfig, TenantRegistry, DatabaseInfo`
+- `from dbgear.models.exceptions import DBGearError, DBGearEntityExistsError, DBGearEntityNotFoundError, DBGearEntityRemovalError`
 
 ## Future Development
 

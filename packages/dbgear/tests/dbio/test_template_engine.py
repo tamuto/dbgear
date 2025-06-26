@@ -7,6 +7,7 @@ from dbgear.models.table import Table, MySQLTableOptions
 from dbgear.models.index import Index
 from dbgear.models.relation import Relation, BindColumn, EntityInfo
 from dbgear.models.view import View
+from dbgear.models.trigger import Trigger
 from dbgear.models.notes import Note
 from dbgear.dbio.templates.mysql import template_engine
 
@@ -678,6 +679,101 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIn('ENGINE=InnoDB', sql)
         self.assertIn('AUTO_INCREMENT=10000', sql)
         self.assertIn('ROW_FORMAT=DYNAMIC', sql)
+
+    def test_trigger_operations(self):
+        """Test trigger creation, deletion and check operations."""
+        # Create a test trigger
+        trigger = Trigger(
+            instance='test',
+            trigger_name='audit_trigger',
+            display_name='Audit Trigger',
+            table_name='users',
+            timing='AFTER',
+            event='INSERT',
+            condition='NEW.status = "active"',
+            body="""
+            INSERT INTO audit_log (table_name, action, user_id, timestamp)
+            VALUES ('users', 'INSERT', NEW.id, NOW());
+            """.strip()
+        )
+
+        # Test CREATE TRIGGER
+        create_sql = template_engine.render(
+            'mysql_create_trigger',
+            env='testdb',
+            trigger=trigger
+        )
+
+        self.assertIsInstance(create_sql, str)
+        self.assertTrue(len(create_sql) > 0)
+
+        print("\n=== Create Trigger ===")
+        print(create_sql)
+
+        # Check trigger structure
+        self.assertIn('CREATE TRIGGER audit_trigger', create_sql)
+        self.assertIn('AFTER INSERT ON testdb.users', create_sql)
+        self.assertIn('FOR EACH ROW', create_sql)
+        self.assertIn('WHEN (NEW.status = "active")', create_sql)
+        self.assertIn('INSERT INTO audit_log', create_sql)
+
+        # Test DROP TRIGGER
+        drop_sql = template_engine.render(
+            'mysql_drop_trigger',
+            env='testdb',
+            trigger_name='old_trigger'
+        )
+
+        self.assertIsInstance(drop_sql, str)
+        self.assertTrue(len(drop_sql) > 0)
+
+        print("\n=== Drop Trigger ===")
+        print(drop_sql)
+
+        self.assertIn('DROP TRIGGER IF EXISTS testdb.old_trigger', drop_sql)
+
+        # Test CHECK TRIGGER EXISTS
+        check_sql = template_engine.render('mysql_check_trigger_exists')
+
+        self.assertIsInstance(check_sql, str)
+        self.assertTrue(len(check_sql) > 0)
+
+        print("\n=== Check Trigger Exists ===")
+        print(check_sql)
+
+        self.assertIn('SELECT TRIGGER_NAME', check_sql)
+        self.assertIn('information_schema.triggers', check_sql)
+        self.assertIn('trigger_schema = :env', check_sql)
+        self.assertIn('trigger_name = :trigger_name', check_sql)
+
+        # Test trigger without condition
+        simple_trigger = Trigger(
+            instance='test',
+            trigger_name='simple_trigger',
+            display_name='Simple Trigger',
+            table_name='products',
+            timing='BEFORE',
+            event='UPDATE',
+            body='SET NEW.updated_at = NOW();'
+        )
+
+        simple_sql = template_engine.render(
+            'mysql_create_trigger',
+            env='production',
+            trigger=simple_trigger
+        )
+
+        self.assertIsInstance(simple_sql, str)
+        self.assertTrue(len(simple_sql) > 0)
+
+        print("\n=== Simple Trigger (No Condition) ===")
+        print(simple_sql)
+
+        self.assertIn('CREATE TRIGGER simple_trigger', simple_sql)
+        self.assertIn('BEFORE UPDATE ON production.products', simple_sql)
+        self.assertIn('FOR EACH ROW', simple_sql)
+        self.assertNotIn('WHEN', simple_sql)  # No condition
+        self.assertIn('SET NEW.updated_at = NOW();', simple_sql)
 
 
 if __name__ == '__main__':

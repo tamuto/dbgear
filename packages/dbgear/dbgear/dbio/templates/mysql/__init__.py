@@ -143,6 +143,28 @@ SELECT TABLE_NAME FROM information_schema.views
 WHERE table_schema = :env AND table_name = :dependency_name
 """
 
+# CREATE TRIGGER template
+CREATE_TRIGGER_TEMPLATE = """
+CREATE TRIGGER {{ trigger.trigger_name }}
+{{ trigger.timing }} {{ trigger.event }} ON {{ env }}.{{ trigger.table_name }}
+FOR EACH ROW
+{%- if trigger.condition %}
+WHEN ({{ trigger.condition }})
+{%- endif %}
+{{ trigger.body }}
+"""
+
+# DROP TRIGGER template
+DROP_TRIGGER_TEMPLATE = """
+DROP TRIGGER IF EXISTS {{ env }}.{{ trigger_name }}
+"""
+
+# CHECK TRIGGER EXISTS template
+CHECK_TRIGGER_EXISTS_TEMPLATE = """
+SELECT TRIGGER_NAME FROM information_schema.triggers
+WHERE trigger_schema = :env AND trigger_name = :trigger_name
+"""
+
 # Register templates
 template_engine.add_template('mysql_create_table', CREATE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_create_index', CREATE_INDEX_TEMPLATE)
@@ -162,3 +184,6 @@ template_engine.add_template('mysql_create_or_replace_view', CREATE_OR_REPLACE_V
 template_engine.add_template('mysql_get_view_definition', GET_VIEW_DEFINITION_TEMPLATE)
 template_engine.add_template('mysql_check_dependency_exists', CHECK_DEPENDENCY_EXISTS_TEMPLATE)
 template_engine.add_template('mysql_check_view_dependency_exists', CHECK_VIEW_DEPENDENCY_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_create_trigger', CREATE_TRIGGER_TEMPLATE)
+template_engine.add_template('mysql_drop_trigger', DROP_TRIGGER_TEMPLATE)
+template_engine.add_template('mysql_check_trigger_exists', CHECK_TRIGGER_EXISTS_TEMPLATE)

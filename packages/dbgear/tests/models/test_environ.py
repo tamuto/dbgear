@@ -26,7 +26,8 @@ class TestEnviron(unittest.TestCase):
         environ = Environ(
             folder=self.temp_dir,
             name=self.env_name,
-            description='Test environment for testing'
+            description='Test environment for testing',
+            deployment={'production': 'mysql://user:pass@prod-host:3306/mydb', 'development': 'mysql://user:pass@dev-host:3306/mydb'}
         )
 
         # Test add
@@ -42,12 +43,16 @@ class TestEnviron(unittest.TestCase):
             saved_data = yaml.safe_load(f)
 
         self.assertEqual(saved_data['description'], 'Test environment for testing')
+        self.assertEqual(saved_data['deployment']['production'], 'mysql://user:pass@prod-host:3306/mydb')
+        self.assertEqual(saved_data['deployment']['development'], 'mysql://user:pass@dev-host:3306/mydb')
 
         # Test load
         loaded_environ = environ_manager[self.env_name]
         self.assertEqual(loaded_environ.name, self.env_name)
         self.assertEqual(loaded_environ.description, 'Test environment for testing')
         self.assertEqual(loaded_environ.folder, self.temp_dir)
+        self.assertEqual(loaded_environ.deployment['production'], 'mysql://user:pass@prod-host:3306/mydb')
+        self.assertEqual(loaded_environ.deployment['development'], 'mysql://user:pass@dev-host:3306/mydb')
 
     def test_environ_load_from_existing_file(self):
         """Test loading Environ from existing YAML file"""
@@ -57,7 +62,8 @@ class TestEnviron(unittest.TestCase):
 
         # Create test environ data
         environ_data = {
-            'description': 'Production environment'
+            'description': 'Production environment',
+            'deployment': {'production': 'mysql://prod:secret@prod-db:3306/app', 'staging': 'mysql://stage:secret@stage-db:3306/app'}
         }
 
         # Write test data
@@ -72,6 +78,8 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(loaded_environ.name, 'production')
         self.assertEqual(loaded_environ.description, 'Production environment')
         self.assertEqual(loaded_environ.folder, self.temp_dir)
+        self.assertEqual(loaded_environ.deployment['production'], 'mysql://prod:secret@prod-db:3306/app')
+        self.assertEqual(loaded_environ.deployment['staging'], 'mysql://stage:secret@stage-db:3306/app')
 
     def test_environ_manager_iteration(self):
         """Test EnvironManager iteration"""
@@ -88,7 +96,8 @@ class TestEnviron(unittest.TestCase):
             environ = Environ(
                 folder=self.temp_dir,
                 name=name,
-                description=desc
+                description=desc,
+                deployment={name: f'mysql://user:pass@{name}-db:3306/app'}
             )
             environ_manager.add(environ)
 
@@ -222,7 +231,8 @@ class TestEnviron(unittest.TestCase):
         original_environ = Environ(
             folder=self.temp_dir,
             name='roundtrip_test',
-            description='テスト環境の説明'
+            description='テスト環境の説明',
+            deployment={'test': 'mysql://test:password@test-server:3306/testdb', 'local': 'sqlite:///local.db'}
         )
 
         # Add and load
@@ -234,6 +244,7 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(loaded_environ.name, original_environ.name)
         self.assertEqual(loaded_environ.description, original_environ.description)
         self.assertEqual(loaded_environ.folder, original_environ.folder)
+        self.assertEqual(loaded_environ.deployment, original_environ.deployment)
 
 
 if __name__ == "__main__":
