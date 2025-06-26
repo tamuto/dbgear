@@ -2,6 +2,10 @@
 
 データベース初期データ管理のためのローカル開発ツールです。データベースのスキーマ定義と初期データをYAML形式で管理し、Web UIを通じて直感的にデータを編集できます。
 
+## 📚 ドキュメンテーション
+
+詳細な仕様と使用方法については、[ドキュメンテーション](docs/index.md)をご覧ください。
+
 ## モノレポ構成
 
 DBGearは3つの独立したパッケージで構成されています：
@@ -130,273 +134,30 @@ dbgear-web --project ./my-project --host 0.0.0.0 --port 8080
 
 ブラウザで http://localhost:5000 にアクセスして、Web UIでデータを編集します。
 
-## プロジェクト設定
+## 設定ファイル
 
-### definitions
+各設定ファイルの詳細については、以下のドキュメントをご確認ください：
 
-データベーススキーマの定義方法を指定します。
-
-#### A5:SQL Mk-2 形式
-```yaml
-definitions:
-  - type: a5sql_mk2
-    filename: ./schema.a5er
-    mapping:
-      MAIN: main
-```
-
-#### MySQL 直接接続
-```yaml
-definitions:
-  - type: mysql
-    connect: mysql+pymysql://user:pass@host/db?charset=utf8mb4
-    mapping:
-      schema_name: instance_name
-```
-
-#### DBGear ネイティブ形式
-```yaml
-definitions:
-  - type: dbgear_schema
-    filename: ./schema.yaml
-    mapping:
-      main: main
-```
-
-#### 選択リスト定義
-```yaml
-definitions:
-  - type: selectable
-    prefix: _select
-    items:
-      status: ステータス
-      category: カテゴリ
-```
+- [project.yaml](docs/spec_project.md) - プロジェクトルート設定
+- [schema.yaml](docs/spec_schema.md) - データベーススキーマ定義
+- [environ.yaml](docs/spec_environ.md) - 環境固有設定
+- [_mapping.yaml](docs/spec_mapping.md) - マッピング設定
+- [tenant.yaml](docs/spec_tenant.md) - マルチテナント設定
+- [DataModel.yaml](docs/spec_datamodel.md) - データモデル設定
 
 ## スキーマ定義
 
-### DBGear ネイティブ形式
+DBGearでは、YAML形式でテーブル、ビュー、インデックス、リレーションを定義できます。詳細な仕様については[schema.yaml仕様](docs/spec_schema.md)をご確認ください。
 
-DBGearのネイティブYAML形式では、テーブル、ビュー、インデックス、リレーションを定義できます。
+## アーキテクチャ
 
-```yaml
-schemas:
-  main:
-    tables:
-      users:
-        display_name: ユーザー
-        columns:
-          - column_name: id
-            display_name: ID
-            column_type:
-              column_type: BIGINT
-              base_type: BIGINT
-            nullable: false
-            primary_key: 1
-            auto_increment: true
-          - column_name: name
-            display_name: 名前
-            column_type:
-              column_type: VARCHAR(100)
-              base_type: VARCHAR
-              length: 100
-            nullable: false
-          - column_name: email
-            display_name: メールアドレス
-            column_type:
-              column_type: VARCHAR(255)
-              base_type: VARCHAR
-              length: 255
-            nullable: true
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-        indexes:
-          - index_name: idx_email
-            columns: [email]
-            unique: true
-            index_type: BTREE
-        relations:
-          - target:
-              schema: main
-              table_name: departments
-            bind_columns:
-              - source_column: department_id
-                target_column: id
-            constraint_name: fk_user_department
-            on_delete: CASCADE
-            on_update: RESTRICT
-        mysql_options:
-          engine: InnoDB
-          charset: utf8mb4
-          collation: utf8mb4_unicode_ci
-          auto_increment: 1000
-        notes:
-          - title: 設計メモ
-            content: ユーザーマスターテーブル
-            checked: false
+DBGearは、Pydanticベースの型安全なデータモデルシステムを採用し、包括的なデータベーススキーマ管理を実現しています。詳細については[コアモデル仕様](docs/spec_model.md)をご確認ください。
 
-    views:
-      active_users:
-        display_name: アクティブユーザー
-        select_statement: |
-          SELECT 
-            id,
-            name,
-            email
-          FROM users
-          WHERE email IS NOT NULL
-        notes:
-          - title: 用途
-            content: メールアドレスが設定されたユーザーのみを表示
-            checked: true
-```
-
-### 最新のコアモデル仕様
-
-DBGearは、Pydanticベースの型安全なデータモデルシステムを採用し、包括的なデータベーススキーマ管理を実現しています。
-
-#### アーキテクチャの特徴
-- **Pydanticベース**: すべてのモデルが`BaseSchema`を継承し、自動検証とJSON/YAMLシリアライゼーションを提供
-- **Managerパターン**: 各エンティティコレクション（Schema、Table、Column、View、Index、Relation）は専用のManagerクラスで管理
-- **統一されたCRUD操作**: `add()`, `remove()`, `__getitem__`, `__iter__`, `__contains__`による一貫したアクセス方法
-- **型安全性**: TypeScriptライクな完全な型ヒントとランタイム検証
-
-#### コアエンティティモデル
-
-**Schema & SchemaManager**
-- 複数スキーマの管理とYAML永続化
-- 自動入力機能によるスキーマ/テーブル名の自動設定
-- カラムタイプレジストリとグローバルノート管理
-
-**Table & TableManager**
-- 包括的なMySQLサポート（ストレージエンジン、パーティション、文字セット）
-- `MySQLTableOptions`による高度なテーブル設定
-- カラム、インデックス、リレーションの統合管理
-
-**Column & ColumnManager**
-- 構造化された`ColumnType`オブジェクトによる型管理
-- MySQL固有機能：AUTO_INCREMENT、生成カラム（STORED/VIRTUAL）、文字セット・照合順序
-- 名前とインデックス両方でのアクセス対応
-
-**ColumnType & ColumnTypeRegistry**
-- `parse_column_type()`による文字列からの自動解析
-- MySQL全タイプサポート（VARCHAR、INT、DECIMAL、ENUM/SET、JSON等）
-- 型チェック機能：`is_numeric_type()`, `is_string_type()`, `is_date_time_type()`
-- カスタム型の登録・管理機能
-
-**View & ViewManager**
-- SQL文ベースのビュー定義
-- 将来のSQL解析機能に対応した`ViewColumn`準備
-- 依存関係自動検出の基盤
-
-**Index & IndexManager**
-- PostgreSQL機能を含む包括的なインデックス定義
-- 部分インデックス、包含カラム、ストレージパラメータ対応
-- 複数のインデックスタイプ（BTREE、HASH、FULLTEXT、SPATIAL）
-
-**Relation & RelationManager**
-- 物理制約と論理関係の統合管理
-- 外部キー制約（ON DELETE/UPDATE動作、遅延制約）
-- カーディナリティとUML関係タイプの表現
-
-**Note & NoteManager**
-- 全エンティティ統一のノートシステム
-- レビュー追跡機能（`checked`フラグ）
-- DB物理コメントとは独立した設計情報管理
-
-#### データ管理・環境モデル
-
-**DataModel & DataSource**
-- Webインターフェース用のデータグリッドレイアウト設定
-- テーブル、マトリックス、単一値の3つのレイアウト対応
-- YAMLベースのデータファイル管理（セグメント化対応）
-
-**Environ & Environment Management**
-- 環境ごとのスキーマ・テナント・マッピング管理
-- 遅延読み込みによる効率的なリソース管理
-
-**Tenant & Multi-tenant Support**
-- マルチテナント設定レジストリ
-- データベース接続情報とプレフィックス管理
-
-**Project Management**
-- トップレベルプロジェクト設定
-- 環境とスキーマの統合管理
-
-#### 例外処理とエラーハンドリング
-- 統一された例外階層（`DBGearError`基底クラス）
-- エンティティ操作の安全性確保
-- 制約違反の適切な通知
-
-### bindings
-
-データの自動設定ルールを定義します。
-
-```yaml
-bindings:
-  # 固定値
-  system_user:
-    type: fixed
-    value: SYSTEM
-  
-  # 現在時刻
-  current_time:
-    type: fixed
-    value: NOW()
-  
-  # 関数呼び出し
-  new_uuid:
-    type: call
-    value: uuid
-  
-  # プラグイン拡張
-  custom_logic:
-    type: extend
-    value: my_plugin
-```
-
-### rules
-
-フィールド名に基づいた自動バインディングルール。
-
-```yaml
-rules:
-  created_by: system_user
-  created_at: current_time
-  updated_at: current_time
-  .*_flag: y_or_n           # 正規表現使用可能
-```
-
-## データレイアウト
-
-### Table レイアウト
-通常のテーブル形式でのデータ編集。
-
-```yaml
-layout: table
-description: ユーザーマスター
-settings:
-  user_id:
-    type: new_uuid
-  created_at:
-    type: current_time
-```
-
-### Matrix レイアウト
-マトリックス形式でのデータ編集（権限設定など）。
-
-```yaml
-layout: matrix
-description: ユーザー権限マトリックス
-```
-
-### Single レイアウト
-単一レコードのデータ編集（設定値など）。
-
-```yaml
-layout: single
-description: システム設定
-```
+主な特徴：
+- **Pydanticベース**: 自動検証とYAMLシリアライゼーション
+- **Managerパターン**: 統一されたCRUD操作インターフェース
+- **型安全性**: TypeScriptライクな完全な型ヒント
+- **MySQL重視**: 包括的なMySQL機能サポート
 
 ## CLIコマンド
 
@@ -430,73 +191,7 @@ dbgear-web [options]
 
 ## プラグイン開発
 
-カスタムデータ変換ロジックをプラグインとして実装できます。
-
-### プラグインの作成
-
-```python
-# my_plugin/__init__.py
-def convert(project, mapping, instance, table, data_model, *args):
-    """
-    カスタムデータ変換処理
-    
-    Args:
-        project: Projectオブジェクト（project.py）
-        mapping: Mappingオブジェクト（mapping.py）
-        instance: スキーマインスタンス名
-        table: テーブル名
-        data_model: DataModelオブジェクト（datamodel.py）
-        *args: バインディング定義からの引数
-    
-    Returns:
-        変換後の値
-    """
-    return f"custom_value_{args[0]}"
-```
-
-### プラグインの登録
-
-```yaml
-# project.yaml
-bindings:
-  my_custom:
-    type: extend
-    value: my_plugin
-```
-
-## 開発ワークフロー
-
-### 1. テスト用データの準備
-```bash
-# テスト環境用のデータを作成
-mkdir test
-echo "id: test_db\ninstances:\n  - main" > test/_mapping.yaml
-dbgear-web --project .
-# Web UIでテストデータを編集
-```
-
-### 2. ユニットテストでの利用
-```python
-from dbgear.models.project import Project
-from dbgear.models.environ import EnvironManager
-
-def setUp(self):
-    # 最新のモデルAPIを使用
-    project = Project.load('./project')
-    environ_manager = project.envs
-    test_env = environ_manager['test']
-    
-    # スキーマとデータモデルにアクセス
-    schemas = test_env.schemas
-    data_models = test_env.data_models  # DataModelManagerアクセス
-```
-
-### 3. 本番データの準備
-```bash
-# 本番用データを作成
-mkdir production
-dbgear apply production_db production --all drop
-```
+カスタムデータ変換ロジックをプラグインとして実装できます。詳細は[ドキュメンテーション](docs/index.md)をご確認ください。
 
 ## 開発環境セットアップ
 
