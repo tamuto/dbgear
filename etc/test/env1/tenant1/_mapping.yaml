@@ -1,0 +1,4 @@
+schemas:
+  - main
+description: テナント1
+deploy: false

@@ -4,9 +4,16 @@ import pathlib
 import os
 
 from .base import BaseSchema
+from .schema import Schema
+from .schema import SchemaManager
 from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
+
+
+class SharedInfo(BaseSchema):
+    environ: str
+    mapping: str
 
 
 class Mapping(BaseSchema):
@@ -14,7 +21,8 @@ class Mapping(BaseSchema):
     environ: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
     description: str
-    instances: list[str] = []
+    schemas: list[str] = []
+    shared: SharedInfo | None = None
     deploy: bool = False
 
     @classmethod
@@ -27,6 +35,15 @@ class Mapping(BaseSchema):
             name=name,
             **data
         )
+
+    def build_schema(self, project_schema: SchemaManager, environ_schema: SchemaManager | None):
+        schema = Schema(name=self.name)
+        for name in self.schemas:
+            if name in project_schema:
+                schema.update(project_schema[name])
+            if environ_schema is not None and name in environ_schema:
+                schema.update(environ_schema[name])
+        return schema
 
 
 class MappingManager:

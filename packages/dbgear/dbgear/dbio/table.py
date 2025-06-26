@@ -1,8 +1,12 @@
+from logging import getLogger
+
 from . import engine
 from .templates.mysql import template_engine
 
 from ..models.schema import Table
 from ..models.column import Column
+
+logger = getLogger(__name__)
 
 
 def is_exist(conn, env: str, table: Table):

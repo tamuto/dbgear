@@ -39,6 +39,9 @@ def execute():
         'env',
         help='target environment.')
     apply_parser.add_argument(
+        '--database',
+        help='target database.')
+    apply_parser.add_argument(
         '--target',
         help='target table.')
     apply_parser.add_argument(
@@ -89,10 +92,17 @@ def execute():
         from .models.project import Project
         from .cli import operations
 
-        project = Project(args.project)
+        project = Project.load(args.project)
 
         if args.command == 'apply':
             if not args.all and args.target is None:
                 logging.error('please specify --target or --all')
                 return
-            operations.apply(project, args.env, args.target, args.all, args.deploy)
+            operations.apply(
+                project,
+                args.env,
+                args.database,
+                args.target,
+                args.all,
+                args.deploy
+            )

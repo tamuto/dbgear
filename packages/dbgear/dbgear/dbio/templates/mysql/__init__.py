@@ -4,11 +4,22 @@
 from ..engine import template_engine
 
 
+# {%- for relation in table.relations %}
+#   {%- if relation.constraint_name %}
+#   , CONSTRAINT {{ relation.constraint_name }}
+#     FOREIGN KEY ({{ relation.bind_columns | map(attribute='source_column') | join_columns }})
+#     REFERENCES {{ relation.target.table_name }} ({{ relation.bind_columns | map(attribute='target_column') | join_columns }})
+#     {%- if relation.on_delete != 'RESTRICT' %} ON DELETE {{ relation.on_delete }}{% endif %}
+#     {%- if relation.on_update != 'RESTRICT' %} ON UPDATE {{ relation.on_update }}{% endif %}
+#   {%- endif %}
+# {%- endfor %}
+
+
 # CREATE TABLE template
 CREATE_TABLE_TEMPLATE = """
 CREATE TABLE {{ env }}.{{ table.table_name }} (
 {%- for column in table.columns %}
-  {{ column.column_name | escape_identifier }} {{ column.column_type.column_type if column.column_type.column_type else column.column_type }}
+  {{ column.column_name | escape_identifier }} {{ column.column_type.base_type }}
   {%- if column.column_type.length and column.column_type.length > 0 %}({{ column.column_type.length }}){% endif %}
   {%- if column.column_type.precision and column.column_type.scale %}({{ column.column_type.precision }}, {{ column.column_type.scale }}){% elif column.column_type.precision %}({{ column.column_type.precision }}){% endif %}
   {%- if not column.nullable %} NOT NULL{% endif %}
@@ -16,22 +27,12 @@ CREATE TABLE {{ env }}.{{ table.table_name }} (
   {%- if column.expression %} GENERATED ALWAYS AS ({{ column.expression }}) {% if column.stored %}STORED{% else %}VIRTUAL{% endif %}{% elif column.default_value %} DEFAULT {{ column.default_value }}{% endif %}
   {%- if column.charset %} CHARACTER SET {{ column.charset }}{% endif %}
   {%- if column.collation %} COLLATE {{ column.collation }}{% endif %}
-  {%- if column.notes and column.notes|length > 0 %} COMMENT {{ column.notes[0].content | escape_string }}{% endif %}
   {%- if not loop.last %},{% endif %}
 {%- endfor %}
 {%- set pk_columns = table.columns | selectattr('primary_key', 'ne', none) | sort(attribute='primary_key') | list %}
 {%- if pk_columns %}
   , CONSTRAINT {{ table.table_name }}_PKC PRIMARY KEY ({{ pk_columns | map(attribute='column_name') | join_columns }})
 {%- endif %}
-{%- for relation in table.relations %}
-  {%- if relation.constraint_name %}
-  , CONSTRAINT {{ relation.constraint_name }}
-    FOREIGN KEY ({{ relation.bind_columns | map(attribute='source_column') | join_columns }})
-    REFERENCES {{ relation.target.table_name }} ({{ relation.bind_columns | map(attribute='target_column') | join_columns }})
-    {%- if relation.on_delete != 'RESTRICT' %} ON DELETE {{ relation.on_delete }}{% endif %}
-    {%- if relation.on_update != 'RESTRICT' %} ON UPDATE {{ relation.on_update }}{% endif %}
-  {%- endif %}
-{%- endfor %}
 )
 {%- if table.mysql_options %}
 {%- if table.mysql_options.engine %} ENGINE={{ table.mysql_options.engine }}{% endif %}
@@ -87,13 +88,13 @@ VALUES ({{ value_placeholders | join(', ') }})
 
 # BACKUP TABLE template (CREATE TABLE AS SELECT)
 BACKUP_TABLE_TEMPLATE = """
-CREATE TABLE {{ env }}.bak_{{ table_name }}_{{ ymd }} AS 
+CREATE TABLE {{ env }}.bak_{{ table_name }}_{{ ymd }} AS
 SELECT * FROM {{ env }}.{{ table_name }}
 """
 
 # RESTORE TABLE template (INSERT IGNORE SELECT)
 RESTORE_TABLE_TEMPLATE = """
-INSERT IGNORE INTO {{ env }}.{{ table_name }} 
+INSERT IGNORE INTO {{ env }}.{{ table_name }}
 SELECT * FROM {{ env }}.bak_{{ table_name }}_{{ ymd }}
 """
 

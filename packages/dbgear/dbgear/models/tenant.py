@@ -1,9 +1,12 @@
 import pydantic
 import yaml
+import os
 
 from .base import BaseSchema
+from .mapping import Mapping
 from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
+from ..utils.populate import auto_populate_from_keys
 
 
 class DatabaseInfo(BaseSchema):
@@ -14,28 +17,38 @@ class DatabaseInfo(BaseSchema):
 
 
 class TenantConfig(BaseSchema):
-    name: str
+    name: str = pydantic.Field(exclude=True)
     ref: str
 
     # tenant variables
-    prefix: str = ''
     databases: list[DatabaseInfo] = []
 
 
 class TenantRegistry(BaseSchema):
     """Registry of tenant configurations"""
+    folder: str = pydantic.Field(exclude=True)
+    name: str = pydantic.Field(exclude=True)
     tenants: dict[str, TenantConfig] = pydantic.Field(default_factory=dict)
 
     @classmethod
-    def load(cls, filename: str):
-        """Load tenant configurations from a YAML file"""
-        with open(filename, 'r', encoding='utf-8') as f:
+    def load(cls, folder: str, name: str):
+        path = f'{folder}/{name}/tenant.yaml'
+        if not os.path.exists(path):
+            return None
+        with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
-        return cls(**data)
+        populated_data = auto_populate_from_keys(data, {
+            'tenants.$1.name': '$1',
+        })
+        return cls(
+            folder=folder,
+            name=name,
+            **populated_data
+        )
 
-    def save(self, filename: str) -> None:
+    def save(self) -> None:
         """Save tenant configurations to a YAML file"""
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(f'{self.folder}/{self.name}/tenant.yaml', 'w', encoding='utf-8') as f:
             yaml.dump(
                 self.model_dump(
                     by_alias=True,
@@ -69,3 +82,14 @@ class TenantRegistry(BaseSchema):
         if name not in self.tenants:
             raise DBGearEntityNotFoundError(f'Tenant {name} does not exist')
         del self.tenants[name]
+
+    def materialize(self):
+        for tenant in self.tenants.values():
+            map = Mapping.load(self.folder, self.name, tenant.ref)
+
+            for database in tenant.databases:
+                if not database.active:
+                    continue
+                clone = map.model_copy(deep=True)
+                clone.name = database.database
+                yield clone

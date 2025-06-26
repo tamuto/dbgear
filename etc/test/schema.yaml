@@ -2,349 +2,332 @@ schemas:
   main:
     tables:
       test_table:
-        display_name: テストテーブル
-        fields:
-          - column_name: col_id
-            display_name: IDカラム
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-          - column_name: name
-            display_name: 名前
-            column_type: varchar(100)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-          - column_name: num
-            display_name: 数字
-            column_type: int
-            nullable: true
-          - column_name: update_date
-            display_name: 更新日時
-            column_type: datetime
-            nullable: false
-          - column_name: update_user
-            display_name: 更新者
-            column_type: varchar(64)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-
+        displayName: テストテーブル
+        columns:
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: VARCHAR(100)
+            baseType: VARCHAR
+            length: 100
+          nullable: false
+        - columnName: num
+          displayName: 数字
+          columnType:
+            columnType: INT
+            baseType: INT
+          nullable: true
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: DATETIME
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
       tbl_child:
-        display_name: 子テーブル
-        fields:
-          - column_name: child_id
-            display_name: 子ID
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-          - column_name: col_id
-            display_name: IDカラム
-            column_type: varchar(36)
-            nullable: false
-            foreign_key: test_table.col_id
-          - column_name: name
-            display_name: 名前
-            column_type: varchar(100)
-            nullable: false
-          - column_name: update_date
-            display_name: 更新日時
-            column_type: datetime
-            nullable: false
-          - column_name: update_user
-            display_name: 更新者
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: 子テーブル
+        columns:
+        - columnName: child_id
+          displayName: 子ID
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: VARCHAR(100)
+            baseType: VARCHAR
+            length: 100
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: DATETIME
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: test_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_child_test_table
+          description: Foreign key from tbl_child.col_id to test_table.col_id
       properties:
-        display_name: プロパティ
-        fields:
-          - column_name: key
-            display_name: キー
-            column_type: varchar(32)
-            nullable: false
-            primary_key: 1
-          - column_name: value
-            display_name: 値
-            column_type: varchar(64)
-            nullable: false
-          - column_name: update_date
-            display_name: 更新日時
-            column_type: datetime
-            nullable: false
-          - column_name: update_user
-            display_name: 更新者
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: プロパティ
+        columns:
+        - columnName: key
+          displayName: キー
+          columnType:
+            columnType: VARCHAR(32)
+            baseType: VARCHAR
+            length: 32
+          nullable: false
+          primaryKey: 0
+        - columnName: value
+          displayName: 値
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: DATETIME
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
       row_table:
-        display_name: 行テーブル
-        fields:
-          - column_name: row_id
-            display_name: ID
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-          - column_name: row_name
-            display_name: 名前
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: 行テーブル
+        columns:
+        - columnName: row_id
+          displayName: ID
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: row_name
+          displayName: 名前
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
       tbl_matrix:
-        display_name: マトリックステーブル
-        fields:
-          - column_name: row_id
-            display_name: ID
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-            foreign_key: row_table.row_id
-          - column_name: child_id
-            display_name: 子ID
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 2
-            foreign_key: tbl_child.child_id
-          - column_name: value
-            display_name: 値
-            column_type: varchar(20)
-            nullable: false
-          - column_name: update_date
-            display_name: 更新日時
-            column_type: datetime
-            nullable: false
-          - column_name: update_user
-            display_name: 更新者
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: マトリックステーブル
+        columns:
+        - columnName: row_id
+          displayName: ID
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: child_id
+          displayName: 子ID
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 1
+        - columnName: value
+          displayName: 値
+          columnType:
+            columnType: VARCHAR(20)
+            baseType: VARCHAR
+            length: 20
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: DATETIME
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: row_table
+          bindColumns:
+          - sourceColumn: row_id
+            targetColumn: row_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_matrix_row_table
+          description: Foreign key from tbl_matrix.row_id to row_table.row_id
+        - target:
+            schemaName: main
+            tableName: tbl_child
+          bindColumns:
+          - sourceColumn: child_id
+            targetColumn: child_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_matrix_tbl_child
+          description: Foreign key from tbl_matrix.child_id to tbl_child.child_id
       tbl_cmp_table:
-        display_name: 複合キーテーブル
-        fields:
-          - column_name: col_id
-            display_name: IDカラム
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-            foreign_key: test_table.col_id
-          - column_name: seq
-            display_name: シーケンス
-            column_type: int
-            nullable: false
-            primary_key: 2
-          - column_name: name
-            display_name: 名前
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: 複合キーテーブル
+        columns:
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: seq
+          displayName: シーケンス
+          columnType:
+            columnType: INT
+            baseType: INT
+          nullable: false
+          primaryKey: 1
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: test_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_table_test_table
+          description: Foreign key from tbl_cmp_table.col_id to test_table.col_id
       tbl_cmp_child:
-        display_name: 複合子テーブル
-        fields:
-          - column_name: cmp_child_id
-            display_name: 複合キー子ID
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-          - column_name: col_id
-            display_name: IDカラム
-            column_type: varchar(36)
-            nullable: false
-            # Note: Complex foreign key reference (col_id,seq) -> tbl_cmp_table(col_id,seq)
-          - column_name: seq
-            display_name: シーケンス
-            column_type: int
-            nullable: false
-          - column_name: name
-            display_name: 名前
-            column_type: varchar(64)
-            nullable: false
-
+        displayName: 複合子テーブル
+        columns:
+        - columnName: cmp_child_id
+          displayName: 複合キー子ID
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+        - columnName: seq
+          displayName: シーケンス
+          columnType:
+            columnType: INT
+            baseType: INT
+          nullable: false
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: VARCHAR(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: tbl_cmp_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_child_tbl_cmp_table
+          description: Foreign key from tbl_cmp_child.col_id to tbl_cmp_table.col_id,seq
+        - target:
+            schemaName: main
+            tableName: tbl_cmp_table
+          bindColumns:
+          - sourceColumn: seq
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_child_tbl_cmp_table
+          description: Foreign key from tbl_cmp_child.seq to tbl_cmp_table.col_id,seq
       tbl_null_test:
-        display_name: tbl_null_test
-        fields:
-          - column_name: test_id
-            display_name: test_id
-            column_type: varchar(36)
-            nullable: false
-            primary_key: 1
-          - column_name: col1
-            display_name: col1
-            column_type: char(5)
-            nullable: true
-          - column_name: col2
-            display_name: col2
-            column_type: varchar(10)
-            nullable: true
-          - column_name: col3
-            display_name: col3
-            column_type: datetime
-            nullable: true
-          - column_name: col4
-            display_name: col4
-            column_type: int
-            nullable: true
+        displayName: tbl_null_test
+        columns:
+        - columnName: test_id
+          displayName: test_id
+          columnType:
+            columnType: VARCHAR(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col1
+          displayName: col1
+          columnType:
+            columnType: CHAR(5)
+            baseType: CHAR
+            length: 5
+          nullable: true
+        - columnName: col2
+          displayName: col2
+          columnType:
+            columnType: VARCHAR(10)
+            baseType: VARCHAR
+            length: 10
+          nullable: true
+        - columnName: col3
+          displayName: col3
+          columnType:
+            columnType: DATETIME
+            baseType: DATETIME
+          nullable: true
+        - columnName: col4
+          displayName: col4
+          columnType:
+            columnType: INT
+            baseType: INT
+          nullable: true
+  general:
+    notes:
+    - title: Comment from 共通DB
+      content: 'mt_組織を地区や地域として、施設を絞るために使いたい。
 
-      # Expression column examples
-      users:
-        display_name: ユーザー
-        fields:
-          - column_name: id
-            display_name: ID
-            column_type: BIGINT
-            nullable: false
-            primary_key: 1
-            auto_increment: true
-            
-          - column_name: first_name
-            display_name: 名
-            column_type: VARCHAR(50)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-            
-          - column_name: last_name
-            display_name: 姓
-            column_type: VARCHAR(50)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-            
-          - column_name: email
-            display_name: メールアドレス
-            column_type: VARCHAR(255)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-            
-          - column_name: birth_date
-            display_name: 生年月日
-            column_type: DATE
-            nullable: true
-            
-          - column_name: full_name
-            display_name: フルネーム
-            column_type: VARCHAR(101)
-            nullable: false
-            expression: "CONCAT(last_name, ' ', first_name)"
-            stored: true
-            
-          - column_name: email_domain
-            display_name: メールドメイン
-            column_type: VARCHAR(255)
-            nullable: true  
-            expression: "SUBSTRING_INDEX(email, '@', -1)"
-            stored: false
-            
-          - column_name: age
-            display_name: 年齢
-            column_type: INT
-            nullable: true
-            expression: "TIMESTAMPDIFF(YEAR, birth_date, CURDATE())"
-            stored: false
-            
-          - column_name: created_at
-            display_name: 作成日時
-            column_type: TIMESTAMP
-            nullable: false
-            default_value: "CURRENT_TIMESTAMP"
-            
-        indexes:
-          - index_name: idx_email
-            columns: [email]
-          - index_name: idx_full_name
-            columns: [full_name]
-            
-      products:
-        display_name: 商品
-        fields:
-          - column_name: id
-            display_name: ID
-            column_type: BIGINT
-            nullable: false
-            primary_key: 1
-            auto_increment: true
-            
-          - column_name: name
-            display_name: 商品名
-            column_type: VARCHAR(255)
-            nullable: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-            
-          - column_name: price
-            display_name: 単価
-            column_type: DECIMAL(10,2)
-            nullable: false
-            
-          - column_name: tax_rate
-            display_name: 税率
-            column_type: DECIMAL(5,4)
-            nullable: false
-            default_value: "0.1000"
-            comment: "デフォルト10%の消費税"
-            
-          - column_name: total_price
-            display_name: 税込価格
-            column_type: DECIMAL(10,2)
-            nullable: false
-            expression: "price * (1 + tax_rate)"
-            stored: true
-            comment: "税込み適用後の価格"
-            
-          - column_name: price_category
-            display_name: 価格帯
-            column_type: VARCHAR(20)
-            nullable: false
-            expression: "CASE WHEN price < 1000 THEN '低価格' WHEN price < 5000 THEN '中価格' ELSE '高価格' END"
-            stored: false
-            charset: utf8mb4
-            collation: utf8mb4_unicode_ci
-            
-        indexes:
-          - index_name: idx_name
-            columns: [name]
-          - index_name: idx_price
-            columns: [price]
+        グルーピングは自治体コード_9999のような感じで組織コードを採番し、WHERE句のLIKEで''自治体コード_%''と指定する。
 
-    views:
-      user_summary:
-        display_name: ユーザー集計ビュー
-        select_statement: |
-          SELECT 
-            u.id,
-            u.full_name,
-            u.email,
-            u.age,
-            COUNT(o.id) as order_count,
-            COALESCE(SUM(o.total_amount), 0) as total_spent
-          FROM users u
-          LEFT JOIN orders o ON u.id = o.user_id
-          GROUP BY u.id, u.full_name, u.email, u.age
-        comment: ユーザーごとの注文集計情報を表示
+        大元の自治体としてはアンダースコアなしの自治体コードとする。
 
-      active_products:
-        display_name: アクティブ商品ビュー
-        select_statement: |
-          SELECT 
-            p.id,
-            p.name,
-            p.price,
-            p.total_price,
-            p.price_category,
-            p.created_at
-          FROM products p
-          WHERE p.price > 0
-        comment: 価格が設定された商品のみを表示
+        保護者などが施設ハッシュではなく、施設を特定地域から選択したい場合に使用する。'
+    - title: Comment from 施設DB
+      content: カテゴリとして通常食、代替食を設定する場合、除去食のテーブルが使われない可能性がある
+    - title: Comment from 施設DB
+      content: '献立アップロード後に配布、確定まで実行するなどのジョブ定義を持たせる。（実行するStepFunctionか、処理の継続か否かなどを確認することができるフラグなど）
 
-      test_summary:
-        display_name: テストデータ集計ビュー
-        select_statement: |
-          SELECT 
-            t.col_id,
-            t.name as test_name,
-            COUNT(c.child_id) as child_count,
-            MAX(c.update_date) as last_child_update
-          FROM test_table t
-          LEFT JOIN tbl_child c ON t.col_id = c.col_id
-          GROUP BY t.col_id, t.name
-        comment: テストテーブルと子テーブルの集計情報
+        '

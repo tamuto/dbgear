@@ -1,5 +1,6 @@
 import pydantic
 import yaml
+import os
 
 from .base import BaseSchema
 from .column_type import ColumnType
@@ -16,7 +17,6 @@ from ..utils.populate import auto_populate_from_keys
 
 
 class Schema(BaseSchema):
-    """Database schema containing tables, views and triggers"""
     name: str = pydantic.Field(exclude=True)
     tables_: dict[str, Table] = pydantic.Field(default_factory=dict, alias='tables')
     views_: dict[str, View] = pydantic.Field(default_factory=dict, alias='views')
@@ -39,16 +39,22 @@ class Schema(BaseSchema):
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
 
+    def update(self, other):
+        self.tables_.update(other.tables_)
+        self.views_.update(other.views_)
+        self.triggers_.update(other.triggers_)
+        self.notes_.extend(other.notes_)
+
 
 class SchemaManager(BaseSchema):
-    """Manages multiple schemas in a database project"""
     schemas: dict[str, Schema] = {}
     registry_: dict[str, ColumnType] = pydantic.Field(default_factory=dict, alias='registry')
     notes_: list[Note] = pydantic.Field(default_factory=list, alias='notes')
 
     @classmethod
     def load(cls, filename: str):
-        """Load schemas from a YAML file"""
+        if not os.path.exists(filename):
+            return None
         with open(filename, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         populated_data = auto_populate_from_keys(data, {
@@ -63,7 +69,6 @@ class SchemaManager(BaseSchema):
         return cls(**populated_data)
 
     def save(self, filename: str) -> None:
-        """Save schemas to a YAML file"""
         with open(filename, 'w', encoding='utf-8') as f:
             yaml.dump(
                 self.model_dump(
