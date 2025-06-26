@@ -217,9 +217,9 @@ class TestEnviron(unittest.TestCase):
         self.assertIn('main', schemas.schemas)
 
         # Test tenants property (lazy loading)
-        tenants = loaded_environ.tenants
-        self.assertIsNotNone(tenants)
-        self.assertIn('localhost', tenants.tenants)
+        tenant = loaded_environ.tenant
+        self.assertIsNotNone(tenant)
+        self.assertIn('localhost', tenant.tenants)
 
         # Test mappings property
         mappings = loaded_environ.mappings

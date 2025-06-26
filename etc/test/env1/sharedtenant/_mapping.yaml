@@ -1,0 +1,7 @@
+schemas:
+  - main
+shared:
+  environ: common
+  mapping: base
+description: 共有テナント
+deploy: false

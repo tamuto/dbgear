@@ -19,7 +19,7 @@ class Environ(BaseSchema):
     deployment: dict[str, str] = {}
 
     _schemas: SchemaManager | None = None
-    _tenants: TenantRegistry | None = None
+    _tenant: TenantRegistry | None = None
 
     @classmethod
     def load(cls, folder: str, name: str) -> None:
@@ -31,20 +31,28 @@ class Environ(BaseSchema):
             **data)
 
     @property
-    def schemas(self) -> SchemaManager:
+    def schemas(self) -> SchemaManager | None:
         if self._schemas is None:
             self._schemas = SchemaManager.load(f'{self.folder}/{self.name}/schema.yaml')
         return self._schemas
 
     @property
-    def tenants(self):
-        if self._tenants is None:
-            self._tenants = TenantRegistry.load(f'{self.folder}/{self.name}/tenant.yaml')
-        return self._tenants
+    def tenant(self) -> TenantRegistry | None:
+        if self._tenant is None:
+            self._tenant = TenantRegistry.load(self.folder, self.name)
+        return self._tenant
 
     @property
-    def mappings(self) -> 'MappingManager':
+    def mappings(self) -> MappingManager:
         return MappingManager(self.folder, self.name)
+
+    @property
+    def databases(self):
+        for map in self.mappings:
+            if map.deploy:
+                yield map
+
+        yield from self.tenant.materialize()
 
 
 class EnvironManager:

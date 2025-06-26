@@ -1,0 +1,7 @@
+schemas:
+  - main
+shared:
+  environ: common
+  mapping: test1
+description: 参照データベース
+deploy: true

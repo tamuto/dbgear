@@ -29,7 +29,7 @@ class TestMapping(unittest.TestCase):
             environ=self.env_name,
             name=self.mapping_name,
             description='Base mapping for testing',
-            instances=['main'],
+            schemas=['main'],
             deploy=False
         )
 
@@ -46,14 +46,14 @@ class TestMapping(unittest.TestCase):
             saved_data = yaml.safe_load(f)
 
         self.assertEqual(saved_data['description'], 'Base mapping for testing')
-        self.assertEqual(saved_data['instances'], ['main'])
+        self.assertEqual(saved_data['schemas'], ['main'])
         # deploy=False is excluded by exclude_defaults
         self.assertEqual(saved_data.get('deploy', False), False)
 
         # Test load
         loaded_mapping = mapping_manager[self.mapping_name]
         self.assertEqual(loaded_mapping.description, 'Base mapping for testing')
-        self.assertEqual(loaded_mapping.instances, ['main'])
+        self.assertEqual(loaded_mapping.schemas, ['main'])
         self.assertFalse(loaded_mapping.deploy)
 
     def test_mapping_load_from_existing_file(self):
@@ -65,7 +65,7 @@ class TestMapping(unittest.TestCase):
         # Create test mapping data
         mapping_data = {
             'description': 'テスト1データベース',
-            'instances': ['main'],
+            'schemas': ['main'],
             'deploy': True,
         }
 
@@ -79,7 +79,7 @@ class TestMapping(unittest.TestCase):
         loaded_mapping = mapping_manager['test1']
 
         self.assertEqual(loaded_mapping.description, 'テスト1データベース')
-        self.assertEqual(loaded_mapping.instances, ['main'])
+        self.assertEqual(loaded_mapping.schemas, ['main'])
         self.assertTrue(loaded_mapping.deploy)
 
     def test_mapping_manager_iteration(self):
@@ -196,7 +196,7 @@ class TestMapping(unittest.TestCase):
 
         # Verify all fields
         self.assertEqual(loaded_mapping.description, original_mapping.description)
-        self.assertEqual(loaded_mapping.instances, original_mapping.instances)
+        self.assertEqual(loaded_mapping.schemas, original_mapping.schemas)
         self.assertEqual(loaded_mapping.deploy, original_mapping.deploy)
 
 
