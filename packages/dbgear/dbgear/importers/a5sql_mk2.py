@@ -36,6 +36,12 @@ class A5ERRelation:
     fields2: str = None
 
 
+@dataclass
+class A5ERComment:
+    comment: str = None
+    page: str = None
+
+
 class Parser:
 
     def __init__(self, mapping):
@@ -43,6 +49,7 @@ class Parser:
         self.mapping = mapping
         self.instances = {}
         self.relations = {}
+        self.comments = []
         self.session = None
 
     def parse_line(self, line_no, line):
@@ -57,6 +64,9 @@ class Parser:
                     self.relations[self.session.entity2] = {}
                 for fld in self.session.fields2.split(','):
                     self.relations[self.session.entity2][fld] = self.session
+            if self.mode == 4:
+                if self.session.comment is not None:
+                    self.comments.append(self.session)
             # 空行の場合、セッション解除
             self.mode = None
             return
@@ -72,8 +82,7 @@ class Parser:
             elif self.mode == 3:
                 self.parse_relation(name, value)
             elif self.mode == 4:
-                # コメントなので何もしない
-                pass
+                self.parse_comment(name, value)
             elif self.mode == 5:
                 # 図形や線分オブジェクト（何もしない）
                 pass
@@ -90,6 +99,7 @@ class Parser:
                 self.session = A5ERRelation()
             elif line == '[Comment]':
                 self.mode = 4
+                self.session = A5ERComment()
             elif line == '[Line]':
                 self.mode = 5
             elif line == '[Shape]':
@@ -128,11 +138,59 @@ class Parser:
         if name == "Fields2":
             self.session.fields2 = value
 
+    def parse_comment(self, name, value):
+        if name == "Comment":
+            self.session.comment = value
+        if name == "Page":
+            self.session.page = value
+
 
 def convert_to_schema(p):
     schemas = SchemaManager()
-    for k in p.instances.keys():
-        schemas.add(Schema(name=k))
+
+    # Create schemas from instances (tables) and comments
+    all_schema_names = set(p.instances.keys())
+    # Add schema names from comments that are mapped
+    for comment in p.comments:
+        if comment.page and comment.page.upper() in p.mapping:
+            mapped_schema = p.mapping[comment.page.upper()]
+            all_schema_names.add(mapped_schema)
+
+    for k in all_schema_names:
+        schema = Schema(name=k)
+
+        # Add standalone comments as schema-level notes
+        schema_comments = [
+            comment for comment in p.comments
+            if comment.page and p.mapping.get(comment.page.upper()) == k
+        ]
+        for comment in schema_comments:
+            if comment.comment:
+                # Create note with page as title and comment as content
+                note = Note(
+                    title=f"Comment from {comment.page}",
+                    content=comment.comment.replace('\\n', '\n')  # Convert escaped newlines
+                )
+                schema.notes.add(note)
+
+        schemas.add(schema)
+
+    # Add standalone comments that don't belong to any specific schema
+    for comment in p.comments:
+        if comment.page and comment.page.upper() not in p.mapping:
+            # Create a 'general' schema if it doesn't exist
+            if 'general' not in [s.name for s in schemas.schemas.values()]:
+                general_schema = Schema(name='general')
+                schemas.add(general_schema)
+            else:
+                general_schema = next(s for s in schemas.schemas.values() if s.name == 'general')
+
+            if comment.comment:
+                note = Note(
+                    title=f"Comment from {comment.page}",
+                    content=comment.comment.replace('\\n', '\n')
+                )
+                general_schema.notes.add(note)
 
     for key, entities in p.instances.items():
         for entity in entities:
