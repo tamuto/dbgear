@@ -396,6 +396,7 @@ When working with schema management features:
 6. **Format Compatibility**: Support A5:SQL Mk-2 import and native YAML format through dynamic importer system
 7. **Model Usage**: Access entities through Manager classes (TableManager, ColumnManager, etc.) for consistent CRUD operations
 8. **Type Safety**: Leverage ColumnType objects and type checking functions for robust schema definitions
+9. **Documentation Policy**: Notes are for documentation and version control only - they are NOT reflected in generated SQL or database schemas
 
 ### Schema Definition Format
 
@@ -496,7 +497,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 ├── __init__.py              # Basic module
 ├── engine.py                # SQLTemplateEngine class with Jinja2 integration
 └── mysql/
-    └── __init__.py          # MySQL-specific templates (18 templates total)
+    └── __init__.py          # MySQL-specific templates (21 templates total)
 ```
 
 #### Template Categories
@@ -504,6 +505,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 - **Table Operations**: CREATE/DROP/CHECK tables, backup/restore (7 templates)  
 - **View Operations**: CREATE/DROP/CHECK views, dependencies (6 templates)
 - **Index Operations**: CREATE with advanced MySQL features (1 template)
+- **Foreign Key Operations**: ADD/DROP foreign key constraints via ALTER TABLE (3 templates)
 - **Data Operations**: INSERT with parameter binding (1 template)
 
 #### Key Features
@@ -512,6 +514,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 - **MySQL Optimization**: Support for advanced MySQL features (generated columns, character sets, foreign keys)
 - **Template Naming**: Consistent `mysql_*` convention for easy identification
 - **Error Handling**: Template validation and rendering error management
+- **Documentation Separation**: Notes are for documentation only and are NOT included in generated SQL
 
 #### Custom Filters
 - `join_columns`: Joins column names with backticks (`column1`, `column2`)
