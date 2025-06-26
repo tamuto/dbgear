@@ -20,7 +20,6 @@ class Mapping(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     environ: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
-    prefix: str = ''
     description: str
     schemas: list[str] = []
     shared: SharedInfo | None = None

@@ -1,10 +1,11 @@
-# import importlib
-
 from logging import getLogger
 from datetime import datetime
+
 from ..dbio import engine
 from ..dbio import database
 from ..dbio import table
+from ..dbio import view
+from ..dbio import trigger
 
 from ..models.project import Project
 from ..models.mapping import Mapping
@@ -93,24 +94,46 @@ class Operation:
         schema = map.build_schema(self.project.schemas, self.environ.schemas)
 
         for tbl in schema.tables:
-            print(tbl.table_name)
-            table.drop(self.conn, map.name, tbl, prefix=map.prefix)
-            table.create(self.conn, map.name, tbl, prefix=map.prefix)
-            # for tbl in schema.tables.values():
-            #     if not all and target != tbl.table_name:
-            #         continue
-            #     # テーブルが存在しない場合は作成する。
-            #     if table.is_exist(self.conn, self.map.id, tbl) is False:
-            #         logger.info(f'table {self.map.id}.{tbl.table_name} was created.')
-            #         table.create(self.conn, self.map.id, tbl)
-            #         continue
-            #     # データのバックアップ
-            #     logger.info(f'backup {self.map.id}.{tbl.table_name}')
-            #     table.backup(self.conn, self.map.id, tbl, self.ymd)
-            #     # テーブルの再作成
-            #     logger.info(f'drop & create table {self.map.id}.{tbl.table_name}')
-            #     table.drop(self.conn, self.map.id, tbl)
-            #     table.create(self.conn, self.map.id, tbl)
+            if not all and target != tbl.table_name:
+                continue
+            # テーブルが存在しない場合は作成する。
+            if not table.is_exist(self.conn, map.name, tbl):
+                logger.info(f'table {map.name}.{tbl.table_name} was created.')
+                table.create(self.conn, map.name, tbl)
+                continue
+            # データのバックアップ
+            logger.info(f'backup {map.name}.{tbl.table_name}')
+            table.backup(self.conn, map.name, tbl, self.ymd)
+            # テーブルの再作成
+            logger.info(f'drop & create table {map.name}.{tbl.table_name}')
+            table.drop(self.conn, map.name, tbl)
+            table.create(self.conn, map.name, tbl)
+
+        for vw in schema.views:
+            if not all and target != vw.view_name:
+                continue
+            # ビューが存在しない場合は作成する。
+            if not view.is_exist_view(self.conn, map.name, vw):
+                logger.info(f'view {map.name}.{vw.view_name} was created.')
+                view.create_view(self.conn, map.name, vw)
+            else:
+                # ビューの再作成
+                logger.info(f'drop & create view {map.name}.{vw.view_name}')
+                view.drop_view(self.conn, map.name, vw)
+                view.create_view(self.conn, map.name, vw)
+
+        for tr in schema.triggers:
+            if not all and target != tr.trigger_name:
+                continue
+            # トリガーが存在しない場合は作成する。
+            if not trigger.is_exist_trigger(self.conn, map.name, tr):
+                logger.info(f'trigger {map.name}.{tr.trigger_name} was created.')
+                trigger.create_trigger(self.conn, map.name, tr)
+            else:
+                # トリガーの再作成
+                logger.info(f'drop & create trigger {map.name}.{tr.trigger_name}')
+                trigger.drop_trigger(self.conn, map.name, tr)
+                trigger.create_trigger(self.conn, map.name, tr)
 
     def insert_data(self, all: bool, target: str):
         # データ投入

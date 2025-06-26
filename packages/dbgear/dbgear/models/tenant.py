@@ -21,7 +21,6 @@ class TenantConfig(BaseSchema):
     ref: str
 
     # tenant variables
-    prefix: str = ''
     databases: list[DatabaseInfo] = []
 
 
