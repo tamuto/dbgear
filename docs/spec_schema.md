@@ -2,7 +2,7 @@
 
 ## 概要
 
-`schema.yaml`は、DBGearプロジェクトのデータベーススキーマ定義を管理するファイルです。テーブル、ビュー、インデックス、リレーション、カラム型定義を包括的に管理し、DBGearの中核となるスキーマ情報を提供します。
+`schema.yaml`は、DBGearプロジェクトのデータベーススキーマ定義を管理するファイルです。テーブル、ビュー、トリガー、インデックス、リレーション、カラム型定義を包括的に管理し、DBGearの中核となるスキーマ情報を提供します。
 
 ## ファイル配置
 
@@ -30,6 +30,9 @@ schemas:
     views:
       view_name:
         # ビュー定義
+    triggers:
+      trigger_name:
+        # トリガー定義
 ```
 
 ### 項目詳細
@@ -57,6 +60,18 @@ schemas:
   - `display_name`: ビューの表示名
   - `select_statement`: SQL SELECT文
   - `comment`: コメント
+  - `notes`: ノート情報のリスト
+
+#### triggers
+- **型**: オブジェクト
+- **説明**: トリガー定義のコレクション
+- **子要素**:
+  - `display_name`: トリガーの表示名
+  - `table_name`: 対象テーブル名
+  - `timing`: 実行タイミング（BEFORE/AFTER/INSTEAD OF）
+  - `event`: 実行イベント（INSERT/UPDATE/DELETE）
+  - `condition`: WHEN条件式（オプション）
+  - `body`: トリガー本体SQL
   - `notes`: ノート情報のリスト
 
 #### columns（カラム定義）
@@ -139,6 +154,29 @@ schemas:
           SELECT id, name, email
           FROM users
           WHERE email IS NOT NULL
+```
+
+### トリガー定義
+
+```yaml
+schemas:
+  main:
+    triggers:
+      user_audit_trigger:
+        display_name: ユーザー監査トリガー
+        table_name: users
+        timing: AFTER
+        event: INSERT
+        condition: 'NEW.status = "active"'
+        body: |
+          INSERT INTO audit_log (
+              table_name, action, user_id, timestamp
+          ) VALUES (
+              'users', 'INSERT', NEW.id, NOW()
+          );
+        notes:
+          - title: 目的
+            content: アクティブユーザーの登録を監査
 ```
 
 この仕様により、DBGearプロジェクトのスキーマ定義を統一的に管理できます。

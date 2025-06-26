@@ -8,16 +8,19 @@ from .table import Table
 from .table import TableManager
 from .view import View
 from .view import ViewManager
+from .trigger import Trigger
+from .trigger import TriggerManager
 from .notes import Note
 from .notes import NoteManager
 from ..utils.populate import auto_populate_from_keys
 
 
 class Schema(BaseSchema):
-    """Database schema containing tables and views"""
+    """Database schema containing tables, views and triggers"""
     name: str = pydantic.Field(exclude=True)
     tables_: dict[str, Table] = pydantic.Field(default_factory=dict, alias='tables')
     views_: dict[str, View] = pydantic.Field(default_factory=dict, alias='views')
+    triggers_: dict[str, Trigger] = pydantic.Field(default_factory=dict, alias='triggers')
     notes_: list[Note] = pydantic.Field(default_factory=list, alias='notes')
 
     @property
@@ -25,8 +28,12 @@ class Schema(BaseSchema):
         return TableManager(self.tables_)
 
     @property
-    def views(self) -> dict[str, View]:
+    def views(self) -> ViewManager:
         return ViewManager(self.views_)
+
+    @property
+    def triggers(self) -> TriggerManager:
+        return TriggerManager(self.triggers_)
 
     @property
     def notes(self) -> NoteManager:
@@ -50,6 +57,8 @@ class SchemaManager(BaseSchema):
             'schemas.$1.tables.$2.table_name': '$2',
             'schemas.$1.views.$2.instance': '$1',
             'schemas.$1.views.$2.view_name': '$2',
+            'schemas.$1.triggers.$2.instance': '$1',
+            'schemas.$1.triggers.$2.trigger_name': '$2',
         })
         return cls(**populated_data)
 
