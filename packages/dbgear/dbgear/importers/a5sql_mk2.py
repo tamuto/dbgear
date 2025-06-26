@@ -74,6 +74,9 @@ class Parser:
             elif self.mode == 4:
                 # コメントなので何もしない
                 pass
+            elif self.mode == 5:
+                # 図形や線分オブジェクト（何もしない）
+                pass
             else:
                 raise RuntimeError(f'Unknown Mode: {self.mode}')
         else:
@@ -87,6 +90,10 @@ class Parser:
                 self.session = A5ERRelation()
             elif line == '[Comment]':
                 self.mode = 4
+            elif line == '[Line]':
+                self.mode = 5
+            elif line == '[Shape]':
+                self.mode = 5
             else:
                 raise RuntimeError(f'Unknown Line: ({line_no}) {line}')
 

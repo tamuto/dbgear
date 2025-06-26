@@ -16,6 +16,7 @@ class Environ(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
     description: str
+    deployment: dict[str, str] = {}
 
     _schemas: SchemaManager | None = None
     _tenants: TenantRegistry | None = None
