@@ -7,6 +7,7 @@ from .base import BaseSchema
 from .schema import SchemaManager
 from .mapping import MappingManager
 from .tenant import TenantRegistry
+from .option import DBGearOptions
 from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
@@ -17,6 +18,7 @@ class Environ(BaseSchema):
     name: str = pydantic.Field(exclude=True)
     description: str
     deployment: dict[str, str] = {}
+    options: DBGearOptions | None = None
 
     _schemas: SchemaManager | None = None
     _tenant: TenantRegistry | None = None

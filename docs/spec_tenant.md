@@ -30,7 +30,6 @@ tenants:
   tenant_name:
     name: tenant_name
     ref: reference_name
-    prefix: ""
     databases: []
 ```
 
@@ -58,6 +57,7 @@ tenants:
 - **必須**: いいえ
 - **デフォルト**: 空文字列
 - **説明**: テーブル名やデータベース名に付加するプレフィックス
+- **注意**: 現在のモデルでは`prefix`フィールドは削除されました
 - **例**: `dev_`, `test_`, `prod_`
 
 #### databases
@@ -79,7 +79,6 @@ tenants:
   localhost:
     name: localhost
     ref: base
-    prefix: ""
     databases:
       - name: main
         database: testdb
@@ -94,7 +93,6 @@ tenants:
   production:
     name: production
     ref: main
-    prefix: "prod_"
     databases:
       - name: main
         database: app_production

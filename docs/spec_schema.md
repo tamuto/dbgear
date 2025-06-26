@@ -77,18 +77,20 @@ schemas:
 #### columns（カラム定義）
 - **型**: リスト
 - **説明**: テーブルのカラム定義
+- **重要**: 以前の`fields`は`columns`に名称変更されました
 - **子要素**:
-  - `column_name`: カラム名
-  - `display_name`: 表示名
-  - `column_type`: カラム型（ColumnTypeオブジェクト）
-  - `nullable`: NULL許可フラグ
-  - `primary_key`: 主キー順序
-  - `auto_increment`: 自動増分フラグ
-  - `default_value`: デフォルト値
-  - `expression`: 生成カラムの式
-  - `stored`: 生成カラムの保存フラグ
-  - `charset`: 文字セット
-  - `collation`: 照合順序
+  - `column_name`: カラム名（必須）
+  - `display_name`: 表示名（オプション）
+  - `column_type`: カラム型（ColumnTypeオブジェクト、必須）
+  - `nullable`: NULL許可フラグ（デフォルト: true）
+  - `primary_key`: 主キー順序（1から開始、オプション）
+  - `auto_increment`: 自動増分フラグ（デフォルト: false）
+  - `default_value`: デフォルト値（オプション）
+  - `expression`: 生成カラムの式（オプション）
+  - `stored`: 生成カラムの保存フラグ（デフォルト: false）
+  - `charset`: 文字セット（MySQL用、オプション）
+  - `collation`: 照合順序（MySQL用、オプション）
+  - `notes`: カラムレベルのノート（オプション）
 
 #### indexes
 - **型**: リスト
@@ -115,11 +117,22 @@ schemas:
 
 #### notes
 - **型**: リスト
-- **説明**: ドキュメンテーション用ノート
+- **説明**: ドキュメンテーション用ノート（全エンティティ共通）
+- **重要**: ノート情報はドキュメント目的のみで、SQL生成時には含まれません
+- **子要素**:  
+  - `title`: タイトル（必須）
+  - `content`: 内容（必須）
+  - `checked`: 確認済みフラグ（デフォルト: false）
+
+#### column_type（カラム型オブジェクト）
+- **説明**: 構造化されたカラム型定義
 - **子要素**:
-  - `title`: タイトル
-  - `content`: 内容
-  - `checked`: 確認済みフラグ
+  - `column_type`: 型の文字列表現（例: "VARCHAR(255)"）
+  - `base_type`: 基本型名（例: "VARCHAR"）
+  - `length`: 長さ（数値型・文字列型用）
+  - `precision`: 精度（DECIMAL型用）
+  - `scale`: スケール（DECIMAL型用）
+  - `items`: ENUM/SET型の選択肢
 
 ## 設定例
 
@@ -140,6 +153,51 @@ schemas:
             nullable: false
             primary_key: 1
             auto_increment: true
+          - column_name: name
+            display_name: 名前
+            column_type:
+              column_type: VARCHAR(100)
+              base_type: VARCHAR
+              length: 100
+            nullable: false
+          - column_name: email
+            display_name: メールアドレス
+            column_type:  
+              column_type: VARCHAR(255)
+              base_type: VARCHAR
+              length: 255
+            nullable: true
+        indexes:
+          - index_name: idx_users_email
+            columns: [email]
+            unique: true
+        notes:
+          - title: 設計方針
+            content: ユーザー基本情報を管理するマスターテーブル
+            checked: true
+```
+
+### カラム型レジストリの活用例
+
+```yaml
+schemas:
+  main:
+    registry:
+      short_text:
+        column_type: VARCHAR(100)
+        base_type: VARCHAR
+        length: 100
+      long_text:
+        column_type: TEXT
+        base_type: TEXT
+    tables:
+      articles:
+        display_name: 記事
+        columns:
+          - column_name: title  
+            column_type: short_text  # レジストリ参照
+          - column_name: content
+            column_type: long_text   # レジストリ参照
 ```
 
 ### ビュー定義

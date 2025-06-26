@@ -5,6 +5,7 @@ import yaml
 from .base import BaseSchema
 from .schema import SchemaManager
 from .environ import EnvironManager
+from .option import DBGearOptions
 
 
 # class Binding(BaseSchema):
@@ -16,6 +17,7 @@ class Project(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     project_name: str
     description: str
+    options: DBGearOptions = pydantic.Field(default_factory=DBGearOptions)
 
     _schemas: SchemaManager | None = None
 

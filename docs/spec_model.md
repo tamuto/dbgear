@@ -19,11 +19,13 @@ graph TD
     %% プロジェクトレベル
     Project --> SchemaManager
     Project --> EnvironManager
+    Project --> DBGearOptions
     
     %% スキーマレベル
     SchemaManager --> Schema
     Schema --> TableManager
     Schema --> ViewManager
+    Schema --> TriggerManager
     Schema --> NoteManager
     SchemaManager --> ColumnTypeRegistry
     
@@ -44,6 +46,10 @@ graph TD
     View --> ViewColumn
     View --> NoteManager
     
+    %% トリガーレベル
+    TriggerManager --> Trigger
+    Trigger --> NoteManager
+    
     %% インデックスレベル
     IndexManager --> Index
     Index --> NoteManager
@@ -59,6 +65,7 @@ graph TD
     Environ --> SchemaManager
     Environ --> TenantRegistry
     Environ --> MappingManager
+    Environ --> DBGearOptions
     
     %% テナントレベル
     TenantRegistry --> TenantConfig
@@ -90,12 +97,12 @@ graph TD
 ### プロジェクト管理
 
 **project.py**
-- `Project`: トップレベルプロジェクト設定コンテナ。環境とスキーマの統合管理を担当
+- `Project`: トップレベルプロジェクト設定コンテナ。環境とスキーマの統合管理を担当。共通オプション設定を含有
 
 ### スキーマ管理
 
 **schema.py**
-- `Schema`: テーブル、ビュー、ノートを含むデータベーススキーマの表現
+- `Schema`: テーブル、ビュー、トリガー、ノートを含むデータベーススキーマの表現
 - `SchemaManager`: 複数スキーマの管理とYAML永続化。自動入力機能とカラムタイプレジストリを内包
 
 ### テーブル管理
@@ -125,6 +132,12 @@ graph TD
 - `ViewManager`: ビューコレクションの辞書ライク管理
 - `ViewColumn`: 将来のSQL解析機能に対応したビューカラム定義
 
+### トリガー管理
+
+**trigger.py**
+- `Trigger`: データベーストリガーの定義。実行タイミング、イベント、条件、処理内容を管理
+- `TriggerManager`: トリガーコレクションの辞書ライク管理
+
 ### インデックス管理
 
 **index.py**
@@ -148,7 +161,7 @@ graph TD
 ### 環境管理
 
 **environ.py**
-- `Environ`: 環境設定コンテナ。スキーマ、テナント、マッピング設定の遅延読み込み
+- `Environ`: 環境設定コンテナ。スキーマ、テナント、マッピング設定の遅延読み込み。環境固有オプション設定を含有
 - `EnvironManager`: 環境コレクションの管理
 
 ### マッピング管理
@@ -172,6 +185,13 @@ graph TD
 - `DataSource`: テーブルデータのファイル管理（YAMLベース、セグメント化対応）
 - `SettingInfo`: データ編集用のグリッドセル設定
 
+### オプション管理
+
+**option.py**
+- `DBGearOptions`: プロジェクトと環境で共通利用されるオプション設定クラス
+  - `create_foreign_key_constraints`: データベース構築時の外部キー制約作成制御
+  - 将来的な拡張オプション（インデックス作成、データ整合性検証、トリガー有効化等）への対応準備
+
 ### 定数・例外
 
 **const.py**
@@ -192,7 +212,10 @@ ColumnTypeオブジェクトによる構造化された型管理、Pydanticに�
 MySQLを主要ターゲットとしながらも、PostgreSQL機能（部分インデックス等）や将来のSQL解析機能（ViewColumn）への対応準備を含む、拡張可能な設計を採用しています。
 
 ### ドキュメント統合
-全エンティティ共通のNoteシステムにより、DB物理コメントとは独立した設計情報・レビュー情報の管理を実現しています。
+全エンティティ共通のNoteシステムにより、DB物理コメントとは独立した設計情報・レビュー情報の管理を実現しています。ノート情報はドキュメントとバージョン管理専用で、実際のSQL生成には含まれません。
+
+### オプション駆動設計
+プロジェクトレベルと環境レベルで共通のオプション設定システムを提供し、データベース構築の動作をきめ細かく制御できます。外部キー制約の生成制御など、運用要件に応じた柔軟な設定が可能です。
 
 ## YAMLシリアライゼーション
 
