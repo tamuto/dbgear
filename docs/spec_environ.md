@@ -31,6 +31,13 @@ project-root/
 description: Environment description
 ```
 
+### オプション項目
+
+```yaml
+deployment:
+  environment_name: "connection_string"
+```
+
 ### 項目詳細
 
 #### description
@@ -38,6 +45,15 @@ description: Environment description
 - **必須**: はい
 - **説明**: 環境の概要説明。日本語使用可能
 - **例**: `開発環境`, `テスト環境設定`, `本番環境（MySQL 8.0）`
+
+#### deployment
+- **型**: 辞書（環境名 → 接続文字列）
+- **必須**: いいえ
+- **デフォルト**: 空辞書 (`{}`)
+- **説明**: 環境別のデータベース接続情報マッピング
+- **例**: 
+  - `{'production': 'mysql://user:pass@prod-host:3306/mydb'}`
+  - `{'development': 'mysql://user:pass@dev-host:3306/mydb', 'staging': 'mysql://user:pass@stage-host:3306/mydb'}`
 
 ## 関連ファイル
 
@@ -61,18 +77,25 @@ description: Environment description
 
 ```yaml
 description: 開発環境
+deployment:
+  development: "mysql://dev:password@localhost:3306/myapp_dev"
 ```
 
 ### テスト環境の設定例
 
 ```yaml
 description: テスト環境設定
+deployment:
+  testing: "mysql://test:password@test-server:3306/myapp_test"
+  staging: "mysql://stage:password@stage-server:3306/myapp_stage"
 ```
 
 ### 本番環境の設定例
 
 ```yaml
 description: 本番環境（MySQL 8.0）
+deployment:
+  production: "mysql://prod:secret@prod-server:3306/myapp"
 ```
 
 ## 環境管理

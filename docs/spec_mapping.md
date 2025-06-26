@@ -33,7 +33,7 @@ project-root/
 instances:
   - instance_name
 description: Mapping description
-deployment: false
+deploy: false
 ```
 
 ### 項目詳細
@@ -50,7 +50,7 @@ deployment: false
 - **説明**: マッピングの概要説明。日本語使用可能
 - **例**: `ベースデータベース`, `テスト用データベース`, `本番環境メインDB`
 
-#### deployment
+#### deploy
 - **型**: ブール値
 - **必須**: いいえ
 - **デフォルト**: false
@@ -67,7 +67,7 @@ deployment: false
 instances:
   - main
 description: ベースデータベース
-deployment: false
+deploy: false
 ```
 
 ### デプロイメント対象設定
@@ -76,7 +76,7 @@ deployment: false
 instances:
   - main
 description: 本番環境メインデータベース
-deployment: true
+deploy: true
 ```
 
 ### 複数インスタンス設定
@@ -86,7 +86,7 @@ instances:
   - main
   - secondary
 description: マルチインスタンス環境
-deployment: true
+deploy: true
 ```
 
 ## マッピング管理

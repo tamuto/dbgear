@@ -30,7 +30,7 @@ class TestMapping(unittest.TestCase):
             name=self.mapping_name,
             description='Base mapping for testing',
             instances=['main'],
-            deployment=False
+            deploy=False
         )
 
         # Test add
@@ -47,14 +47,14 @@ class TestMapping(unittest.TestCase):
 
         self.assertEqual(saved_data['description'], 'Base mapping for testing')
         self.assertEqual(saved_data['instances'], ['main'])
-        # deployment=False is excluded by exclude_defaults
-        self.assertEqual(saved_data.get('deployment', False), False)
+        # deploy=False is excluded by exclude_defaults
+        self.assertEqual(saved_data.get('deploy', False), False)
 
         # Test load
         loaded_mapping = mapping_manager[self.mapping_name]
         self.assertEqual(loaded_mapping.description, 'Base mapping for testing')
         self.assertEqual(loaded_mapping.instances, ['main'])
-        self.assertFalse(loaded_mapping.deployment)
+        self.assertFalse(loaded_mapping.deploy)
 
     def test_mapping_load_from_existing_file(self):
         """Test loading Mapping from existing YAML file"""
@@ -66,7 +66,7 @@ class TestMapping(unittest.TestCase):
         mapping_data = {
             'description': 'テスト1データベース',
             'instances': ['main'],
-            'deployment': True,
+            'deploy': True,
         }
 
         # Write test data
@@ -80,7 +80,7 @@ class TestMapping(unittest.TestCase):
 
         self.assertEqual(loaded_mapping.description, 'テスト1データベース')
         self.assertEqual(loaded_mapping.instances, ['main'])
-        self.assertTrue(loaded_mapping.deployment)
+        self.assertTrue(loaded_mapping.deploy)
 
     def test_mapping_manager_iteration(self):
         """Test MappingManager iteration"""
@@ -93,14 +93,14 @@ class TestMapping(unittest.TestCase):
 
         mapping_manager = MappingManager(self.temp_dir, self.env_name)
 
-        for name, desc, deployment in mappings_data:
+        for name, desc, deploy in mappings_data:
             mapping = Mapping(
                 folder=self.temp_dir,
                 environ=self.env_name,
                 name=name,
                 description=desc,
                 instances=['main'],
-                deployment=deployment
+                deploy=deploy
             )
             mapping_manager.add(mapping)
 
@@ -186,7 +186,7 @@ class TestMapping(unittest.TestCase):
             name='complex',
             description='複雑なマッピング設定',
             instances=['main', 'sub'],
-            deployment=True,
+            deploy=True,
         )
 
         # Add and load
@@ -197,7 +197,7 @@ class TestMapping(unittest.TestCase):
         # Verify all fields
         self.assertEqual(loaded_mapping.description, original_mapping.description)
         self.assertEqual(loaded_mapping.instances, original_mapping.instances)
-        self.assertEqual(loaded_mapping.deployment, original_mapping.deployment)
+        self.assertEqual(loaded_mapping.deploy, original_mapping.deploy)
 
 
 if __name__ == "__main__":
