@@ -346,6 +346,7 @@ When enhancing DBGear, focus on:
 
 ### Working with the Codebase
 
+- **Code First**: Always read existing code before implementing new functionality - use Read, Grep, and Glob tools to understand actual method names, class structures, and patterns
 - **Package Independence**: Each package has its own configuration and can be developed/installed independently
 - **Import Paths**: Use absolute imports when referencing across packages (`from dbgear.core.*`)
 - **Testing**: Test each package independently in its own directory
