@@ -61,6 +61,18 @@ packages/
 │   │   └── main.py           # Web server entry point
 │   └── pyproject.toml        # Web package configuration (depends on dbgear)
 │
+├── dbgear-mcp/               # MCP Package (pip install dbgear-mcp)
+│   ├── dbgear_mcp/
+│   │   ├── server.py         # FastMCP server implementation
+│   │   ├── main.py           # MCP server entry point
+│   │   └── tools/            # MCP tool implementations
+│   │       ├── schema.py     # Schema management tools
+│   │       ├── table.py      # Table management tools
+│   │       ├── data.py       # Data operations tools
+│   │       └── project.py    # Project management tools
+│   ├── tests/                # unittest-based test suite
+│   └── pyproject.toml        # MCP package configuration (depends on dbgear)
+│
 ├── frontend/                 # New Frontend Package (React/TypeScript + Shadcn/UI)
 │   ├── src/
 │   │   ├── components/       # Shadcn/UI components
@@ -196,6 +208,16 @@ task test-fast      # Run fast tests only
 task lint           # flake8 code checking
 task clean          # Clean build artifacts
 task serve          # Start development server
+```
+
+#### MCP Package Testing
+```bash
+cd packages/dbgear-mcp
+task test           # Run all tests using unittest framework
+task test-fast      # Run fast tests only
+task lint           # flake8 code checking
+task clean          # Clean build artifacts
+task serve          # Start MCP server
 ```
 
 #### Frontend Testing
@@ -459,6 +481,12 @@ The core package uses 3 consolidated test cases in `tests/test_core_yaml.py`:
 - `test_comprehensive_yaml_roundtrip`: Main functionality with complex schema data
 - `test_error_handling`: Exception handling for invalid inputs  
 - `test_edge_cases`: Minimal configurations and boundary conditions
+
+#### Testing Framework Choice
+- **Core Package**: Uses unittest for consistency with existing test structure
+- **MCP Package**: Uses unittest as specified in requirements for new packages
+- **Web Package**: Uses pytest for API testing capabilities
+- **Frontend Package**: Uses build tests and TypeScript compilation checks
 
 #### Testing Guidelines
 - **Favor Integration Tests**: Test complete workflows (load project → verify data → save → reload → verify)
