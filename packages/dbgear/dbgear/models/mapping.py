@@ -6,6 +6,7 @@ import os
 from .base import BaseSchema
 from .schema import Schema
 from .schema import SchemaManager
+from .datamodel import DataModel
 from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
@@ -20,6 +21,7 @@ class Mapping(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     environ: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
+    tenant_name: str | None = pydantic.Field(default=None, exclude=True)
     description: str
     schemas: list[str] = []
     shared: SharedInfo | None = None
@@ -36,6 +38,10 @@ class Mapping(BaseSchema):
             **data
         )
 
+    @property
+    def instance_name(self) -> str:
+        return self.tenant_name or self.name
+
     def build_schema(self, project_schema: SchemaManager, environ_schema: SchemaManager | None):
         schema = Schema(name=self.name)
         for name in self.schemas:
@@ -44,6 +50,19 @@ class Mapping(BaseSchema):
             if environ_schema is not None and name in environ_schema:
                 schema.update(environ_schema[name])
         return schema
+
+    @property
+    def datamodels(self):
+        for path in sorted(pathlib.Path(self.folder).glob(f'{self.environ}/{self.name}/*.yaml')):
+            if path.name != '_mapping.yaml':
+                schema_name, table_name = path.stem.split('@')
+                yield DataModel.load(
+                    folder=self.folder,
+                    environ=self.environ,
+                    map_name=self.name,
+                    schema_name=schema_name,
+                    table_name=table_name
+                )
 
 
 class MappingManager:

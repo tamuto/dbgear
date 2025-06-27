@@ -21,10 +21,20 @@ class SettingInfo(BaseSchema):
 class DataSource:
     folder: str
     environ: str
+    name: str
     schema_name: str
     table_name: str
     segment: str | None = None
     data: list[dict[str, Any]]
+
+    def __init__(self, folder: str, environ: str, name: str, schema_name: str, table_name: str, segment: str | None = None):
+        self.folder = folder
+        self.environ = environ
+        self.name = name
+        self.schema_name = schema_name
+        self.table_name = table_name
+        self.segment = segment
+        self.data = []
 
     @property
     def filename(self) -> str:
@@ -32,15 +42,19 @@ class DataSource:
             return f"{self.schema_name}@{self.table_name}#{self.segment}.dat"
         return f"{self.schema_name}@{self.table_name}.dat"
 
+    def exists(self) -> bool:
+        path = os.path.join(self.folder, self.environ, self.name, self.filename)
+        return os.path.exists(path)
+
     def load(self) -> None:
-        path = os.path.join(self.folder, self.environ, self.filename)
+        path = os.path.join(self.folder, self.environ, self.name, self.filename)
         if not os.path.exists(path):
             raise FileNotFoundError(f"Data source file {path} does not exist.")
         with open(path, 'r', encoding='utf-8') as f:
             self.data = yaml.safe_load(f)
 
     def save(self) -> None:
-        path = os.path.join(self.folder, self.environ, self.filename)
+        path = os.path.join(self.folder, self.environ, self.name, self.filename)
         with open(path, 'w', encoding='utf-8') as f:
             yaml.dump(
                 self.data,
@@ -55,8 +69,9 @@ class DataSource:
 class DataModel(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     environ: str = pydantic.Field(exclude=True)
-    schema_name: str
-    table_name: str
+    map_name: str = pydantic.Field(exclude=True)
+    schema_name: str = pydantic.Field(exclude=True)
+    table_name: str = pydantic.Field(exclude=True)
     description: str
     layout: str
     settings: dict[str, SettingInfo]
@@ -69,17 +84,20 @@ class DataModel(BaseSchema):
     cells: list[str] | None = None
 
     @classmethod
-    def load(cls, folder: str, environ: str, name: str):
-        with open(os.path.join(folder, environ, name), 'r', encoding='utf-8') as f:
+    def load(cls, folder: str, environ: str, map_name: str, schema_name: str, table_name: str):
+        with open(os.path.join(folder, environ, map_name, f'{schema_name}@{table_name}.yaml'), 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         return cls(
             folder=folder,
             environ=environ,
+            map_name=map_name,
+            schema_name=schema_name,
+            table_name=table_name,
             **data
         )
 
     def save(self) -> None:
-        filename = os.path.join(self.folder, self.environ, self.filename)
+        filename = os.path.join(self.folder, self.environ, self.map_name, self.filename)
         with open(filename, 'w', encoding='utf-8') as f:
             yaml.dump(
                 self.model_dump(
@@ -104,6 +122,7 @@ class DataModel(BaseSchema):
             yield DataSource(
                 folder=self.folder,
                 environ=self.environ,
+                name=self.map_name,
                 schema_name=self.schema_name,
                 table_name=self.table_name,
             )
@@ -113,6 +132,7 @@ class DataModel(BaseSchema):
             yield DataSource(
                 folder=self.folder,
                 environ=self.environ,
+                name=self.map_name,
                 schema_name=self.schema_name,
                 table_name=self.table_name,
                 segment=seg
