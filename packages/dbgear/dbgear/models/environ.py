@@ -53,8 +53,8 @@ class Environ(BaseSchema):
         for map in self.mappings:
             if map.deploy:
                 yield map
-
-        yield from self.tenant.materialize()
+        if self.tenant is not None:
+            yield from self.tenant.materialize()
 
 
 class EnvironManager:

@@ -30,7 +30,7 @@ project-root/
 ### 必須項目
 
 ```yaml
-instances:
+schemas:
   - instance_name
 description: Mapping description
 deploy: false
@@ -38,10 +38,10 @@ deploy: false
 
 ### 項目詳細
 
-#### instances
+#### schemas
 - **型**: リスト
 - **必須**: はい
-- **説明**: このマッピングが対象とするスキーマインスタンス名のリスト
+- **説明**: このマッピングが対象とするスキーマ名のリスト
 - **例**: `[main]`, `[main, secondary]`, `[user_db, log_db]`
 
 #### description
