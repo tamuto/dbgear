@@ -19,6 +19,12 @@ schemas:
             baseType: VARCHAR
             length: 100
           nullable: false
+        - columnName: test_18n
+          displayName: テスト18n
+          columnType:
+            columnType: JSON
+            baseType: JSON
+          nullable: true
         - columnName: num
           displayName: 数字
           columnType:
