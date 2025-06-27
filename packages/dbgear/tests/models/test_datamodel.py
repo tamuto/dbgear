@@ -16,7 +16,9 @@ class TestDataModel(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.environ_dir = os.path.join(self.temp_dir, 'development')
         os.makedirs(self.environ_dir, exist_ok=True)
-        self.datamodel_yaml_path = os.path.join(self.environ_dir, 'main@users.yaml')
+        self.base_dir = os.path.join(self.environ_dir, 'base')
+        os.makedirs(self.base_dir, exist_ok=True)
+        self.datamodel_yaml_path = os.path.join(self.base_dir, 'main@users.yaml')
 
     def tearDown(self):
         """Clean up temporary files"""
@@ -33,6 +35,7 @@ class TestDataModel(unittest.TestCase):
         datamodel = DataModel(
             folder=self.temp_dir,
             environ='development',
+            map_name='base',
             schema_name='main',
             table_name='users',
             description='User management',
@@ -45,8 +48,8 @@ class TestDataModel(unittest.TestCase):
         datamodel.save()
         self.assertTrue(os.path.exists(self.datamodel_yaml_path))
 
-        # Test load
-        loaded_datamodel = DataModel.load(self.temp_dir, 'development', 'main@users.yaml')
+        # Test load  
+        loaded_datamodel = DataModel.load(self.temp_dir, 'development', 'base', 'main', 'users')
         self.assertEqual(loaded_datamodel.schema_name, 'main')
         self.assertEqual(loaded_datamodel.table_name, 'users')
         self.assertEqual(loaded_datamodel.description, 'User management')
@@ -69,11 +72,12 @@ class TestDataModel(unittest.TestCase):
         }
 
         # Write test data
-        with open(self.datamodel_yaml_path, 'w', encoding='utf-8') as f:
+        products_yaml_path = os.path.join(self.base_dir, 'main@products.yaml')
+        with open(products_yaml_path, 'w', encoding='utf-8') as f:
             yaml.dump(datamodel_data, f, allow_unicode=True)
 
         # Test load
-        datamodel = DataModel.load(self.temp_dir, 'development', 'main@users.yaml')
+        datamodel = DataModel.load(self.temp_dir, 'development', 'base', 'main', 'products')
         self.assertEqual(datamodel.schema_name, 'main')
         self.assertEqual(datamodel.table_name, 'products')
         self.assertEqual(datamodel.description, 'Product catalog')
@@ -97,6 +101,7 @@ class TestDataModel(unittest.TestCase):
         original = DataModel(
             folder=self.temp_dir,
             environ='development',
+            map_name='base',
             schema_name='main',
             table_name='orders',
             description='Order management',
@@ -110,7 +115,7 @@ class TestDataModel(unittest.TestCase):
         original.save()
 
         # Load
-        loaded = DataModel.load(self.temp_dir, 'development', 'main@orders.yaml')
+        loaded = DataModel.load(self.temp_dir, 'development', 'base', 'main', 'orders')
 
         # Verify
         self.assertEqual(original.schema_name, loaded.schema_name)

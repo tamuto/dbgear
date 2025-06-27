@@ -1,4 +1,4 @@
-instances:
+schemas:
 - main
 description: ベースデータベース
 deploy: false

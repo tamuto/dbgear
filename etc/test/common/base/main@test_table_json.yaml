@@ -1,0 +1,13 @@
+description: JSON型カラムを使用したテストテーブル用データ
+layout: table
+settings:
+  test_18n:
+    type: column
+    width: 300
+  update_date:
+    type: now
+  update_user:
+    type: update_user
+sync_mode: drop_create
+value: col_id
+caption: name

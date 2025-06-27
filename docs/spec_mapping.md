@@ -31,7 +31,7 @@ project-root/
 
 ```yaml
 schemas:
-  - instance_name
+  - schema_name
 description: Mapping description
 deploy: false
 ```
@@ -64,7 +64,7 @@ deploy: false
 ### ベースマッピング設定
 
 ```yaml
-instances:
+schemas:
   - main
 description: ベースデータベース
 deploy: false
@@ -73,19 +73,19 @@ deploy: false
 ### デプロイメント対象設定
 
 ```yaml
-instances:
+schemas:
   - main
 description: 本番環境メインデータベース
 deploy: true
 ```
 
-### 複数インスタンス設定
+### 複数スキーマ設定
 
 ```yaml
-instances:
+schemas:
   - main
   - secondary
-description: マルチインスタンス環境
+description: マルチスキーマ環境
 deploy: true
 ```
 

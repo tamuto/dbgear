@@ -548,6 +548,52 @@ All dbio modules have been migrated from direct SQL generation to template-based
 
 This provides a solid foundation for future database engine support while maintaining current MySQL functionality.
 
+### JSON Data Support
+
+DBGear includes comprehensive support for JSON data types in MySQL databases:
+
+#### JSON Column Type Support
+- **Column Type System**: Full JSON type support in the `ColumnType` registry
+- **Schema Definition**: Native JSON column type specification in YAML schema files
+- **Data Validation**: Automatic validation of JSON column definitions
+
+#### JSON Data Processing
+- **YAML-to-JSON Conversion**: Automatic conversion of YAML dictionary objects to JSON strings during INSERT operations
+- **Data File Format**: Support for structured data in `.dat` files using YAML dictionaries
+- **CLI Integration**: Complete support for JSON data through the `dbgear apply` command
+
+#### Implementation Details
+- **Conversion Function**: `dbgear.dbio.table._col_conv()` handles automatic dict-to-JSON conversion
+- **Template Integration**: JSON INSERT support through the SQL template engine
+- **Type Safety**: Proper handling of JSON data types in the column type system
+
+#### Usage Examples
+```yaml
+# Schema definition with JSON column
+schemas:
+  main:
+    tables:
+      products:
+        columns:
+          - column_name: metadata
+            column_type:
+              column_type: JSON
+              base_type: JSON
+            nullable: true
+
+# Data file with JSON content
+- id: 1
+  metadata:
+    i18n:
+      ja: "日本語名"
+      en: "English Name"
+    settings:
+      featured: true
+      tags: ["electronics", "mobile"]
+```
+
+This JSON support enables efficient management of structured data such as internationalization content, configuration settings, and metadata within the DBGear ecosystem.
+
 ### Schema Import System Architecture
 
 DBGear implements a dynamic schema import system using importlib for extensible format support:

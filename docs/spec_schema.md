@@ -237,4 +237,76 @@ schemas:
             content: アクティブユーザーの登録を監査
 ```
 
+### JSON型カラムのデータ処理
+
+DBGearでは、JSON型カラムに対してYAML形式での辞書データ入力をサポートしています。
+
+#### JSONデータの定義方法
+
+データファイル（`.dat`）内で、JSON型カラムに辞書形式でデータを定義すると、自動的にJSON文字列に変換されてINSERT文が実行されます。
+
+```yaml
+# データファイル例: main@test_table.dat
+- col_id: '001'
+  name: 'サンプル'
+  json_column:
+    ja: "こんにちは世界"
+    en: "Hello World"
+    settings:
+      theme: "dark"
+      language: "ja"
+  created_at: NOW()
+```
+
+#### JSONカラムの変換処理
+
+- YAMLファイル内の辞書オブジェクトは、INSERT時に自動的にJSON文字列に変換されます
+- 変換処理は`dbgear.dbio.table._col_conv()`関数で実行されます
+- 変換例：
+  ```python
+  # YAML辞書データ
+  {"ja": "こんにちは", "en": "Hello"}
+  
+  # JSON文字列変換後
+  '{"ja": "こんにちは", "en": "Hello"}'
+  ```
+
+#### 使用例
+
+```yaml
+schemas:
+  main:
+    tables:
+      products:
+        columns:
+          - column_name: id
+            column_type:
+              column_type: BIGINT
+              base_type: BIGINT
+            nullable: false
+            primary_key: 1
+          - column_name: i18n_data
+            column_type:
+              column_type: JSON
+              base_type: JSON
+            nullable: true
+```
+
+```yaml
+# データファイル: main@products.dat
+- id: 1
+  i18n_data:
+    ja:
+      name: "商品名"
+      description: "商品説明"
+    en:
+      name: "Product Name"
+      description: "Product Description"
+    metadata:
+      version: "1.0"
+      tags: ["electronics", "smartphone"]
+```
+
+この機能により、多言語対応データや設定情報など、構造化されたデータを効率的に管理できます。
+
 この仕様により、DBGearプロジェクトのスキーマ定義を統一的に管理できます。
