@@ -6,7 +6,7 @@ from .notes import NoteManager
 
 
 class Index(BaseSchema):
-    index_name: str | None
+    index_name: str
     columns: list[str]
     index_type: str = "BTREE"  # BTREE, HASH, FULLTEXT, SPATIAL, etc.
     unique: bool = False

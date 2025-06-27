@@ -1,3 +1,4 @@
+import json
 from logging import getLogger
 
 from . import engine
@@ -48,6 +49,13 @@ def _col_value(item: dict, column: Column):
     return 'NULL'
 
 
+def _col_conv(values: dict):
+    return {
+        k: v if not isinstance(v, dict) else json.dumps(v, ensure_ascii=True)
+        for k, v in values.items()
+    }
+
+
 def insert(conn, env: str, table: Table, items: list[dict]):
     # Filter out generated columns (expression fields) from INSERT
     insertable_columns = [c for c in table.columns if c.expression is None]
@@ -55,6 +63,7 @@ def insert(conn, env: str, table: Table, items: list[dict]):
     # Prepare column names and value placeholders
     column_names = [c.column_name for c in insertable_columns]
     value_placeholders = [_col_value(items[0], c) for c in insertable_columns]
+    params = [_col_conv(item) for item in items]
 
     sql = template_engine.render(
         'mysql_insert_into',
@@ -63,7 +72,7 @@ def insert(conn, env: str, table: Table, items: list[dict]):
         column_names=column_names,
         value_placeholders=value_placeholders
     )
-    engine.execute(conn, sql, items)
+    engine.execute(conn, sql, params)
     conn.commit()
 
 

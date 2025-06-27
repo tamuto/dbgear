@@ -125,7 +125,7 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIn('ROW_FORMAT=DYNAMIC', sql)
 
     def test_table_with_foreign_keys(self):
-        """Test table creation with foreign key constraints."""
+        """Test table creation without foreign key constraints (they should be added separately)."""
         # Create a column that references another table
         category_id_column = Column(
             column_name='category_id',
@@ -162,14 +162,90 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIsInstance(sql, str)
         self.assertTrue(len(sql) > 0)
 
-        print("\n=== Table with Foreign Keys ===")
+        print("\n=== Table Creation (without FK constraints) ===")
+        print(sql)
+
+        # Check that foreign key constraint is NOT in CREATE TABLE
+        self.assertNotIn('CONSTRAINT fk_user_category', sql)
+        self.assertNotIn('FOREIGN KEY', sql)
+        self.assertNotIn('REFERENCES categories', sql)
+        
+        # But the column should be there
+        self.assertIn('category_id', sql)
+
+    def test_add_foreign_key_constraint(self):
+        """Test ALTER TABLE ADD FOREIGN KEY constraint."""
+        # Create foreign key relation
+        target_entity = EntityInfo(schema_name='testdb', table_name='categories')
+        bind_column = BindColumn(source_column='category_id', target_column='id')
+        relation = Relation(
+            target=target_entity,
+            bind_columns=[bind_column],
+            constraint_name='fk_user_category',
+            on_delete='CASCADE',
+            on_update='RESTRICT'
+        )
+
+        table = Table(
+            instance='test',
+            table_name='users',
+            display_name='Users'
+        )
+
+        sql = template_engine.render(
+            'mysql_add_foreign_key',
+            env='testdb',
+            table=table,
+            relation=relation
+        )
+
+        self.assertIsInstance(sql, str)
+        self.assertTrue(len(sql) > 0)
+
+        print("\n=== Add Foreign Key Constraint ===")
         print(sql)
 
         # Check foreign key constraint
-        self.assertIn('CONSTRAINT fk_user_category', sql)
+        self.assertIn('ALTER TABLE testdb.users', sql)
+        self.assertIn('ADD CONSTRAINT fk_user_category', sql)
         self.assertIn('FOREIGN KEY', sql)
         self.assertIn('REFERENCES categories', sql)
         self.assertIn('ON DELETE CASCADE', sql)
+
+    def test_drop_foreign_key_constraint(self):
+        """Test DROP FOREIGN KEY constraint."""
+        sql = template_engine.render(
+            'mysql_drop_foreign_key',
+            env='testdb',
+            table_name='users',
+            constraint_name='fk_user_category'
+        )
+
+        self.assertIsInstance(sql, str)
+        self.assertTrue(len(sql) > 0)
+
+        print("\n=== Drop Foreign Key Constraint ===")
+        print(sql)
+
+        # Check drop foreign key
+        self.assertIn('ALTER TABLE testdb.users', sql)
+        self.assertIn('DROP FOREIGN KEY fk_user_category', sql)
+
+    def test_check_foreign_key_exists(self):
+        """Test CHECK FOREIGN KEY EXISTS query."""
+        sql = template_engine.render(
+            'mysql_check_foreign_key_exists'
+        )
+
+        self.assertIsInstance(sql, str)
+        self.assertTrue(len(sql) > 0)
+
+        print("\n=== Check Foreign Key Exists ===")
+        print(sql)
+
+        # Check query structure
+        self.assertIn('information_schema.table_constraints', sql)
+        self.assertIn('constraint_type = \'FOREIGN KEY\'', sql)
 
     def test_column_with_advanced_features(self):
         """Test columns with advanced MySQL features."""
@@ -227,7 +303,7 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIn('COLLATE utf8mb4_unicode_ci', sql)
         self.assertIn('GENERATED ALWAYS AS', sql)
         self.assertIn('STORED', sql)
-        self.assertIn('COMMENT', sql)
+        # Note: Column comments are not included in SQL
 
     def test_index_creation(self):
         """Test index creation template."""
@@ -672,10 +748,11 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertIn('CHARACTER SET utf8mb4', sql)
         self.assertIn('COLLATE utf8mb4_unicode_ci', sql)
         self.assertIn('PRIMARY KEY', sql)
-        self.assertIn('CONSTRAINT fk_product_category', sql)
-        self.assertIn('FOREIGN KEY', sql)
-        self.assertIn('ON DELETE SET NULL', sql)
-        self.assertIn('ON UPDATE CASCADE', sql)
+        # Foreign key constraints should NOT be in CREATE TABLE
+        self.assertNotIn('CONSTRAINT fk_product_category', sql)
+        self.assertNotIn('FOREIGN KEY', sql)
+        self.assertNotIn('ON DELETE SET NULL', sql)
+        self.assertNotIn('ON UPDATE CASCADE', sql)
         self.assertIn('ENGINE=InnoDB', sql)
         self.assertIn('AUTO_INCREMENT=10000', sql)
         self.assertIn('ROW_FORMAT=DYNAMIC', sql)

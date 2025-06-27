@@ -30,18 +30,18 @@ project-root/
 ### 必須項目
 
 ```yaml
-instances:
-  - instance_name
+schemas:
+  - schema_name
 description: Mapping description
 deploy: false
 ```
 
 ### 項目詳細
 
-#### instances
+#### schemas
 - **型**: リスト
 - **必須**: はい
-- **説明**: このマッピングが対象とするスキーマインスタンス名のリスト
+- **説明**: このマッピングが対象とするスキーマ名のリスト
 - **例**: `[main]`, `[main, secondary]`, `[user_db, log_db]`
 
 #### description
@@ -64,7 +64,7 @@ deploy: false
 ### ベースマッピング設定
 
 ```yaml
-instances:
+schemas:
   - main
 description: ベースデータベース
 deploy: false
@@ -73,19 +73,19 @@ deploy: false
 ### デプロイメント対象設定
 
 ```yaml
-instances:
+schemas:
   - main
 description: 本番環境メインデータベース
 deploy: true
 ```
 
-### 複数インスタンス設定
+### 複数スキーマ設定
 
 ```yaml
-instances:
+schemas:
   - main
   - secondary
-description: マルチインスタンス環境
+description: マルチスキーマ環境
 deploy: true
 ```
 

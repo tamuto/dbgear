@@ -1,0 +1,10 @@
+description: テストテーブル用データ
+layout: table
+settings:
+  update_date:
+    type: now
+  update_user:
+    type: update_user
+sync_mode: drop_create
+value: col_id
+caption: name

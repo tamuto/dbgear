@@ -226,9 +226,9 @@ def convert_to_schema(p):
                 )
                 tbl.columns.add(column)
 
-            for row in csv.reader(entity.indexes):
+            for cnt, row in enumerate(csv.reader(entity.indexes)):
                 idx = Index(
-                    index_name=None,
+                    index_name=f'{entity.table_name}_ix{cnt+1}',  # Problem
                     columns=row[1:]
                 )
                 tbl.indexes.add(idx)

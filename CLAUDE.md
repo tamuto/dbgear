@@ -396,6 +396,7 @@ When working with schema management features:
 6. **Format Compatibility**: Support A5:SQL Mk-2 import and native YAML format through dynamic importer system
 7. **Model Usage**: Access entities through Manager classes (TableManager, ColumnManager, etc.) for consistent CRUD operations
 8. **Type Safety**: Leverage ColumnType objects and type checking functions for robust schema definitions
+9. **Documentation Policy**: Notes are for documentation and version control only - they are NOT reflected in generated SQL or database schemas
 
 ### Schema Definition Format
 
@@ -496,7 +497,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 ├── __init__.py              # Basic module
 ├── engine.py                # SQLTemplateEngine class with Jinja2 integration
 └── mysql/
-    └── __init__.py          # MySQL-specific templates (18 templates total)
+    └── __init__.py          # MySQL-specific templates (21 templates total)
 ```
 
 #### Template Categories
@@ -504,6 +505,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 - **Table Operations**: CREATE/DROP/CHECK tables, backup/restore (7 templates)  
 - **View Operations**: CREATE/DROP/CHECK views, dependencies (6 templates)
 - **Index Operations**: CREATE with advanced MySQL features (1 template)
+- **Foreign Key Operations**: ADD/DROP foreign key constraints via ALTER TABLE (3 templates)
 - **Data Operations**: INSERT with parameter binding (1 template)
 
 #### Key Features
@@ -512,6 +514,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 - **MySQL Optimization**: Support for advanced MySQL features (generated columns, character sets, foreign keys)
 - **Template Naming**: Consistent `mysql_*` convention for easy identification
 - **Error Handling**: Template validation and rendering error management
+- **Documentation Separation**: Notes are for documentation only and are NOT included in generated SQL
 
 #### Custom Filters
 - `join_columns`: Joins column names with backticks (`column1`, `column2`)
@@ -544,6 +547,52 @@ All dbio modules have been migrated from direct SQL generation to template-based
 - ✅ `view.py`: Complete template migration (6 functions)
 
 This provides a solid foundation for future database engine support while maintaining current MySQL functionality.
+
+### JSON Data Support
+
+DBGear includes comprehensive support for JSON data types in MySQL databases:
+
+#### JSON Column Type Support
+- **Column Type System**: Full JSON type support in the `ColumnType` registry
+- **Schema Definition**: Native JSON column type specification in YAML schema files
+- **Data Validation**: Automatic validation of JSON column definitions
+
+#### JSON Data Processing
+- **YAML-to-JSON Conversion**: Automatic conversion of YAML dictionary objects to JSON strings during INSERT operations
+- **Data File Format**: Support for structured data in `.dat` files using YAML dictionaries
+- **CLI Integration**: Complete support for JSON data through the `dbgear apply` command
+
+#### Implementation Details
+- **Conversion Function**: `dbgear.dbio.table._col_conv()` handles automatic dict-to-JSON conversion
+- **Template Integration**: JSON INSERT support through the SQL template engine
+- **Type Safety**: Proper handling of JSON data types in the column type system
+
+#### Usage Examples
+```yaml
+# Schema definition with JSON column
+schemas:
+  main:
+    tables:
+      products:
+        columns:
+          - column_name: metadata
+            column_type:
+              column_type: JSON
+              base_type: JSON
+            nullable: true
+
+# Data file with JSON content
+- id: 1
+  metadata:
+    i18n:
+      ja: "日本語名"
+      en: "English Name"
+    settings:
+      featured: true
+      tags: ["electronics", "mobile"]
+```
+
+This JSON support enables efficient management of structured data such as internationalization content, configuration settings, and metadata within the DBGear ecosystem.
 
 ### Schema Import System Architecture
 

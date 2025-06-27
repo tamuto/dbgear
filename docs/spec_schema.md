@@ -77,18 +77,20 @@ schemas:
 #### columns（カラム定義）
 - **型**: リスト
 - **説明**: テーブルのカラム定義
+- **重要**: 以前の`fields`は`columns`に名称変更されました
 - **子要素**:
-  - `column_name`: カラム名
-  - `display_name`: 表示名
-  - `column_type`: カラム型（ColumnTypeオブジェクト）
-  - `nullable`: NULL許可フラグ
-  - `primary_key`: 主キー順序
-  - `auto_increment`: 自動増分フラグ
-  - `default_value`: デフォルト値
-  - `expression`: 生成カラムの式
-  - `stored`: 生成カラムの保存フラグ
-  - `charset`: 文字セット
-  - `collation`: 照合順序
+  - `column_name`: カラム名（必須）
+  - `display_name`: 表示名（オプション）
+  - `column_type`: カラム型（ColumnTypeオブジェクト、必須）
+  - `nullable`: NULL許可フラグ（デフォルト: true）
+  - `primary_key`: 主キー順序（1から開始、オプション）
+  - `auto_increment`: 自動増分フラグ（デフォルト: false）
+  - `default_value`: デフォルト値（オプション）
+  - `expression`: 生成カラムの式（オプション）
+  - `stored`: 生成カラムの保存フラグ（デフォルト: false）
+  - `charset`: 文字セット（MySQL用、オプション）
+  - `collation`: 照合順序（MySQL用、オプション）
+  - `notes`: カラムレベルのノート（オプション）
 
 #### indexes
 - **型**: リスト
@@ -115,11 +117,22 @@ schemas:
 
 #### notes
 - **型**: リスト
-- **説明**: ドキュメンテーション用ノート
+- **説明**: ドキュメンテーション用ノート（全エンティティ共通）
+- **重要**: ノート情報はドキュメント目的のみで、SQL生成時には含まれません
+- **子要素**:  
+  - `title`: タイトル（必須）
+  - `content`: 内容（必須）
+  - `checked`: 確認済みフラグ（デフォルト: false）
+
+#### column_type（カラム型オブジェクト）
+- **説明**: 構造化されたカラム型定義
 - **子要素**:
-  - `title`: タイトル
-  - `content`: 内容
-  - `checked`: 確認済みフラグ
+  - `column_type`: 型の文字列表現（例: "VARCHAR(255)"）
+  - `base_type`: 基本型名（例: "VARCHAR"）
+  - `length`: 長さ（数値型・文字列型用）
+  - `precision`: 精度（DECIMAL型用）
+  - `scale`: スケール（DECIMAL型用）
+  - `items`: ENUM/SET型の選択肢
 
 ## 設定例
 
@@ -140,6 +153,51 @@ schemas:
             nullable: false
             primary_key: 1
             auto_increment: true
+          - column_name: name
+            display_name: 名前
+            column_type:
+              column_type: VARCHAR(100)
+              base_type: VARCHAR
+              length: 100
+            nullable: false
+          - column_name: email
+            display_name: メールアドレス
+            column_type:  
+              column_type: VARCHAR(255)
+              base_type: VARCHAR
+              length: 255
+            nullable: true
+        indexes:
+          - index_name: idx_users_email
+            columns: [email]
+            unique: true
+        notes:
+          - title: 設計方針
+            content: ユーザー基本情報を管理するマスターテーブル
+            checked: true
+```
+
+### カラム型レジストリの活用例
+
+```yaml
+schemas:
+  main:
+    registry:
+      short_text:
+        column_type: VARCHAR(100)
+        base_type: VARCHAR
+        length: 100
+      long_text:
+        column_type: TEXT
+        base_type: TEXT
+    tables:
+      articles:
+        display_name: 記事
+        columns:
+          - column_name: title  
+            column_type: short_text  # レジストリ参照
+          - column_name: content
+            column_type: long_text   # レジストリ参照
 ```
 
 ### ビュー定義
@@ -178,5 +236,77 @@ schemas:
           - title: 目的
             content: アクティブユーザーの登録を監査
 ```
+
+### JSON型カラムのデータ処理
+
+DBGearでは、JSON型カラムに対してYAML形式での辞書データ入力をサポートしています。
+
+#### JSONデータの定義方法
+
+データファイル（`.dat`）内で、JSON型カラムに辞書形式でデータを定義すると、自動的にJSON文字列に変換されてINSERT文が実行されます。
+
+```yaml
+# データファイル例: main@test_table.dat
+- col_id: '001'
+  name: 'サンプル'
+  json_column:
+    ja: "こんにちは世界"
+    en: "Hello World"
+    settings:
+      theme: "dark"
+      language: "ja"
+  created_at: NOW()
+```
+
+#### JSONカラムの変換処理
+
+- YAMLファイル内の辞書オブジェクトは、INSERT時に自動的にJSON文字列に変換されます
+- 変換処理は`dbgear.dbio.table._col_conv()`関数で実行されます
+- 変換例：
+  ```python
+  # YAML辞書データ
+  {"ja": "こんにちは", "en": "Hello"}
+  
+  # JSON文字列変換後
+  '{"ja": "こんにちは", "en": "Hello"}'
+  ```
+
+#### 使用例
+
+```yaml
+schemas:
+  main:
+    tables:
+      products:
+        columns:
+          - column_name: id
+            column_type:
+              column_type: BIGINT
+              base_type: BIGINT
+            nullable: false
+            primary_key: 1
+          - column_name: i18n_data
+            column_type:
+              column_type: JSON
+              base_type: JSON
+            nullable: true
+```
+
+```yaml
+# データファイル: main@products.dat
+- id: 1
+  i18n_data:
+    ja:
+      name: "商品名"
+      description: "商品説明"
+    en:
+      name: "Product Name"
+      description: "Product Description"
+    metadata:
+      version: "1.0"
+      tags: ["electronics", "smartphone"]
+```
+
+この機能により、多言語対応データや設定情報など、構造化されたデータを効率的に管理できます。
 
 この仕様により、DBGearプロジェクトのスキーマ定義を統一的に管理できます。

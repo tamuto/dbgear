@@ -15,7 +15,7 @@ from ..engine import template_engine
 # {%- endfor %}
 
 
-# CREATE TABLE template
+# CREATE TABLE template (without foreign key constraints)
 CREATE_TABLE_TEMPLATE = """
 CREATE TABLE {{ env }}.{{ table.table_name }} (
 {%- for column in table.columns %}
@@ -41,6 +41,28 @@ CREATE TABLE {{ env }}.{{ table.table_name }} (
 {%- if table.mysql_options.auto_increment %} AUTO_INCREMENT={{ table.mysql_options.auto_increment }}{% endif %}
 {%- if table.mysql_options.row_format %} ROW_FORMAT={{ table.mysql_options.row_format }}{% endif %}
 {%- endif %}
+"""
+
+# ALTER TABLE ADD FOREIGN KEY template
+ALTER_TABLE_ADD_FOREIGN_KEY_TEMPLATE = """
+ALTER TABLE {{ env }}.{{ table.table_name }}
+ADD CONSTRAINT {{ relation.constraint_name }}
+FOREIGN KEY ({{ relation.bind_columns | map(attribute='source_column') | join_columns }})
+REFERENCES {{ relation.target.table_name }} ({{ relation.bind_columns | map(attribute='target_column') | join_columns }})
+{%- if relation.on_delete != 'RESTRICT' %} ON DELETE {{ relation.on_delete }}{% endif %}
+{%- if relation.on_update != 'RESTRICT' %} ON UPDATE {{ relation.on_update }}{% endif %}
+"""
+
+# DROP FOREIGN KEY template
+DROP_FOREIGN_KEY_TEMPLATE = """
+ALTER TABLE {{ env }}.{{ table_name }}
+DROP FOREIGN KEY {{ constraint_name }}
+"""
+
+# CHECK FOREIGN KEY EXISTS template
+CHECK_FOREIGN_KEY_EXISTS_TEMPLATE = """
+SELECT CONSTRAINT_NAME FROM information_schema.table_constraints
+WHERE table_schema = :env AND table_name = :table_name AND constraint_name = :constraint_name AND constraint_type = 'FOREIGN KEY'
 """
 
 # CREATE INDEX template
@@ -188,3 +210,7 @@ template_engine.add_template('mysql_check_view_dependency_exists', CHECK_VIEW_DE
 template_engine.add_template('mysql_create_trigger', CREATE_TRIGGER_TEMPLATE)
 template_engine.add_template('mysql_drop_trigger', DROP_TRIGGER_TEMPLATE)
 template_engine.add_template('mysql_check_trigger_exists', CHECK_TRIGGER_EXISTS_TEMPLATE)
+# Foreign key constraint templates
+template_engine.add_template('mysql_add_foreign_key', ALTER_TABLE_ADD_FOREIGN_KEY_TEMPLATE)
+template_engine.add_template('mysql_drop_foreign_key', DROP_FOREIGN_KEY_TEMPLATE)
+template_engine.add_template('mysql_check_foreign_key_exists', CHECK_FOREIGN_KEY_EXISTS_TEMPLATE)

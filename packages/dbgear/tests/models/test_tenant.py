@@ -23,7 +23,7 @@ class TestTenant(unittest.TestCase):
     def test_tenant_registry_save_and_load(self):
         """Test TenantRegistry save and load operations"""
         # Create test tenant registry
-        tenant_registry = TenantRegistry()
+        tenant_registry = TenantRegistry(folder=self.temp_dir, name='test_env')
 
         # Add test tenant
         db_info = DatabaseInfo(
@@ -36,24 +36,27 @@ class TestTenant(unittest.TestCase):
         tenant_config = TenantConfig(
             name='localhost',
             ref='base',
-            prefix='test_',
             databases=[db_info]
         )
 
         tenant_registry.add(tenant_config)
 
+        # Create the directory structure
+        env_dir = os.path.join(self.temp_dir, 'test_env')
+        os.makedirs(env_dir, exist_ok=True)
+
         # Test save
-        tenant_registry.save(self.tenant_yaml_path)
-        self.assertTrue(os.path.exists(self.tenant_yaml_path))
+        tenant_registry.save()
+        tenant_yaml_path = os.path.join(self.temp_dir, 'test_env', 'tenant.yaml')
+        self.assertTrue(os.path.exists(tenant_yaml_path))
 
         # Test load
-        loaded_registry = TenantRegistry.load(self.tenant_yaml_path)
+        loaded_registry = TenantRegistry.load(self.temp_dir, 'test_env')
         self.assertIn('localhost', loaded_registry.tenants)
 
         loaded_tenant = loaded_registry['localhost']
         self.assertEqual(loaded_tenant.name, 'localhost')
         self.assertEqual(loaded_tenant.ref, 'base')
-        self.assertEqual(loaded_tenant.prefix, 'test_')
         self.assertEqual(len(loaded_tenant.databases), 1)
 
         loaded_db = loaded_tenant.databases[0]
@@ -63,13 +66,17 @@ class TestTenant(unittest.TestCase):
 
     def test_tenant_load_from_existing_yaml(self):
         """Test loading TenantRegistry from existing YAML file"""
+        # Create directory structure
+        env_dir = os.path.join(self.temp_dir, 'test_env')
+        os.makedirs(env_dir)
+        tenant_yaml_path = os.path.join(env_dir, 'tenant.yaml')
+        
         # Create test tenant data
         tenant_data = {
             'tenants': {
                 'production': {
                     'name': 'production',
                     'ref': 'production_base',
-                    'prefix': 'prod_',
                     'databases': [
                         {
                             'name': 'main',
@@ -89,16 +96,15 @@ class TestTenant(unittest.TestCase):
         }
 
         # Write test data
-        with open(self.tenant_yaml_path, 'w', encoding='utf-8') as f:
+        with open(tenant_yaml_path, 'w', encoding='utf-8') as f:
             yaml.dump(tenant_data, f, allow_unicode=True)
 
         # Test load
-        tenant_registry = TenantRegistry.load(self.tenant_yaml_path)
+        tenant_registry = TenantRegistry.load(self.temp_dir, 'test_env')
 
         prod_tenant = tenant_registry['production']
         self.assertEqual(prod_tenant.name, 'production')
         self.assertEqual(prod_tenant.ref, 'production_base')
-        self.assertEqual(prod_tenant.prefix, 'prod_')
         self.assertEqual(len(prod_tenant.databases), 2)
 
         # Check databases
@@ -110,7 +116,7 @@ class TestTenant(unittest.TestCase):
 
     def test_tenant_registry_crud_operations(self):
         """Test TenantRegistry CRUD operations"""
-        tenant_registry = TenantRegistry()
+        tenant_registry = TenantRegistry(folder=self.temp_dir, name='test_env')
 
         # Test add
         tenant1 = TenantConfig(name='tenant1', ref='base')
@@ -148,20 +154,20 @@ class TestTenant(unittest.TestCase):
     def test_tenant_roundtrip(self):
         """Test TenantRegistry save/load roundtrip"""
         # Create complex tenant registry
-        tenant_registry = TenantRegistry()
+        tenant_registry = TenantRegistry(folder=self.temp_dir, name='test_env')
 
         # Multiple tenants with different configurations
         tenants_data = [
-            ('localhost', 'local_base', '', [
+            ('localhost', 'local_base', [
                 ('main', 'local_main', 'Local main DB', True)
             ]),
-            ('docker', 'docker_base', 'docker_', [
+            ('docker', 'docker_base', [
                 ('main', 'docker_main', 'Docker main DB', True),
                 ('test', 'docker_test', 'Docker test DB', False)
             ])
         ]
 
-        for tenant_name, ref, prefix, dbs in tenants_data:
+        for tenant_name, ref, dbs in tenants_data:
             databases = [
                 DatabaseInfo(name=name, database=db, description=desc, active=active)
                 for name, db, desc, active in dbs
@@ -170,26 +176,27 @@ class TestTenant(unittest.TestCase):
             tenant = TenantConfig(
                 name=tenant_name,
                 ref=ref,
-                prefix=prefix,
                 databases=databases
             )
             tenant_registry.add(tenant)
 
+        # Create the directory structure
+        env_dir = os.path.join(self.temp_dir, 'test_env')
+        os.makedirs(env_dir, exist_ok=True)
+
         # Save
-        tenant_registry.save(self.tenant_yaml_path)
+        tenant_registry.save()
 
         # Load
-        loaded_registry = TenantRegistry.load(self.tenant_yaml_path)
+        loaded_registry = TenantRegistry.load(self.temp_dir, 'test_env')
 
         # Verify
         self.assertEqual(len(loaded_registry), 2)
 
         localhost_tenant = loaded_registry['localhost']
-        self.assertEqual(localhost_tenant.prefix, '')
         self.assertEqual(len(localhost_tenant.databases), 1)
 
         docker_tenant = loaded_registry['docker']
-        self.assertEqual(docker_tenant.prefix, 'docker_')
         self.assertEqual(len(docker_tenant.databases), 2)
 
 

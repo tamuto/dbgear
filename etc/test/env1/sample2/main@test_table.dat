@@ -1,0 +1,16 @@
+- col_id: '001'
+  name: P001
+  test_18n:
+    ja: 'テスト'
+    en: 'Test'
+  num: '2'
+  update_date: NOW()
+  update_user: '''SYSTEM'''
+- col_id: '002'
+  name: P002
+  test_18n:
+    ja: 'テスト2'
+    en: 'Test2'
+  num: null
+  update_date: NOW()
+  update_user: '''SYSTEM'''

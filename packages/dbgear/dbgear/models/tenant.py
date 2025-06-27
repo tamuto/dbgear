@@ -91,5 +91,5 @@ class TenantRegistry(BaseSchema):
                 if not database.active:
                     continue
                 clone = map.model_copy(deep=True)
-                clone.name = database.database
+                clone.tenant_name = database.database
                 yield clone
