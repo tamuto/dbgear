@@ -14,7 +14,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-dbgear = "^0.14.3"
+dbgear = {path = "../dbgear"}
 fastapi = "^0.115.8"
 uvicorn = "^0.34.0"
 
@@ -31,5 +31,6 @@ test = "PYTHONPATH=../dbgear poetry run python -m unittest discover tests/ -v"
 test-fast = "PYTHONPATH=../dbgear python -m unittest discover tests/ -k 'not slow'"
 lint = "flake8 dbgear_web/ tests/"
 clean = "rm -rf dist/ build/ *.egg-info/"
-serve = "PYTHONPATH=../dbgear poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000"
+serve = "poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000"
+serve2 = "PYTHONPATH=../dbgear poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000"
 dev = "PYTHONPATH=../dbgear poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000 --reload"
