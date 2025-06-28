@@ -19,12 +19,12 @@ def get_mappings(env_name: str, request: Request):
     """Get all mappings in an environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         if hasattr(environ, 'mappings'):
             return Result(data=list(environ.mappings.values()))
         else:
@@ -40,15 +40,15 @@ def get_mapping(env_name: str, mapping_name: str, request: Request):
     """Get a specific mapping"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         if not hasattr(environ, 'mappings') or mapping_name not in environ.mappings:
             raise HTTPException(status_code=404, detail="Mapping not found")
-        
+
         mapping = environ.mappings[mapping_name]
         return Result(data=mapping)
     except HTTPException:
@@ -62,16 +62,16 @@ def create_mapping(env_name: str, data: CreateMappingRequest, request: Request):
     """Create a new mapping in an environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         # Check if mapping already exists
         if hasattr(environ, 'mappings') and data.name in environ.mappings:
             raise HTTPException(status_code=409, detail=f"Mapping '{data.name}' already exists")
-        
+
         # Create mapping
         mapping = Mapping(
             id=data.name,
@@ -82,15 +82,15 @@ def create_mapping(env_name: str, data: CreateMappingRequest, request: Request):
             description=data.description,
             deployment=data.deployment
         )
-        
+
         # Add to environment mappings
         if not hasattr(environ, 'mappings'):
             environ.mappings = {}
         environ.mappings[data.name] = mapping
-        
+
         # Save
         manager.save()
-        
+
         return Result(data=mapping)
     except HTTPException:
         raise
@@ -103,17 +103,17 @@ def update_mapping(env_name: str, mapping_name: str, data: UpdateMappingRequest,
     """Update an existing mapping"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         if not hasattr(environ, 'mappings') or mapping_name not in environ.mappings:
             raise HTTPException(status_code=404, detail="Mapping not found")
-        
+
         mapping = environ.mappings[mapping_name]
-        
+
         # Update mapping attributes
         update_data = data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -127,10 +127,10 @@ def update_mapping(env_name: str, mapping_name: str, data: UpdateMappingRequest,
                 # Update other attributes
                 if hasattr(mapping, key):
                     setattr(mapping, key, value)
-        
+
         # Save
         manager.save()
-        
+
         return Result(data=mapping)
     except HTTPException:
         raise
@@ -143,21 +143,21 @@ def delete_mapping(env_name: str, mapping_name: str, request: Request):
     """Delete a mapping"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         if not hasattr(environ, 'mappings') or mapping_name not in environ.mappings:
             raise HTTPException(status_code=404, detail="Mapping not found")
-        
+
         # Remove mapping
         del environ.mappings[mapping_name]
-        
+
         # Save
         manager.save()
-        
+
         return Result()
     except HTTPException:
         raise
@@ -170,44 +170,44 @@ def get_mapping_datamodels(env_name: str, mapping_name: str, request: Request):
     """Get data models associated with a mapping"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         if not hasattr(environ, 'mappings') or mapping_name not in environ.mappings:
             raise HTTPException(status_code=404, detail="Mapping not found")
-        
+
         # Get data models for this mapping
         # This would typically involve looking at the data model files in the mapping directory
-        project = get_project(request)
-        datamodel_path = f"{project.folder}/{env_name}/{mapping_name}"
-        
+        # project = get_project(request)
+        # datamodel_path = f"{project.folder}/{env_name}/{mapping_name}"
+
         # List available data models (this is a simplified implementation)
         datamodels = []
-        try:
-            import os
-            import glob
-            
-            if os.path.exists(datamodel_path):
-                yaml_files = glob.glob(f"{datamodel_path}/*.yaml")
-                for yaml_file in yaml_files:
-                    filename = os.path.basename(yaml_file)
-                    if filename != 'datamodel.yaml':  # Skip the main datamodel file
-                        # Parse schema@table format
-                        base_name = filename.replace('.yaml', '')
-                        if '@' in base_name:
-                            schema_name, table_name = base_name.split('@', 1)
-                            datamodels.append({
-                                'schema_name': schema_name,
-                                'table_name': table_name,
-                                'file_name': filename
-                            })
-        except Exception:
-            # If we can't read the directory, return empty list
-            pass
-        
+        # try:
+        #     import os
+        #     import glob
+
+        #     if os.path.exists(datamodel_path):
+        #         yaml_files = glob.glob(f"{datamodel_path}/*.yaml")
+        #         for yaml_file in yaml_files:
+        #             filename = os.path.basename(yaml_file)
+        #             if filename != 'datamodel.yaml':  # Skip the main datamodel file
+        #                 # Parse schema@table format
+        #                 base_name = filename.replace('.yaml', '')
+        #                 if '@' in base_name:
+        #                     schema_name, table_name = base_name.split('@', 1)
+        #                     datamodels.append({
+        #                         'schema_name': schema_name,
+        #                         'table_name': table_name,
+        #                         'file_name': filename
+        #                     })
+        # except Exception:
+        #     # If we can't read the directory, return empty list
+        #     pass
+
         return Result(data=datamodels)
     except HTTPException:
         raise
