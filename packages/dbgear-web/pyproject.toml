@@ -11,8 +11,6 @@ packages = [
     { include = "dbgear_web", from = "." }
 ]
 
-[tool.poetry.scripts]
-dbgear-web = "dbgear_web.main:execute"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -33,4 +31,5 @@ test = "PYTHONPATH=../dbgear poetry run python -m unittest discover tests/ -v"
 test-fast = "PYTHONPATH=../dbgear python -m unittest discover tests/ -k 'not slow'"
 lint = "flake8 dbgear_web/ tests/"
 clean = "rm -rf dist/ build/ *.egg-info/"
-serve = "PYTHONPATH=../dbgear poetry run python -m dbgear_web.main --project ../../etc/test --port 5000"
+serve = "PYTHONPATH=../dbgear poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000"
+dev = "PYTHONPATH=../dbgear poetry run uvicorn dbgear_web.backend:app --host 0.0.0.0 --port 5000 --reload"

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
-from dbgear.core.models.project import project
-from dbgear.core.models.schema_manager import SchemaManager
-from .dtos import Result, CreateTableRequest, convert_to_table
+from ..shared.helpers import get_project
+from dbgear.models.schema import SchemaManager
+from ..shared.dtos import Result, CreateTableRequest, convert_to_table
 
 router = APIRouter()
 
@@ -10,7 +10,7 @@ router = APIRouter()
 def get_tables(schema_name: str, request: Request) -> Result:
     """スキーマ内のテーブル一覧を取得"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -29,7 +29,7 @@ def get_tables(schema_name: str, request: Request) -> Result:
 def create_table(schema_name: str, request: Request, table_request: CreateTableRequest) -> Result:
     """新規テーブルを作成"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -50,7 +50,7 @@ def create_table(schema_name: str, request: Request, table_request: CreateTableR
 def get_table(schema_name: str, table_name: str, request: Request) -> Result:
     """特定テーブルの詳細を取得"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -71,7 +71,7 @@ def get_table(schema_name: str, table_name: str, request: Request) -> Result:
 def update_table(schema_name: str, table_name: str, request: Request, table_request: CreateTableRequest) -> Result:
     """テーブルを更新"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -81,9 +81,9 @@ def update_table(schema_name: str, table_name: str, request: Request, table_requ
         if existing_table is None:
             raise HTTPException(status_code=404, detail=f"Table '{table_name}' not found in schema '{schema_name}'")
 
-        # 既存のフィールドとインデックスを保持しつつ、基本情報を更新
+        # 既存のカラムとインデックスを保持しつつ、基本情報を更新
         updated_table = convert_to_table(table_request)
-        updated_table.fields = existing_table.fields
+        updated_table.columns = existing_table.columns
         updated_table.indexes = existing_table.indexes
 
         manager.update_table(schema_name, table_name, updated_table)
@@ -100,7 +100,7 @@ def update_table(schema_name: str, table_name: str, request: Request, table_requ
 def delete_table(schema_name: str, table_name: str, request: Request) -> Result:
     """テーブルを削除"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):

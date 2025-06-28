@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
-from dbgear.core.models.project import project
-from dbgear.core.models.schema_manager import SchemaManager
-from .dtos import Result, CreateViewRequest, UpdateViewRequest, convert_to_view
+from ..shared.helpers import get_project
+from dbgear.models.schema import SchemaManager
+from ..shared.dtos import Result, CreateViewRequest, UpdateViewRequest, convert_to_view
 
 router = APIRouter()
 
@@ -10,7 +10,7 @@ router = APIRouter()
 def get_views(schema_name: str, request: Request) -> Result:
     """スキーマ内のビュー一覧を取得"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -29,7 +29,7 @@ def get_views(schema_name: str, request: Request) -> Result:
 def create_view(schema_name: str, request: Request, view_request: CreateViewRequest) -> Result:
     """新規ビューを作成"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -56,7 +56,7 @@ def create_view(schema_name: str, request: Request, view_request: CreateViewRequ
 def get_view(schema_name: str, view_name: str, request: Request) -> Result:
     """特定ビューの詳細を取得"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -79,7 +79,7 @@ def get_view(schema_name: str, view_name: str, request: Request) -> Result:
 def update_view(schema_name: str, view_name: str, request: Request, view_request: UpdateViewRequest) -> Result:
     """ビューを更新"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -97,7 +97,7 @@ def update_view(schema_name: str, view_name: str, request: Request, view_request
         request_data = view_request.model_dump(exclude_unset=True)
         updated_data.update(request_data)
 
-        from dbgear.core.models.schema import View
+        from dbgear.models.view import View
         updated_view = View(**updated_data)
 
         schema.update_view(view_name, updated_view)
@@ -114,7 +114,7 @@ def update_view(schema_name: str, view_name: str, request: Request, view_request
 def delete_view(schema_name: str, view_name: str, request: Request) -> Result:
     """ビューを削除"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):

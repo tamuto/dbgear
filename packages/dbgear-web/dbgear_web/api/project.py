@@ -2,16 +2,16 @@ import os
 from fastapi import APIRouter
 from fastapi import Request
 
-from dbgear.core.models.project import project
-from .dtos import Result
-from .dtos import ProjectInfo
+from ..shared.helpers import get_project
+from ..shared.dtos import Result
+from ..shared.dtos import ProjectInfo
 
 router = APIRouter()
 
 
 @router.get('/project', response_model=Result)
 def get_project_info(request: Request) -> Result:
-    proj = project(request)
+    proj = get_project(request)
     api_key = os.environ.get('API_KEY', None)
 
     info = ProjectInfo(

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
-from dbgear.core.models.project import project
-from dbgear.core.models.schema_manager import SchemaManager, SchemaValidator
-from .dtos import Result, ValidateTableRequest, ValidateFieldRequest, ValidateForeignKeyRequest
+from ..shared.helpers import get_project
+from dbgear.models.schema import SchemaManager, SchemaValidator
+from ..shared.dtos import Result, ValidateTableRequest, ValidateColumnRequest, ValidateForeignKeyRequest
 
 router = APIRouter(prefix='/schemas/validate')
 
@@ -24,20 +24,20 @@ def validate_table(request: Request, validate_request: ValidateTableRequest) -> 
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post('/field')
-def validate_field(request: Request, validate_request: ValidateFieldRequest) -> Result:
-    """フィールド定義を検証"""
+@router.post('/column')
+def validate_column(request: Request, validate_request: ValidateColumnRequest) -> Result:
+    """カラム定義を検証"""
     try:
-        errors = SchemaValidator.validate_field(validate_request.field)
+        errors = SchemaValidator.validate_column(validate_request.column)
 
         if errors:
             return Result(
                 status='VALIDATION_ERROR',
-                message='Field validation failed',
+                message='Column validation failed',
                 data={'errors': errors}
             )
 
-        return Result(message='Field validation passed')
+        return Result(message='Column validation passed')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -46,7 +46,7 @@ def validate_field(request: Request, validate_request: ValidateFieldRequest) -> 
 def validate_foreign_key(request: Request, validate_request: ValidateForeignKeyRequest) -> Result:
     """外部キー参照を検証"""
     try:
-        errors = SchemaValidator.validate_foreign_key(validate_request.field, validate_request.schemas)
+        errors = SchemaValidator.validate_foreign_key(validate_request.column, validate_request.schemas)
 
         if errors:
             return Result(
@@ -64,7 +64,7 @@ def validate_foreign_key(request: Request, validate_request: ValidateForeignKeyR
 def validate_schema(schema_name: str, request: Request) -> Result:
     """スキーマ全体を検証"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -79,17 +79,17 @@ def validate_schema(schema_name: str, request: Request) -> Result:
             if table_errors:
                 all_errors.extend([f"Table {table_name}: {error}" for error in table_errors])
 
-            # 各フィールドを検証
-            for field in table.fields:
-                field_errors = SchemaValidator.validate_field(field)
-                if field_errors:
-                    all_errors.extend([f"Table {table_name}, Field {field.column_name}: {error}" for error in field_errors])
+            # 各カラムを検証
+            for column in table.columns:
+                column_errors = SchemaValidator.validate_column(column)
+                if column_errors:
+                    all_errors.extend([f"Table {table_name}, Column {column.column_name}: {error}" for error in column_errors])
 
                 # 外部キー検証
-                if field.foreign_key:
-                    fk_errors = SchemaValidator.validate_foreign_key(field, {schema_name: schema})
+                if column.foreign_key:
+                    fk_errors = SchemaValidator.validate_foreign_key(column, {schema_name: schema})
                     if fk_errors:
-                        all_errors.extend([f"Table {table_name}, Field {field.column_name} FK: {error}" for error in fk_errors])
+                        all_errors.extend([f"Table {table_name}, Column {column.column_name} FK: {error}" for error in fk_errors])
 
         if all_errors:
             return Result(
