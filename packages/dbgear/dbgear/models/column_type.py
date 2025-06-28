@@ -104,8 +104,8 @@ def parse_column_type(type_string: str) -> ColumnType:
 
     # Parse ENUM and SET values
     elif base_type in ['ENUM', 'SET']:
-        if len(type_string) > 2000:
-            raise ValueError("type_string is too long, must be less than 2000 characters")
+        if len(type_string) > 1000:
+            raise ValueError("type_string is too long, must be less than 1000 characters")
         values_match = re.search(r'\((.*)\)', type_string)
         if values_match:
             values_str = values_match.group(1)
