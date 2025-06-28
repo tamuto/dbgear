@@ -6,6 +6,7 @@ views, triggers, indexes, and data sources.
 
 from typing import Dict, List, Any, Optional
 import pathlib
+import re
 import yaml
 
 from .schema import SchemaManager
@@ -383,8 +384,8 @@ class TableDependencyAnalyzer:
         statement_lower = select_statement.lower()
         if f"{table_name}." in statement_lower:
             # Very basic extraction - look for table_name.column_name patterns
-            import re
-            pattern = rf"{table_name}\.(\w+)"
+            safe_table_name = re.escape(table_name)
+            pattern = rf"{safe_table_name}\.(\w+)"
             matches = re.findall(pattern, statement_lower)
             columns.extend(matches)
 
