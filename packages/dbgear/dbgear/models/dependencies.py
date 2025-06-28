@@ -4,27 +4,31 @@ Provides functionality to analyze table dependencies including relations,
 views, triggers, indexes, and data sources.
 """
 
-from typing import Dict, List, Any, Optional, Set, Tuple
-import os
+from typing import Dict, List, Any, Optional
 import pathlib
 import yaml
 
 from .schema import SchemaManager
-from .datamodel import DataSource
 
 
 class DependencyItem:
     """Represents a single dependency item"""
-    
-    def __init__(self, dep_type: str, schema_name: str, table_name: Optional[str], 
-                 object_name: str, details: Dict[str, Any], path: Optional[List[Dict[str, str]]] = None):
+
+    def __init__(
+            self,
+            dep_type: str,
+            schema_name: str,
+            table_name: Optional[str],
+            object_name: str,
+            details: Dict[str, Any],
+            path: Optional[List[Dict[str, str]]] = None):
         self.type = dep_type
         self.schema_name = schema_name
         self.table_name = table_name
         self.object_name = object_name
         self.details = details
         self.path = path or []
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary format for JSON serialization"""
         result = {
@@ -41,38 +45,38 @@ class DependencyItem:
 
 class TableDependencyAnalyzer:
     """Analyzes table dependencies and returns hierarchical relationship data"""
-    
+
     def __init__(self, schema_manager: SchemaManager, project_folder: Optional[str] = None):
         self.schema_manager = schema_manager
         self.project_folder = project_folder
-    
-    def analyze(self, schema_name: str, table_name: str, 
+
+    def analyze(self, schema_name: str, table_name: str,
                 left_level: int = 3, right_level: int = 3) -> Dict[str, Any]:
         """
         Analyze table dependencies up to specified levels.
-        
+
         Args:
             schema_name: Target schema name
             table_name: Target table name
             left_level: Maximum level for left side (objects referencing target table)
             right_level: Maximum level for right side (objects referenced by target table)
-            
+
         Returns:
             Dictionary containing hierarchical dependency information
         """
-        if not self.schema_manager.schema_exists(schema_name):
+        if schema_name not in self.schema_manager:
             raise ValueError(f"Schema '{schema_name}' not found")
-        
-        schema = self.schema_manager.get_schema(schema_name)
+
+        schema = self.schema_manager[schema_name]
         if table_name not in schema.tables:
             raise ValueError(f"Table '{table_name}' not found in schema '{schema_name}'")
-        
+
         # Validate levels
         if not (0 <= left_level <= 3):
             raise ValueError("left_level must be between 0 and 3")
         if not (0 <= right_level <= 3):
             raise ValueError("right_level must be between 0 and 3")
-        
+
         result = {
             "target_table": {
                 "schema_name": schema_name,
@@ -81,26 +85,26 @@ class TableDependencyAnalyzer:
             "left": {},
             "right": {}
         }
-        
+
         # Build left side (objects referencing target table)
         if left_level > 0:
             result["left"] = self._build_left_dependencies(schema_name, table_name, left_level)
-        
+
         # Build right side (objects referenced by target table)
         if right_level > 0:
             result["right"] = self._build_right_dependencies(schema_name, table_name, right_level)
-        
+
         return result
-    
+
     def _build_left_dependencies(self, schema_name: str, table_name: str, max_level: int) -> Dict[str, List[Dict[str, Any]]]:
         """Build left side dependencies (objects referencing target table)"""
         result = {}
         visited = set()
-        
+
         for level in range(1, max_level + 1):
             level_key = f"level_{level}"
             result[level_key] = []
-            
+
             if level == 1:
                 # Direct references to target table
                 items = self._get_direct_left_references(schema_name, table_name)
@@ -112,7 +116,7 @@ class TableDependencyAnalyzer:
                 for prev_item_dict in result[prev_level_key]:
                     if prev_item_dict["table_name"]:  # Only follow table references
                         indirect_items = self._get_direct_left_references(
-                            prev_item_dict["schema_name"], 
+                            prev_item_dict["schema_name"],
                             prev_item_dict["table_name"]
                         )
                         for item in indirect_items:
@@ -126,18 +130,18 @@ class TableDependencyAnalyzer:
                                 }]
                                 result[level_key].append(item.to_dict())
                                 visited.add(item_key)
-        
+
         return result
-    
+
     def _build_right_dependencies(self, schema_name: str, table_name: str, max_level: int) -> Dict[str, List[Dict[str, Any]]]:
         """Build right side dependencies (objects referenced by target table)"""
         result = {}
         visited = set()
-        
+
         for level in range(1, max_level + 1):
             level_key = f"level_{level}"
             result[level_key] = []
-            
+
             if level == 1:
                 # Direct references from target table
                 items = self._get_direct_right_references(schema_name, table_name)
@@ -149,7 +153,7 @@ class TableDependencyAnalyzer:
                 for prev_item_dict in result[prev_level_key]:
                     if prev_item_dict["table_name"] and prev_item_dict["type"] == "relation":
                         indirect_items = self._get_direct_right_references(
-                            prev_item_dict["schema_name"], 
+                            prev_item_dict["schema_name"],
                             prev_item_dict["table_name"]
                         )
                         for item in indirect_items:
@@ -163,19 +167,18 @@ class TableDependencyAnalyzer:
                                 }]
                                 result[level_key].append(item.to_dict())
                                 visited.add(item_key)
-        
+
         return result
-    
+
     def _get_direct_left_references(self, target_schema: str, target_table: str) -> List[DependencyItem]:
         """Get objects that directly reference the target table"""
         items = []
-        
+
         # 1. Foreign key references from other tables
         for schema in self.schema_manager:
             for table in schema.tables.values():
                 for relation in table.relations:
-                    if (relation.target.schema_name == target_schema and 
-                        relation.target.table_name == target_table):
+                    if (relation.target.schema_name == target_schema and relation.target.table_name == target_table):
                         items.append(DependencyItem(
                             dep_type="relation",
                             schema_name=schema.name,
@@ -195,7 +198,7 @@ class TableDependencyAnalyzer:
                                 "cardinarity_target": relation.cardinarity_target
                             }
                         ))
-        
+
         # 2. Views that reference the target table
         for schema in self.schema_manager:
             for view in schema.views.values():
@@ -211,9 +214,9 @@ class TableDependencyAnalyzer:
                             "dependencies": view._dependencies
                         }
                     ))
-        
+
         # 3. Triggers on the target table
-        target_schema_obj = self.schema_manager.get_schema(target_schema)
+        target_schema_obj = self.schema_manager[target_schema]
         if target_table in target_schema_obj.tables:
             table_obj = target_schema_obj.tables[target_table]
             if hasattr(target_schema_obj, 'triggers'):
@@ -231,19 +234,19 @@ class TableDependencyAnalyzer:
                                 "body": trigger.body
                             }
                         ))
-        
+
         return items
-    
+
     def _get_direct_right_references(self, source_schema: str, source_table: str) -> List[DependencyItem]:
         """Get objects that are directly referenced by the source table"""
         items = []
-        
-        source_schema_obj = self.schema_manager.get_schema(source_schema)
+
+        source_schema_obj = self.schema_manager[source_schema]
         if source_table not in source_schema_obj.tables:
             return items
-        
+
         table_obj = source_schema_obj.tables[source_table]
-        
+
         # 1. Foreign key target tables
         for relation in table_obj.relations:
             items.append(DependencyItem(
@@ -265,7 +268,7 @@ class TableDependencyAnalyzer:
                     "cardinarity_target": relation.cardinarity_target
                 }
             ))
-        
+
         # 2. Indexes on the source table
         for index in table_obj.indexes:
             items.append(DependencyItem(
@@ -282,46 +285,46 @@ class TableDependencyAnalyzer:
                     "storage_parameters": index.storage_parameters
                 }
             ))
-        
+
         # 3. Data sources for the source table
         if self.project_folder:
             data_items = self._get_data_sources(source_schema, source_table)
             items.extend(data_items)
-        
+
         return items
-    
+
     def _get_data_sources(self, schema_name: str, table_name: str) -> List[DependencyItem]:
         """Get data sources for the specified table"""
         items = []
-        
+
         if not self.project_folder:
             return items
-        
+
         try:
             # Search for data files in all environments
             for env_path in pathlib.Path(self.project_folder).glob("*/"):
                 if not env_path.is_dir():
                     continue
-                
+
                 environ_name = env_path.name
-                
+
                 # Search for mapping directories
                 for map_path in env_path.glob("*/"):
                     if not map_path.is_dir():
                         continue
-                    
+
                     map_name = map_path.name
-                    
+
                     # Look for data files matching the schema@table pattern
                     data_files = list(map_path.glob(f"{schema_name}@{table_name}*.dat"))
-                    
+
                     for data_file in data_files:
                         # Parse segment from filename if present
                         filename = data_file.name
                         segment = None
                         if '#' in filename:
                             segment = filename.split('#')[1].replace('.dat', '')
-                        
+
                         # Count records in data file
                         record_count = 0
                         try:
@@ -331,7 +334,7 @@ class TableDependencyAnalyzer:
                                     record_count = len(data)
                         except Exception:
                             record_count = 0
-                        
+
                         items.append(DependencyItem(
                             dep_type="data",
                             schema_name=schema_name,
@@ -345,18 +348,18 @@ class TableDependencyAnalyzer:
                                 "data_file_path": str(data_file.relative_to(self.project_folder))
                             }
                         ))
-        
+
         except Exception:
             # If we can't access data files, just return empty list
             pass
-        
+
         return items
-    
+
     def _view_references_table(self, select_statement: str, schema_name: str, table_name: str) -> bool:
         """Simple check if view references the specified table"""
         # This is a simple implementation - in practice, you might want proper SQL parsing
         statement_lower = select_statement.lower()
-        
+
         # Check for table name references
         possible_refs = [
             f" {table_name} ",
@@ -368,15 +371,15 @@ class TableDependencyAnalyzer:
             f"from {table_name}",
             f"join {table_name}",
         ]
-        
+
         return any(ref in statement_lower for ref in possible_refs)
-    
+
     def _extract_columns_from_view(self, select_statement: str, table_name: str) -> List[str]:
         """Extract column names referenced from the specified table in the view"""
         # This is a simplified implementation
         # In practice, you would use proper SQL parsing
         columns = []
-        
+
         statement_lower = select_statement.lower()
         if f"{table_name}." in statement_lower:
             # Very basic extraction - look for table_name.column_name patterns
@@ -384,5 +387,5 @@ class TableDependencyAnalyzer:
             pattern = rf"{table_name}\.(\w+)"
             matches = re.findall(pattern, statement_lower)
             columns.extend(matches)
-        
+
         return list(set(columns))  # Remove duplicates

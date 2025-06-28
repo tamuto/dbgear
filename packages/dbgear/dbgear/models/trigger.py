@@ -38,13 +38,13 @@ class TriggerManager:
 
     def __contains__(self, trigger_name: str) -> bool:
         return trigger_name in self.triggers
-    
+
     def keys(self):
         return self.triggers.keys()
-    
+
     def values(self):
         return self.triggers.values()
-    
+
     def items(self):
         return self.triggers.items()
 

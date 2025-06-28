@@ -50,13 +50,13 @@ class ViewManager:
 
     def __contains__(self, view_name: str) -> bool:
         return view_name in self.views
-    
+
     def keys(self):
         return self.views.keys()
-    
+
     def values(self):
         return self.views.values()
-    
+
     def items(self):
         return self.views.items()
 

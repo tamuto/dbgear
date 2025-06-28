@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Request, HTTPException, Query
 from typing import Optional
-from ..shared.helpers import get_project
+
+from fastapi import APIRouter, Request, HTTPException, Query
+
 from dbgear.models.dependencies import TableDependencyAnalyzer
+
+from ..shared.helpers import get_project
 from ..shared.dtos import Result
 
 router = APIRouter()
@@ -144,10 +147,10 @@ def get_schema_dependency_graph(
         proj = get_project(request)
         schema_manager = proj.schemas
 
-        if not schema_manager.schema_exists(schema_name):
+        if schema_name not in schema_manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = schema_manager.get_schema(schema_name)
+        schema = schema_manager[schema_name]
         analyzer = TableDependencyAnalyzer(
             schema_manager=schema_manager,
             project_folder=proj.folder

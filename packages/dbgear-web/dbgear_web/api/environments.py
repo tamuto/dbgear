@@ -28,10 +28,10 @@ def get_environment(env_name: str, request: Request):
     """Get a specific environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
         return Result(data=environ)
     except HTTPException:
@@ -45,11 +45,11 @@ def create_environment(data: CreateEnvironmentRequest, request: Request):
     """Create a new environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         # Check if environment already exists
         if data.name in manager:
             raise HTTPException(status_code=409, detail=f"Environment '{data.name}' already exists")
-        
+
         # Create environment
         environ = Environ(
             name=data.name,
@@ -57,13 +57,13 @@ def create_environment(data: CreateEnvironmentRequest, request: Request):
             options=data.options or {},
             mappings={}
         )
-        
+
         # Add to manager
         manager.add(data.name, environ)
-        
+
         # Save
         manager.save()
-        
+
         return Result(data=environ)
     except HTTPException:
         raise
@@ -76,12 +76,12 @@ def update_environment(env_name: str, data: UpdateEnvironmentRequest, request: R
     """Update an existing environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         # Update environment attributes
         update_data = data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -94,10 +94,10 @@ def update_environment(env_name: str, data: UpdateEnvironmentRequest, request: R
                 # Update other attributes
                 if hasattr(environ, key):
                     setattr(environ, key, value)
-        
+
         # Save
         manager.save()
-        
+
         return Result(data=environ)
     except HTTPException:
         raise
@@ -110,16 +110,16 @@ def delete_environment(env_name: str, request: Request):
     """Delete an environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         # Remove from manager
         manager.remove(env_name)
-        
+
         # Save
         manager.save()
-        
+
         return Result()
     except HTTPException:
         raise
@@ -132,24 +132,24 @@ def get_environment_schemas(env_name: str, request: Request):
     """Get environment-specific schemas"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         # Get schemas for this environment
         # This might need adjustment based on how environment-specific schemas are implemented
         project = get_project(request)
         schemas = []
-        
+
         # If environment has specific schema configurations
         if hasattr(environ, 'schemas') and environ.schemas:
             schemas = list(environ.schemas.keys())
         else:
             # Fall back to project schemas
             schemas = list(project.schemas.keys()) if hasattr(project, 'schemas') else []
-        
+
         return Result(data=schemas)
     except HTTPException:
         raise
@@ -162,12 +162,12 @@ def get_environment_databases(env_name: str, request: Request):
     """Get deployable databases for environment"""
     try:
         manager = get_environ_manager(request)
-        
+
         if env_name not in manager:
             raise HTTPException(status_code=404, detail="Environment not found")
-        
+
         environ = manager[env_name]
-        
+
         # Get databases/mappings configured for this environment
         databases = []
         if hasattr(environ, 'mappings') and environ.mappings:
@@ -179,7 +179,7 @@ def get_environment_databases(env_name: str, request: Request):
                         'instances': getattr(mapping, 'instances', []),
                         'description': getattr(mapping, 'description', None)
                     })
-        
+
         return Result(data=databases)
     except HTTPException:
         raise

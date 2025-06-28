@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Request, HTTPException
+
 from ..shared.helpers import get_project
-from dbgear.models.schema import SchemaManager
 from ..shared.dtos import Result, CreateViewRequest, UpdateViewRequest, convert_to_view
+
+from dbgear.models.schema import SchemaManager
+from dbgear.models.view import View
 
 router = APIRouter()
 
@@ -13,10 +16,10 @@ def get_views(schema_name: str, request: Request) -> Result:
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
         views = list(schema.views.keys())
         return Result(data=views)
     except HTTPException:
@@ -32,10 +35,10 @@ def create_view(schema_name: str, request: Request, view_request: CreateViewRequ
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
 
         # ビューが既に存在するかチェック
         if view_request.view_name in schema.views:
@@ -59,10 +62,10 @@ def get_view(schema_name: str, view_name: str, request: Request) -> Result:
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
 
         if view_name not in schema.views:
             raise HTTPException(status_code=404, detail=f"View '{view_name}' not found in schema '{schema_name}'")
@@ -82,10 +85,10 @@ def update_view(schema_name: str, view_name: str, request: Request, view_request
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
 
         if view_name not in schema.views:
             raise HTTPException(status_code=404, detail=f"View '{view_name}' not found in schema '{schema_name}'")
@@ -97,7 +100,6 @@ def update_view(schema_name: str, view_name: str, request: Request, view_request
         request_data = view_request.model_dump(exclude_unset=True)
         updated_data.update(request_data)
 
-        from dbgear.models.view import View
         updated_view = View(**updated_data)
 
         schema.update_view(view_name, updated_view)
@@ -117,10 +119,10 @@ def delete_view(schema_name: str, view_name: str, request: Request) -> Result:
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
 
         if view_name not in schema.views:
             raise HTTPException(status_code=404, detail=f"View '{view_name}' not found in schema '{schema_name}'")

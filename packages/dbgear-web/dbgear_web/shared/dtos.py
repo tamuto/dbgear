@@ -295,9 +295,11 @@ class UpdateMappingRequest(BaseSchema):
 # Data Model Management DTOs
 
 class CreateDataModelRequest(BaseSchema):
+    schema_name: str
+    table_name: str
     description: str
     layout: str
-    settings: dict[str, object] | None = None
+    settings: dict[str, object]
     sync_mode: str
     value: str | None = None
     caption: str | None = None
@@ -310,7 +312,7 @@ class CreateDataModelRequest(BaseSchema):
 class UpdateDataModelRequest(BaseSchema):
     description: str | None = None
     layout: str | None = None
-    settings: dict[str, object] | None = None
+    settings: dict[str, object]
     sync_mode: str | None = None
     value: str | None = None
     caption: str | None = None
@@ -320,12 +322,8 @@ class UpdateDataModelRequest(BaseSchema):
     cells: list[str] | None = None
 
 
-class CreateDataSourceRequest(BaseSchema):
+class ModifyDataSourceRequest(BaseSchema):
     segment: str | None = None
-    data: list[dict[str, object]]
-
-
-class UpdateDataSourceRequest(BaseSchema):
     data: list[dict[str, object]]
 
 

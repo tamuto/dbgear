@@ -77,13 +77,13 @@ class TableManager:
 
     def __contains__(self, table_name: str) -> bool:
         return table_name in self.tables
-    
+
     def keys(self):
         return self.tables.keys()
-    
+
     def values(self):
         return self.tables.values()
-    
+
     def items(self):
         return self.tables.items()
 

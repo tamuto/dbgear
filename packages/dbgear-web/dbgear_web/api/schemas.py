@@ -46,10 +46,10 @@ def get_schema(schema_name: str, request: Request) -> Result:
         proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
-        if not manager.schema_exists(schema_name):
+        if schema_name not in manager:
             raise HTTPException(status_code=404, detail=f"Schema '{schema_name}' not found")
 
-        schema = manager.get_schema(schema_name)
+        schema = manager[schema_name]
         return Result(data=schema)
     except HTTPException:
         raise
