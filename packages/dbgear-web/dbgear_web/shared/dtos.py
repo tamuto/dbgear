@@ -263,12 +263,13 @@ class CreateDatabaseRequest(BaseSchema):
 class CreateEnvironmentRequest(BaseSchema):
     name: str
     description: str | None = None
+    # TODO deployment
     options: dict[str, object] | None = None
 
 
 class UpdateEnvironmentRequest(BaseSchema):
-    name: str | None = None
     description: str | None = None
+    # TODO deployment
     options: dict[str, object] | None = None
 
 

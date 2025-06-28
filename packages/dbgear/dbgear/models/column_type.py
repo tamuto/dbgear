@@ -68,6 +68,8 @@ def parse_column_type(type_string: str) -> ColumnType:
         raise ValueError("type_string must be a non-empty string")
 
     type_string = type_string.strip().upper()
+    if len(type_string) > 2000:
+        raise ValueError("type_string is too long, must be less than 2000 characters")
 
     # Extract base type and parameters
     base_type_match = re.match(r'^([A-Z]+)', type_string)
