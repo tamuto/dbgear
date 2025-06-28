@@ -1,25 +1,49 @@
 import uvicorn
+import os
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from dbgear.models.project import Project
 
-from .api import project
-from .api import refs
-from .api import schemas
-from .api import schema_tables
-from .api import schema_columns
-from .api import schema_indexes
-from .api import schema_views
-from .api import schema_validation
-from .api import schema_relations
-from .api import schema_notes
-from .api import schema_triggers
-from .api import schema_column_types
-from .api import tenants
-from .api import environments
-from .api import mappings
-from .api import datamodels
-from .api import operations
+try:
+    # Try relative import first (when run as module)
+    from .api import project
+    from .api import refs
+    from .api import schemas
+    from .api import schema_tables
+    from .api import schema_columns
+    from .api import schema_indexes
+    from .api import schema_views
+    from .api import schema_validation
+    from .api import schema_relations
+    from .api import schema_notes
+    from .api import schema_triggers
+    from .api import schema_column_types
+    from .api import schema_dependencies
+    from .api import tenants
+    from .api import environments
+    from .api import mappings
+    from .api import datamodels
+    from .api import operations
+except ImportError:
+    # Fallback to absolute import (when run as script)
+    from dbgear_web.api import project
+    from dbgear_web.api import refs
+    from dbgear_web.api import schemas
+    from dbgear_web.api import schema_tables
+    from dbgear_web.api import schema_columns
+    from dbgear_web.api import schema_indexes
+    from dbgear_web.api import schema_views
+    from dbgear_web.api import schema_validation
+    from dbgear_web.api import schema_relations
+    from dbgear_web.api import schema_notes
+    from dbgear_web.api import schema_triggers
+    from dbgear_web.api import schema_column_types
+    from dbgear_web.api import schema_dependencies
+    from dbgear_web.api import tenants
+    from dbgear_web.api import environments
+    from dbgear_web.api import mappings
+    from dbgear_web.api import datamodels
+    from dbgear_web.api import operations
 
 app = FastAPI()
 
@@ -33,8 +57,8 @@ app.add_middleware(
 )
 
 # Load and store project in app state
-project_instance = Project("./")  # Default to current directory
-project_instance.read_definitions()
+project_path = os.getenv('DBGEAR_PROJECT_PATH', './')
+project_instance = Project.load(project_path)
 app.state.project = project_instance
 
 # Main API router that consolidates all sub-routers
@@ -55,6 +79,7 @@ api_router.include_router(schema_relations.router)
 api_router.include_router(schema_notes.router)
 api_router.include_router(schema_triggers.router)
 api_router.include_router(schema_column_types.router)
+api_router.include_router(schema_dependencies.router)
 
 # Tenant management APIs
 api_router.include_router(tenants.router)

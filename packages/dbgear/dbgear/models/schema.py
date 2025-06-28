@@ -110,6 +110,16 @@ class SchemaManager(BaseSchema):
     @property
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
+    
+    def schema_exists(self, name: str) -> bool:
+        """Check if schema exists"""
+        return name in self.schemas
+    
+    def get_schema(self, name: str) -> Schema:
+        """Get schema by name"""
+        if name not in self.schemas:
+            raise KeyError(f"Schema '{name}' not found")
+        return self.schemas[name]
 
 
 # def find_field(fields: list[Field], name: str):
