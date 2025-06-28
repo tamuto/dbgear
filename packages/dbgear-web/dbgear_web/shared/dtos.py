@@ -4,7 +4,6 @@ from dbgear.models.table import Table
 from dbgear.models.column import Column
 from dbgear.models.index import Index
 from dbgear.models.view import View
-from dbgear.models.project import Binding
 
 # レスポンス用DTO
 
@@ -18,9 +17,9 @@ class Result(BaseSchema):
 class ProjectInfo(BaseSchema):
     project_name: str
     description: str
-    bindings: dict[str, Binding]
-    rules: dict[str, str]
-    instances: list[str]
+    bindings: dict[str, object] = {}
+    rules: dict[str, str] = {}
+    instances: list[str] = []
     api_key: str | None = None
 
 
