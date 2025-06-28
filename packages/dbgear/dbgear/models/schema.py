@@ -111,6 +111,12 @@ class SchemaManager(BaseSchema):
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
 
+    def get_schema(self, name: str) -> Schema:
+        """Get schema by name"""
+        if name not in self.schemas:
+            raise KeyError(f"Schema '{name}' not found")
+        return self.schemas[name]
+
 
 # def find_field(fields: list[Field], name: str):
 #     field = next(filter(lambda x: x.column_name == name, fields), None)

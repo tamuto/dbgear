@@ -6,8 +6,6 @@ import os
 from typing import Any
 
 from .base import BaseSchema
-from .exceptions import DBGearEntityExistsError
-from .exceptions import DBGearEntityRemovalError
 
 
 class SettingInfo(BaseSchema):
@@ -65,6 +63,12 @@ class DataSource:
                 sort_keys=False
             )
 
+    def remove(self) -> None:
+        path = os.path.join(self.folder, self.environ, self.name, self.filename)
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Data source file {path} does not exist.")
+        os.remove(path)
+
 
 class DataModel(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
@@ -112,6 +116,18 @@ class DataModel(BaseSchema):
                 sort_keys=False
             )
 
+    def remove(self) -> None:
+        path = os.path.join(self.folder, self.environ, self.map_name, self.filename)
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Data model file {self.filename} does not exist.")
+
+        for ds in self.datasources:
+            path = os.path.join(self.folder, self.environ, self.map_name, ds.filename)
+            if os.path.exists(path):
+                os.remove(path)
+
+        os.remove(path)
+
     @property
     def filename(self) -> str:
         return f"{self.schema_name}@{self.table_name}.yaml"
@@ -137,44 +153,3 @@ class DataModel(BaseSchema):
                 table_name=self.table_name,
                 segment=seg
             )
-
-
-class DataModelManager:
-
-    def __init__(self, folder: str, environ: str):
-        self.folder = folder
-        self.environ = environ
-
-    def __getitem__(self, key: str) -> DataModel:
-        return DataModel.load(self.folder, self.environ, key)
-
-    def __iter__(self):
-        for path in sorted(pathlib.Path(self.folder).glob(f'{self.environ}/*/*.yaml')):
-            if path.name == '_mapping.yaml':
-                continue
-            name = str(path.parent.relative_to(pathlib.Path(self.folder) / self.environ))
-            yield DataModel.load(self.folder, self.environ, name)
-
-    def add(self, model: DataModel) -> None:
-        filename = os.path.join(self.folder, self.environ, model.filename)
-        if os.path.exists(filename):
-            raise DBGearEntityExistsError(f'DataModel {model.filename} already exists in {self.folder}/{self.environ}')
-        with open(filename, 'w', encoding='utf-8') as f:
-            yaml.dump(
-                model.model_dump(
-                    by_alias=True,
-                    exclude_none=True,
-                    exclude_defaults=True
-                ),
-                f,
-                indent=2,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False)
-
-    def remove(self, model: DataModel) -> None:
-        filename = os.path.join(self.folder, self.environ, model.filename)
-        try:
-            os.remove(filename)
-        except OSError as e:
-            raise DBGearEntityRemovalError(f'Failed to remove DataModel {model.filename}: {e}')

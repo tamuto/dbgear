@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
-from dbgear.core.models.project import project
-from dbgear.core.models.schema_manager import SchemaManager
-from .dtos import Result, CreateIndexRequest, convert_to_index
+from ..shared.helpers import get_project
+from dbgear.models.schema import SchemaManager
+from ..shared.dtos import Result, CreateIndexRequest, convert_to_index
 
 router = APIRouter()
 
@@ -10,7 +10,7 @@ router = APIRouter()
 def get_indexes(schema_name: str, table_name: str, request: Request) -> Result:
     """テーブル内のインデックス一覧を取得"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -32,7 +32,7 @@ def get_indexes(schema_name: str, table_name: str, request: Request) -> Result:
 def create_index(schema_name: str, table_name: str, request: Request, index_request: CreateIndexRequest) -> Result:
     """新規インデックスを作成"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
@@ -61,7 +61,7 @@ def create_index(schema_name: str, table_name: str, request: Request, index_requ
 def delete_index(schema_name: str, table_name: str, index_name: str, request: Request) -> Result:
     """インデックスを削除"""
     try:
-        proj = project(request)
+        proj = get_project(request)
         manager = SchemaManager(proj.definition_file('dbgear_schema'))
 
         if not manager.schema_exists(schema_name):
