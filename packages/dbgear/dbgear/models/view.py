@@ -5,8 +5,7 @@ from .notes import Note
 from .notes import NoteManager
 
 
-class ViewColumn(BaseSchema):
-    """View column definition (auto-generated from SQL parsing)"""
+class ViewColumn:
     column_name: str
     display_name: str
     column_type: str
@@ -18,7 +17,6 @@ class ViewColumn(BaseSchema):
 
 class View(BaseSchema):
     """Database view definition"""
-    instance: str = pydantic.Field(exclude=True)
     view_name: str = pydantic.Field(exclude=True)
     display_name: str
     select_statement: str
@@ -50,15 +48,6 @@ class ViewManager:
 
     def __contains__(self, view_name: str) -> bool:
         return view_name in self.views
-
-    def keys(self):
-        return self.views.keys()
-
-    def values(self):
-        return self.views.values()
-
-    def items(self):
-        return self.views.items()
 
     def add(self, view: View) -> None:
         if view.view_name in self.views:

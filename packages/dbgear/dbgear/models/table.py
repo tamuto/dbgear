@@ -33,7 +33,6 @@ class MySQLTableOptions(BaseSchema):
 
 
 class Table(BaseSchema):
-    instance: str = pydantic.Field(exclude=True)
     table_name: str = pydantic.Field(exclude=True)
     display_name: str
     columns_: list[Column] = pydantic.Field(default_factory=list, alias='columns')
@@ -45,15 +44,15 @@ class Table(BaseSchema):
     mysql_options: MySQLTableOptions | None = None
 
     @property
-    def columns(self) -> list[Column]:
+    def columns(self) -> ColumnManager:
         return ColumnManager(self.columns_)
 
     @property
-    def indexes(self) -> list[Index]:
+    def indexes(self) -> IndexManager:
         return IndexManager(self.indexes_)
 
     @property
-    def relations(self) -> list[Relation]:
+    def relations(self) -> RelationManager:
         return RelationManager(self.relations_)
 
     @property
@@ -77,15 +76,6 @@ class TableManager:
 
     def __contains__(self, table_name: str) -> bool:
         return table_name in self.tables
-
-    def keys(self):
-        return self.tables.keys()
-
-    def values(self):
-        return self.tables.values()
-
-    def items(self):
-        return self.tables.items()
 
     def add(self, table: Table) -> None:
         if table.table_name in self.tables:

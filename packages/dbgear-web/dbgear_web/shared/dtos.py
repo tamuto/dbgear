@@ -14,15 +14,6 @@ class Result(BaseSchema):
     data: object | list | None = None
 
 
-class ProjectInfo(BaseSchema):
-    project_name: str
-    description: str
-    bindings: dict[str, object] = {}
-    rules: dict[str, str] = {}
-    instances: list[str] = []
-    api_key: str | None = None
-
-
 class DataFilename(BaseSchema):
     id: str | None
     id_name: str | None
@@ -283,20 +274,17 @@ class UpdateEnvironmentRequest(BaseSchema):
 
 class CreateMappingRequest(BaseSchema):
     name: str
-    group: str | None = None
-    base: str | None = None
-    instances: list[str] | None = None
     description: str | None = None
-    deployment: bool = False
+    schemas: list[str] | None = None
+    shared: dict[str, str] | None = None
+    deploy: bool = False
 
 
 class UpdateMappingRequest(BaseSchema):
-    name: str | None = None
-    group: str | None = None
-    base: str | None = None
-    instances: list[str] | None = None
     description: str | None = None
-    deployment: bool | None = None
+    schemas: list[str] | None = None
+    shared: dict[str, str] | None = None
+    deploy: bool = False
 
 
 # Data Model Management DTOs

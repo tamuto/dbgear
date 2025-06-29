@@ -14,29 +14,29 @@ import os
 def start_web_server():
     """Start the web server in background"""
     # Change to web package directory (already in correct directory when run from tests)
-    
+
     # Start server with test project
     env = os.environ.copy()
     env['DBGEAR_PROJECT_PATH'] = '../../../etc/test'
-    
+
     cmd = [
         'poetry', 'run', 'python', '../dbgear_web/backend.py'
     ]
-    
+
     print("Starting web server...")
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
-    
+
     # Wait for server to start up
     time.sleep(3)
-    
+
     return process
 
 def test_dependencies_api():
     """Test the dependencies API endpoints"""
     base_url = "http://localhost:5001/api"
-    
+
     print("=== Testing Dependencies API ===\n")
-    
+
     # Test 1: Basic dependencies
     print("Test 1: Basic table dependencies")
     try:
@@ -48,12 +48,12 @@ def test_dependencies_api():
             if 'data' in data:
                 target = data['data']['target_table']
                 print(f"✅ Target table: {target['schema_name']}.{target['table_name']}")
-                
+
                 left_deps = data['data']['left']
                 right_deps = data['data']['right']
                 print(f"✅ Left levels: {list(left_deps.keys())}")
                 print(f"✅ Right levels: {list(right_deps.keys())}")
-                
+
                 if 'level_1' in left_deps:
                     print(f"✅ Left level 1 items: {len(left_deps['level_1'])}")
                 if 'level_1' in right_deps:
@@ -63,9 +63,9 @@ def test_dependencies_api():
             print(f"❌ Error: {response.text}")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     print("\n" + "="*50 + "\n")
-    
+
     # Test 2: Dependencies with custom levels
     print("Test 2: Custom level dependencies")
     try:
@@ -83,9 +83,9 @@ def test_dependencies_api():
             print(f"❌ Error: {response.text}")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     print("\n" + "="*50 + "\n")
-    
+
     # Test 3: Dependencies summary
     print("Test 3: Dependencies summary")
     try:
@@ -104,9 +104,9 @@ def test_dependencies_api():
             print(f"❌ Error: {response.text}")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     print("\n" + "="*50 + "\n")
-    
+
     # Test 4: Schema dependency graph
     print("Test 4: Schema dependency graph")
     try:
@@ -119,39 +119,39 @@ def test_dependencies_api():
             print(f"✅ Edges: {len(graph['edges'])}")
             print(f"✅ Schema: {graph['schema_name']}")
             print(f"✅ Max level: {graph['max_level']}")
-            
+
             # Show some node types
             node_types = {}
             for node in graph['nodes']:
                 node_type = node['type']
                 node_types[node_type] = node_types.get(node_type, 0) + 1
             print(f"✅ Node types: {node_types}")
-            
+
         else:
             print(f"❌ Status: {response.status_code}")
             print(f"❌ Error: {response.text}")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     print("\n" + "="*50 + "\n")
-    
+
     # Test 5: Error handling
     print("Test 5: Error handling")
-    
+
     # Test invalid schema
     try:
         response = requests.get(f"{base_url}/schemas/invalid/tables/test_table/dependencies")
         print(f"✅ Invalid schema status: {response.status_code} (expected 404)")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     # Test invalid table
     try:
         response = requests.get(f"{base_url}/schemas/main/tables/invalid_table/dependencies")
         print(f"✅ Invalid table status: {response.status_code} (expected 404)")
     except Exception as e:
         print(f"❌ Request failed: {e}")
-    
+
     # Test invalid parameters
     try:
         response = requests.get(f"{base_url}/schemas/main/tables/test_table/dependencies?left_level=5")
@@ -164,7 +164,7 @@ def main():
     server_process = None
     try:
         server_process = start_web_server()
-        
+
         # Check if server started successfully
         if server_process.poll() is not None:
             stdout, stderr = server_process.communicate()
@@ -172,16 +172,16 @@ def main():
             print(f"STDOUT: {stdout.decode()}")
             print(f"STDERR: {stderr.decode()}")
             return
-        
+
         print("✅ Web server started successfully")
         print()
-        
+
         # Wait a bit more for server to be fully ready
         time.sleep(2)
-        
+
         # Test API endpoints
         test_dependencies_api()
-        
+
     except KeyboardInterrupt:
         print("\n✋ Test interrupted by user")
     except Exception as e:

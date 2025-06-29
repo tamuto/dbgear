@@ -321,19 +321,3 @@ schemas:
             columnType: INT
             baseType: INT
           nullable: true
-  general:
-    notes:
-    - title: Comment from 共通DB
-      content: 'mt_組織を地区や地域として、施設を絞るために使いたい。
-
-        グルーピングは自治体コード_9999のような感じで組織コードを採番し、WHERE句のLIKEで''自治体コード_%''と指定する。
-
-        大元の自治体としてはアンダースコアなしの自治体コードとする。
-
-        保護者などが施設ハッシュではなく、施設を特定地域から選択したい場合に使用する。'
-    - title: Comment from 施設DB
-      content: カテゴリとして通常食、代替食を設定する場合、除去食のテーブルが使われない可能性がある
-    - title: Comment from 施設DB
-      content: '献立アップロード後に配布、確定まで実行するなどのジョブ定義を持たせる。（実行するStepFunctionか、処理の継続か否かなどを確認することができるフラグなど）
-
-        '

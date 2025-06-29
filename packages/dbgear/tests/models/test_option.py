@@ -3,7 +3,7 @@ import tempfile
 import os
 import yaml
 
-from dbgear.models.option import DBGearOptions
+from dbgear.models.option import Options
 from dbgear.models.project import Project
 from dbgear.models.environ import Environ, EnvironManager
 
@@ -13,28 +13,28 @@ class TestDBGearOptions(unittest.TestCase):
 
     def test_default_options(self):
         """Test default option values"""
-        options = DBGearOptions()
+        options = Options()
 
         # Test default values
         self.assertTrue(options.create_foreign_key_constraints)
 
     def test_custom_options(self):
         """Test custom option values"""
-        options = DBGearOptions(create_foreign_key_constraints=False)
+        options = Options(create_foreign_key_constraints=False)
 
         # Test custom values
         self.assertFalse(options.create_foreign_key_constraints)
 
     def test_options_serialization(self):
         """Test options serialization/deserialization"""
-        options = DBGearOptions(create_foreign_key_constraints=False)
+        options = Options(create_foreign_key_constraints=False)
 
         # Test serialization
         data = options.model_dump()
         self.assertEqual(data['create_foreign_key_constraints'], False)
 
         # Test deserialization
-        new_options = DBGearOptions(**data)
+        new_options = Options(**data)
         self.assertFalse(new_options.create_foreign_key_constraints)
 
 
@@ -59,12 +59,12 @@ class TestProjectWithOptions(unittest.TestCase):
         )
 
         # Test default options
-        self.assertIsInstance(project.options, DBGearOptions)
+        self.assertIsInstance(project.options, Options)
         self.assertTrue(project.options.create_foreign_key_constraints)
 
     def test_project_custom_options(self):
         """Test Project with custom options"""
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         project = Project(
             folder=self.temp_dir,
             project_name='test_project',
@@ -78,7 +78,7 @@ class TestProjectWithOptions(unittest.TestCase):
     def test_project_save_load_with_options(self):
         """Test Project save/load with options"""
         # Create project with custom options
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         original_project = Project(
             folder=self.temp_dir,
             project_name='test_project',
@@ -99,7 +99,7 @@ class TestProjectWithOptions(unittest.TestCase):
 
     def test_project_yaml_format(self):
         """Test Project YAML format includes options"""
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         project = Project(
             folder=self.temp_dir,
             project_name='test_project',
@@ -145,7 +145,7 @@ class TestEnvironWithOptions(unittest.TestCase):
 
     def test_environ_custom_options(self):
         """Test Environ with custom options"""
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         environ = Environ(
             folder=self.temp_dir,
             name='test_env',
@@ -159,7 +159,7 @@ class TestEnvironWithOptions(unittest.TestCase):
     def test_environ_save_load_with_options(self):
         """Test Environ save/load with options via EnvironManager"""
         # Create environ with custom options
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         environ = Environ(
             folder=self.temp_dir,
             name='test_env',
@@ -181,7 +181,7 @@ class TestEnvironWithOptions(unittest.TestCase):
 
     def test_environ_yaml_format(self):
         """Test Environ YAML format includes options"""
-        custom_options = DBGearOptions(create_foreign_key_constraints=False)
+        custom_options = Options(create_foreign_key_constraints=False)
         environ = Environ(
             folder=self.temp_dir,
             name='test_env',

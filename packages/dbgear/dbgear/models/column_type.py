@@ -1,32 +1,25 @@
+import pydantic
 import re
-from typing import Optional, List, Union
 
 from .base import BaseSchema
 
 
 class ColumnTypeItem(BaseSchema):
-    """
-    Represents an individual item for ENUM or SET column types.
-
-    Supports both simple string values and structured items with value/caption/description.
-    """
-    value: str  # The actual database value
-    caption: Optional[str] = None  # Display name/label for UI
-    description: Optional[str] = None  # Optional description/tooltip
-
-    def __str__(self) -> str:
-        """Return the database value for SQL generation."""
-        return self.value
+    value: str
+    caption_: str | None = pydantic.Field(default=None, alias='caption')
+    description: str | None = None
 
     @classmethod
-    def from_string(cls, value: str) -> 'ColumnTypeItem':
-        """Create a ColumnTypeItem from a simple string value."""
+    def from_string(cls, value: str):
         return cls(value=value)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'ColumnTypeItem':
-        """Create a ColumnTypeItem from a dictionary."""
+    def from_dict(cls, data: dict):
         return cls(**data)
+
+    @property
+    def caption(self) -> str:
+        return self.caption_ if self.caption_ is not None else self.value
 
 
 class ColumnType(BaseSchema):
@@ -44,7 +37,7 @@ class ColumnType(BaseSchema):
             return []
         return [item.value for item in self.items]
 
-    def add_item(self, item: Union[str, dict, ColumnTypeItem]) -> None:
+    def add_item(self, item: str | dict | ColumnTypeItem) -> None:
         """Add an item to the items list."""
         if self.items is None:
             self.items = []
@@ -193,11 +186,11 @@ def parse_column_type(type_string: str) -> ColumnType:
 
 def create_simple_column_type(
         base_type: str,
-        length: Optional[int] = None,
-        precision: Optional[int] = None,
-        scale: Optional[int] = None,
-        items: Optional[List[Union[str, dict, ColumnTypeItem]]] = None,
-        json_schema: Optional[dict] = None) -> ColumnType:
+        length: int | None = None,
+        precision: int | None = None,
+        scale: int | None = None,
+        items: list[str | dict | ColumnTypeItem] | None = None,
+        json_schema: dict | None = None) -> ColumnType:
     """
     Create a ColumnType object with specified parameters.
 
