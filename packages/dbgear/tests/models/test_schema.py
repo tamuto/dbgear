@@ -6,7 +6,7 @@ import yaml
 from dbgear.models.schema import SchemaManager, Schema
 from dbgear.models.table import Table
 from dbgear.models.column import Column
-from dbgear.models.column_type import ColumnType
+from dbgear.models.column_type import ColumnType, ColumnTypeItem
 
 
 class TestSchema(unittest.TestCase):
@@ -153,7 +153,7 @@ class TestSchema(unittest.TestCase):
             ('id', 'ID', ColumnType(column_type='BIGINT', base_type='BIGINT'), False, 1),
             ('name', '名前', ColumnType(column_type='VARCHAR(255)', base_type='VARCHAR', length=255), False, None),
             ('price', '価格', ColumnType(column_type='DECIMAL(10,2)', base_type='DECIMAL', precision=10, scale=2), True, None),
-            ('status', 'ステータス', ColumnType(column_type="ENUM('active','inactive')", base_type='ENUM', items=['active', 'inactive']), False, None)
+            ('status', 'ステータス', ColumnType(column_type="ENUM('active','inactive')", base_type='ENUM', items=[ColumnTypeItem.from_string('active'), ColumnTypeItem.from_string('inactive')]), False, None)
         ]
 
         for col_name, display_name, col_type, nullable, pk in columns_data:
@@ -185,7 +185,9 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(price_column.column_type.scale, 2)
 
         status_column = loaded_table.columns['status']
-        self.assertEqual(status_column.column_type.items, ['active', 'inactive'])
+        self.assertEqual(len(status_column.column_type.items), 2)
+        self.assertEqual(status_column.column_type.items[0].value, 'active')
+        self.assertEqual(status_column.column_type.items[1].value, 'inactive')
 
 
 if __name__ == "__main__":
