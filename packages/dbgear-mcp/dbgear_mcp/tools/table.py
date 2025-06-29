@@ -93,7 +93,13 @@ def register_table_tools(mcp, server):
                         "length": col.column_type.length,
                         "precision": col.column_type.precision,
                         "scale": col.column_type.scale,
-                        "items": col.column_type.items
+                        "items": [
+                            {
+                                "value": item.value,
+                                "caption": item.caption,
+                                "description": item.description
+                            } for item in col.column_type.items
+                        ] if col.column_type.items else None
                     },
                     "nullable": col.nullable,
                     "primary_key": col.primary_key,

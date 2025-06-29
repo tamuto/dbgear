@@ -1,7 +1,32 @@
 import re
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from .base import BaseSchema
+
+
+class ColumnTypeItem(BaseSchema):
+    """
+    Represents an individual item for ENUM or SET column types.
+
+    Supports both simple string values and structured items with value/caption/description.
+    """
+    value: str  # The actual database value
+    caption: Optional[str] = None  # Display name/label for UI
+    description: Optional[str] = None  # Optional description/tooltip
+
+    def __str__(self) -> str:
+        """Return the database value for SQL generation."""
+        return self.value
+
+    @classmethod
+    def from_string(cls, value: str) -> 'ColumnTypeItem':
+        """Create a ColumnTypeItem from a simple string value."""
+        return cls(value=value)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'ColumnTypeItem':
+        """Create a ColumnTypeItem from a dictionary."""
+        return cls(**data)
 
 
 class ColumnType(BaseSchema):
@@ -10,8 +35,39 @@ class ColumnType(BaseSchema):
     length: int | None = None  # Length for VARCHAR, CHAR, etc.
     precision: int | None = None  # Precision for DECIMAL, NUMERIC, etc.
     scale: int | None = None  # Scale for DECIMAL, NUMERIC, etc.
-    items: list[str] | None = None  # For ENUM or SET types
+    items: list[ColumnTypeItem] | None = None  # For ENUM or SET types
     json_schema: dict | None = None  # JSON Schema for JSON column types
+
+    def get_item_values(self) -> list[str]:
+        """Get list of item values for SQL generation."""
+        if not self.items:
+            return []
+        return [item.value for item in self.items]
+
+    def add_item(self, item: Union[str, dict, ColumnTypeItem]) -> None:
+        """Add an item to the items list."""
+        if self.items is None:
+            self.items = []
+
+        if isinstance(item, str):
+            self.items.append(ColumnTypeItem.from_string(item))
+        elif isinstance(item, dict):
+            self.items.append(ColumnTypeItem.from_dict(item))
+        elif isinstance(item, ColumnTypeItem):
+            self.items.append(item)
+        else:
+            raise ValueError(f"Invalid item type: {type(item)}")
+
+    def remove_item(self, value: str) -> bool:
+        """Remove an item by its value. Returns True if found and removed."""
+        if not self.items:
+            return False
+
+        for i, item in enumerate(self.items):
+            if item.value == value:
+                del self.items[i]
+                return True
+        return False
 
 
 class ColumnTypeRegistry:
@@ -67,36 +123,37 @@ def parse_column_type(type_string: str) -> ColumnType:
     if not type_string or not isinstance(type_string, str):
         raise ValueError("type_string must be a non-empty string")
 
-    type_string = type_string.strip().upper()
+    original_type_string = type_string.strip()
+    type_string_upper = original_type_string.upper()
 
     # Extract base type and parameters
-    base_type_match = re.match(r'^([A-Z]+)', type_string)
+    base_type_match = re.match(r'^([A-Z]+)', type_string_upper)
     if not base_type_match:
-        raise ValueError(f"Cannot extract base type from: {type_string}")
+        raise ValueError(f"Cannot extract base type from: {type_string_upper}")
 
     base_type = base_type_match.group(1)
 
     # Initialize ColumnType with defaults
     column_type = ColumnType(
-        column_type=type_string,
+        column_type=original_type_string,
         base_type=base_type
     )
 
     # Parse length parameter for types like VARCHAR(255), CHAR(10)
     if base_type in ['VARCHAR', 'CHAR', 'VARBINARY', 'BINARY']:
-        length_match = re.search(r'\((\d+)\)', type_string)
+        length_match = re.search(r'\((\d+)\)', type_string_upper)
         if length_match:
             column_type.length = int(length_match.group(1))
 
     # Parse length parameter for INT types
     elif base_type in ['TINYINT', 'SMALLINT', 'MEDIUMINT', 'INT', 'INTEGER', 'BIGINT']:
-        length_match = re.search(r'\((\d+)\)', type_string)
+        length_match = re.search(r'\((\d+)\)', type_string_upper)
         if length_match:
             column_type.length = int(length_match.group(1))
 
     # Parse precision and scale for DECIMAL/NUMERIC types
     elif base_type in ['DECIMAL', 'NUMERIC', 'DEC']:
-        decimal_match = re.search(r'\((\d+)(?:,\s*(\d+))?\)', type_string)
+        decimal_match = re.search(r'\((\d+)(?:,\s*(\d+))?\)', type_string_upper)
         if decimal_match:
             column_type.precision = int(decimal_match.group(1))
             if decimal_match.group(2):
@@ -104,18 +161,28 @@ def parse_column_type(type_string: str) -> ColumnType:
 
     # Parse ENUM and SET values
     elif base_type in ['ENUM', 'SET']:
-        values_match = re.search(r'\((.*)\)', type_string)
+        # codeql[python/polynomial-redos] - This regex is safe as it matches a specific pattern
+        values_match = re.search(r'\((.*)\)', original_type_string)
         if values_match:
             values_str = values_match.group(1)
             # Parse comma-separated quoted values
             items = []
             for match in re.finditer(r"'([^']*)'", values_str):
-                items.append(match.group(1))
+                value_str = match.group(1)
+                # Check if value contains colon for value:caption format
+                if ':' in value_str:
+                    value_parts = value_str.split(':', 1)  # Split only on first colon
+                    value = value_parts[0]
+                    caption = value_parts[1]
+                    items.append(ColumnTypeItem(value=value, caption=caption))
+                else:
+                    # No colon, use same value for both value and caption
+                    items.append(ColumnTypeItem.from_string(value_str))
             column_type.items = items
 
     # Parse FLOAT and DOUBLE precision
     elif base_type in ['FLOAT', 'DOUBLE', 'REAL']:
-        precision_match = re.search(r'\((\d+)(?:,\s*(\d+))?\)', type_string)
+        precision_match = re.search(r'\((\d+)(?:,\s*(\d+))?\)', type_string_upper)
         if precision_match:
             column_type.precision = int(precision_match.group(1))
             if precision_match.group(2):
@@ -129,7 +196,7 @@ def create_simple_column_type(
         length: Optional[int] = None,
         precision: Optional[int] = None,
         scale: Optional[int] = None,
-        items: Optional[List[str]] = None,
+        items: Optional[List[Union[str, dict, ColumnTypeItem]]] = None,
         json_schema: Optional[dict] = None) -> ColumnType:
     """
     Create a ColumnType object with specified parameters.
@@ -139,7 +206,7 @@ def create_simple_column_type(
         length: Length for string types or display width for integer types
         precision: Precision for decimal types
         scale: Scale for decimal types
-        items: Items for ENUM or SET types
+        items: Items for ENUM or SET types (strings, dicts with value/caption/description, or ColumnTypeItem objects)
         json_schema: JSON Schema for JSON column types (optional)
 
     Returns:
@@ -151,9 +218,24 @@ def create_simple_column_type(
     type_parts = [base_type]
 
     if base_type in ['ENUM', 'SET'] and items:
-        items_str = ', '.join(f"'{item}'" for item in items)
+        # Convert items to ColumnTypeItem objects
+        processed_items = []
+        for item in items:
+            if isinstance(item, str):
+                processed_items.append(ColumnTypeItem.from_string(item))
+            elif isinstance(item, dict):
+                processed_items.append(ColumnTypeItem.from_dict(item))
+            elif isinstance(item, ColumnTypeItem):
+                processed_items.append(item)
+            else:
+                processed_items.append(ColumnTypeItem.from_string(str(item)))
+
+        items_str = ', '.join(f"'{item.value}'" for item in processed_items)
         type_parts.append(f"({items_str})")
         column_type_str = ''.join(type_parts)
+
+        # Store as ColumnTypeItem objects
+        items = processed_items
     elif base_type in ['DECIMAL', 'NUMERIC', 'DEC'] and precision:
         if scale is not None:
             type_parts.append(f"({precision},{scale})")

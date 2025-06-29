@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException
-from dbgear.models.column_type import ColumnType, ColumnTypeRegistry
+from dbgear.models.column_type import ColumnType, ColumnTypeItem, ColumnTypeRegistry
 from ..shared.dtos import Result, CreateColumnTypeRequest, UpdateColumnTypeRequest
 from ..shared.helpers import get_schema_manager, save_schema_manager
 
@@ -57,6 +57,21 @@ def create_column_type(schema_name: str, data: CreateColumnTypeRequest, request:
         if data.type_name in registry:
             raise HTTPException(status_code=409, detail=f"Column type '{data.type_name}' already exists")
         
+        # Process items for ENUM/SET types
+        processed_items = None
+        if data.items:
+            processed_items = []
+            for item in data.items:
+                if isinstance(item, str):
+                    processed_items.append(ColumnTypeItem.from_string(item))
+                else:
+                    # item is ColumnTypeItemRequest
+                    processed_items.append(ColumnTypeItem(
+                        value=item.value,
+                        caption=item.caption,
+                        description=item.description
+                    ))
+        
         # Create column type
         column_type = ColumnType(
             column_type=data.type_name,
@@ -64,8 +79,8 @@ def create_column_type(schema_name: str, data: CreateColumnTypeRequest, request:
             length=data.length,
             precision=data.precision,
             scale=data.scale,
-            items=data.items,
-            description=data.description
+            items=processed_items,
+            json_schema=None  # description moved to ColumnTypeItem level
         )
         
         # Add to registry
@@ -104,6 +119,23 @@ def update_column_type(schema_name: str, type_name: str, data: UpdateColumnTypeR
                     registry.remove(type_name)
                     registry.add(value, column_type)
                     column_type.column_type = value
+            elif key == 'items':
+                # Handle items update for ENUM/SET types
+                if value is not None:
+                    processed_items = []
+                    for item in value:
+                        if isinstance(item, str):
+                            processed_items.append(ColumnTypeItem.from_string(item))
+                        else:
+                            # item is dict/ColumnTypeItemRequest
+                            processed_items.append(ColumnTypeItem(
+                                value=item['value'] if isinstance(item, dict) else item.value,
+                                caption=item.get('caption') if isinstance(item, dict) else item.caption,
+                                description=item.get('description') if isinstance(item, dict) else item.description
+                            ))
+                    column_type.items = processed_items
+                else:
+                    column_type.items = None
             else:
                 # Update other attributes
                 if hasattr(column_type, key):

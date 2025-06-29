@@ -214,13 +214,19 @@ class UpdateTriggerRequest(BaseSchema):
 
 # Column Types API DTOs
 
+class ColumnTypeItemRequest(BaseSchema):
+    value: str
+    caption: str | None = None
+    description: str | None = None
+
+
 class CreateColumnTypeRequest(BaseSchema):
     type_name: str
     base_type: str
     length: int | None = None
     precision: int | None = None
     scale: int | None = None
-    items: list[str] | None = None  # For ENUM/SET
+    items: list[ColumnTypeItemRequest | str] | None = None  # For ENUM/SET - supports both formats
     description: str | None = None
 
 
@@ -230,7 +236,7 @@ class UpdateColumnTypeRequest(BaseSchema):
     length: int | None = None
     precision: int | None = None
     scale: int | None = None
-    items: list[str] | None = None
+    items: list[ColumnTypeItemRequest | str] | None = None  # For ENUM/SET - supports both formats
     description: str | None = None
 
 
