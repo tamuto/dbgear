@@ -200,7 +200,7 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "dbgear"
-version = "0.20.4"
+version = "0.21.0"
 description = "Database management tools for initial data management"
 optional = false
 python-versions = "^3.12"

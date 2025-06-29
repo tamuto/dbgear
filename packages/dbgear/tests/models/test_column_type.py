@@ -7,7 +7,8 @@ class TestColumnTypeItem(unittest.TestCase):
     def test_create_from_string(self):
         item = ColumnTypeItem.from_string("active")
         self.assertEqual(item.value, "active")
-        self.assertIsNone(item.caption)
+        self.assertEqual(item.caption, "active")
+        self.assertIsNone(item.caption_)
         self.assertIsNone(item.description)
 
     def test_create_from_dict(self):
@@ -17,12 +18,9 @@ class TestColumnTypeItem(unittest.TestCase):
             "description": "Indicates if the record is currently active"
         })
         self.assertEqual(item.value, "active")
+        self.assertEqual(item.caption_, "Active Status")
         self.assertEqual(item.caption, "Active Status")
         self.assertEqual(item.description, "Indicates if the record is currently active")
-
-    def test_str_representation(self):
-        item = ColumnTypeItem(value="test", caption="Test Item")
-        self.assertEqual(str(item), "test")
 
 
 class TestColumnType(unittest.TestCase):
@@ -65,7 +63,7 @@ class TestColumnType(unittest.TestCase):
         column_type.add_item("test")
         self.assertEqual(len(column_type.items), 1)
         self.assertEqual(column_type.items[0].value, "test")
-        self.assertIsNone(column_type.items[0].caption)
+        self.assertIsNone(column_type.items[0].caption_)
 
     def test_add_item_dict(self):
         column_type = ColumnType(
@@ -167,7 +165,7 @@ class TestParseColumnType(unittest.TestCase):
 
         # Simple value (no colon)
         self.assertEqual(column_type.items[0].value, "simple")
-        self.assertIsNone(column_type.items[0].caption)
+        self.assertEqual(column_type.items[0].caption, "simple")
 
         # Value with caption
         self.assertEqual(column_type.items[1].value, "1")
@@ -175,7 +173,7 @@ class TestParseColumnType(unittest.TestCase):
 
         # Another simple value
         self.assertEqual(column_type.items[2].value, "another_simple")
-        self.assertIsNone(column_type.items[2].caption)
+        self.assertIsNone(column_type.items[2].caption_)
 
         # Another value with caption
         self.assertEqual(column_type.items[3].value, "2")

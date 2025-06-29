@@ -38,11 +38,22 @@ class Mapping(BaseSchema):
             **data
         )
 
-    @property
-    def instance_name(self) -> str:
-        return self.tenant_name or self.name
+    def save(self):
+        path = os.path.join(self.folder, self.environ, self.name)
+        with open(os.path.join(path, '_mapping.yaml'), 'w', encoding='utf-8') as f:
+            yaml.dump(
+                self.model_dump(
+                    by_alias=True,
+                    exclude_none=True,
+                    exclude_defaults=True
+                ),
+                f,
+                indent=2,
+                allow_unicode=True,
+                default_flow_style=False,
+                sort_keys=False)
 
-    def build_schema(self, project_schema: SchemaManager, environ_schema: SchemaManager | None):
+    def build_schema(self, project_schema: SchemaManager, environ_schema: SchemaManager | None) -> Schema:
         schema = Schema(name=self.name)
         for name in self.schemas:
             if name in project_schema:
@@ -50,6 +61,10 @@ class Mapping(BaseSchema):
             if environ_schema is not None and name in environ_schema:
                 schema.update(environ_schema[name])
         return schema
+
+    @property
+    def instance_name(self) -> str:
+        return self.tenant_name or self.name
 
     @property
     def datamodels(self):
@@ -97,18 +112,7 @@ class MappingManager:
             raise DBGearEntityExistsError(f'Mapping {mapping.name} already exists in {self.folder}/{mapping.environ}')
 
         os.makedirs(path, exist_ok=True)
-        with open(os.path.join(path, '_mapping.yaml'), 'w', encoding='utf-8') as f:
-            yaml.dump(
-                mapping.model_dump(
-                    by_alias=True,
-                    exclude_none=True,
-                    exclude_defaults=True
-                ),
-                f,
-                indent=2,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False)
+        mapping.save()
 
     def remove(self, name: str) -> None:
         path = os.path.join(self.folder, self.environ, name)

@@ -7,7 +7,6 @@ from .notes import NoteManager
 
 class Trigger(BaseSchema):
     """Database trigger definition"""
-    instance: str = pydantic.Field(exclude=True)
     trigger_name: str = pydantic.Field(exclude=True)
     display_name: str
     table_name: str  # 対象テーブル名
@@ -38,15 +37,6 @@ class TriggerManager:
 
     def __contains__(self, trigger_name: str) -> bool:
         return trigger_name in self.triggers
-
-    def keys(self):
-        return self.triggers.keys()
-
-    def values(self):
-        return self.triggers.values()
-
-    def items(self):
-        return self.triggers.items()
 
     def add(self, trigger: Trigger) -> None:
         if trigger.trigger_name in self.triggers:

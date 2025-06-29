@@ -1,16 +1,9 @@
-import pydantic
-
 from .base import BaseSchema
 
 
-class DBGearOptions(BaseSchema):
-    """Common options for Project and Environment configurations"""
-
+class Options(BaseSchema):
     # Database construction options
-    create_foreign_key_constraints: bool = pydantic.Field(
-        default=True,
-        description="Whether to create foreign key constraints during database construction"
-    )
+    create_foreign_key_constraints: bool = True
 
     # Future options can be added here
     # create_indexes: bool = True

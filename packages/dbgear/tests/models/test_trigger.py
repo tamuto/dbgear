@@ -25,7 +25,6 @@ class TestTrigger(unittest.TestCase):
         """Test Trigger model basic properties and creation"""
         # Create a trigger with all properties
         trigger = Trigger(
-            instance='main',
             trigger_name='audit_trigger',
             display_name='Audit Trigger',
             table_name='users',
@@ -39,7 +38,6 @@ class TestTrigger(unittest.TestCase):
         )
 
         # Test basic properties
-        self.assertEqual(trigger.instance, 'main')
         self.assertEqual(trigger.trigger_name, 'audit_trigger')
         self.assertEqual(trigger.display_name, 'Audit Trigger')
         self.assertEqual(trigger.table_name, 'users')

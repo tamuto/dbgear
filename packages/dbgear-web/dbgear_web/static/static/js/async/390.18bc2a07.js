@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([["390"],{9458:function(n,e,t){t.r(e),t.d(e,{component:()=>r});var o=t(8093);let r=function(){return(0,o.jsx)("div",{className:"p-2",children:"Hello from About!"})}}}]);

@@ -177,7 +177,7 @@ class TableDependencyAnalyzer:
 
         # 1. Foreign key references from other tables
         for schema in self.schema_manager:
-            for table in schema.tables.values():
+            for table in schema.tables:
                 for relation in table.relations:
                     if (relation.target.schema_name == target_schema and relation.target.table_name == target_table):
                         items.append(DependencyItem(
@@ -202,7 +202,7 @@ class TableDependencyAnalyzer:
 
         # 2. Views that reference the target table
         for schema in self.schema_manager:
-            for view in schema.views.values():
+            for view in schema.views:
                 if self._view_references_table(view.select_statement, target_schema, target_table):
                     items.append(DependencyItem(
                         dep_type="view",
@@ -219,9 +219,9 @@ class TableDependencyAnalyzer:
         # 3. Triggers on the target table
         target_schema_obj = self.schema_manager[target_schema]
         if target_table in target_schema_obj.tables:
-            table_obj = target_schema_obj.tables[target_table]
+            # table_obj = target_schema_obj.tables[target_table]
             if hasattr(target_schema_obj, 'triggers'):
-                for trigger in target_schema_obj.triggers.values():
+                for trigger in target_schema_obj.triggers:
                     if trigger.table_name == target_table:
                         items.append(DependencyItem(
                             dep_type="trigger",
