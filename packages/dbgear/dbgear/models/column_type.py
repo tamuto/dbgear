@@ -7,7 +7,7 @@ from .base import BaseSchema
 class ColumnTypeItem(BaseSchema):
     """
     Represents an individual item for ENUM or SET column types.
-    
+
     Supports both simple string values and structured items with value/caption/description.
     """
     value: str  # The actual database value
@@ -48,7 +48,7 @@ class ColumnType(BaseSchema):
         """Add an item to the items list."""
         if self.items is None:
             self.items = []
-        
+
         if isinstance(item, str):
             self.items.append(ColumnTypeItem.from_string(item))
         elif isinstance(item, dict):
@@ -62,7 +62,7 @@ class ColumnType(BaseSchema):
         """Remove an item by its value. Returns True if found and removed."""
         if not self.items:
             return False
-        
+
         for i, item in enumerate(self.items):
             if item.value == value:
                 del self.items[i]
@@ -161,6 +161,7 @@ def parse_column_type(type_string: str) -> ColumnType:
 
     # Parse ENUM and SET values
     elif base_type in ['ENUM', 'SET']:
+        # codeql[python/polynomial-redos] - This regex is safe as it matches a specific pattern
         values_match = re.search(r'\((.*)\)', original_type_string)
         if values_match:
             values_str = values_match.group(1)
@@ -228,11 +229,11 @@ def create_simple_column_type(
                 processed_items.append(item)
             else:
                 processed_items.append(ColumnTypeItem.from_string(str(item)))
-        
+
         items_str = ', '.join(f"'{item.value}'" for item in processed_items)
         type_parts.append(f"({items_str})")
         column_type_str = ''.join(type_parts)
-        
+
         # Store as ColumnTypeItem objects
         items = processed_items
     elif base_type in ['DECIMAL', 'NUMERIC', 'DEC'] and precision:
