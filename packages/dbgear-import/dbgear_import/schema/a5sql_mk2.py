@@ -9,14 +9,14 @@ import csv
 from dataclasses import dataclass
 from dataclasses import field
 
-from ..models.schema import SchemaManager
-from ..models.schema import Schema
-from ..models.table import Table
-from ..models.column import Column
-from ..models.index import Index
-from ..models.notes import Note
-from ..models.column_type import parse_column_type
-from ..models.relation import Relation, EntityInfo, BindColumn
+from dbgear.models.schema import SchemaManager
+from dbgear.models.schema import Schema
+from dbgear.models.table import Table
+from dbgear.models.column import Column
+from dbgear.models.index import Index
+from dbgear.models.notes import Note
+from dbgear.models.column_type import parse_column_type
+from dbgear.models.relation import Relation, EntityInfo, BindColumn
 
 
 @dataclass
@@ -197,7 +197,7 @@ def convert_to_schema(p):
             tbl = Table(
                 instance=key,
                 table_name=entity.table_name,
-                display_name=entity.display_name
+                display_name=entity.display_name or entity.table_name
             )
             schemas[key].tables.add(tbl)
             relation = p.relations[entity.table_name] if entity.table_name in p.relations else {}
@@ -207,7 +207,7 @@ def convert_to_schema(p):
                     column_type_obj = parse_column_type(row[2])
                 except (ValueError, IndexError):
                     # Fallback to simple string if parsing fails
-                    from ..models.column_type import ColumnType
+                    from dbgear.models.column_type import ColumnType
                     column_type_obj = ColumnType(column_type=row[2], base_type=row[2])
 
                 # Create notes list if comment exists

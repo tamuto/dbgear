@@ -1,7 +1,7 @@
 import logging
+import subprocess
+import sys
 from argparse import ArgumentParser
-
-from .cli.importer import import_schema
 
 
 def execute():
@@ -60,33 +60,25 @@ def execute():
         return
 
     if args.command == 'import':
-        # Parse mapping parameter
-        mapping = {'MAIN': 'main'}  # default
-        if args.mapping:
-            mapping = {}
-            for pair in args.mapping.split(','):
-                key, value = pair.split(':')
-                mapping[key.strip()] = value.strip()
-
-        # Determine source file directory and filename
-        from pathlib import Path
-        source_path = Path(args.source_file)
-        folder = str(source_path.parent)
-        filename = source_path.name
-
-        # Import schema
+        # Delegate to dbgear-import package
         try:
-            logging.info(f'Importing schema from {args.source_file} using {args.format} format...')
-            schema_manager = import_schema(args.format, folder, filename, mapping)
+            import_cmd = ['dbgear-import', 'schema', args.format, args.source_file]
 
-            # Save to YAML file
-            output_path = args.output or 'schema.yaml'
-            schema_manager.save(output_path)
-            logging.info(f'Schema successfully imported and saved to {output_path}')
+            if args.output:
+                import_cmd.extend(['--output', args.output])
 
-        except Exception as e:
+            if args.mapping:
+                import_cmd.extend(['--mapping', args.mapping])
+
+            logging.info(f'Delegating to dbgear-import: {" ".join(import_cmd)}')
+            subprocess.run(import_cmd, check=True)
+
+        except subprocess.CalledProcessError as e:
             logging.error(f'Import failed: {e}')
-            return
+            sys.exit(e.returncode)
+        except FileNotFoundError:
+            logging.error('dbgear-import package not found. Please install it with: pip install dbgear-import')
+            sys.exit(1)
     else:
         # For other commands, load project and required modules
         from .models.project import Project
