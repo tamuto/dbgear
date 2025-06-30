@@ -1,16 +1,16 @@
 from logging import getLogger
 from datetime import datetime
 
-from ..dbio import engine
-from ..dbio import database
-from ..dbio import table
-from ..dbio import view
-from ..dbio import trigger
+from .dbio import engine
+from .dbio import database
+from .dbio import table
+from .dbio import view
+from .dbio import trigger
 
-from ..models.project import Project
-from ..models.mapping import Mapping
-from ..models.schema import Schema
-from ..models import const
+from .models.project import Project
+from .models.mapping import Mapping
+from .models.schema import Schema
+from .models import const
 
 logger = getLogger(__name__)
 

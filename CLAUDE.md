@@ -8,9 +8,10 @@ DBGear is a **local development tool** for database initial data management. It 
 
 ## Monorepo Architecture
 
-DBGear is structured as a monorepo with three independent packages:
+DBGear is structured as a monorepo with four independent packages:
 
 - **dbgear**: Core library and CLI tools (`packages/dbgear/`)
+- **dbgear-import**: Schema and data import functionality (`packages/dbgear-import/`)
 - **dbgear-web**: Web interface that depends on dbgear (`packages/dbgear-web/`)
 - **frontend**: React frontend package (`packages/frontend/`)
 
@@ -43,15 +44,24 @@ packages/
 │   │   │   ├── table.py      # Table operations
 │   │   │   ├── view.py       # View operations
 │   │   │   └── templates/    # SQL template engine
-│   │   ├── importers/        # Schema importer modules
-│   │   │   └── a5sql_mk2.py  # A5:SQL Mk-2 importer
 │   │   ├── cli/              # CLI-specific functionality
-│   │   │   ├── importer.py   # CLI import commands
 │   │   │   └── operations.py # CLI operation commands
 │   │   ├── utils/            # Utility modules
 │   │   │   └── populate.py   # Auto-population utilities
 │   │   └── main.py           # Main CLI entry point
 │   └── pyproject.toml        # CLI package configuration
+│
+├── dbgear-import/            # Import Package (pip install dbgear-import)
+│   ├── dbgear_import/
+│   │   ├── schema/           # Schema importers
+│   │   │   └── a5sql_mk2.py  # A5:SQL Mk-2 importer
+│   │   ├── data/             # Data importers (future)
+│   │   │   ├── excel.py      # Excel data importer (planned)
+│   │   │   └── csv.py        # CSV data importer (planned)
+│   │   ├── importer.py       # Generic importer interface
+│   │   └── main.py           # Import CLI entry point
+│   ├── tests/                # Import functionality tests
+│   └── pyproject.toml        # Import package configuration
 │
 ├── dbgear-web/               # Web Package (pip install dbgear-web)
 │   ├── dbgear_web/
@@ -152,11 +162,25 @@ cd packages/dbgear
 # Install dependencies
 poetry install
 
-# Import A5:SQL Mk-2 schema
-poetry run python -m dbgear.main import a5sql_mk2 ../../etc/test/dbgear.a5er --output schema.yaml
-
-# Run CLI tools
+# Apply database changes (import functionality moved to dbgear-import)
 poetry run python -m dbgear.main apply localhost development --all drop
+
+# Run tests
+poetry run python -m unittest discover
+```
+
+### Import Package Development
+```bash
+cd packages/dbgear-import
+
+# Install dependencies (includes dbgear as dependency)
+poetry install
+
+# Import A5:SQL Mk-2 schema
+poetry run dbgear-import schema a5sql_mk2 ../../etc/test/dbgear.a5er --output schema.yaml
+
+# List available importers
+poetry run dbgear-import list
 
 # Run tests
 poetry run python -m unittest discover
@@ -232,9 +256,16 @@ pnpm run build
 
 #### CLI Usage
 ```bash
+# Install core package
 pip install dbgear
 
-# Import A5:SQL Mk-2 schema
+# Install import functionality
+pip install dbgear-import
+
+# Import A5:SQL Mk-2 schema (now handled by dbgear-import)
+dbgear-import schema a5sql_mk2 schema.a5er --output schema.yaml
+
+# Legacy import command (delegates to dbgear-import)
 dbgear import a5sql_mk2 schema.a5er --output schema.yaml
 
 # Apply database changes
@@ -322,10 +353,12 @@ When proposing solutions or architectural changes, follow this design hierarchy:
 
 ### Package Dependencies
 
-- **dbgear-web** depends on **dbgear** as an external package dependency
-- All imports in dbgear-web use `from dbgear.models.*` and `from dbgear.dbio.*` syntax
+- **dbgear-import** depends on **dbgear** as an external package dependency
+- **dbgear-web** depends on **dbgear** as an external package dependency  
+- **dbgear-mcp** depends on **dbgear** as an external package dependency
+- All imports in dependent packages use `from dbgear.models.*` and `from dbgear.dbio.*` syntax
 - Core functionality is completely independent and reusable
-- Web interface is an optional addition that can be installed separately
+- Import, web, and MCP interfaces are optional additions that can be installed separately
 
 ### Known Limitations
 

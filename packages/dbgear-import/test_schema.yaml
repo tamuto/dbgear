@@ -1,0 +1,317 @@
+schemas:
+  main:
+    tables:
+      test_table:
+        displayName: テストテーブル
+        columns:
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: varchar(100)
+            baseType: VARCHAR
+            length: 100
+          nullable: false
+        - columnName: num
+          displayName: 数字
+          columnType:
+            columnType: int
+            baseType: INT
+          nullable: true
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: datetime
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+      tbl_child:
+        displayName: 子テーブル
+        columns:
+        - columnName: child_id
+          displayName: 子ID
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: varchar(100)
+            baseType: VARCHAR
+            length: 100
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: datetime
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: test_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_child_test_table
+          description: Foreign key from tbl_child.col_id to test_table.col_id
+      properties:
+        displayName: プロパティ
+        columns:
+        - columnName: key
+          displayName: キー
+          columnType:
+            columnType: varchar(32)
+            baseType: VARCHAR
+            length: 32
+          nullable: false
+          primaryKey: 0
+        - columnName: value
+          displayName: 値
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: datetime
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+      row_table:
+        displayName: 行テーブル
+        columns:
+        - columnName: row_id
+          displayName: ID
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: row_name
+          displayName: 名前
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+      tbl_matrix:
+        displayName: マトリックステーブル
+        columns:
+        - columnName: row_id
+          displayName: ID
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: child_id
+          displayName: 子ID
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 1
+        - columnName: value
+          displayName: 値
+          columnType:
+            columnType: varchar(20)
+            baseType: VARCHAR
+            length: 20
+          nullable: false
+        - columnName: update_date
+          displayName: 更新日時
+          columnType:
+            columnType: datetime
+            baseType: DATETIME
+          nullable: false
+        - columnName: update_user
+          displayName: 更新者
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: row_table
+          bindColumns:
+          - sourceColumn: row_id
+            targetColumn: row_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_matrix_row_table
+          description: Foreign key from tbl_matrix.row_id to row_table.row_id
+        - target:
+            schemaName: main
+            tableName: tbl_child
+          bindColumns:
+          - sourceColumn: child_id
+            targetColumn: child_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_matrix_tbl_child
+          description: Foreign key from tbl_matrix.child_id to tbl_child.child_id
+      tbl_cmp_table:
+        displayName: 複合キーテーブル
+        columns:
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: seq
+          displayName: シーケンス
+          columnType:
+            columnType: int
+            baseType: INT
+          nullable: false
+          primaryKey: 1
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: test_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_table_test_table
+          description: Foreign key from tbl_cmp_table.col_id to test_table.col_id
+      tbl_cmp_child:
+        displayName: 複合子テーブル
+        columns:
+        - columnName: cmp_child_id
+          displayName: 複合キー子ID
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col_id
+          displayName: IDカラム
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+        - columnName: seq
+          displayName: シーケンス
+          columnType:
+            columnType: int
+            baseType: INT
+          nullable: false
+        - columnName: name
+          displayName: 名前
+          columnType:
+            columnType: varchar(64)
+            baseType: VARCHAR
+            length: 64
+          nullable: false
+        relations:
+        - target:
+            schemaName: main
+            tableName: tbl_cmp_table
+          bindColumns:
+          - sourceColumn: col_id
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_child_tbl_cmp_table
+          description: Foreign key from tbl_cmp_child.col_id to tbl_cmp_table.col_id,seq
+        - target:
+            schemaName: main
+            tableName: tbl_cmp_table
+          bindColumns:
+          - sourceColumn: seq
+            targetColumn: col_id
+          cardinaritySource: '*'
+          constraintName: FK_tbl_cmp_child_tbl_cmp_table
+          description: Foreign key from tbl_cmp_child.seq to tbl_cmp_table.col_id,seq
+      tbl_null_test:
+        displayName: tbl_null_test
+        columns:
+        - columnName: test_id
+          displayName: test_id
+          columnType:
+            columnType: varchar(36)
+            baseType: VARCHAR
+            length: 36
+          nullable: false
+          primaryKey: 0
+        - columnName: col1
+          displayName: col1
+          columnType:
+            columnType: char(5)
+            baseType: CHAR
+            length: 5
+          nullable: true
+        - columnName: col2
+          displayName: col2
+          columnType:
+            columnType: varchar(10)
+            baseType: VARCHAR
+            length: 10
+          nullable: true
+        - columnName: col3
+          displayName: col3
+          columnType:
+            columnType: datetime
+            baseType: DATETIME
+          nullable: true
+        - columnName: col4
+          displayName: col4
+          columnType:
+            columnType: int
+            baseType: INT
+          nullable: true
