@@ -17,17 +17,10 @@ logger = getLogger(__name__)
 
 class Operation:
 
-    @staticmethod
-    def get_instance(folder: str, env: str, database: str, deploy: str):
-        project = Project.load(folder)
-        return Operation(project, env, database, deploy)
-
     def __init__(self, project: Project, env: str, database: str, deploy: str):
         self.project = project
         self.environ = project.envs[env]
-
-        # FIXME マッピングの取得？データベースから特定されるもの
-        # self.map = mapping.get(project.folder, env)
+        self.database = database
 
         self.conn = engine.get_connection(self.environ.deployment[deploy])
         self.ymd = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
@@ -115,25 +108,38 @@ class Operation:
 
             engine.commit(self.conn)
 
+    # ユニットテストなどで、Operationのインスタンスを取得するためのメソッド
+    @staticmethod
+    def get_instance(folder: str, env: str, database: str, deploy: str):
+        project = Project.load(folder)
+        return Operation(project, env, database, deploy)
+
     def reset_all(self):
         for map in self.environ.databases:
+            if self.database is not None and map.instance_name != self.database:
+                continue
+
             self.create_database(map, 'drop')
             schema = map.build_schema(self.project.schemas, self.environ.schemas)
-            self.create_table(schema, all, None)
+            self.create_table(map, schema, all, None)
 
-    def require(self, schema: str, table_name: str):
-        # ユニットテストなどで指定したデータを挿入する。
-        # schema = self.project.schemas[instance]
-        # tbl = schema.get_table(table_name)
-        # dm = _load_data_model(self.project, self.map, instance, table_name)
-        # items = _load_for_entry(self.project, self.map, instance, table_name, dm)
-        # if items is not None:
-        #     logger.info(f'insert {self.map.id}.{table_name}')
-        #     table.insert(self.conn, self.map.id, tbl, items)
-        pass
+    def require(self, schema_name: str, table_name: str):
+        for map in self.environ.databases:
+            if self.database is not None and map.instance_name != self.database:
+                continue
+            schema = map.build_schema(self.project.schemas, self.environ.schemas)
+            tbl = schema.tables[table_name]
+            dm = map.datamodel(schema_name, table_name)
+            if dm is not None:
+                for ds in dm.datasources:
+                    if ds.exists():
+                        logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
+                        ds.load()
+                        table.insert(self.conn, map.instance_name, tbl, ds.data)
 
 
 def apply(project, env: str, database: str, target: str, all: str, deploy: str):
+    """ データベースの適用処理を行う。 CLI向け関数. """
     with Operation(project, env, database, deploy) as op:
         for map in op.environ.databases:
             if database is not None and map.instance_name != database:

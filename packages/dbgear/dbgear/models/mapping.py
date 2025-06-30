@@ -80,6 +80,10 @@ class Mapping(BaseSchema):
                 )
 
     def datamodel(self, schema_name: str, table_name: str) -> DataModel:
+        # 直接指定の場合は、パスが存在するか確認する。
+        path = pathlib.Path(self.folder, self.environ, self.name, f'{schema_name}@{table_name}.yaml')
+        if not path.exists():
+            return None
         return DataModel.load(
             folder=self.folder,
             environ=self.environ,
