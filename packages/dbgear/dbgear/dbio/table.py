@@ -46,7 +46,8 @@ def _col_value(item: dict, column: Column):
             if '(' in item[column.column_name]:
                 return item[column.column_name]
         return f':{column.column_name}'
-    return 'NULL'
+    # FIXME データ整備ミスとなるので、例外を投げるが、事前チェックが望ましいと思う。
+    raise ValueError(f"Column '{column.column_name}' not found in item.")
 
 
 def _col_conv(values: dict):

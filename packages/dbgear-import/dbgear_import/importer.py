@@ -29,7 +29,7 @@ def import_schema(importer_type: str, *args, **kwargs) -> Any:
     """
     try:
         # Dynamically import the importer module
-        module = importlib.import_module(f'dbgear.importers.{importer_type}')
+        module = importlib.import_module(f'dbgear_import.schema.{importer_type}')
 
         # Get and execute the retrieve function
         if hasattr(module, 'retrieve'):
@@ -48,7 +48,7 @@ def list_importers() -> list[str]:
     Returns:
         List of available importer module names
     """
-    importers_dir = Path(__file__).parent.parent / 'importers'
+    importers_dir = Path(__file__).parent / 'schema'
     if not importers_dir.exists():
         return []
 
