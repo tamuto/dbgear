@@ -19,7 +19,7 @@ graph TD
     %% プロジェクトレベル
     Project --> SchemaManager
     Project --> EnvironManager
-    Project --> DBGearOptions
+    Project --> Options
     
     %% スキーマレベル
     SchemaManager --> Schema
@@ -65,7 +65,6 @@ graph TD
     Environ --> SchemaManager
     Environ --> TenantRegistry
     Environ --> MappingManager
-    Environ --> DBGearOptions
     
     %% テナントレベル
     TenantRegistry --> TenantConfig

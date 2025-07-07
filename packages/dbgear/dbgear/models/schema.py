@@ -39,7 +39,7 @@ class Schema(BaseSchema):
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
 
-    def update(self, other):
+    def merge(self, other):
         self.tables_.update(other.tables_)
         self.views_.update(other.views_)
         self.triggers_.update(other.triggers_)

@@ -12,11 +12,6 @@ from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
 
 
-class SharedInfo(BaseSchema):
-    environ: str
-    mapping: str
-
-
 class Mapping(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     environ: str = pydantic.Field(exclude=True)
@@ -24,7 +19,6 @@ class Mapping(BaseSchema):
     tenant_name: str | None = pydantic.Field(default=None, exclude=True)
     description: str
     schemas: list[str] = []
-    shared: SharedInfo | None = None
     deploy: bool = False
 
     @classmethod
@@ -57,9 +51,9 @@ class Mapping(BaseSchema):
         schema = Schema(name=self.name)
         for name in self.schemas:
             if name in project_schema:
-                schema.update(project_schema[name])
+                schema.merge(project_schema[name])
             if environ_schema is not None and name in environ_schema:
-                schema.update(environ_schema[name])
+                schema.merge(environ_schema[name])
         return schema
 
     @property

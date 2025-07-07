@@ -6,7 +6,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from .importer import import_schema, list_importers
+from .importer import import_schema, list_importers, import_data, list_data_importers
+from dbgear.models.schema import SchemaManager
 
 
 def create_parser():
@@ -25,12 +26,27 @@ def create_parser():
     schema_parser.add_argument('--output', '-o', help='Output YAML file', default='schema.yaml')
     schema_parser.add_argument('--mapping', '-m', help='Schema mapping (e.g., "MAIN:main,TEST:test")')
 
-    # Data import command (placeholder for future)
-    data_parser = subparsers.add_parser('data', help='Import initial data (future)')
+    # Data import command
+    data_parser = subparsers.add_parser('data', help='Import initial data')
     data_parser.add_argument('format', help='Data format (excel, csv)')
     data_parser.add_argument('source_file', help='Source file to import')
     data_parser.add_argument('--schema', help='Schema YAML file', required=True)
     data_parser.add_argument('--table', help='Target table name', required=True)
+    data_parser.add_argument('--output', '-o', help='Output directory', default='.')
+    data_parser.add_argument('--schema-name', help='Schema name (default: main)', default='main')
+    data_parser.add_argument('--json-fields', help='JSON field names (comma-separated)')
+    
+    # Excel-specific options
+    data_parser.add_argument('--sheet', help='Excel sheet name')
+    data_parser.add_argument('--header-row', type=int, help='Header row number (default: 1)', default=1)
+    data_parser.add_argument('--start-row', type=int, help='First data row number')
+    data_parser.add_argument('--start-col', type=int, help='First data column number', default=1)
+    data_parser.add_argument('--end-col', type=int, help='Last data column number')
+    
+    # CSV-specific options
+    data_parser.add_argument('--encoding', help='CSV file encoding (default: auto-detect)')
+    data_parser.add_argument('--delimiter', help='CSV delimiter (default: auto-detect)')
+    data_parser.add_argument('--skip-rows', type=int, help='Number of rows to skip', default=0)
 
     # List available importers
     list_parser = subparsers.add_parser('list', help='List available importers')
@@ -79,21 +95,100 @@ def handle_schema_import(args):
 
 
 def handle_data_import(args):
-    """Handle data import command (placeholder)."""
-    print("Data import functionality is not yet implemented.", file=sys.stderr)
-    print("This feature will be available in a future release.", file=sys.stderr)
-    return 1
+    """Handle data import command."""
+    # Check if source file exists
+    source_path = Path(args.source_file)
+    if not source_path.exists():
+        print(f"Error: Source file '{args.source_file}' not found", file=sys.stderr)
+        return 1
+    
+    # Check if schema file exists
+    schema_path = Path(args.schema)
+    if not schema_path.exists():
+        print(f"Error: Schema file '{args.schema}' not found", file=sys.stderr)
+        return 1
+    
+    try:
+        # Load schema
+        schema_manager = SchemaManager()
+        schema_manager.load(args.schema)
+        
+        # Parse JSON fields if provided
+        json_fields = None
+        if args.json_fields:
+            json_fields = [field.strip() for field in args.json_fields.split(',')]
+        
+        # Prepare kwargs for format-specific options
+        kwargs = {}
+        
+        if args.format == 'excel':
+            if args.sheet:
+                kwargs['sheet_name'] = args.sheet
+            kwargs['header_row'] = args.header_row
+            if args.start_row:
+                kwargs['start_row'] = args.start_row
+            kwargs['start_col'] = args.start_col
+            if args.end_col:
+                kwargs['end_col'] = args.end_col
+                
+        elif args.format == 'csv':
+            if args.encoding:
+                kwargs['encoding'] = args.encoding
+            if args.delimiter:
+                kwargs['delimiter'] = args.delimiter
+            kwargs['skip_rows'] = args.skip_rows
+        
+        # Import data
+        output_file = import_data(
+            args.format,
+            str(source_path),
+            schema_manager,
+            args.table,
+            args.output,
+            args.schema_name,
+            json_fields,
+            **kwargs
+        )
+        
+        print(f"Data imported successfully to '{output_file}'")
+        
+        # Print summary
+        with open(output_file, 'r', encoding='utf-8') as f:
+            import yaml
+            data = yaml.safe_load(f)
+            if data:
+                print(f"Imported {len(data)} row(s) to table '{args.table}'")
+            else:
+                print("No data imported (empty result)")
+        
+        return 0
+        
+    except Exception as e:
+        print(f"Error importing data: {e}", file=sys.stderr)
+        return 1
 
 
 def handle_list_importers(args):
     """Handle list importers command."""
-    importers = list_importers()
-    if importers:
+    schema_importers = list_importers()
+    data_importers = list_data_importers()
+    
+    if schema_importers:
         print("Available schema importers:")
-        for importer in importers:
+        for importer in schema_importers:
             print(f"  - {importer}")
     else:
-        print("No importers available.")
+        print("No schema importers available.")
+    
+    print()
+    
+    if data_importers:
+        print("Available data importers:")
+        for importer in data_importers:
+            print(f"  - {importer}")
+    else:
+        print("No data importers available.")
+    
     return 0
 
 

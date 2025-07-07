@@ -4,7 +4,7 @@ from .base import BaseSchema
 class Note(BaseSchema):
     title: str
     content: str
-    checked: bool = False  # Whether the note has been reviewed
+    checked: bool = False
 
 
 class NoteManager:
@@ -24,5 +24,6 @@ class NoteManager:
     def add(self, note: Note) -> None:
         self.notes.append(note)
 
-    def remove(self, note: Note) -> None:
+    def remove(self, index: int) -> None:
+        note = self.notes[index]
         self.notes.remove(note)
