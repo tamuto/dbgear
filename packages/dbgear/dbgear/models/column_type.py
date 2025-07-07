@@ -80,7 +80,7 @@ class ColumnTypeRegistry:
     def __contains__(self, key: str) -> bool:
         return key in self.types
 
-    def add(self, column_type: ColumnType) -> None:
+    def append(self, column_type: ColumnType) -> None:
         if column_type.column_type in self.types:
             raise ValueError(f"Column type '{column_type.column_type}' already exists")
         self.types[column_type.column_type] = column_type

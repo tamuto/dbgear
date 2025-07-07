@@ -10,7 +10,6 @@ from ..utils.populate import auto_populate_from_keys
 
 
 class DatabaseInfo(BaseSchema):
-    name: str
     database: str
     description: str | None = None
     active: bool = True
@@ -73,7 +72,7 @@ class TenantRegistry(BaseSchema):
     def __contains__(self, name: str) -> bool:
         return name in self.tenants
 
-    def add(self, tenant: TenantConfig) -> None:
+    def append(self, tenant: TenantConfig) -> None:
         if tenant.name in self.tenants:
             raise DBGearEntityExistsError(f'Tenant {tenant.name} already exists')
         self.tenants[tenant.name] = tenant

@@ -1,4 +1,0 @@
-schemas:
-- main
-description: テスト1データベース
-deploy: true

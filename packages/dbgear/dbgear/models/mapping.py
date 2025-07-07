@@ -7,9 +7,9 @@ from .base import BaseSchema
 from .schema import Schema
 from .schema import SchemaManager
 from .datamodel import DataModel
-from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
+from ..utils.fileio import save_model
 
 
 class Mapping(BaseSchema):
@@ -22,8 +22,16 @@ class Mapping(BaseSchema):
     deploy: bool = False
 
     @classmethod
+    def _directory(cls, folder: str, environ: str, name: str) -> str:
+        return os.path.join(folder, environ, name)
+
+    @classmethod
+    def _fullpath(cls, folder: str, environ: str, name: str) -> str:
+        return os.path.join(folder, environ, name, '_mapping.yaml')
+
+    @classmethod
     def load(cls, folder: str, environ: str, name: str):
-        with open(f'{folder}/{environ}/{name}/_mapping.yaml', 'r', encoding='utf-8') as f:
+        with open(Mapping._fullpath(folder, environ, name), 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         return cls(
             folder=folder,
@@ -33,19 +41,22 @@ class Mapping(BaseSchema):
         )
 
     def save(self):
-        path = os.path.join(self.folder, self.environ, self.name)
-        with open(os.path.join(path, '_mapping.yaml'), 'w', encoding='utf-8') as f:
-            yaml.dump(
-                self.model_dump(
-                    by_alias=True,
-                    exclude_none=True,
-                    exclude_defaults=True
-                ),
-                f,
-                indent=2,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False)
+        path = Mapping._directory(self.folder, self.environ, self.name)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+
+        with open(Mapping._fullpath(self.folder, self.environ, self.name), 'w', encoding='utf-8') as f:
+            save_model(self, f)
+
+    def delete(self):
+        path = Mapping._directory(self.folder, self.environ, self.name)
+        if not os.path.exists(path):
+            raise DBGearEntityNotFoundError(f'Mapping {self.name} does not exist in {self.folder}/{self.environ}')
+        files = [f for f in os.listdir(path) if f != '_mapping.yaml']
+        if files:
+            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than _mapping.yaml exist')
+        os.remove(Mapping._fullpath(self.folder, self.environ, self.name))
+        os.rmdir(path)
 
     def build_schema(self, project_schema: SchemaManager, environ_schema: SchemaManager | None) -> Schema:
         schema = Schema(name=self.name)
@@ -102,22 +113,4 @@ class MappingManager:
             yield Mapping.load(self.folder, self.environ, name)
 
     def __contains__(self, key: str) -> bool:
-        return os.path.exists(os.path.join(self.folder, self.environ, key, '_mapping.yaml'))
-
-    def add(self, mapping: Mapping) -> None:
-        path = os.path.join(self.folder, mapping.environ, mapping.name)
-        if os.path.exists(path):
-            raise DBGearEntityExistsError(f'Mapping {mapping.name} already exists in {self.folder}/{mapping.environ}')
-
-        os.makedirs(path, exist_ok=True)
-        mapping.save()
-
-    def remove(self, name: str) -> None:
-        path = os.path.join(self.folder, self.environ, name)
-        if not os.path.exists(path):
-            raise DBGearEntityNotFoundError(f'Mapping {name} does not exist in {self.folder}/{self.environ}')
-        files = [f for f in os.listdir(path) if f != '_mapping.yaml']
-        if files:
-            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than _mapping.yaml exist')
-        os.remove(os.path.join(path, '_mapping.yaml'))
-        os.rmdir(path)
+        return os.path.exists(Mapping._fullpath(self.folder, self.environ, key))

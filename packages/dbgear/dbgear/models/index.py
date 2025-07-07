@@ -36,7 +36,7 @@ class IndexManager:
     def __len__(self) -> int:
         return len(self.indexes)
 
-    def add(self, index: Index) -> None:
+    def append(self, index: Index) -> None:
         self.indexes.append(index)
 
     def remove(self, index: Index) -> None:

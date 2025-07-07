@@ -10,7 +10,6 @@ tenants:
         active: false
   sample:
     ref: sharedtenant
-    prefix: ""
     databases:
       - database: sample_testdb1
         description: Sample database

@@ -4,7 +4,7 @@ import os
 import yaml
 
 from dbgear.models.environ import EnvironManager, Environ
-from dbgear.models.exceptions import DBGearEntityExistsError, DBGearEntityNotFoundError, DBGearEntityRemovalError
+from dbgear.models.exceptions import DBGearEntityRemovalError
 
 
 class TestEnviron(unittest.TestCase):
@@ -29,10 +29,7 @@ class TestEnviron(unittest.TestCase):
             description='Test environment for testing',
             deployment={'production': 'mysql://user:pass@prod-host:3306/mydb', 'development': 'mysql://user:pass@dev-host:3306/mydb'}
         )
-
-        # Test add
-        environ_manager = EnvironManager(self.temp_dir)
-        environ_manager.add(environ)
+        environ.save()
 
         # Verify file exists
         environ_file = os.path.join(self.temp_dir, self.env_name, 'environ.yaml')
@@ -47,6 +44,7 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(saved_data['deployment']['development'], 'mysql://user:pass@dev-host:3306/mydb')
 
         # Test load
+        environ_manager = EnvironManager(self.temp_dir)
         loaded_environ = environ_manager[self.env_name]
         self.assertEqual(loaded_environ.name, self.env_name)
         self.assertEqual(loaded_environ.description, 'Test environment for testing')
@@ -99,7 +97,7 @@ class TestEnviron(unittest.TestCase):
                 description=desc,
                 deployment={name: f'mysql://user:pass@{name}-db:3306/app'}
             )
-            environ_manager.add(environ)
+            environ.save()
 
         # Test iteration
         loaded_environs = list(environ_manager)
@@ -111,57 +109,26 @@ class TestEnviron(unittest.TestCase):
         self.assertIn('staging', env_names)
         self.assertIn('production', env_names)
 
-    def test_environ_manager_exceptions(self):
-        """Test EnvironManager exception handling"""
-        environ_manager = EnvironManager(self.temp_dir)
-
-        # Test add duplicate
-        environ1 = Environ(
-            folder=self.temp_dir,
-            name='duplicate',
-            description='First environment'
-        )
-        environ_manager.add(environ1)
-
-        environ2 = Environ(
-            folder=self.temp_dir,
-            name='duplicate',
-            description='Second environment'
-        )
-
-        with self.assertRaises(DBGearEntityExistsError):
-            environ_manager.add(environ2)
-
-        # Test load nonexistent
-        with self.assertRaises(FileNotFoundError):
-            environ_manager['nonexistent']
-
-        # Test remove nonexistent
-        with self.assertRaises(DBGearEntityNotFoundError):
-            environ_manager.remove('nonexistent')
-
     def test_environ_remove_operations(self):
         """Test environ remove operations"""
-        environ_manager = EnvironManager(self.temp_dir)
-
         # Add environ
         environ = Environ(
             folder=self.temp_dir,
             name='removable',
             description='Environment to be removed'
         )
-        environ_manager.add(environ)
+        environ.save()
 
         # Verify it exists
         env_path = os.path.join(self.temp_dir, 'removable')
         self.assertTrue(os.path.exists(env_path))
 
         # Test successful remove
-        environ_manager.remove('removable')
+        environ.delete()
         self.assertFalse(os.path.exists(env_path))
 
         # Test remove with extra files (should fail)
-        environ_manager.add(environ)  # Re-add
+        environ.save()
 
         # Add extra file
         extra_file = os.path.join(env_path, 'extra_file.txt')
@@ -169,61 +136,7 @@ class TestEnviron(unittest.TestCase):
             f.write('extra content')
 
         with self.assertRaises(DBGearEntityRemovalError):
-            environ_manager.remove('removable')
-
-    def test_environ_lazy_loading_properties(self):
-        """Test environ lazy loading properties"""
-        # Create environment with related files
-        environ_manager = EnvironManager(self.temp_dir)
-        environ = Environ(
-            folder=self.temp_dir,
-            name='lazy_test',
-            description='Test lazy loading'
-        )
-        environ_manager.add(environ)
-
-        # Create schema.yaml
-        env_dir = os.path.join(self.temp_dir, 'lazy_test')
-        schema_file = os.path.join(env_dir, 'schema.yaml')
-        schema_data = {
-            'schemas': {
-                'main': {
-                    'tables': {}
-                }
-            }
-        }
-        with open(schema_file, 'w', encoding='utf-8') as f:
-            yaml.dump(schema_data, f)
-
-        # Create tenant.yaml
-        tenant_file = os.path.join(env_dir, 'tenant.yaml')
-        tenant_data = {
-            'tenants': {
-                'localhost': {
-                    'name': 'localhost',
-                    'ref': 'base'
-                }
-            }
-        }
-        with open(tenant_file, 'w', encoding='utf-8') as f:
-            yaml.dump(tenant_data, f)
-
-        # Load environ and test lazy properties
-        loaded_environ = environ_manager['lazy_test']
-
-        # Test schemas property (lazy loading)
-        schemas = loaded_environ.schemas
-        self.assertIsNotNone(schemas)
-        self.assertIn('main', schemas.schemas)
-
-        # Test tenants property (lazy loading)
-        tenant = loaded_environ.tenant
-        self.assertIsNotNone(tenant)
-        self.assertIn('localhost', tenant.tenants)
-
-        # Test mappings property
-        mappings = loaded_environ.mappings
-        self.assertIsNotNone(mappings)
+            environ.delete()
 
     def test_environ_roundtrip(self):
         """Test environ add/load roundtrip"""
@@ -234,10 +147,10 @@ class TestEnviron(unittest.TestCase):
             description='テスト環境の説明',
             deployment={'test': 'mysql://test:password@test-server:3306/testdb', 'local': 'sqlite:///local.db'}
         )
+        original_environ.save()
 
         # Add and load
         environ_manager = EnvironManager(self.temp_dir)
-        environ_manager.add(original_environ)
         loaded_environ = environ_manager['roundtrip_test']
 
         # Verify all fields

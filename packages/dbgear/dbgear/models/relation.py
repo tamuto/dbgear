@@ -55,7 +55,7 @@ class RelationManager:
     def __len__(self) -> int:
         return len(self.relations)
 
-    def add(self, relation: Relation) -> None:
+    def append(self, relation: Relation) -> None:
         self.relations.append(relation)
 
     def remove(self, relation: Relation) -> None:

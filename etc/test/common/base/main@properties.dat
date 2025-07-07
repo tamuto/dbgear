@@ -1,8 +1,0 @@
-- key: '001'
-  update_date: NOW()
-  update_user: SYSTEM
-  value: TEST,123
-- key: '002'
-  update_date: NOW()
-  update_user: SYSTEM
-  value: BBB

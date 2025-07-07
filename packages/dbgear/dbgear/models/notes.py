@@ -21,7 +21,7 @@ class NoteManager:
     def __len__(self) -> int:
         return len(self.notes)
 
-    def add(self, note: Note) -> None:
+    def append(self, note: Note) -> None:
         self.notes.append(note)
 
     def remove(self, index: int) -> None:

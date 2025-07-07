@@ -48,7 +48,7 @@ classDiagram
         +build_schema(project_schema: SchemaManager, environ_schema: SchemaManager | None) Schema
 
         +@ instance_name() str
-        +datamodels() Generic~DataModel~
+        +@ datamodels() Generic~DataModel~
         +datamodel(schema_name: str, table_name: str) DataModel
     }
 

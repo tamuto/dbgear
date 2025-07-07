@@ -10,7 +10,7 @@ from .dbio import trigger
 from .models.project import Project
 from .models.mapping import Mapping
 from .models.schema import Schema
-from .models import const
+from .utils import const
 
 logger = getLogger(__name__)
 

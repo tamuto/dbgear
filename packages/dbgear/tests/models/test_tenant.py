@@ -39,7 +39,7 @@ class TestTenant(unittest.TestCase):
             databases=[db_info]
         )
 
-        tenant_registry.add(tenant_config)
+        tenant_registry.append(tenant_config)
 
         # Create the directory structure
         env_dir = os.path.join(self.temp_dir, 'test_env')
@@ -70,7 +70,7 @@ class TestTenant(unittest.TestCase):
         env_dir = os.path.join(self.temp_dir, 'test_env')
         os.makedirs(env_dir)
         tenant_yaml_path = os.path.join(env_dir, 'tenant.yaml')
-        
+
         # Create test tenant data
         tenant_data = {
             'tenants': {
@@ -120,12 +120,12 @@ class TestTenant(unittest.TestCase):
 
         # Test add
         tenant1 = TenantConfig(name='tenant1', ref='base')
-        tenant_registry.add(tenant1)
+        tenant_registry.append(tenant1)
         self.assertIn('tenant1', tenant_registry.tenants)
 
         # Test duplicate add raises exception
         with self.assertRaises(DBGearEntityExistsError):
-            tenant_registry.add(tenant1)
+            tenant_registry.append(tenant1)
 
         # Test get
         retrieved_tenant = tenant_registry['tenant1']
@@ -178,7 +178,7 @@ class TestTenant(unittest.TestCase):
                 ref=ref,
                 databases=databases
             )
-            tenant_registry.add(tenant)
+            tenant_registry.append(tenant)
 
         # Create the directory structure
         env_dir = os.path.join(self.temp_dir, 'test_env')

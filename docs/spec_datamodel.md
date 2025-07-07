@@ -34,13 +34,16 @@ project-root/
 classDiagram
 
     class DataSource {
+        +data : list[dict[str, Any]]
+    }
+
+    class YamlDataSource {
         +folder : str
         +environ : str
         +name : str
         +schema_name : str
         +table_name : str
         +segment : str | None
-        +data : list[dict[str, Any]]
 
         +\_\_init__(folder: str, environ: str, name: str, schema_name: str, table_name: str, segment: str | None = None)
 
@@ -52,15 +55,7 @@ classDiagram
         +remove()
     }
 
-    class YamlDataSource {
-    }
-
     YamlDataSource --|> DataSource
-
-    class CsvDataSource {
-    }
-
-    CsvDataSource --|> DataSource
 
     class XlsxDataSource {
     }
@@ -91,29 +86,27 @@ classDiagram
         +x_axis : str | None = None
         +y_axis : str | None = None
         +cells : list[str] | None = None
-
-        +@ filename() : str
     }
 
     DataParams -- SettingInfo : settings
 
     class DataModel {
         <<BaseSchema>>
-        +folder : str
-        +environ : str
-        +map_name : str
-        +schema_name : str
-        +table_name : str
+        +folder : str % exclude
+        +environ : str % exclude
+        +map_name : str % exclude
+        +schema_name : str % exclude
+        +table_name : str % exclude
         +description : str
         +sync_mode : str
         +data_type: str
-        +data_path: str
+        +data_path: str | None = None
         +data_args: dict[str, str] | None = None
         +data_params: DataParams | None = None
 
         +load(folder: str, environ: str, map_name: str, schema_name: str, table_name: str) DataModel$
         +save()
-        +remove()
+        +delete()
         +@ filename() str
         +@ datasources() Generic~DataSource~
     }

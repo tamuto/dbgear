@@ -93,7 +93,7 @@ class SchemaManager(BaseSchema):
     def __contains__(self, name: str) -> bool:
         return name in self.schemas
 
-    def add(self, schema: Schema) -> None:
+    def append(self, schema: Schema) -> None:
         if schema.name in self.schemas:
             raise ValueError(f"Schema '{schema.name}' already exists")
         self.schemas[schema.name] = schema
