@@ -22,7 +22,7 @@ class Operation:
         self.environ = project.envs[env]
         self.database = database
 
-        self.conn = engine.get_connection(self.environ.deployment[deploy])
+        self.conn = engine.get_connection(self.environ.deployments[deploy])
         self.ymd = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 
     def __enter__(self):
@@ -94,10 +94,9 @@ class Operation:
                 continue
             tbl = schema.tables[dm.table_name]
             for ds in dm.datasources:
-                if ds.exists():
-                    logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
-                    ds.load()
-                    table.insert(self.conn, map.instance_name, tbl, ds.data)
+                logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
+                ds.load()
+                table.insert(self.conn, map.instance_name, tbl, ds.data)
 
             if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
                 # 同期モードがdrop_create以外の場合は、データのリストアを行う。

@@ -1,3 +1,5 @@
 description: ''
 sync_mode: drop_create
 data_type: yaml
+data_params:
+  segment: main

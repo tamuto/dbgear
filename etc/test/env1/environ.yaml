@@ -1,4 +1,4 @@
 description: Test environment configuration for env1
-deployment:
+deployments:
   localhost: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
   test: mysql+pymysql://root:password@192.168.3.10?charset=utf8mb4

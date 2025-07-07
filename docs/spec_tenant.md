@@ -74,5 +74,8 @@ classDiagram
 tenants:
   tenant_name:
     ref: reference_name
-    databases: []
+    databases:
+      - database: db_name
+        description: Optional description for the database
+        active: true
 ```

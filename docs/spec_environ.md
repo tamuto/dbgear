@@ -47,7 +47,7 @@ classDiagram
         +folder : str % exclude
         +name : str % exclude
         +description : str
-        +deployment : dict[str, str] = dict
+        +deployments : dict[str, str] = dict
 
         +load(folder: str, name: str) Environ$
         +save()

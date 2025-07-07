@@ -18,8 +18,8 @@ class SettingInfo(BaseSchema):
 
 
 class DataParams(BaseSchema):
-    layout: str
-    settings: dict[str, SettingInfo]
+    layout: str | None = None
+    settings: dict[str, SettingInfo] = pydantic.Field(default_factory=dict)
     value: str | None = None
     caption: str | None = None
     segment: str | None = None
@@ -38,8 +38,8 @@ class DataModel(BaseSchema):
     sync_mode: str
     data_type: str
     data_path: str | None = None
-    data_args: dict[str, str] | None = None
-    data_params: DataParams | None = None
+    data_args: dict[str, str] = pydantic.Field(default_factory=dict)
+    data_params: DataParams = pydantic.Field(default_factory=DataParams)
 
     @classmethod
     def _directory(cls, folder: str, environ: str, map_name: str) -> str:
@@ -83,7 +83,7 @@ class DataModel(BaseSchema):
 
     @property
     def datasources(self):
-        if self.data_params and self.data_params.segment is not None:
+        if self.data_params.segment is None:
             yield Factory.create(
                 data_type=self.data_type,
                 folder=self.folder,
@@ -95,7 +95,7 @@ class DataModel(BaseSchema):
                 **self.data_args,
             )
 
-        for path in sorted(pathlib.Path(self.folder, self.environ, self.schema_name).glob(f"{self.schema_name}@{self.table_name}#*.dat")):
+        for path in sorted(pathlib.Path(self.folder, self.environ, self.map_name).glob(f"{self.schema_name}@{self.table_name}#*.dat")):
             seg = path.stem.split('#', 1)[1] if '#' in path.stem else None
             yield Factory.create(
                 data_type=self.data_type,
