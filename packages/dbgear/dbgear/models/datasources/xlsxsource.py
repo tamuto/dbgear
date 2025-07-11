@@ -1,6 +1,7 @@
 import openpyxl
 
 from .base import BaseDataSource
+from ...utils.dict_utils import dict_to_nested
 
 
 class DataSource(BaseDataSource):
@@ -11,15 +12,20 @@ class DataSource(BaseDataSource):
     table_name: str
     segment: str | None = None
 
-    def __init__(self, data_path: str, table_name: str, header_row: int, start_row: int, **kwargs):
+    def __init__(self, folder: str, data_path: str, table_name: str, header_row: int, start_row: int, **kwargs):
+        self.folder = folder
         self.data_path = data_path
         self.table_name = table_name
         self.header_row = header_row
         self.start_row = start_row
         self.data = []
 
+    @property
+    def filename(self) -> str:
+        return self.data_path
+
     def load(self):
-        wb = openpyxl.load_workbook(self.data_path, data_only=True)
+        wb = openpyxl.load_workbook(f'{self.folder}/{self.data_path}', data_only=True)
         ws = wb[self.table_name]
 
         headers = []
@@ -45,7 +51,8 @@ class DataSource(BaseDataSource):
                     row_data[header] = None
 
             if has_data:
-                data.append(row_data)
+                data.append(dict_to_nested(row_data))
+
         wb.close()
         self.data = data
 

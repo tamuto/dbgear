@@ -3,6 +3,8 @@ import yaml
 import pathlib
 import os
 
+from typing import Any
+
 from .base import BaseSchema
 from .datasources.factory import Factory
 from ..utils import const
@@ -38,7 +40,7 @@ class DataModel(BaseSchema):
     sync_mode: str
     data_type: str
     data_path: str | None = None
-    data_args: dict[str, str] = pydantic.Field(default_factory=dict)
+    data_args: dict[str, Any] = pydantic.Field(default_factory=dict)
     data_params: DataParams = pydantic.Field(default_factory=DataParams)
 
     @classmethod
