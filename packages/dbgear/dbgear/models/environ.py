@@ -7,30 +7,54 @@ from .base import BaseSchema
 from .schema import SchemaManager
 from .mapping import MappingManager
 from .tenant import TenantRegistry
-from .option import Options
-from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from .exceptions import DBGearEntityRemovalError
+from ..utils.fileio import save_model
 
 
 class Environ(BaseSchema):
     folder: str = pydantic.Field(exclude=True)
     name: str = pydantic.Field(exclude=True)
     description: str
-    deployment: dict[str, str] = {}
-    options: Options | None = None
+    deployments: dict[str, str] = {}
 
     _schemas: SchemaManager | None = None
     _tenant: TenantRegistry | None = None
 
     @classmethod
+    def _directory(cls, folder, name) -> str:
+        return os.path.join(folder, name)
+
+    @classmethod
+    def _fullpath(cls, folder, name) -> str:
+        return os.path.join(folder, name, 'environ.yaml')
+
+    @classmethod
     def load(cls, folder: str, name: str) -> None:
-        with open(f'{folder}/{name}/environ.yaml', 'r', encoding='utf-8') as f:
+        with open(cls._fullpath(folder, name), 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         return cls(
             folder=folder,
             name=name,
             **data)
+
+    def save(self) -> None:
+        path = Environ._directory(self.folder, self.name)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+
+        with open(Environ._fullpath(self.folder, self.name), 'w', encoding='utf-8') as f:
+            save_model(self, f)
+
+    def delete(self) -> None:
+        path = Environ._directory(self.folder, self.name)
+        if not os.path.exists(path):
+            raise DBGearEntityNotFoundError(f'Environment {self.name} does not exist in {self.folder}')
+        files = [f for f in os.listdir(path) if f != 'environ.yaml']
+        if files:
+            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than environ.yaml exist')
+        os.remove(Environ._fullpath(self.folder, self.name))
+        os.rmdir(path)
 
     @property
     def schemas(self) -> SchemaManager | None:
@@ -70,39 +94,5 @@ class EnvironManager:
             name = str(path.parent.relative_to(self.folder))
             yield Environ.load(self.folder, name)
 
-    def add(self, environ: Environ) -> None:
-        path = os.path.join(self.folder, environ.name)
-        if os.path.exists(path):
-            raise DBGearEntityExistsError(f'Environment {environ.name} already exists in {self.folder}')
-
-        os.makedirs(path, exist_ok=True)
-        with open(os.path.join(path, 'environ.yaml'), 'w', encoding='utf-8') as f:
-            yaml.dump(environ.model_dump(
-                    by_alias=True,
-                    exclude_none=True,
-                    exclude_defaults=True
-                ),
-                f,
-                indent=2,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False)
-
-    def remove(self, name: str) -> None:
-        path = os.path.join(self.folder, name)
-        if not os.path.exists(path):
-            raise DBGearEntityNotFoundError(f'Environment {name} does not exist in {self.folder}')
-        files = [f for f in os.listdir(path) if f != 'environ.yaml']
-        if files:
-            raise DBGearEntityRemovalError(f'Cannot remove {path}: files other than environ.yaml exist')
-        os.remove(os.path.join(path, 'environ.yaml'))
-        os.rmdir(path)
-
-
-if __name__ == '__main__':
-    # Example usage
-    envs = EnvironManager('../../etc/test')
-    for environ in envs:
-        print(environ)
-
-    # envs.remove('env2')
+    def __contains__(self, name: str) -> bool:
+        return os.path.exists(Environ._fullpath(self.folder, name))

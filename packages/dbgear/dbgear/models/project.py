@@ -6,6 +6,7 @@ from .base import BaseSchema
 from .schema import SchemaManager
 from .environ import EnvironManager
 from .option import Options
+from ..utils.fileio import save_model
 
 
 class Project(BaseSchema):
@@ -28,18 +29,7 @@ class Project(BaseSchema):
 
     def save(self) -> None:
         with open(f'{self.folder}/project.yaml', 'w', encoding='utf-8') as f:
-            yaml.dump(
-                self.model_dump(
-                    by_alias=True,
-                    exclude_none=True,
-                    exclude_defaults=True
-                ),
-                f,
-                indent=2,
-                allow_unicode=True,
-                default_flow_style=False,
-                sort_keys=False
-            )
+            save_model(self, f)
 
     @property
     def schemas(self) -> SchemaManager:

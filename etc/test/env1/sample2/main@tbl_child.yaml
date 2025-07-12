@@ -1,15 +1,3 @@
-layout: table
-settings:
-  col_id:
-    type: refs
-    id: base
-    instance: main
-    table: test_table
-  update_date:
-    type: now
-  update_user:
-    type: update_user
-sync_mode: drop_create
-value: child_id
-caption: name
 description: ''
+sync_mode: drop_create
+data_type: yaml

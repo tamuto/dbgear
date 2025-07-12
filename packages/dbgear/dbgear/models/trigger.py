@@ -38,7 +38,7 @@ class TriggerManager:
     def __contains__(self, trigger_name: str) -> bool:
         return trigger_name in self.triggers
 
-    def add(self, trigger: Trigger) -> None:
+    def append(self, trigger: Trigger) -> None:
         if trigger.trigger_name in self.triggers:
             raise ValueError(f"Trigger '{trigger.trigger_name}' already exists")
         self.triggers[trigger.trigger_name] = trigger

@@ -1,25 +1,19 @@
 tenants:
   development:
     ref: tenant1
-    prefix: "dev_"
     databases:
-      - name: main1
-        database: dev_testdb1
+      - database: dev_testdb1
         description: Development database
         active: true
-      - name: main2
-        database: dev_testdb2
+      - database: dev_testdb2
         description: Development database
         active: false
   sample:
     ref: sharedtenant
-    prefix: ""
     databases:
-      - name: main3
-        database: sample_testdb1
+      - database: sample_testdb1
         description: Sample database
         active: false
-      - name: main4
-        database: sample_testdb2
+      - database: sample_testdb2
         description: Sample database
         active: true

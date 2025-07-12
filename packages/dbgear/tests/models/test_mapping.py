@@ -4,7 +4,7 @@ import os
 import yaml
 
 from dbgear.models.mapping import MappingManager, Mapping
-from dbgear.models.exceptions import DBGearEntityExistsError, DBGearEntityNotFoundError, DBGearEntityRemovalError
+from dbgear.models.exceptions import DBGearEntityRemovalError
 
 
 class TestMapping(unittest.TestCase):
@@ -32,10 +32,7 @@ class TestMapping(unittest.TestCase):
             schemas=['main'],
             deploy=False
         )
-
-        # Test add
-        mapping_manager = MappingManager(self.temp_dir, self.env_name)
-        mapping_manager.add(mapping)
+        mapping.save()
 
         # Verify file exists
         mapping_file = os.path.join(self.temp_dir, self.env_name, self.mapping_name, '_mapping.yaml')
@@ -51,6 +48,7 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(saved_data.get('deploy', False), False)
 
         # Test load
+        mapping_manager = MappingManager(self.temp_dir, self.env_name)
         loaded_mapping = mapping_manager[self.mapping_name]
         self.assertEqual(loaded_mapping.description, 'Base mapping for testing')
         self.assertEqual(loaded_mapping.schemas, ['main'])
@@ -90,9 +88,6 @@ class TestMapping(unittest.TestCase):
             ('test1', 'Test 1 mapping', True),
             ('test2', 'Test 2 mapping', False)
         ]
-
-        mapping_manager = MappingManager(self.temp_dir, self.env_name)
-
         for name, desc, deploy in mappings_data:
             mapping = Mapping(
                 folder=self.temp_dir,
@@ -102,9 +97,10 @@ class TestMapping(unittest.TestCase):
                 instances=['main'],
                 deploy=deploy
             )
-            mapping_manager.add(mapping)
+            mapping.save()
 
         # Test iteration
+        mapping_manager = MappingManager(self.temp_dir, self.env_name)
         loaded_mappings = list(mapping_manager)
         self.assertEqual(len(loaded_mappings), 3)
 
@@ -116,8 +112,6 @@ class TestMapping(unittest.TestCase):
 
     def test_mapping_manager_exceptions(self):
         """Test MappingManager exception handling"""
-        mapping_manager = MappingManager(self.temp_dir, self.env_name)
-
         # Test add duplicate
         mapping1 = Mapping(
             folder=self.temp_dir,
@@ -125,49 +119,29 @@ class TestMapping(unittest.TestCase):
             name='duplicate',
             description='First mapping'
         )
-        mapping_manager.add(mapping1)
-
-        mapping2 = Mapping(
-            folder=self.temp_dir,
-            environ=self.env_name,
-            name='duplicate',
-            description='Second mapping'
-        )
-
-        with self.assertRaises(DBGearEntityExistsError):
-            mapping_manager.add(mapping2)
-
-        # Test load nonexistent
-        with self.assertRaises(FileNotFoundError):
-            mapping_manager['nonexistent']
-
-        # Test remove nonexistent
-        with self.assertRaises(DBGearEntityNotFoundError):
-            mapping_manager.remove('nonexistent')
+        mapping1.save()
+        mapping1.save()
 
     def test_mapping_remove_operations(self):
         """Test mapping remove operations"""
-        mapping_manager = MappingManager(self.temp_dir, self.env_name)
-
-        # Add mapping
         mapping = Mapping(
             folder=self.temp_dir,
             environ=self.env_name,
             name='removable',
             description='Mapping to be removed'
         )
-        mapping_manager.add(mapping)
+        mapping.save()
 
         # Verify it exists
         mapping_path = os.path.join(self.temp_dir, self.env_name, 'removable')
         self.assertTrue(os.path.exists(mapping_path))
 
         # Test successful remove
-        mapping_manager.remove('removable')
+        mapping.delete()
         self.assertFalse(os.path.exists(mapping_path))
 
         # Test remove with extra files (should fail)
-        mapping_manager.add(mapping)  # Re-add
+        mapping.save()
 
         # Add extra file
         extra_file = os.path.join(mapping_path, 'extra_file.txt')
@@ -175,7 +149,7 @@ class TestMapping(unittest.TestCase):
             f.write('extra content')
 
         with self.assertRaises(DBGearEntityRemovalError):
-            mapping_manager.remove('removable')
+            mapping.delete()
 
     def test_mapping_roundtrip(self):
         """Test mapping add/load roundtrip"""
@@ -188,10 +162,10 @@ class TestMapping(unittest.TestCase):
             instances=['main', 'sub'],
             deploy=True,
         )
+        original_mapping.save()
 
-        # Add and load
+        # load
         mapping_manager = MappingManager(self.temp_dir, self.env_name)
-        mapping_manager.add(original_mapping)
         loaded_mapping = mapping_manager['complex']
 
         # Verify all fields

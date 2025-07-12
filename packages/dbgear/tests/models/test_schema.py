@@ -46,7 +46,7 @@ class TestSchema(unittest.TestCase):
             nullable=False,
             primary_key=1
         )
-        users_table.columns.add(id_column)
+        users_table.columns.append(id_column)
 
         name_column = Column(
             column_name='name',
@@ -54,7 +54,7 @@ class TestSchema(unittest.TestCase):
             column_type=ColumnType(column_type='VARCHAR(100)', base_type='VARCHAR', length=100),
             nullable=False
         )
-        users_table.columns.add(name_column)
+        users_table.columns.append(name_column)
 
         main_schema.tables_['users'] = users_table
 
@@ -153,7 +153,10 @@ class TestSchema(unittest.TestCase):
             ('id', 'ID', ColumnType(column_type='BIGINT', base_type='BIGINT'), False, 1),
             ('name', '名前', ColumnType(column_type='VARCHAR(255)', base_type='VARCHAR', length=255), False, None),
             ('price', '価格', ColumnType(column_type='DECIMAL(10,2)', base_type='DECIMAL', precision=10, scale=2), True, None),
-            ('status', 'ステータス', ColumnType(column_type="ENUM('active','inactive')", base_type='ENUM', items=[ColumnTypeItem.from_string('active'), ColumnTypeItem.from_string('inactive')]), False, None)
+            ('status', 'ステータス', ColumnType(column_type="ENUM('active','inactive')", base_type='ENUM', items=[
+                ColumnTypeItem.from_string('active'),
+                ColumnTypeItem.from_string('inactive')
+            ]), False, None)
         ]
 
         for col_name, display_name, col_type, nullable, pk in columns_data:
@@ -164,7 +167,7 @@ class TestSchema(unittest.TestCase):
                 nullable=nullable,
                 primary_key=pk
             )
-            test_table.columns.add(column)
+            test_table.columns.append(column)
 
         main_schema.tables_['test_table'] = test_table
 

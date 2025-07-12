@@ -127,11 +127,11 @@ class TestTrigger(unittest.TestCase):
         self.assertNotIn('audit_trigger', trigger_manager)
 
         # Test add operation
-        trigger_manager.add(trigger1)
+        trigger_manager.append(trigger1)
         self.assertEqual(len(trigger_manager), 1)
         self.assertIn('audit_trigger', trigger_manager)
 
-        trigger_manager.add(trigger2)
+        trigger_manager.append(trigger2)
         self.assertEqual(len(trigger_manager), 2)
         self.assertIn('update_trigger', trigger_manager)
 
@@ -167,9 +167,9 @@ class TestTrigger(unittest.TestCase):
         trigger_manager = TriggerManager(triggers_dict)
 
         # Test add duplicate trigger
-        trigger_manager.add(trigger)
+        trigger_manager.append(trigger)
         with self.assertRaises(ValueError) as context:
-            trigger_manager.add(trigger)
+            trigger_manager.append(trigger)
         self.assertIn("already exists", str(context.exception))
 
         # Test remove non-existent trigger
@@ -201,7 +201,7 @@ class TestTrigger(unittest.TestCase):
         triggers_dict = {}
         trigger_manager = TriggerManager(triggers_dict)
         for trigger in triggers:
-            trigger_manager.add(trigger)
+            trigger_manager.append(trigger)
 
         # Test __len__
         self.assertEqual(len(trigger_manager), 3)
@@ -245,8 +245,8 @@ class TestTrigger(unittest.TestCase):
         )
 
         # Add triggers to schema
-        main_schema.triggers.add(audit_trigger)
-        main_schema.triggers.add(update_trigger)
+        main_schema.triggers.append(audit_trigger)
+        main_schema.triggers.append(update_trigger)
 
         # Test schema trigger access
         self.assertEqual(len(main_schema.triggers), 2)
@@ -295,7 +295,7 @@ class TestTrigger(unittest.TestCase):
         )
 
         # Add trigger to schema
-        main_schema.triggers.add(complex_trigger)
+        main_schema.triggers.append(complex_trigger)
 
         # Test save
         schema_manager.save(self.schema_yaml_path)

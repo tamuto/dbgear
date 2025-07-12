@@ -77,7 +77,7 @@ class TableManager:
     def __contains__(self, table_name: str) -> bool:
         return table_name in self.tables
 
-    def add(self, table: Table) -> None:
+    def append(self, table: Table) -> None:
         if table.table_name in self.tables:
             raise ValueError(f"Table '{table.table_name}' already exists")
         self.tables[table.table_name] = table

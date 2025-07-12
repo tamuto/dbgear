@@ -51,7 +51,7 @@ class ColumnManager:
     def __len__(self) -> int:
         return len(self.columns)
 
-    def add(self, column: Column) -> None:
+    def append(self, column: Column) -> None:
         self.columns.append(column)
 
     def remove(self, column: Column) -> None:

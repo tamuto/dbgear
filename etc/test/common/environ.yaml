@@ -1,4 +1,0 @@
-description: Common Environment
-deployment:
-  development: "mysql://dev:devpass@localhost:3306/common_dev"
-  production: "mysql://prod:prodpass@prod-server:3306/common_prod"

@@ -49,7 +49,7 @@ class ViewManager:
     def __contains__(self, view_name: str) -> bool:
         return view_name in self.views
 
-    def add(self, view: View) -> None:
+    def append(self, view: View) -> None:
         if view.view_name in self.views:
             raise ValueError(f"View '{view.view_name}' already exists")
         self.views[view.view_name] = view

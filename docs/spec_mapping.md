@@ -1,10 +1,10 @@
-# _mapping.yaml 仕様書
+# データマッピング定義
 
-## 概要
+- DBGearの環境毎のデータとのマッピングを定義します。
+- マッピングは、スキーマとデータベースの関連付けを行い、初期データの管理を行います。
+- データマッピングは`_mapping.yaml`ファイルで定義され、`MappingManager`クラスで表現されます。
 
-`_mapping.yaml`は、DBGearプロジェクトのマッピング設定を定義するファイルです。環境内のデータベースインスタンス、デプロイメント設定、説明情報を管理し、環境とスキーマインスタンスの関連付けを提供します。
-
-## ファイル配置
+## フォルダ構成
 
 `_mapping.yaml`は各環境ディレクトリ内のマッピングサブディレクトリに配置します。
 
@@ -12,90 +12,67 @@
 project-root/
 ├── project.yaml          # プロジェクト設定ファイル
 ├── schema.yaml           # スキーマ定義ファイル
-├── development/          # 開発環境ディレクトリ
+├── development/          # 環境ディレクトリ
 │   ├── environ.yaml      # 環境設定ファイル
-│   ├── base/             # ベースマッピングディレクトリ
-│   │   ├── _mapping.yaml # マッピング設定ファイル（本ファイル）
-│   │   └── *.yaml        # データファイル群
-│   └── test1/            # テスト1マッピングディレクトリ
-│       ├── _mapping.yaml # マッピング設定ファイル
-│       └── *.yaml        # データファイル群
-└── production/           # 本番環境ディレクトリ
-    └── main/             # メインマッピングディレクトリ
-        └── _mapping.yaml # マッピング設定ファイル
+│   ├── schema.yaml       # 環境固有スキーマ（オプション）
+│   ├── tenant.yaml       # テナント設定（オプション）
+│   ├── mapping1/         # マッピングディレクトリ
+|   |  ├── _mapping.yaml  # マッピング設定（本ファイル）
+|   |  ├── *.yaml         # データモデル定義ファイル
+|   |  ├── *.dat          # データファイル
+│   ├── mapping2/         # マッピングディレクトリ
+|   |  ├── _mapping.yaml  # マッピング設定
+|....
 ```
 
-## 基本構造
+## クラス構成図
 
-### 必須項目
+```mermaid
+classDiagram
+    direction LR
+
+    class Mapping {
+        <<BaseSchema>>
+        +folder : str % exclude
+        +environ : str % exclude
+        +name : str % exclude
+        +tenant_name : str | None = None % exclude
+        +description : str
+        +schemas : list[str] = []
+        +deploy : bool = False
+
+        +load(folder: str, environ: str, name: str) Mapping$
+
+        +save()
+        +delete()
+        +build_schema(project_schema: SchemaManager, environ_schema: SchemaManager | None) Schema
+
+        +@ instance_name() str
+        +@ datamodels() Generic~DataModel~
+        +datamodel(schema_name: str, table_name: str) DataModel
+    }
+
+    Mapping -- DataModel
+    Mapping -- Schema
+
+    class MappingManager {
+        -folder : str
+        -environ : str
+
+        +\_\_init__(folder: str, environ: str)
+        +\_\_getitem__(key: str) Mapping
+        +\_\_iter__() Generic~Mapping~
+        +\_\_contains__(key: str) bool
+    }
+
+    MappingManager -- Mapping
+```
+
+## サンプル
 
 ```yaml
+description: Mapping description
 schemas:
   - schema_name
-description: Mapping description
-deploy: false
-```
-
-### 項目詳細
-
-#### schemas
-- **型**: リスト
-- **必須**: はい
-- **説明**: このマッピングが対象とするスキーマ名のリスト
-- **例**: `[main]`, `[main, secondary]`, `[user_db, log_db]`
-
-#### description
-- **型**: 文字列
-- **必須**: はい
-- **説明**: マッピングの概要説明。日本語使用可能
-- **例**: `ベースデータベース`, `テスト用データベース`, `本番環境メインDB`
-
-#### deploy
-- **型**: ブール値
-- **必須**: いいえ
-- **デフォルト**: false
-- **説明**: デプロイメント対象フラグ
-- **用途**: 
-  - `true`: 実際のデプロイメント処理で使用される
-  - `false`: テスト用やバックアップ用（デプロイメント対象外）
-
-## 設定例
-
-### ベースマッピング設定
-
-```yaml
-schemas:
-  - main
-description: ベースデータベース
-deploy: false
-```
-
-### デプロイメント対象設定
-
-```yaml
-schemas:
-  - main
-description: 本番環境メインデータベース
 deploy: true
 ```
-
-### 複数スキーマ設定
-
-```yaml
-schemas:
-  - main
-  - secondary
-description: マルチスキーマ環境
-deploy: true
-```
-
-## マッピング管理
-
-マッピングは`MappingManager`によって管理され、以下の機能を提供します：
-
-- **CRUD操作**: マッピング設定の追加・削除・更新・参照
-- **ディレクトリ管理**: マッピングディレクトリの自動作成・削除
-- **統合アクセス**: `Environment.mappings[マッピング名]`によるマッピング情報への直接アクセス
-- **データファイル管理**: マッピングディレクトリ内のデータファイル群の管理
-
-この仕様により、DBGearプロジェクトのマッピング設定を統一的に管理できます。

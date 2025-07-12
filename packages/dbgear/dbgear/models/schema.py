@@ -39,7 +39,7 @@ class Schema(BaseSchema):
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
 
-    def update(self, other):
+    def merge(self, other):
         self.tables_.update(other.tables_)
         self.views_.update(other.views_)
         self.triggers_.update(other.triggers_)
@@ -93,7 +93,7 @@ class SchemaManager(BaseSchema):
     def __contains__(self, name: str) -> bool:
         return name in self.schemas
 
-    def add(self, schema: Schema) -> None:
+    def append(self, schema: Schema) -> None:
         if schema.name in self.schemas:
             raise ValueError(f"Schema '{schema.name}' already exists")
         self.schemas[schema.name] = schema

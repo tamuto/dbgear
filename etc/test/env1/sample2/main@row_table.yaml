@@ -1,12 +1,5 @@
-caption: row_name
-cells: []
 description: ''
-layout: table
-segment: ''
-settings:
-  row_id:
-    type: gen_ulid
 sync_mode: drop_create
-value: row_id
-x_axis: ''
-y_axis: ''
+data_type: yaml
+data_params:
+  segment: main
