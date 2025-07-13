@@ -26,7 +26,7 @@ class DataSource(BaseDataSource):
 
     @property
     def data(self):
-        yield from self._data
+        return self._data
 
     def load(self):
         wb = openpyxl.load_workbook(f'{self.folder}/{self.data_path}', data_only=True)

@@ -8,6 +8,20 @@ class DataSource(BaseDataSource):
     """
     def __init__(self, **kwargs):
         print("Initializing Example DataSource with kwargs:", kwargs)
+        self._data = [
+            {
+                'key': 'example',
+                'value': 'example_value',
+                'update_date': 'NOW()',
+                'update_user': 'SYSTEM'
+            },
+            {
+                'key': 'another_example',
+                'value': 'another_value',
+                'update_date': 'NOW()',
+                'update_user': 'SYSTEM'
+            }
+        ]
 
     def load(self):
         print("Loading data from example data source.")
@@ -18,15 +32,4 @@ class DataSource(BaseDataSource):
 
     @property
     def data(self):
-        yield {
-            'key': 'example',
-            'value': 'example_value',
-            'update_date': 'NOW()',
-            'update_user': 'SYSTEM'
-        }
-        yield {
-            'key': 'another_example',
-            'value': 'another_value',
-            'update_date': 'NOW()',
-            'update_user': 'SYSTEM'
-        }
+        return self._data

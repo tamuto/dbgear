@@ -30,7 +30,7 @@ class TestDataSource(unittest.TestCase):
             schema_name='main',
             table_name='users'
         )
-        datasource.data = [
+        datasource._data = [
             {'id': 1, 'name': 'Alice', 'email': 'alice@example.com'},
             {'id': 2, 'name': 'Bob', 'email': 'bob@example.com'}
         ]
@@ -93,7 +93,7 @@ class TestDataSource(unittest.TestCase):
             schema_name='main',
             table_name='orders'
         )
-        original.data = [
+        original._data = [
             {'order_id': 1, 'customer': 'John', 'amount': 150.0, 'status': 'completed'},
             {'order_id': 2, 'customer': 'Jane', 'amount': 300.0, 'status': 'pending'}
         ]
@@ -129,7 +129,7 @@ class TestDataSource(unittest.TestCase):
             table_name='sales',
             segment='2024q1'
         )
-        datasource.data = [
+        datasource._data = [
             {'month': 'January', 'sales': 1000},
             {'month': 'February', 'sales': 1500}
         ]

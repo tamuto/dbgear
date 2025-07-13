@@ -29,7 +29,7 @@ class DataSource(BaseDataSource):
 
     @property
     def data(self):
-        yield from self._data
+        return self._data
 
     def load(self):
         path = os.path.join(self.folder, self.environ, self.name, self.filename)

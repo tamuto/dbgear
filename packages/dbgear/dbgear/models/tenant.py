@@ -1,6 +1,7 @@
 import pydantic
 import yaml
 import os
+import importlib
 
 from .base import BaseSchema
 from .mapping import Mapping
@@ -20,7 +21,7 @@ class TenantConfig(BaseSchema):
     ref: str
 
     # tenant variables
-    databases: list[DatabaseInfo] = []
+    databases: str | list[DatabaseInfo]
 
 
 class TenantRegistry(BaseSchema):
@@ -86,9 +87,16 @@ class TenantRegistry(BaseSchema):
         for tenant in self.tenants.values():
             map = Mapping.load(self.folder, self.name, tenant.ref)
 
-            for database in tenant.databases:
-                if not database.active:
-                    continue
-                clone = map.model_copy(deep=True)
-                clone.tenant_name = database.database
-                yield clone
+            if type(tenant.databases) is str:
+                module = importlib.import_module(tenant.databases)
+                method_name = "retrieve"
+                method = getattr(module, method_name)
+                for tenant_map in method(map):
+                    yield tenant_map
+            else:
+                for database in tenant.databases:
+                    if not database.active:
+                        continue
+                    clone = map.model_copy(deep=True)
+                    clone.tenant_name = database.database
+                    yield clone
