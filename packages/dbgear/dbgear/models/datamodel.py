@@ -36,6 +36,7 @@ class DataModel(BaseSchema):
     map_name: str = pydantic.Field(exclude=True)
     schema_name: str = pydantic.Field(exclude=True)
     table_name: str = pydantic.Field(exclude=True)
+    tenant_name: str | None = pydantic.Field(default=None, exclude=True)
     description: str
     sync_mode: str
     data_type: str
@@ -56,7 +57,7 @@ class DataModel(BaseSchema):
         return os.path.join(folder, environ, map_name, DataModel._filename(schema_name, table_name))
 
     @classmethod
-    def load(cls, folder: str, environ: str, map_name: str, schema_name: str, table_name: str):
+    def load(cls, folder: str, environ: str, map_name: str, schema_name: str, table_name: str, tenant_name: str | None = None):
         with open(DataModel._fullpath(folder, environ, map_name, schema_name, table_name), 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         return cls(
@@ -65,6 +66,7 @@ class DataModel(BaseSchema):
             map_name=map_name,
             schema_name=schema_name,
             table_name=table_name,
+            tenant_name=tenant_name,
             **data
         )
 
@@ -93,6 +95,7 @@ class DataModel(BaseSchema):
                 name=self.map_name,
                 schema_name=self.schema_name,
                 table_name=self.table_name,
+                tenant_name=self.tenant_name,
                 data_path=self.data_path,
                 **self.data_args,
             )
@@ -107,6 +110,7 @@ class DataModel(BaseSchema):
                 schema_name=self.schema_name,
                 table_name=self.table_name,
                 segment=seg,
+                tenant_name=self.tenant_name,
                 data_path=self.data_path,
                 **self.data_args,
             )

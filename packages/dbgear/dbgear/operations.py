@@ -96,7 +96,7 @@ class Operation:
             for ds in dm.datasources:
                 logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                 ds.load()
-                table.insert(self.conn, map.instance_name, tbl, ds.data)
+                table.insert(self.conn, map.instance_name, tbl, list(ds.data))
 
             if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
                 # 同期モードがdrop_create以外の場合は、データのリストアを行う。

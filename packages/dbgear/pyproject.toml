@@ -31,6 +31,7 @@ xlsx = ["openpyxl"]
 [tool.poetry.group.dev.dependencies]
 taskipy = "^1.14.1"
 flake8 = "^7.3.0"
+usecases = {path = "../../etc/usecases"}
 
 [tool.poetry.group.plugin.dependencies]
 echo-plugin = {path = "../../etc/plugins/echo"}

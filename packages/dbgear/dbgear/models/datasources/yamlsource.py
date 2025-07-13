@@ -19,7 +19,7 @@ class DataSource(BaseDataSource):
         self.schema_name = schema_name
         self.table_name = table_name
         self.segment = segment
-        self.data = []
+        self._data = []
 
     @property
     def filename(self) -> str:
@@ -27,12 +27,16 @@ class DataSource(BaseDataSource):
             return f"{self.schema_name}@{self.table_name}#{self.segment}.dat"
         return f"{self.schema_name}@{self.table_name}.dat"
 
+    @property
+    def data(self):
+        yield from self._data
+
     def load(self):
         path = os.path.join(self.folder, self.environ, self.name, self.filename)
         if not os.path.exists(path):
             raise FileNotFoundError(f"Data source file {path} does not exist.")
         with open(path, 'r', encoding='utf-8') as f:
-            self.data = yaml.safe_load(f)
+            self._data = yaml.safe_load(f)
 
     def save(self):
         path = os.path.join(self.folder, self.environ, self.name, self.filename)

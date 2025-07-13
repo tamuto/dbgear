@@ -18,11 +18,15 @@ class DataSource(BaseDataSource):
         self.table_name = table_name
         self.header_row = header_row
         self.start_row = start_row
-        self.data = []
+        self._data = []
 
     @property
     def filename(self) -> str:
         return self.data_path
+
+    @property
+    def data(self):
+        yield from self._data
 
     def load(self):
         wb = openpyxl.load_workbook(f'{self.folder}/{self.data_path}', data_only=True)
@@ -54,7 +58,7 @@ class DataSource(BaseDataSource):
                 data.append(dict_to_nested(row_data))
 
         wb.close()
-        self.data = data
+        self._data = data
 
     def _convert_cell_value(self, value):
         if value is None:

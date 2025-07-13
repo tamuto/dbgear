@@ -81,7 +81,8 @@ class Mapping(BaseSchema):
                     environ=self.environ,
                     map_name=self.name,
                     schema_name=schema_name,
-                    table_name=table_name
+                    table_name=table_name,
+                    tenant_name=self.tenant_name,
                 )
 
     def datamodel(self, schema_name: str, table_name: str) -> DataModel:
@@ -94,7 +95,8 @@ class Mapping(BaseSchema):
             environ=self.environ,
             map_name=self.name,
             schema_name=schema_name,
-            table_name=table_name
+            table_name=table_name,
+            tenant_name=self.tenant_name,
         )
 
 
