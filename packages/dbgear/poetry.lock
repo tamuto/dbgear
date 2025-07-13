@@ -161,20 +161,6 @@ test = ["certifi", "pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-co
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
-name = "echo_plugin"
-version = "0.0.4"
-description = ""
-optional = false
-python-versions = "*"
-groups = ["plugin"]
-files = []
-develop = false
-
-[package.source]
-type = "directory"
-url = "../../etc/plugins/echo"
-
-[[package]]
 name = "et-xmlfile"
 version = "2.0.0"
 description = "An implementation of lxml.xmlfile for the standard library"
@@ -902,4 +888,4 @@ xlsx = ["openpyxl"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "63889f78b0cde8f41574b1f732cd65638ab60402213ee5bd3d6a869e1c232ba8"
+content-hash = "c53f9f10c55e90d3409c1122a220e13738de76a8a2e155d181bb9cb3582bb911"
