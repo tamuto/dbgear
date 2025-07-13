@@ -1,0 +1,22 @@
+[project]
+name = "usecases"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "tamuto",email = "mutomob@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+packages = [
+    { include = "usecases", from = "." }
+]
+dependencies = [
+]
+
+
+[tool.poetry.group.dev.dependencies]
+dbgear = {path = "../../packages/dbgear"}
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

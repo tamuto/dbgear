@@ -10,10 +10,4 @@ tenants:
         active: false
   sample:
     ref: sharedtenant
-    databases:
-      - database: sample_testdb1
-        description: Sample database
-        active: false
-      - database: sample_testdb2
-        description: Sample database
-        active: true
+    databases: usecases.tenant

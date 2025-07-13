@@ -1,0 +1,4 @@
+description: ''
+sync_mode: drop_create
+data_type: python
+data_path: usecases.loaddata
