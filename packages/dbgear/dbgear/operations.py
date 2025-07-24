@@ -122,19 +122,20 @@ class Operation:
             schema = map.build_schema(self.project.schemas, self.environ.schemas)
             self.create_table(map, schema, all, None)
 
-    def require(self, schema_name: str, table_name: str):
+    def require(self, database: str, schema_name: str, table_name: str):
         for map in self.environ.databases:
             if self.database is not None and map.instance_name != self.database:
+                continue
+            if map.name != database:
                 continue
             schema = map.build_schema(self.project.schemas, self.environ.schemas)
             tbl = schema.tables[table_name]
             dm = map.datamodel(schema_name, table_name)
             if dm is not None:
                 for ds in dm.datasources:
-                    if ds.exists():
-                        logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
-                        ds.load()
-                        table.insert(self.conn, map.instance_name, tbl, ds.data)
+                    logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
+                    ds.load()
+                    table.insert(self.conn, map.instance_name, tbl, ds.data)
 
 
 def apply(project, env: str, database: str, target: str, all: str, deploy: str):
