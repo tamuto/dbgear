@@ -169,7 +169,7 @@ class TestTemplateEngine(unittest.TestCase):
         self.assertNotIn('CONSTRAINT fk_user_category', sql)
         self.assertNotIn('FOREIGN KEY', sql)
         self.assertNotIn('REFERENCES categories', sql)
-        
+
         # But the column should be there
         self.assertIn('category_id', sql)
 
@@ -788,7 +788,7 @@ class TestTemplateEngine(unittest.TestCase):
         print(create_sql)
 
         # Check trigger structure
-        self.assertIn('CREATE TRIGGER audit_trigger', create_sql)
+        self.assertIn('CREATE TRIGGER testdb.audit_trigger', create_sql)
         self.assertIn('AFTER INSERT ON testdb.users', create_sql)
         self.assertIn('FOR EACH ROW', create_sql)
         self.assertIn('WHEN (NEW.status = "active")', create_sql)
@@ -846,7 +846,7 @@ class TestTemplateEngine(unittest.TestCase):
         print("\n=== Simple Trigger (No Condition) ===")
         print(simple_sql)
 
-        self.assertIn('CREATE TRIGGER simple_trigger', simple_sql)
+        self.assertIn('CREATE TRIGGER production.simple_trigger', simple_sql)
         self.assertIn('BEFORE UPDATE ON production.products', simple_sql)
         self.assertIn('FOR EACH ROW', simple_sql)
         self.assertNotIn('WHEN', simple_sql)  # No condition

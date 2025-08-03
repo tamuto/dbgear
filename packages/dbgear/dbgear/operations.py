@@ -64,31 +64,34 @@ class Operation:
             if not all and target != vw.view_name:
                 continue
             # ビューが存在しない場合は作成する。
-            if not view.is_exist_view(self.conn, map.instance_name, vw):
+            if not view.is_exist(self.conn, map.instance_name, vw):
                 logger.info(f'view {map.instance_name}.{vw.view_name} was created.')
-                view.create_view(self.conn, map.instance_name, vw)
+                view.create(self.conn, map.instance_name, vw)
             else:
                 # ビューの再作成
                 logger.info(f'drop & create view {map.instance_name}.{vw.view_name}')
-                view.drop_view(self.conn, map.instance_name, vw)
-                view.create_view(self.conn, map.instance_name, vw)
+                view.drop(self.conn, map.instance_name, vw)
+                view.create(self.conn, map.instance_name, vw)
 
         for tr in schema.triggers:
             if not all and target != tr.trigger_name:
                 continue
             # トリガーが存在しない場合は作成する。
-            if not trigger.is_exist_trigger(self.conn, map.instance_name, tr):
+            if not trigger.is_exist(self.conn, map.instance_name, tr):
                 logger.info(f'trigger {map.instance_name}.{tr.trigger_name} was created.')
-                trigger.create_trigger(self.conn, map.instance_name, tr)
+                trigger.create(self.conn, map.instance_name, tr)
             else:
                 # トリガーの再作成
                 logger.info(f'drop & create trigger {map.instance_name}.{tr.trigger_name}')
-                trigger.drop_trigger(self.conn, map.instance_name, tr)
-                trigger.create_trigger(self.conn, map.instance_name, tr)
+                trigger.drop(self.conn, map.instance_name, tr)
+                trigger.create(self.conn, map.instance_name, tr)
 
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str):
         # データ投入
         for dm in map.datamodels:
+            if dm.sync_mode == const.SYNC_MODE_MANUAL and all:
+                # 手動モードで全てで指定されている場合には、スキップする
+                continue
             # FIXME テーブルレイアウトが変わっている場合は、データの挿入ができない。
             if not all and target != dm.table_name:
                 continue

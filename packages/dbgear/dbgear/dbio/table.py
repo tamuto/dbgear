@@ -58,6 +58,9 @@ def _col_conv(values: dict):
 
 
 def insert(conn, env: str, table: Table, items: list[dict]):
+    if len(items) == 0:
+        logger.warning(f'No items to insert into {env}.{table.table_name}')
+        return
     # Filter out generated columns (expression fields) from INSERT
     insertable_columns = [c for c in table.columns if c.expression is None]
 

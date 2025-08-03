@@ -11,14 +11,18 @@ class TestDictToNested(unittest.TestCase):
         """Test basic dot-notation key nesting."""
         input_dict = {
             "abc": "123",
-            "col.aaa": "111",
-            "col.bbb": "222"
+            "col.aaa": None,
+            "col.bbb": "222",
+            "test.key": None
         }
         expected = {
             "abc": "123",
             "col": {
-                "aaa": "111",
+                "aaa": None,
                 "bbb": "222"
+            },
+            "test": {
+                "key": None
             }
         }
         result = dict_to_nested(input_dict)
