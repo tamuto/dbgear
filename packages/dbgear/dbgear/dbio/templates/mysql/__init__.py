@@ -168,12 +168,12 @@ WHERE table_schema = :env AND table_name = :dependency_name
 
 # CREATE TRIGGER template
 CREATE_TRIGGER_TEMPLATE = """
-CREATE TRIGGER {{ trigger.trigger_name }}
+CREATE TRIGGER {{ env }}.{{ trigger.trigger_name }}
 {{ trigger.timing }} {{ trigger.event }} ON {{ env }}.{{ trigger.table_name }}
 FOR EACH ROW
-{%- if trigger.condition %}
+{% if trigger.condition %}
 WHEN ({{ trigger.condition }})
-{%- endif %}
+{% endif -%}
 {{ trigger.body }}
 """
 

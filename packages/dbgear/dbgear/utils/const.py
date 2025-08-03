@@ -22,6 +22,7 @@ LAYOUT_SINGLE = 'single'
 
 # 同期モード
 SYNC_MODE_DROP_CREATE = 'drop_create'
+SYNC_MODE_MANUAL = 'manual'
 
 # フィールド幅
 DEFAULT_WIDTH = 150

@@ -33,8 +33,8 @@ def dict_to_nested(flat_dict: Dict[str, Any], separator: str = '.') -> Dict[str,
 
     for key, value in flat_dict.items():
         if separator in key:
-            if value is None:
-                continue
+            # if value is None:
+            #     continue
             # Split the key by separator
             parts = key.split(separator)
 

@@ -321,3 +321,53 @@ schemas:
             columnType: INT
             baseType: INT
           nullable: true
+    views:
+      v_active_users:
+        displayName: アクティブユーザービュー
+        selectStatement: |
+          SELECT t.col_id, t.name, t.update_date, t.update_user
+          FROM test_table t
+          WHERE t.update_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        notes:
+        - title: ビューの説明
+          content: 過去30日以内に更新されたアクティブなユーザーの一覧
+          checked: false
+      v_child_summary:
+        displayName: 子テーブル集計ビュー
+        selectStatement: |
+          SELECT c.col_id, t.name as parent_name, COUNT(c.child_id) as child_count
+          FROM test_table t
+          LEFT JOIN tbl_child c ON t.col_id = c.col_id
+          GROUP BY c.col_id, t.name
+        notes:
+        - title: 集計ビュー
+          content: 親テーブルと子テーブルの関係を集計したビュー
+          checked: false
+    triggers:
+      trg_test_table_update:
+        displayName: テストテーブル更新トリガー
+        tableName: test_table
+        timing: BEFORE
+        event: UPDATE
+        body: |
+          BEGIN
+            SET NEW.update_date = NOW();
+          END
+        notes:
+        - title: 更新日時自動設定
+          content: レコード更新時に自動的に更新日時を現在時刻に設定する
+          checked: false
+      trg_child_insert_log:
+        displayName: 子テーブル挿入ログトリガー
+        tableName: tbl_child
+        timing: AFTER
+        event: INSERT
+        body: |
+          BEGIN
+            INSERT INTO properties (key, value, update_date, update_user)
+            VALUES (CONCAT('child_insert_', NEW.child_id), NEW.name, NOW(), NEW.update_user);
+          END
+        notes:
+        - title: 挿入ログ記録
+          content: 子テーブルへの新規レコード挿入時にpropertiesテーブルにログを記録
+          checked: false
