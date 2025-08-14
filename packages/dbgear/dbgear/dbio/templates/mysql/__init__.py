@@ -190,41 +190,38 @@ WHERE trigger_schema = :env AND trigger_name = :trigger_name
 
 # CREATE PROCEDURE template
 CREATE_PROCEDURE_TEMPLATE = """
-DELIMITER $$
 CREATE PROCEDURE {{ env }}.{{ procedure.procedure_name }}(
 {%- for param in procedure.parameters %}
-    {{ param.parameter_type }} {{ param.parameter_name }} {{ param.data_type }}
-    {%- if param.default_value %} DEFAULT {{ param.default_value }}{% endif %}
-    {%- if not loop.last %},{% endif %}
+{{ param.parameter_type }} {{ param.parameter_name }} {{ param.data_type }}
+{%- if param.default_value %} DEFAULT {{ param.default_value }}{% endif %}
+{%- if not loop.last %}, {% endif %}
 {%- endfor %}
 )
-{% if procedure.deterministic %}DETERMINISTIC{% else %}NOT DETERMINISTIC{% endif %}
-{% if procedure.reads_sql_data %}READS SQL DATA{% endif %}
-{% if procedure.modifies_sql_data %}MODIFIES SQL DATA{% endif %}
-SQL SECURITY {{ procedure.security_type }}
+{% if procedure.deterministic %} DETERMINISTIC{% else %} NOT DETERMINISTIC{% endif %}
+{% if procedure.reads_sql_data %} READS SQL DATA{% endif %}
+{% if procedure.modifies_sql_data %} MODIFIES SQL DATA{% endif %}
+ SQL SECURITY {{ procedure.security_type }}
 BEGIN
 {{ procedure.body }}
-END$$
-DELIMITER ;
+END
 """
 
 # CREATE FUNCTION template
 CREATE_FUNCTION_TEMPLATE = """
-DELIMITER $$
 CREATE FUNCTION {{ env }}.{{ procedure.procedure_name }}(
 {%- for param in procedure.parameters %}
-    {{ param.parameter_name }} {{ param.data_type }}
-    {%- if not loop.last %},{% endif %}
+{{ param.parameter_name }} {{ param.data_type }}
+{%- if not loop.last %}, {% endif %}
 {%- endfor %}
-) RETURNS {{ procedure.return_type }}
-{% if procedure.deterministic %}DETERMINISTIC{% else %}NOT DETERMINISTIC{% endif %}
-{% if procedure.reads_sql_data %}READS SQL DATA{% endif %}
-{% if procedure.modifies_sql_data %}MODIFIES SQL DATA{% endif %}
-SQL SECURITY {{ procedure.security_type }}
+)
+RETURNS {{ procedure.return_type }}
+{%- if procedure.deterministic %} DETERMINISTIC{% else %} NOT DETERMINISTIC{% endif %}
+{% if procedure.reads_sql_data %} READS SQL DATA{% endif %}
+{% if procedure.modifies_sql_data %} MODIFIES SQL DATA{% endif %}
+ SQL SECURITY {{ procedure.security_type }}
 BEGIN
 {{ procedure.body }}
-END$$
-DELIMITER ;
+END
 """
 
 # DROP PROCEDURE template
