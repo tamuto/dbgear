@@ -6,6 +6,7 @@ from .dbio import database
 from .dbio import table
 from .dbio import view
 from .dbio import trigger
+from .dbio import procedure
 
 from .models.project import Project
 from .models.mapping import Mapping
@@ -85,6 +86,19 @@ class Operation:
                 logger.info(f'drop & create trigger {map.instance_name}.{tr.trigger_name}')
                 trigger.drop(self.conn, map.instance_name, tr)
                 trigger.create(self.conn, map.instance_name, tr)
+
+        for proc in schema.procedures:
+            if not all and target != proc.procedure_name:
+                continue
+            # プロシージャが存在しない場合は作成する。
+            if not procedure.is_exist(self.conn, map.instance_name, proc):
+                logger.info(f'procedure {map.instance_name}.{proc.procedure_name} was created.')
+                procedure.create(self.conn, map.instance_name, proc)
+            else:
+                # プロシージャの再作成
+                logger.info(f'drop & create procedure {map.instance_name}.{proc.procedure_name}')
+                procedure.drop(self.conn, map.instance_name, proc)
+                procedure.create(self.conn, map.instance_name, proc)
 
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str):
         # データ投入

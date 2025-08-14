@@ -188,6 +188,61 @@ SELECT TRIGGER_NAME FROM information_schema.triggers
 WHERE trigger_schema = :env AND trigger_name = :trigger_name
 """
 
+# CREATE PROCEDURE template
+CREATE_PROCEDURE_TEMPLATE = """
+DELIMITER $$
+CREATE PROCEDURE {{ env }}.{{ procedure.procedure_name }}(
+{%- for param in procedure.parameters %}
+    {{ param.parameter_type }} {{ param.parameter_name }} {{ param.data_type }}
+    {%- if param.default_value %} DEFAULT {{ param.default_value }}{% endif %}
+    {%- if not loop.last %},{% endif %}
+{%- endfor %}
+)
+{% if procedure.deterministic %}DETERMINISTIC{% else %}NOT DETERMINISTIC{% endif %}
+{% if procedure.reads_sql_data %}READS SQL DATA{% endif %}
+{% if procedure.modifies_sql_data %}MODIFIES SQL DATA{% endif %}
+SQL SECURITY {{ procedure.security_type }}
+BEGIN
+{{ procedure.body }}
+END$$
+DELIMITER ;
+"""
+
+# CREATE FUNCTION template
+CREATE_FUNCTION_TEMPLATE = """
+DELIMITER $$
+CREATE FUNCTION {{ env }}.{{ procedure.procedure_name }}(
+{%- for param in procedure.parameters %}
+    {{ param.parameter_name }} {{ param.data_type }}
+    {%- if not loop.last %},{% endif %}
+{%- endfor %}
+) RETURNS {{ procedure.return_type }}
+{% if procedure.deterministic %}DETERMINISTIC{% else %}NOT DETERMINISTIC{% endif %}
+{% if procedure.reads_sql_data %}READS SQL DATA{% endif %}
+{% if procedure.modifies_sql_data %}MODIFIES SQL DATA{% endif %}
+SQL SECURITY {{ procedure.security_type }}
+BEGIN
+{{ procedure.body }}
+END$$
+DELIMITER ;
+"""
+
+# DROP PROCEDURE template
+DROP_PROCEDURE_TEMPLATE = """
+DROP PROCEDURE IF EXISTS {{ env }}.{{ procedure_name }}
+"""
+
+# DROP FUNCTION template
+DROP_FUNCTION_TEMPLATE = """
+DROP FUNCTION IF EXISTS {{ env }}.{{ procedure_name }}
+"""
+
+# CHECK PROCEDURE EXISTS template
+CHECK_PROCEDURE_EXISTS_TEMPLATE = """
+SELECT ROUTINE_NAME FROM information_schema.routines
+WHERE routine_schema = :env AND routine_name = :procedure_name AND routine_type = :routine_type
+"""
+
 # Register templates
 template_engine.add_template('mysql_create_table', CREATE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_create_index', CREATE_INDEX_TEMPLATE)
@@ -210,6 +265,11 @@ template_engine.add_template('mysql_check_view_dependency_exists', CHECK_VIEW_DE
 template_engine.add_template('mysql_create_trigger', CREATE_TRIGGER_TEMPLATE)
 template_engine.add_template('mysql_drop_trigger', DROP_TRIGGER_TEMPLATE)
 template_engine.add_template('mysql_check_trigger_exists', CHECK_TRIGGER_EXISTS_TEMPLATE)
+template_engine.add_template('mysql_create_procedure', CREATE_PROCEDURE_TEMPLATE)
+template_engine.add_template('mysql_create_function', CREATE_FUNCTION_TEMPLATE)
+template_engine.add_template('mysql_drop_procedure', DROP_PROCEDURE_TEMPLATE)
+template_engine.add_template('mysql_drop_function', DROP_FUNCTION_TEMPLATE)
+template_engine.add_template('mysql_check_procedure_exists', CHECK_PROCEDURE_EXISTS_TEMPLATE)
 # Foreign key constraint templates
 template_engine.add_template('mysql_add_foreign_key', ALTER_TABLE_ADD_FOREIGN_KEY_TEMPLATE)
 template_engine.add_template('mysql_drop_foreign_key', DROP_FOREIGN_KEY_TEMPLATE)
