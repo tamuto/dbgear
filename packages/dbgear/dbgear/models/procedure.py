@@ -64,7 +64,3 @@ class ProcedureManager:
         if procedure_name not in self.procedures:
             raise KeyError(f"Procedure '{procedure_name}' does not exist")
         del self.procedures[procedure_name]
-
-    def add(self, procedure: Procedure) -> None:
-        """Alias for append for consistency with other managers"""
-        self.append(procedure)

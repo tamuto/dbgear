@@ -9,7 +9,7 @@ def is_exist(conn, env: str, procedure: Procedure):
     """Check if stored procedure exists"""
     sql = template_engine.render('mysql_check_procedure_exists')
     result = engine.select_one(conn, sql, {
-        'env': env, 
+        'env': env,
         'procedure_name': procedure.procedure_name,
         'routine_type': 'FUNCTION' if procedure.is_function else 'PROCEDURE'
     })
