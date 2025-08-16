@@ -8,12 +8,11 @@ DBGear is a **local development tool** for database initial data management. It 
 
 ## Monorepo Architecture
 
-DBGear is structured as a monorepo with four independent packages:
+DBGear is structured as a monorepo with three independent packages:
 
-- **dbgear**: Core library and CLI tools (`packages/dbgear/`)
-- **dbgear-import**: Schema and data import functionality (`packages/dbgear-import/`)
-- **dbgear-web**: Web interface that depends on dbgear (`packages/dbgear-web/`)
-- **frontend**: React frontend package (`packages/frontend/`)
+- **dbgear**: Core library and CLI tools with built-in import functionality (`packages/dbgear/`)
+- **dbgear-editor**: FastHTML-based web editor for schema viewing and editing (`packages/dbgear-editor/`)
+- **dbgear-mcp**: MCP server for LLM integration (`packages/dbgear-mcp/`)
 
 ### Package Structure
 
@@ -51,72 +50,40 @@ packages/
 │   │   └── main.py           # Main CLI entry point
 │   └── pyproject.toml        # CLI package configuration
 │
-├── dbgear-import/            # Import Package (pip install dbgear-import)
-│   ├── dbgear_import/
-│   │   ├── schema/           # Schema importers
-│   │   │   └── a5sql_mk2.py  # A5:SQL Mk-2 importer
-│   │   ├── data/             # Data importers (future)
-│   │   │   ├── excel.py      # Excel data importer (planned)
-│   │   │   └── csv.py        # CSV data importer (planned)
-│   │   ├── importer.py       # Generic importer interface
-│   │   └── main.py           # Import CLI entry point
-│   ├── tests/                # Import functionality tests
-│   └── pyproject.toml        # Import package configuration
+├── dbgear-editor/            # Web Editor Package (pip install dbgear-editor)
+│   ├── dbgear_editor/
+│   │   ├── main.py           # FastHTML application entry point
+│   │   ├── project.py        # Project management and loading
+│   │   ├── layout.py         # Main layout components
+│   │   ├── components/       # Reusable UI components
+│   │   │   ├── header.py     # Header component
+│   │   │   └── sidebar.py    # Sidebar navigation component
+│   │   ├── routes/           # Modular route handlers
+│   │   │   ├── dashboard.py  # Dashboard and schema overview routes
+│   │   │   ├── tables.py     # Table detail routes
+│   │   │   ├── views.py      # View detail routes
+│   │   │   ├── procedures.py # Stored procedure routes
+│   │   │   └── triggers.py   # Trigger detail routes
+│   │   └── ui/               # UI component modules
+│   │       ├── common.py     # Common UI utilities and components
+│   │       ├── tables.py     # Table-specific UI components
+│   │       ├── views.py      # View-specific UI components
+│   │       ├── procedures.py # Procedure-specific UI components
+│   │       └── triggers.py   # Trigger-specific UI components
+│   ├── README.md
+│   └── pyproject.toml        # Editor package configuration (depends on dbgear)
 │
-├── dbgear-web/               # Web Package (pip install dbgear-web)
-│   ├── dbgear_web/
-│   │   ├── api/              # FastAPI routers
-│   │   ├── static/           # Frontend build artifacts
-│   │   ├── backend.py        # FastAPI application
-│   │   └── main.py           # Web server entry point
-│   └── pyproject.toml        # Web package configuration (depends on dbgear)
-│
-├── dbgear-mcp/               # MCP Package (pip install dbgear-mcp)
-│   ├── dbgear_mcp/
-│   │   ├── server.py         # FastMCP server implementation
-│   │   ├── main.py           # MCP server entry point
-│   │   └── tools/            # MCP tool implementations
-│   │       ├── schema.py     # Schema management tools
-│   │       ├── table.py      # Table management tools
-│   │       ├── data.py       # Data operations tools
-│   │       └── project.py    # Project management tools
-│   ├── tests/                # unittest-based test suite
-│   └── pyproject.toml        # MCP package configuration (depends on dbgear)
-│
-├── frontend/                 # New Frontend Package (React/TypeScript + Shadcn/UI)
-│   ├── src/
-│   │   ├── components/       # Shadcn/UI components
-│   │   │   └── ui/          # Generated UI components
-│   │   ├── lib/             # Utility functions
-│   │   │   └── utils.ts     # Tailwind utility functions
-│   │   ├── routes/          # TanStack Router routes
-│   │   │   ├── __root.tsx   # Root layout
-│   │   │   ├── index.tsx    # Home page
-│   │   │   └── about.tsx    # About page
-│   │   ├── main.tsx         # Entry point
-│   │   ├── routeTree.gen.ts # Generated route tree
-│   │   └── globals.css      # Global styles with Tailwind
-│   ├── index.html           # HTML template
-│   ├── package.json         # Frontend dependencies (pnpm)
-│   ├── rsbuild.config.ts    # RSBuild configuration
-│   ├── tailwind.config.js   # Tailwind CSS configuration
-│   ├── components.json      # Shadcn/UI configuration
-│   └── tsconfig.json        # TypeScript configuration
-│
-└── frontend.bak/            # Previous Frontend (Material-UI based)
-    ├── src/
-    │   ├── api/              # API hooks and types
-    │   ├── components/       # Shared components
-    │   ├── features/         # Feature-specific components
-    │   ├── resources/        # Assets and i18n
-    │   ├── types/           # TypeScript type definitions
-    │   ├── main.tsx         # Entry point
-    │   └── routes.tsx       # Routing configuration
-    ├── public/
-    │   └── index.html       # HTML template
-    ├── package.json         # Frontend dependencies (pnpm)
-    ├── tsconfig.json        # TypeScript configuration
-    └── webpack.config.js    # Build configuration
+└── dbgear-mcp/               # MCP Package (pip install dbgear-mcp)
+    ├── dbgear_mcp/
+    │   ├── server.py         # FastMCP server implementation
+    │   ├── main.py           # MCP server entry point
+    │   └── tools/            # MCP tool implementations
+    │       ├── schema.py     # Schema management tools
+    │       ├── table.py      # Table management tools
+    │       ├── data.py       # Data operations tools
+    │       └── project.py    # Project management tools
+    ├── tests/                # unittest-based test suite
+    └── pyproject.toml        # MCP package configuration (depends on dbgear)
 ```
 
 ### Key Components
@@ -139,17 +106,17 @@ packages/
 - **Database Operations**: `packages/dbgear/dbgear/cli/operations.py` - Apply/deploy data to target databases
 - **SQL Template Engine**: `packages/dbgear/dbgear/dbio/templates/` - Jinja2-based SQL generation system for maintainable and consistent database operations
 - **Schema Importers**: `packages/dbgear/dbgear/importers/` - Dynamic schema import system with A5:SQL Mk-2 support
-- **API Layer**: `packages/dbgear-web/dbgear_web/api/` - FastAPI routers for frontend communication
-  - Schema Management APIs: `schemas.py`, `schema_tables.py`, `schema_columns.py`, `schema_indexes.py`, `schema_views.py`, `schema_validation.py`
-  - Data Management APIs: `tables.py`, `environs.py`, `project.py`, `refs.py`
-- **Frontend Architecture**: New frontend uses Shadcn/UI components with TanStack Router for type-safe routing and RSBuild for fast bundling
+- **Web Editor Interface**: `packages/dbgear-editor/dbgear_editor/` - FastHTML-based web interface for schema viewing and editing
+  - **Modular Route System**: Route handlers organized by entity type (tables, views, procedures, triggers)
+  - **Reusable UI Components**: Common UI utilities and entity-specific display components
+  - **Project Integration**: Direct integration with dbgear core models for schema management
 
 ### Data Flow
 
 1. Project definitions loaded from `project.yaml` (see `etc/test/project.yaml` for example)
-2. Schema definitions imported via dynamic importer system (`dbgear import` command or programmatic API)
+2. Schema definitions imported via built-in dynamic importer system (`dbgear import` command or programmatic API)
 3. Data stored in YAML format for version control
-4. Frontend communicates with backend via REST API (all endpoints prefixed with `/api`)
+4. Web editor provides direct FastHTML-based interface for schema viewing and navigation
 5. Database operations apply data through SQLAlchemy with Jinja2-based SQL template engine
 6. Schema modifications managed through built-in model methods with validation and YAML persistence
 
@@ -162,53 +129,29 @@ cd packages/dbgear
 # Install dependencies
 poetry install
 
-# Apply database changes (import functionality moved to dbgear-import)
+# Apply database changes
 poetry run python -m dbgear.main apply localhost development --all drop
 
-# Run tests
-poetry run python -m unittest discover
-```
-
-### Import Package Development
-```bash
-cd packages/dbgear-import
-
-# Install dependencies (includes dbgear as dependency)
-poetry install
-
-# Import A5:SQL Mk-2 schema
-poetry run dbgear-import schema a5sql_mk2 ../../etc/test/dbgear.a5er --output schema.yaml
-
-# List available importers
-poetry run dbgear-import list
+# Import A5:SQL Mk-2 schema (built-in functionality)  
+poetry run python -m dbgear.main import a5sql_mk2 ../../etc/test/dbgear.a5er --output schema.yaml
 
 # Run tests
 poetry run python -m unittest discover
 ```
 
-### Web Package Development
+
+### Web Editor Development
 ```bash
-cd packages/dbgear-web
+cd packages/dbgear-editor
 
 # Install dependencies (includes dbgear as dependency)
 poetry install
 
-# Run web server
-poetry run python -m dbgear_web.main --project ../../etc/test --port 5000
-```
+# Run web editor server
+poetry run dbgear-editor --project ../../etc/test --port 8000
 
-### Frontend Development
-```bash
-cd packages/frontend
-
-# Install dependencies
-pnpm install
-
-# Development server (port 8080)
-pnpm run dev
-
-# Build for production (outputs to ../dbgear-web/dbgear_web/static/)
-pnpm run build
+# Development with auto-reload
+poetry run dbgear-editor --project ../../etc/test --port 8000 --reload
 ```
 
 ### Testing & Linting
@@ -224,11 +167,9 @@ task lint           # flake8 code checking
 task clean          # Clean build artifacts
 ```
 
-#### Web Package Testing
+#### Web Editor Testing
 ```bash
-cd packages/dbgear-web
-task test           # Run all tests (14 tests: 11 success, 3 skipped)
-task test-fast      # Run fast tests only
+cd packages/dbgear-editor
 task lint           # flake8 code checking
 task clean          # Clean build artifacts
 task serve          # Start development server
@@ -244,13 +185,6 @@ task clean          # Clean build artifacts
 task serve          # Start MCP server
 ```
 
-#### Frontend Testing
-```bash
-cd packages/frontend
-
-# Build test
-pnpm run build
-```
 
 ### Installation & Usage
 
@@ -259,44 +193,18 @@ pnpm run build
 # Install core package
 pip install dbgear
 
-# Install import functionality
-pip install dbgear-import
-
-# Import A5:SQL Mk-2 schema (now handled by dbgear-import)
-dbgear-import schema a5sql_mk2 schema.a5er --output schema.yaml
-
-# Legacy import command (delegates to dbgear-import)
+# Import A5:SQL Mk-2 schema (built-in functionality)
 dbgear import a5sql_mk2 schema.a5er --output schema.yaml
 
 # Apply database changes
 dbgear apply localhost development --all drop
 ```
 
-#### Web Interface Usage
+#### Web Editor Usage
 ```bash
-pip install dbgear-web  # Automatically installs dbgear dependency
-dbgear-web --project ./etc/test --port 5000
+pip install dbgear-editor  # Automatically installs dbgear dependency
+dbgear-editor --project ./etc/test --port 8000
 ```
-
-### Build Output
-
-- New frontend builds to `packages/dbgear-web/dbgear_web/static/` directory via RSBuild
-- Web backend serves static files from this directory at root `/`
-- All API endpoints are prefixed with `/api` to avoid conflicts with frontend routes
-- TanStack Router handles client-side routing for SPA behavior
-
-### Path Aliases
-
-New frontend uses Shadcn/UI aliases:
-- `@/components` → `src/components`
-- `@/lib` → `src/lib`
-- `@/components/ui` → `src/components/ui`
-- `@/hooks` → `src/hooks`
-
-Legacy frontend (frontend.bak) used webpack aliases:
-- `~/api/*` → `packages/frontend/src/api/*`
-- `~/cmp/*` → `packages/frontend/src/components/*`  
-- `~/img/*` → `packages/frontend/src/resources/img/*`
 
 ## Development Guidelines
 
@@ -353,12 +261,11 @@ When proposing solutions or architectural changes, follow this design hierarchy:
 
 ### Package Dependencies
 
-- **dbgear-import** depends on **dbgear** as an external package dependency
-- **dbgear-web** depends on **dbgear** as an external package dependency  
+- **dbgear-editor** depends on **dbgear** as an external package dependency  
 - **dbgear-mcp** depends on **dbgear** as an external package dependency
 - All imports in dependent packages use `from dbgear.models.*` and `from dbgear.dbio.*` syntax
-- Core functionality is completely independent and reusable
-- Import, web, and MCP interfaces are optional additions that can be installed separately
+- Core functionality is completely independent and reusable with built-in import capabilities
+- Editor and MCP interfaces are optional additions that can be installed separately
 
 ### Known Limitations
 
@@ -384,60 +291,56 @@ When enhancing DBGear, focus on:
 - **Import Paths**: Use absolute imports when referencing across packages (`from dbgear.core.*`)
 - **Testing**: Test each package independently in its own directory
 - **Version Synchronization**: Keep version numbers synchronized between packages
-- **Frontend**: Use `pnpm` for package management, new frontend uses RSBuild + TanStack Router + Shadcn/UI
 - **Python**: Use `task lint` before committing Python changes
-- **Frontend Development**: Use `pnpm run dev` for development server on port 8080
+- **Web Editor Development**: Use `dbgear-editor --reload` for development with auto-reload
 - Test configuration changes with the example project in `etc/test/`
 - Maintain backward compatibility for existing `project.yaml` files
 
-### Frontend API Management Guidelines
+### DBGear Editor Development Guidelines
 
-The new frontend uses a modern API management system that replaces the legacy `nxio.ts` approach:
+When working with the dbgear-editor FastHTML-based web interface:
 
-1. **Use TanStack Query Hooks**: Always use the provided API hooks instead of direct axios calls
-   ```typescript
-   // ✅ Correct - Use declarative hooks
-   const { data, isLoading, error } = useProjects()
-   const createProject = useApiPost('/projects')
-   
-   // ❌ Avoid - Direct API calls
-   axios.get('/api/projects').then(...)
+1. **Modular Architecture**: Follow the established modular structure
+   ```python
+   # Route handlers in routes/ directory
+   from ..ui.tables import table_info_section, table_columns_section
+   from ..ui.common import notes_section, info_section
    ```
 
-2. **Error Handling**: Leverage the integrated error handling system
-   ```typescript
-   // Automatic error notifications and retry logic
-   const { data } = useProjects({
-     onError: (error) => {
-       // Custom error handling if needed
-       console.error('Failed to load projects:', error)
-     }
-   })
+2. **Component Reuse**: Leverage common UI components for consistency
+   ```python
+   # Use common utilities from ui/common.py
+   content = info_section(info_items)
+   badges = badge("Primary", "blue")
+   table = data_table(headers, rows)
    ```
 
-3. **Type Safety**: Use proper TypeScript types for all API operations
-   ```typescript
-   interface Project { id: string; name: string }
-   const { data } = useApiQuery<Project[]>(queryKeys.projects(), '/projects')
+3. **Route Registration**: Register routes through dedicated functions
+   ```python
+   # In main.py
+   from .routes.tables import register_table_routes
+   register_table_routes(rt)
    ```
 
-4. **Cache Management**: Use invalidation hooks for data consistency
-   ```typescript
-   const { invalidateProjects } = useInvalidateQueries()
-   // Call after mutations to refresh data
+4. **UI Component Organization**: Separate UI logic from route handling
+   ```python
+   # Route handlers focus on data preparation and response
+   # UI components handle presentation logic
    ```
 
-5. **Notifications**: Use the Sonner-based notification system
-   ```typescript
-   import { notifications } from '@/hooks/use-toast-notifications'
-   notifications.success('Operation completed')
-   notifications.error('Something went wrong')
+5. **Error Handling**: Use proper FastHTML response types
+   ```python
+   if not project or not project.is_loaded():
+       return RedirectResponse(url="/")
+   if not schema:
+       return NotFoundResponse("Schema not found")
    ```
 
-6. **Provider Setup**: Ensure `Providers` component wraps your app root
-   ```typescript
-   import { Providers } from '@/lib/providers'
-   // Wrap your app with <Providers> for TanStack Query and notifications
+6. **Project Integration**: Always check project state before rendering
+   ```python
+   project = get_current_project()
+   if not project or not project.is_loaded():
+       # Handle no project state
    ```
 
 ### Schema Management Guidelines
@@ -796,8 +699,7 @@ The schema management system has been completely restructured with a modern, typ
 - **Core Models**: ✅ Complete implementation with comprehensive test coverage
 - **File I/O**: ✅ YAML load/save with auto-population and validation
 - **CLI Integration**: ✅ Updated to use new model paths (`dbgear.models.*`)
-- **Web APIs**: ⚠️ May require updates to match new manager interfaces
-- **Frontend**: ⚠️ Field→Column terminology updates needed
+- **Web Editor Interface**: ✅ Complete FastHTML-based modular web interface with route handlers and UI components
 - **Database Operations**: ⚠️ Need to update imports from `core.models` to `models`
 
 ### 🧪 Testing Architecture
@@ -822,15 +724,48 @@ When working with schema functionality, use the new model paths:
 - `from dbgear.models.tenant import TenantConfig, TenantRegistry, DatabaseInfo`
 - `from dbgear.models.exceptions import DBGearError, DBGearEntityExistsError, DBGearEntityNotFoundError, DBGearEntityRemovalError`
 
+### 🎨 DBGear Editor Architecture
+
+The dbgear-editor package provides a modern, modular web interface built on FastHTML:
+
+#### Modular Design (94% Code Reduction)
+- **main.py**: 62 lines (reduced from 1,116 lines)
+- **Modular Routes**: Entity-specific route handlers (526 total lines)
+- **Reusable UI Components**: Common utilities and entity-specific components (761 total lines)
+
+#### Route Organization
+```python
+# routes/dashboard.py  - Schema overview and navigation
+# routes/tables.py     - Table detail views with columns, indexes, relations
+# routes/views.py      - View definitions and SQL display
+# routes/procedures.py - Stored procedure parameters and SQL body
+# routes/triggers.py   - Trigger timing, events, and SQL body
+```
+
+#### UI Component Architecture
+```python
+# ui/common.py     - Shared utilities (info_section, badge, data_table, sql_section)
+# ui/tables.py     - Table-specific components (column rows, index cards, relation cards)
+# ui/views.py      - View presentation components
+# ui/procedures.py - Procedure parameter tables and badges
+# ui/triggers.py   - Trigger info sections with timing/event badges
+```
+
+#### Key Features
+- **FastHTML Integration**: Server-side rendering with Python-based component generation
+- **Direct Model Integration**: No API layer - direct access to dbgear core models
+- **Responsive Design**: MonsterUI-based styling with Tailwind CSS classes
+- **Syntax Highlighting**: SQL code display with markdown rendering
+- **Breadcrumb Navigation**: Hierarchical navigation through schemas and entities
+
 ## Future Development
 
 See `ROADMAP.md` for planned feature enhancements including:
-- ✅ UI framework migration (Material-UI → Shadcn/UI) - **COMPLETED**
-- ✅ Modern routing system (React Router → TanStack Router) - **COMPLETED**
-- ✅ Modern build system (Webpack → RSBuild) - **COMPLETED**
+- ✅ **Web Interface Modernization** - **COMPLETED**: FastHTML-based dbgear-editor with modular architecture
 - Internal schema version management system
 - Document generation (ER diagrams, table specifications)
 - MCP server integration for LLM operations
 - Enhanced database operation commands
+- Schema editing capabilities in the web editor
 
 When working on these features, follow the implementation phases and architectural guidelines outlined in the roadmap.
