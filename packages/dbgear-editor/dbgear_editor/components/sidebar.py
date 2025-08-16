@@ -40,21 +40,15 @@ def sidebar_component(current_path: str = ""):
 
     return Aside(
         Div(
-            # Sidebar header
-            Div(
-                H2("Database Structure", cls="text-lg font-semibold text-gray-900"),
-                project_summary_stats(),
-                cls="px-4 py-4 border-b border-gray-200"
-            ),
 
             # Schema navigation
             Div(
                 *[schema_section(schema_name, schema, tables.get(schema_name, {}), views.get(schema_name, {}), procedures.get(schema_name, {}), triggers.get(schema_name, {}), current_path)
                   for schema_name, schema in schemas.items()],
-                cls="px-2 py-2"
+                cls="px-2 py-4"
             ) if schemas else Div(
                 P("No schemas found", cls="text-sm text-gray-500 px-4 py-8 text-center"),
-                cls="px-2 py-2"
+                cls="px-2 py-4"
             ),
 
             cls="overflow-y-auto"
@@ -62,38 +56,6 @@ def sidebar_component(current_path: str = ""):
         cls="w-64 bg-gray-50 h-full border-r border-gray-200 flex flex-col"
     )
 
-
-def project_summary_stats():
-    """
-    Create project summary statistics.
-
-    Returns:
-        FastHTML component with project stats
-    """
-    project = get_current_project()
-    if not project:
-        return Div()
-
-    project_info = project.get_project_info()
-
-    return Div(
-        Div(
-            Span(str(project_info.get('schemas_count', 0)), cls="text-lg font-semibold text-blue-600"),
-            Span("Schemas", cls="text-xs text-gray-500 ml-1"),
-            cls="text-center"
-        ),
-        Div(
-            Span(str(project_info.get('tables_count', 0)), cls="text-lg font-semibold text-green-600"),
-            Span("Tables", cls="text-xs text-gray-500 ml-1"),
-            cls="text-center"
-        ),
-        Div(
-            Span(str(project_info.get('views_count', 0)), cls="text-lg font-semibold text-purple-600"),
-            Span("Views", cls="text-xs text-gray-500 ml-1"),
-            cls="text-center"
-        ),
-        cls="grid grid-cols-3 gap-2 mt-2"
-    )
 
 
 def schema_section(schema_name: str, schema, schema_tables: dict, schema_views: dict, schema_procedures: dict, schema_triggers: dict, current_path: str = ""):

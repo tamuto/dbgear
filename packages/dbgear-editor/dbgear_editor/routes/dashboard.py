@@ -85,7 +85,33 @@ def register_dashboard_routes(rt):
                         cls="bg-white overflow-hidden shadow rounded-lg p-5"
                     ),
 
-                    cls="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8"
+                    Div(
+                        Div(
+                            UkIcon("zap", height=24, cls="text-orange-500"),
+                            Div(
+                                H3(str(project_info.get('procedures_count', 0)), cls="text-2xl font-bold text-gray-900"),
+                                P("Procedures", cls="text-sm text-gray-500"),
+                                cls="ml-3"
+                            ),
+                            cls="flex items-center"
+                        ),
+                        cls="bg-white overflow-hidden shadow rounded-lg p-5"
+                    ),
+
+                    Div(
+                        Div(
+                            UkIcon("flash", height=24, cls="text-yellow-500"),
+                            Div(
+                                H3(str(project_info.get('triggers_count', 0)), cls="text-2xl font-bold text-gray-900"),
+                                P("Triggers", cls="text-sm text-gray-500"),
+                                cls="ml-3"
+                            ),
+                            cls="flex items-center"
+                        ),
+                        cls="bg-white overflow-hidden shadow rounded-lg p-5"
+                    ),
+
+                    cls="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-8"
                 ),
 
                 # Recent schemas section
@@ -195,6 +221,8 @@ def schema_grid(schemas: dict):
     for schema_name, schema in schemas.items():
         table_count = len(schema.tables) if hasattr(schema, 'tables') else 0
         view_count = len(schema.views) if hasattr(schema, 'views') else 0
+        procedure_count = len(schema.procedures) if hasattr(schema, 'procedures') else 0
+        trigger_count = len(schema.triggers) if hasattr(schema, 'triggers') else 0
 
         schema_cards.append(
             A(
@@ -205,8 +233,13 @@ def schema_grid(schemas: dict):
                         cls="flex items-center mb-2"
                     ),
                     Div(
-                        Span(f"{table_count} tables", cls="text-sm text-gray-500 mr-4"),
-                        Span(f"{view_count} views", cls="text-sm text-gray-500"),
+                        Span(f"{table_count} tables", cls="text-sm text-gray-500 mr-2"),
+                        Span(f"{view_count} views", cls="text-sm text-gray-500 mr-2"),
+                        cls="flex mb-1"
+                    ),
+                    Div(
+                        Span(f"{procedure_count} procedures", cls="text-sm text-gray-500 mr-2"),
+                        Span(f"{trigger_count} triggers", cls="text-sm text-gray-500"),
                         cls="flex"
                     ),
                     cls="p-4"
