@@ -12,6 +12,7 @@ from ..ui.tables import (
     table_indexes_section, table_relations_section
 )
 from ..ui.common import notes_section
+from ..ui.dependencies import dependency_navigation_button
 
 
 def register_table_routes(rt):
@@ -43,6 +44,12 @@ def register_table_routes(rt):
             content_header(
                 f"Table: {table_name}",
                 f"Schema: {schema_name}"
+            ),
+
+            # Dependencies navigation
+            Div(
+                dependency_navigation_button(schema_name, table_name),
+                cls="mb-6"
             ),
 
             # Table information card
