@@ -12,6 +12,7 @@ test.sh
 test2.sh
 *.egg-info
 build
+.serena
 
 # Logs
 logs
