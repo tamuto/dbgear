@@ -106,7 +106,7 @@ def schema_section(schema_name: str, schema, schema_tables: dict, schema_views: 
                         Span("Tables", cls="text-xs font-medium text-gray-700"),
                         cls="flex items-center px-3 py-1"
                     ),
-                    *[table_item(table_name, table, schema_name, current_path) for table_name, table in schema_tables.items()],
+                    *[table_item(table_name, table, schema_name, current_path) for table_name, table in sorted(schema_tables.items())],
                     cls="mb-2"
                 )
             ] if schema_tables else []),
@@ -119,7 +119,7 @@ def schema_section(schema_name: str, schema, schema_tables: dict, schema_views: 
                         Span("Views", cls="text-xs font-medium text-gray-700"),
                         cls="flex items-center px-3 py-1"
                     ),
-                    *[view_item(view_name, view, schema_name, current_path) for view_name, view in schema_views.items()],
+                    *[view_item(view_name, view, schema_name, current_path) for view_name, view in sorted(schema_views.items())],
                     cls="mb-2"
                 )
             ] if schema_views else []),
@@ -132,7 +132,7 @@ def schema_section(schema_name: str, schema, schema_tables: dict, schema_views: 
                         Span("Procedures", cls="text-xs font-medium text-gray-700"),
                         cls="flex items-center px-3 py-1"
                     ),
-                    *[procedure_item(procedure_name, procedure, schema_name, current_path) for procedure_name, procedure in schema_procedures.items()],
+                    *[procedure_item(procedure_name, procedure, schema_name, current_path) for procedure_name, procedure in sorted(schema_procedures.items())],
                     cls="mb-2"
                 )
             ] if schema_procedures else []),
@@ -145,7 +145,7 @@ def schema_section(schema_name: str, schema, schema_tables: dict, schema_views: 
                         Span("Triggers", cls="text-xs font-medium text-gray-700"),
                         cls="flex items-center px-3 py-1"
                     ),
-                    *[trigger_item(trigger_name, trigger, schema_name, current_path) for trigger_name, trigger in schema_triggers.items()],
+                    *[trigger_item(trigger_name, trigger, schema_name, current_path) for trigger_name, trigger in sorted(schema_triggers.items())],
                     cls="mb-2"
                 )
             ] if schema_triggers else []),

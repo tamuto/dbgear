@@ -14,7 +14,8 @@ def table_grid(tables: dict, schema_name: str):
         return Div()
 
     table_cards = []
-    for table_name, table in tables.items():
+    # Sort tables by name for consistent display
+    for table_name, table in sorted(tables.items()):
         column_count = len(table.columns) if hasattr(table, 'columns') else 0
 
         table_cards.append(

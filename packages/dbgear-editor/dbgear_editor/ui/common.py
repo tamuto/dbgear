@@ -48,7 +48,8 @@ def entity_grid(entities: dict, schema_name: str, entity_type: str, icon: str, c
         return Div()
 
     entity_cards = []
-    for entity_name, entity in entities.items():
+    # Sort entities by name for consistent display
+    for entity_name, entity in sorted(entities.items()):
         # Get entity-specific info
         info_text = get_entity_info_text(entity, entity_type)
 

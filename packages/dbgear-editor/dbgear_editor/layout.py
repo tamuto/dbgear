@@ -23,6 +23,8 @@ def layout(content, title="DBGear Editor", current_path=""):
     """
     return (
         Title(title),
+        # Add Cytoscape.js CDN
+        Script(src="https://unpkg.com/cytoscape@3.30.3/dist/cytoscape.min.js"),
         # Add JavaScript for dropdown and collapsible functionality
         Script("""
             document.addEventListener('DOMContentLoaded', function() {

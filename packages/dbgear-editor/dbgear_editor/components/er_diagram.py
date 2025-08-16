@@ -1,42 +1,47 @@
 """
-ER diagram component for rendering Mermaid diagrams.
-Converts dependency analysis data to Mermaid ER diagram syntax.
+ER diagram component for rendering Cytoscape.js diagrams.
+Converts dependency analysis data to Cytoscape.js JSON format.
 """
 
 from typing import Dict, List, Any, Optional
+import json
 
 
-def generate_mermaid_er_diagram(graph_data: Dict[str, Any], focus_table: Optional[str] = None) -> str:
+def generate_cytoscape_er_diagram(graph_data: Dict[str, Any], focus_table: Optional[str] = None, schema_name: Optional[str] = None) -> str:
     """
-    Generate Mermaid ER diagram syntax from dependency graph data.
+    Generate Cytoscape.js JSON data from dependency graph data.
     
     Args:
         graph_data: Graph data from TableDependencyAnalyzer
         focus_table: Optional table name to highlight as center of diagram
+        schema_name: Schema name for click links
         
     Returns:
-        Mermaid ER diagram syntax string
+        JSON string containing cytoscape.js elements
     """
-    mermaid_code = "erDiagram\n"
-    
-    # Track processed entities and relationships
-    entities = set()
-    relationships = []
+    elements = []
+    processed_nodes = set()
+    processed_edges = set()
     
     # Process nodes (tables and views)
     for node in graph_data.get('nodes', []):
         if node['type'] == 'table':
-            table_name = _clean_identifier(node['table_name'])
-            entities.add(table_name)
+            table_name = node['table_name']
+            node_id = _clean_identifier(table_name)
             
-            # Add table definition
-            if focus_table and node['table_name'] == focus_table:
-                mermaid_code += f"    {table_name} {{\n"
-                mermaid_code += f"        string id PK \"Primary Key\"\n"
-                mermaid_code += f"        string name \"Table Name\"\n"
-                mermaid_code += "    }\n"
-            else:
-                mermaid_code += f"    {table_name}\n"
+            if node_id not in processed_nodes:
+                # Create table node
+                node_element = {
+                    'data': {
+                        'id': node_id,
+                        'label': table_name,
+                        'type': 'table',
+                        'focused': focus_table == table_name
+                    },
+                    'classes': 'table-node' + (' focused' if focus_table == table_name else '')
+                }
+                elements.append(node_element)
+                processed_nodes.add(node_id)
     
     # Process edges (relationships)
     for edge in graph_data.get('edges', []):
@@ -45,82 +50,147 @@ def generate_mermaid_er_diagram(graph_data: Dict[str, Any], focus_table: Optiona
             target_table = _extract_table_name(edge['target'])
             
             if source_table and target_table:
-                source_clean = _clean_identifier(source_table)
-                target_clean = _clean_identifier(target_table)
+                source_id = _clean_identifier(source_table)
+                target_id = _clean_identifier(target_table)
+                edge_id = f"{source_id}-{target_id}"
                 
-                # Ensure both entities exist
-                entities.add(source_clean)
-                entities.add(target_clean)
-                
-                # Determine relationship cardinality
-                cardinality = _determine_cardinality(edge.get('details', {}))
-                
-                # Add relationship
-                relationship = f"    {source_clean} {cardinality} {target_clean} : \"{edge.get('label', 'references')}\""
-                if relationship not in relationships:
-                    relationships.append(relationship)
+                if edge_id not in processed_edges:
+                    # Ensure nodes exist
+                    for node_id, table_name in [(source_id, source_table), (target_id, target_table)]:
+                        if node_id not in processed_nodes:
+                            node_element = {
+                                'data': {
+                                    'id': node_id,
+                                    'label': table_name,
+                                    'type': 'table'
+                                },
+                                'classes': 'table-node'
+                            }
+                            elements.append(node_element)
+                            processed_nodes.add(node_id)
+                    
+                    # Create edge
+                    edge_element = {
+                        'data': {
+                            'id': edge_id,
+                            'source': source_id,
+                            'target': target_id,
+                            'label': edge.get('label', 'references'),
+                            'type': 'relation'
+                        },
+                        'classes': 'relation-edge'
+                    }
+                    elements.append(edge_element)
+                    processed_edges.add(edge_id)
     
-    # Add all relationships
-    for relationship in relationships:
-        mermaid_code += relationship + "\n"
-    
-    return mermaid_code
+    return json.dumps(elements, ensure_ascii=False)
 
 
-def generate_table_dependency_diagram(dependencies: Dict[str, Any]) -> str:
+def generate_table_dependency_cytoscape(dependencies: Dict[str, Any]) -> str:
     """
-    Generate Mermaid diagram for individual table dependencies.
+    Generate Cytoscape.js JSON for individual table dependencies.
     
     Args:
         dependencies: Output from TableDependencyAnalyzer.analyze()
         
     Returns:
-        Mermaid ER diagram syntax string
+        JSON string containing cytoscape.js elements
     """
-    mermaid_code = "erDiagram\n"
+    elements = []
+    processed_nodes = set()
+    processed_edges = set()
     
     # Central table
     target_table = dependencies.get('target_table', {})
-    center_table = _clean_identifier(target_table.get('table_name', 'Unknown'))
+    center_table_name = target_table.get('table_name', 'Unknown')
+    center_id = _clean_identifier(center_table_name)
     
-    mermaid_code += f"    {center_table} {{\n"
-    mermaid_code += f"        string id PK \"Primary Key\"\n"
-    mermaid_code += "    }\n"
-    
-    entities = {center_table}
-    relationships = []
+    # Add central table node
+    center_element = {
+        'data': {
+            'id': center_id,
+            'label': center_table_name,
+            'type': 'table',
+            'central': True
+        },
+        'classes': 'table-node central'
+    }
+    elements.append(center_element)
+    processed_nodes.add(center_id)
     
     # Process left dependencies (tables referencing this one)
     for level_key, deps in dependencies.get('left', {}).items():
         for dep in deps:
             if dep['type'] == 'relation' and dep.get('table_name'):
-                ref_table = _clean_identifier(dep['table_name'])
-                entities.add(ref_table)
+                ref_table_name = dep['table_name']
+                ref_id = _clean_identifier(ref_table_name)
                 
-                # Foreign key relationship
-                cardinality = "||--o{"
-                relationship = f"    {center_table} {cardinality} {ref_table} : \"referenced by\""
-                if relationship not in relationships:
-                    relationships.append(relationship)
+                # Add referencing table node
+                if ref_id not in processed_nodes:
+                    ref_element = {
+                        'data': {
+                            'id': ref_id,
+                            'label': ref_table_name,
+                            'type': 'table'
+                        },
+                        'classes': 'table-node'
+                    }
+                    elements.append(ref_element)
+                    processed_nodes.add(ref_id)
+                
+                # Add edge (referenced by)
+                edge_id = f"{center_id}-{ref_id}"
+                if edge_id not in processed_edges:
+                    edge_element = {
+                        'data': {
+                            'id': edge_id,
+                            'source': center_id,
+                            'target': ref_id,
+                            'label': 'referenced by',
+                            'type': 'referenced_by'
+                        },
+                        'classes': 'relation-edge referenced-by'
+                    }
+                    elements.append(edge_element)
+                    processed_edges.add(edge_id)
     
     # Process right dependencies (tables this one references)
     for level_key, deps in dependencies.get('right', {}).items():
         for dep in deps:
             if dep['type'] == 'relation' and dep.get('table_name'):
-                target_table_name = _clean_identifier(dep['table_name'])
-                entities.add(target_table_name)
+                target_table_name = dep['table_name']
+                target_id = _clean_identifier(target_table_name)
                 
-                # Foreign key relationship
-                cardinality = "}o--||"
-                relationship = f"    {center_table} {cardinality} {target_table_name} : \"references\""
-                if relationship not in relationships:
-                    relationships.append(relationship)
+                # Add target table node
+                if target_id not in processed_nodes:
+                    target_element = {
+                        'data': {
+                            'id': target_id,
+                            'label': target_table_name,
+                            'type': 'table'
+                        },
+                        'classes': 'table-node'
+                    }
+                    elements.append(target_element)
+                    processed_nodes.add(target_id)
+                
+                # Add edge (references)
+                edge_id = f"{center_id}-{target_id}"
+                if edge_id not in processed_edges:
+                    edge_element = {
+                        'data': {
+                            'id': edge_id,
+                            'source': center_id,
+                            'target': target_id,
+                            'label': 'references',
+                            'type': 'references'
+                        },
+                        'classes': 'relation-edge references'
+                    }
+                    elements.append(edge_element)
+                    processed_edges.add(edge_id)
     
-    # Add relationships
-    for relationship in relationships:
-        mermaid_code += relationship + "\n"
-    
-    return mermaid_code
+    return json.dumps(elements, ensure_ascii=False)
 
 
 def _clean_identifier(identifier: str) -> str:
@@ -145,22 +215,18 @@ def _extract_table_name(node_id: str) -> Optional[str]:
     return node_id
 
 
-def _determine_cardinality(details: Dict[str, Any]) -> str:
+# Legacy mermaid generation functions - kept for backward compatibility
+def generate_mermaid_er_diagram(graph_data: Dict[str, Any], focus_table: Optional[str] = None, schema_name: Optional[str] = None) -> str:
     """
-    Determine Mermaid cardinality notation from relationship details.
-    
-    Returns:
-        Mermaid cardinality string (e.g., "||--o{", "}o--||")
+    Legacy function - use generate_cytoscape_er_diagram instead.
     """
-    # Default to many-to-one relationship (typical for FK)
-    cardinality_source = details.get('cardinarity_source', 'many')
-    cardinality_target = details.get('cardinarity_target', 'one')
-    
-    # Map DBGear cardinality to Mermaid notation
-    source_notation = "o{" if cardinality_source == 'many' else "||"
-    target_notation = "}o" if cardinality_target == 'many' else "||"
-    
-    return f"{source_notation}--{target_notation}"
+    return "Legacy mermaid function - use cytoscape version"
+
+def generate_table_dependency_diagram(dependencies: Dict[str, Any]) -> str:
+    """
+    Legacy function - use generate_table_dependency_cytoscape instead.
+    """
+    return "Legacy mermaid function - use cytoscape version"
 
 
 def create_dependency_summary_text(dependencies: Dict[str, Any]) -> List[str]:
