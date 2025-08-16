@@ -156,7 +156,7 @@ def index_card(index):
         ),
         Div(
             Span("Columns: ", cls="font-medium text-gray-700"),
-            Span(", ".join([col.column_name for col in index.columns]), cls="text-gray-900"),
+            Span(", ".join(index.columns), cls="text-gray-900"),
             cls="mt-2"
         ),
         *([
