@@ -12,6 +12,7 @@ from ..ui.tables import table_grid
 from ..ui.views import view_grid
 from ..ui.procedures import procedure_grid
 from ..ui.triggers import trigger_grid
+from ..ui.dependencies import dependency_navigation_button
 
 
 def register_dashboard_routes(rt):
@@ -180,6 +181,12 @@ def register_dashboard_routes(rt):
                 f"{len(tables)} tables, {len(views)} views, {len(procedures)} procedures, {len(triggers)} triggers"
             ),
 
+            # ER Diagram navigation
+            Div(
+                dependency_navigation_button(schema_name),
+                cls="mb-6"
+            ),
+
             # Tables section
             Div(
                 H2("Tables", cls="text-lg font-medium text-gray-900 mb-4"),
@@ -225,8 +232,8 @@ def schema_grid(schemas: dict):
         trigger_count = len(schema.triggers) if hasattr(schema, 'triggers') else 0
 
         schema_cards.append(
-            A(
-                Div(
+            Div(
+                A(
                     Div(
                         UkIcon("database", height=20, cls="text-blue-500"),
                         H3(schema_name, cls="text-lg font-medium text-gray-900"),
@@ -240,12 +247,16 @@ def schema_grid(schemas: dict):
                     Div(
                         Span(f"{procedure_count} procedures", cls="text-sm text-gray-500 mr-2"),
                         Span(f"{trigger_count} triggers", cls="text-sm text-gray-500"),
-                        cls="flex"
+                        cls="flex mb-2"
                     ),
-                    cls="p-4"
+                    href=f"/schemas/{schema_name}",
+                    cls="block hover:bg-gray-100 transition-colors duration-150 flex-1"
                 ),
-                href=f"/schemas/{schema_name}",
-                cls="block bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors duration-150"
+                Div(
+                    dependency_navigation_button(schema_name),
+                    cls="px-4 pb-4"
+                ),
+                cls="bg-gray-50 rounded-lg border border-gray-200 flex flex-col"
             )
         )
 

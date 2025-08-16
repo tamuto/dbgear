@@ -18,9 +18,10 @@ from .routes.tables import register_table_routes
 from .routes.views import register_view_routes
 from .routes.procedures import register_procedure_routes
 from .routes.triggers import register_trigger_routes
+from .routes.dependencies import register_dependency_routes
 
 # Initialize FastHTML app
-app, rt = fast_app(hdrs=Theme.blue.headers(highlightjs=True), secret_key=str(uuid4()))
+app, rt = fast_app(hdrs=[*Theme.blue.headers(highlightjs=True), MermaidJS()], secret_key=str(uuid4()))
 
 # Register all routes
 register_dashboard_routes(rt)
@@ -28,6 +29,7 @@ register_table_routes(rt)
 register_view_routes(rt)
 register_procedure_routes(rt)
 register_trigger_routes(rt)
+register_dependency_routes(rt)
 
 
 def main():

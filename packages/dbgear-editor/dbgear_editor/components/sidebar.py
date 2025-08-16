@@ -173,8 +173,8 @@ def table_item(table_name: str, table, schema_name: str, current_path: str = "")
     column_count = len(table.columns) if hasattr(table, 'columns') else 0
 
     # Check if this is the current active item
-
-    is_active = current_path == f"/schemas/{schema_name}/tables/{table_name}"
+    table_base_path = f"/schemas/{schema_name}/tables/{table_name}"
+    is_active = current_path == table_base_path or current_path.startswith(table_base_path + "/")
     item_class = "block px-3 py-1 rounded text-sm transition-colors duration-150"
     if is_active:
         item_class += " bg-blue-100 text-blue-800 font-medium"
@@ -206,8 +206,8 @@ def view_item(view_name: str, view, schema_name: str, current_path: str = ""):
         FastHTML component for view item
     """
     # Check if this is the current active item
-
-    is_active = current_path == f"/schemas/{schema_name}/views/{view_name}"
+    view_base_path = f"/schemas/{schema_name}/views/{view_name}"
+    is_active = current_path == view_base_path or current_path.startswith(view_base_path + "/")
     item_class = "block px-3 py-1 rounded text-sm transition-colors duration-150"
     if is_active:
         item_class += " bg-purple-100 text-purple-800 font-medium"
@@ -240,8 +240,8 @@ def procedure_item(procedure_name: str, procedure, schema_name: str, current_pat
     proc_type = "F" if getattr(procedure, 'is_function', False) else "P"
 
     # Check if this is the current active item
-
-    is_active = current_path == f"/schemas/{schema_name}/procedures/{procedure_name}"
+    procedure_base_path = f"/schemas/{schema_name}/procedures/{procedure_name}"
+    is_active = current_path == procedure_base_path or current_path.startswith(procedure_base_path + "/")
     item_class = "block px-3 py-1 rounded text-sm transition-colors duration-150"
     if is_active:
         item_class += " bg-orange-100 text-orange-800 font-medium"
@@ -277,8 +277,8 @@ def trigger_item(trigger_name: str, trigger, schema_name: str, current_path: str
     event = getattr(trigger, 'event', '')[:1]    # I/U/D for INSERT/UPDATE/DELETE
 
     # Check if this is the current active item
-
-    is_active = current_path == f"/schemas/{schema_name}/triggers/{trigger_name}"
+    trigger_base_path = f"/schemas/{schema_name}/triggers/{trigger_name}"
+    is_active = current_path == trigger_base_path or current_path.startswith(trigger_base_path + "/")
     item_class = "block px-3 py-1 rounded text-sm transition-colors duration-150"
     if is_active:
         item_class += " bg-yellow-100 text-yellow-800 font-medium"
