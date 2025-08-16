@@ -102,22 +102,13 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
                                     }}
                                 ],
                                 layout: {{
-                                    name: 'cose',
-                                    idealEdgeLength: 100,
-                                    nodeOverlap: 20,
-                                    refresh: 20,
+                                    name: 'dagre',
                                     fit: true,
-                                    padding: 30,
-                                    randomize: false,
-                                    componentSpacing: 100,
-                                    nodeRepulsion: 400000,
-                                    edgeElasticity: 100,
-                                    nestingFactor: 5,
-                                    gravity: 80,
-                                    numIter: 1000,
-                                    initialTemp: 200,
-                                    coolingFactor: 0.95,
-                                    minTemp: 1.0
+                                    padding: 50,
+                                    rankDir: 'LR',
+                                    spacingFactor: 1.5,
+                                    nodeSep: 50,
+                                    rankSep: 100
                                 }}
                             }});
                             
@@ -242,8 +233,8 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
                                     {{
                                         selector: 'edge.referenced-by',
                                         style: {{
-                                            'line-color': '#ef4444',
-                                            'target-arrow-color': '#ef4444'
+                                            'line-color': '#3b82f6',
+                                            'target-arrow-color': '#3b82f6'
                                         }}
                                     }},
                                     {{
@@ -256,14 +247,18 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
                                 ],
                                 layout: {{
                                     name: 'concentric',
+                                    fit: true,
+                                    padding: 80,
                                     concentric: function(node) {{
-                                        return node.data('central') ? 2 : 1;
+                                        return node.hasClass('central') ? 2 : 1;
                                     }},
                                     levelWidth: function(nodes) {{
-                                        return 2;
+                                        return 1;
                                     }},
-                                    fit: true,
-                                    padding: 30
+                                    spacing: 150,
+                                    minNodeSpacing: 80,
+                                    startAngle: 0,
+                                    equidistant: true
                                 }}
                             }});
                             
@@ -350,7 +345,7 @@ def render_table_list(nodes: List[Dict[str, Any]], schema_name: str) -> FT:
 
 def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
     """
-    Render detailed dependency information.
+    Render detailed dependency information in 3-column layout.
     
     Args:
         dependencies: Dependency data from analyzer
@@ -358,25 +353,55 @@ def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
     Returns:
         FastHTML component
     """
+    target_table = dependencies.get('target_table', {})
+    center_table_name = target_table.get('table_name', 'Unknown')
+    
     return Div(
         H2("Detailed Dependencies", cls="text-xl font-semibold text-gray-900 mb-4"),
         
         Div(
-            # Referenced by (left dependencies)
+            # Left column: Referenced By (tables that reference this table)
             Div(
-                H3("Referenced By", cls="text-lg font-medium text-gray-900 mb-3"),
+                H3("Referenced By", cls="text-lg font-medium text-gray-900 mb-3 text-center"),
+                P("Tables that reference this table", cls="text-sm text-gray-600 mb-4 text-center"),
                 render_dependency_list(dependencies.get('left', {}), 'left'),
-                cls="mb-6"
+                Div(
+                    Div(cls="h-0 w-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[15px] border-t-blue-500 mx-auto"),
+                    P("→", cls="text-2xl text-blue-500 text-center mt-2"),
+                    cls="mt-4"
+                ),
+                cls="bg-blue-50 border border-blue-200 rounded-lg p-4"
             ),
             
-            # References (right dependencies)
+            # Center column: Current table
             Div(
-                H3("References", cls="text-lg font-medium text-gray-900 mb-3"),
-                render_dependency_list(dependencies.get('right', {}), 'right'),
-                cls="mb-6"
+                H3("Current Table", cls="text-lg font-medium text-gray-900 mb-3 text-center"),
+                Div(
+                    Div(
+                        UkIcon("table", height=24, cls="text-yellow-600 mx-auto mb-2"),
+                        H4(center_table_name, cls="text-xl font-bold text-gray-900 text-center"),
+                        P("Focus table", cls="text-sm text-gray-600 text-center"),
+                        cls="p-6 bg-white border-2 border-yellow-400 rounded-lg shadow-md"
+                    ),
+                    cls="flex justify-center items-center"
+                ),
+                cls="flex flex-col justify-center"
             ),
             
-            cls="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            # Right column: References (tables this table references)
+            Div(
+                Div(
+                    Div(cls="h-0 w-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[15px] border-t-green-500 mx-auto"),
+                    P("→", cls="text-2xl text-green-500 text-center mt-2"),
+                    cls="mb-4"
+                ),
+                H3("References", cls="text-lg font-medium text-gray-900 mb-3 text-center"),
+                P("Tables this table references", cls="text-sm text-gray-600 mb-4 text-center"),
+                render_dependency_list(dependencies.get('right', {}), 'right'),
+                cls="bg-green-50 border border-green-200 rounded-lg p-4"
+            ),
+            
+            cls="grid grid-cols-1 lg:grid-cols-3 gap-6"
         ),
         
         cls="mb-8"
@@ -432,8 +457,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
         'relation': '🔗',
         'view': '👁️',
         'trigger': '⚡',
-        'index': '📇',
-        'data': '📊'
+        'index': '📇'
     }
     icon = type_icons.get(dep_type, '❓')
     
@@ -442,8 +466,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
         'relation': 'bg-blue-100 text-blue-800',
         'view': 'bg-green-100 text-green-800',
         'trigger': 'bg-yellow-100 text-yellow-800',
-        'index': 'bg-purple-100 text-purple-800',
-        'data': 'bg-orange-100 text-orange-800'
+        'index': 'bg-purple-100 text-purple-800'
     }
     color_class = type_colors.get(dep_type, 'bg-gray-100 text-gray-800')
     

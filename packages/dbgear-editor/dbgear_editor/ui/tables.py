@@ -98,7 +98,7 @@ def column_row(column):
     # Create badges for boolean values
     nullable_badge = badge("Yes", "green") if column.nullable else badge("No", "red")
     auto_inc_badge = badge("Yes", "blue") if column.auto_increment else ""
-    primary_key_badge = badge("Yes", "purple") if column.primary_key else ""
+    primary_key_badge = badge(str(column.primary_key + 1), "purple") if column.primary_key is not None else ""
 
     return Tr(
         Td(

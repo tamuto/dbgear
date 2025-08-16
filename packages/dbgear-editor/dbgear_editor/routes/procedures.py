@@ -11,6 +11,7 @@ from ..ui.procedures import (
     procedure_info_section, procedure_parameters_section, procedure_sql_section
 )
 from ..ui.common import notes_section
+from ..components.right_sidebar import procedure_notes_sidebar
 
 
 def register_procedure_routes(rt):
@@ -67,14 +68,14 @@ def register_procedure_routes(rt):
                 cls="bg-white shadow rounded-lg p-6 mb-6"
             ),
 
-            # Notes section (if any)
-            *([
-                Div(
-                    H2("Notes", cls="text-lg font-medium text-gray-900 mb-4"),
-                    notes_section(procedure),
-                    cls="bg-white shadow rounded-lg p-6"
-                )
-            ] if hasattr(procedure, 'notes') and len(list(procedure.notes)) > 0 else [])
         )
 
-        return layout(content, f"{procedure_name} - {schema_name} - DBGear Editor", str(request.url.path))
+        # Create right sidebar with notes
+        sidebar_content = procedure_notes_sidebar(procedure)
+
+        return layout(
+            content, 
+            f"{procedure_name} - {schema_name} - DBGear Editor", 
+            str(request.url.path),
+            sidebar_content
+        )

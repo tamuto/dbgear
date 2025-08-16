@@ -350,14 +350,14 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "dbgear"
-version = "0.30.0"
+version = "0.30.1"
 description = "Database management tools for initial data management"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "dbgear-0.30.0-py3-none-any.whl", hash = "sha256:178c60a640a29ce52244c7f2b46e7dcef6ea9f9939ed93dfe846ffb48a7ea46a"},
-    {file = "dbgear-0.30.0.tar.gz", hash = "sha256:09c24b3839008ffadf3f2b22ee6d47e8fcb38a28c4835fc68ab5aaeddb789e0e"},
+    {file = "dbgear-0.30.1-py3-none-any.whl", hash = "sha256:93e8e0b31adb7b993c164200b304976482bb03bfae221c570c408cb11ec7ba01"},
+    {file = "dbgear-0.30.1.tar.gz", hash = "sha256:11512c00703cc78e8433ea0c245846faff5959c173a7c9ed75ee5a263a8d2d24"},
 ]
 
 [package.dependencies]
@@ -1646,4 +1646,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "89a012ce5cfd6cda8277e64eda0945f8a99e30417e58fc03f98c466ccee209cb"
+content-hash = "af5feb37b202e6b95699493e90a8efded042c796d6c6d26db5eb2428d9a6233d"

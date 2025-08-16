@@ -9,6 +9,7 @@ from ..layout import layout, content_header, breadcrumb
 from ..project import get_current_project
 from ..ui.triggers import trigger_info_section, trigger_sql_section
 from ..ui.common import notes_section
+from ..components.right_sidebar import trigger_notes_sidebar
 
 
 def register_trigger_routes(rt):
@@ -56,14 +57,14 @@ def register_trigger_routes(rt):
                 cls="bg-white shadow rounded-lg p-6 mb-6"
             ),
 
-            # Notes section (if any)
-            *([
-                Div(
-                    H2("Notes", cls="text-lg font-medium text-gray-900 mb-4"),
-                    notes_section(trigger),
-                    cls="bg-white shadow rounded-lg p-6"
-                )
-            ] if hasattr(trigger, 'notes') and len(list(trigger.notes)) > 0 else [])
         )
 
-        return layout(content, f"{trigger_name} - {schema_name} - DBGear Editor", str(request.url.path) if request else "")
+        # Create right sidebar with notes
+        sidebar_content = trigger_notes_sidebar(trigger)
+
+        return layout(
+            content, 
+            f"{trigger_name} - {schema_name} - DBGear Editor", 
+            str(request.url.path) if request else "",
+            sidebar_content
+        )
