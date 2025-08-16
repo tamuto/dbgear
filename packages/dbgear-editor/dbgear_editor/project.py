@@ -178,7 +178,7 @@ class DBGearProject:
             return {}
 
         return {
-            "name": getattr(self.project, 'name', 'Unknown'),
+            "name": getattr(self.project, 'project_name', 'Unknown'),
             "path": self.project_path,
             "schemas_count": len(self.schema_manager.schemas) if self.schema_manager else 0,
             "tables_count": sum(len(schema.tables) for schema in self.schema_manager.schemas.values()) if self.schema_manager else 0,
