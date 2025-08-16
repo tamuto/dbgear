@@ -101,8 +101,30 @@ class Operation:
                 procedure.create(self.conn, map.instance_name, proc)
 
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str):
-        # データ投入
-        for dm in map.datamodels:
+        # データ投入の順序を決定
+        if all:
+            # 全体指定時は依存関係を考慮した順序でデータ投入
+            from .utils.dependency import DependencyResolver
+            resolver = DependencyResolver()
+
+            # 依存関係の妥当性をチェック
+            warnings = resolver.validate_dependencies(map.datamodels, schema)
+            for warning in warnings:
+                logger.warning(warning)
+
+            try:
+                ordered_datamodels = resolver.resolve_insertion_order(map.datamodels, schema)
+            except ValueError as e:
+                logger.error(f"Failed to resolve data insertion order: {e}")
+                raise
+
+            datamodels_to_process = ordered_datamodels
+        else:
+            # 個別指定時は従来通り
+            datamodels_to_process = map.datamodels
+
+        # データ投入処理
+        for dm in datamodels_to_process:
             if dm.sync_mode == const.SYNC_MODE_MANUAL and all:
                 # 手動モードで全てで指定されている場合には、スキップする
                 continue

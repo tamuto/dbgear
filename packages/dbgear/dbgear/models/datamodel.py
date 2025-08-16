@@ -43,6 +43,7 @@ class DataModel(BaseSchema):
     data_path: str | None = None
     data_args: dict[str, Any] = pydantic.Field(default_factory=dict)
     data_params: DataParams = pydantic.Field(default_factory=DataParams)
+    dependencies: list[str] = pydantic.Field(default_factory=list)  # ["schema@table", "other_schema@other_table"]
 
     @classmethod
     def _directory(cls, folder: str, environ: str, map_name: str) -> str:
