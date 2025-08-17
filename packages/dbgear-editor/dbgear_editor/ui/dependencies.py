@@ -47,82 +47,17 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
         Div(
             H2("Entity Relationship Diagram", cls="text-xl font-semibold text-gray-900 mb-4"),
             Div(
+                # SVG display in a container with fixed height
                 Div(
-                    id="er-diagram",
-                    cls="bg-white border border-gray-200 rounded-lg overflow-hidden",
-                    style="height: 500px;"
+                    Img(
+                        src=f"/schemas/{schema_name}/er-diagram",
+                        alt=f"ER Diagram for {schema_name}",
+                        cls="border border-gray-200 rounded-lg bg-white",
+                        style="width: 100%; height: 100%; object-fit: scale-down;"
+                    ),
+                    cls="w-full flex justify-center items-center",
+                    style="height: 600px; overflow: hidden;"
                 ),
-                Script(f"""
-                    document.addEventListener('DOMContentLoaded', function() {{
-                        if (typeof cytoscape !== 'undefined') {{
-                            const elements = {cytoscape_data};
-                            
-                            const cy = cytoscape({{
-                                container: document.getElementById('er-diagram'),
-                                elements: elements,
-                                style: [
-                                    {{
-                                        selector: 'node.table-node',
-                                        style: {{
-                                            'background-color': '#f8fafc',
-                                            'border-color': '#e2e8f0',
-                                            'border-width': 2,
-                                            'label': 'data(label)',
-                                            'text-valign': 'center',
-                                            'text-halign': 'center',
-                                            'font-size': '12px',
-                                            'font-weight': 'bold',
-                                            'color': '#1f2937',
-                                            'width': 120,
-                                            'height': 40,
-                                            'shape': 'roundrectangle'
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'node.focused',
-                                        style: {{
-                                            'background-color': '#dbeafe',
-                                            'border-color': '#3b82f6',
-                                            'border-width': 3
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'edge.relation-edge',
-                                        style: {{
-                                            'width': 2,
-                                            'line-color': '#6b7280',
-                                            'target-arrow-color': '#6b7280',
-                                            'target-arrow-shape': 'triangle',
-                                            'curve-style': 'bezier',
-                                            'label': 'data(label)',
-                                            'font-size': '10px',
-                                            'text-rotation': 'autorotate',
-                                            'text-margin-y': -10
-                                        }}
-                                    }}
-                                ],
-                                layout: {{
-                                    name: 'dagre',
-                                    fit: true,
-                                    padding: 50,
-                                    rankDir: 'LR',
-                                    spacingFactor: 1.5,
-                                    nodeSep: 50,
-                                    rankSep: 100
-                                }}
-                            }});
-                            
-                            // Add click handler for table nodes
-                            cy.on('tap', 'node[type="table"]', function(evt) {{
-                                const table = evt.target;
-                                const tableName = table.data('label');
-                                window.location.href = `/schemas/{schema_name}/tables/${{tableName}}`;
-                            }});
-                        }} else {{
-                            document.getElementById('er-diagram').innerHTML = '<div class="p-4 text-center text-gray-500">Cytoscape.js not loaded</div>';
-                        }}
-                    }});
-                """),
                 cls="mb-6"
             ),
             cls="mb-8"
@@ -177,102 +112,17 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
         Div(
             H2("Dependency Diagram", cls="text-xl font-semibold text-gray-900 mb-4"),
             Div(
+                # SVG display in a container with fixed height
                 Div(
-                    id="dependency-diagram",
-                    cls="bg-white border border-gray-200 rounded-lg overflow-hidden",
-                    style="height: 400px;"
+                    Img(
+                        src=f"/schemas/{schema_name}/tables/{table_name}/diagram",
+                        alt=f"Dependency Diagram for {table_name}",
+                        cls="border border-gray-200 rounded-lg bg-white",
+                        style="width: 100%; height: 100%; object-fit: scale-down;"
+                    ),
+                    cls="w-full flex justify-center items-center",
+                    style="height: 500px; overflow: hidden;"
                 ),
-                Script(f"""
-                    document.addEventListener('DOMContentLoaded', function() {{
-                        if (typeof cytoscape !== 'undefined') {{
-                            const elements = {cytoscape_data};
-                            
-                            const cy = cytoscape({{
-                                container: document.getElementById('dependency-diagram'),
-                                elements: elements,
-                                style: [
-                                    {{
-                                        selector: 'node.table-node',
-                                        style: {{
-                                            'background-color': '#f8fafc',
-                                            'border-color': '#e2e8f0',
-                                            'border-width': 2,
-                                            'label': 'data(label)',
-                                            'text-valign': 'center',
-                                            'text-halign': 'center',
-                                            'font-size': '12px',
-                                            'font-weight': 'bold',
-                                            'color': '#1f2937',
-                                            'width': 120,
-                                            'height': 40,
-                                            'shape': 'roundrectangle'
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'node.central',
-                                        style: {{
-                                            'background-color': '#fef3c7',
-                                            'border-color': '#f59e0b',
-                                            'border-width': 3
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'edge.relation-edge',
-                                        style: {{
-                                            'width': 2,
-                                            'line-color': '#6b7280',
-                                            'target-arrow-color': '#6b7280',
-                                            'target-arrow-shape': 'triangle',
-                                            'curve-style': 'bezier',
-                                            'label': 'data(label)',
-                                            'font-size': '10px',
-                                            'text-rotation': 'autorotate',
-                                            'text-margin-y': -10
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'edge.referenced-by',
-                                        style: {{
-                                            'line-color': '#3b82f6',
-                                            'target-arrow-color': '#3b82f6'
-                                        }}
-                                    }},
-                                    {{
-                                        selector: 'edge.references',
-                                        style: {{
-                                            'line-color': '#10b981',
-                                            'target-arrow-color': '#10b981'
-                                        }}
-                                    }}
-                                ],
-                                layout: {{
-                                    name: 'concentric',
-                                    fit: true,
-                                    padding: 80,
-                                    concentric: function(node) {{
-                                        return node.hasClass('central') ? 2 : 1;
-                                    }},
-                                    levelWidth: function(nodes) {{
-                                        return 1;
-                                    }},
-                                    spacing: 150,
-                                    minNodeSpacing: 80,
-                                    startAngle: 0,
-                                    equidistant: true
-                                }}
-                            }});
-                            
-                            // Add click handler for table nodes
-                            cy.on('tap', 'node[type="table"]', function(evt) {{
-                                const table = evt.target;
-                                const tableName = table.data('label');
-                                window.location.href = `/schemas/{schema_name}/tables/${{tableName}}`;
-                            }});
-                        }} else {{
-                            document.getElementById('dependency-diagram').innerHTML = '<div class="p-4 text-center text-gray-500">Cytoscape.js not loaded</div>';
-                        }}
-                    }});
-                """),
                 cls="mb-6"
             ),
             cls="mb-8"
