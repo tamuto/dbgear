@@ -17,20 +17,20 @@ from ..components.er_diagram import (
 def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT:
     """
     Render complete schema ER diagram page.
-    
+
     Args:
         schema_name: Name of the schema
         graph_data: Graph data from dependency analyzer
-        
+
     Returns:
         FastHTML component tree
     """
     cytoscape_data = generate_cytoscape_er_diagram(graph_data, schema_name=schema_name)
-    
+
     # Statistics
     node_count = len(graph_data.get('nodes', []))
     edge_count = len(graph_data.get('edges', []))
-    
+
     return Div(
         # Header section
         Div(
@@ -42,7 +42,7 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
             ),
             cls="mb-8"
         ),
-        
+
         # ER Diagram section
         Div(
             H2("Entity Relationship Diagram", cls="text-xl font-semibold text-gray-900 mb-4"),
@@ -62,7 +62,7 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
             ),
             cls="mb-8"
         ),
-        
+
         # Table list section
         Div(
             H2("Tables in Schema", cls="text-xl font-semibold text-gray-900 mb-4"),
@@ -70,7 +70,7 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
             render_table_list(graph_data.get('nodes', []), schema_name),
             cls="mb-8"
         ),
-        
+
         cls="container mx-auto px-4 py-8"
     )
 
@@ -78,18 +78,18 @@ def render_schema_er_diagram(schema_name: str, graph_data: Dict[str, Any]) -> FT
 def render_table_dependency_view(schema_name: str, table_name: str, dependencies: Dict[str, Any]) -> FT:
     """
     Render table-specific dependency view.
-    
+
     Args:
         schema_name: Name of the schema
         table_name: Name of the table
         dependencies: Dependency data from analyzer
-        
+
     Returns:
         FastHTML component tree
     """
     cytoscape_data = generate_table_dependency_cytoscape(dependencies)
     summary_text = create_dependency_summary_text(dependencies)
-    
+
     return Div(
         # Header
         Div(
@@ -97,7 +97,7 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
             P(f"Schema: {schema_name}", cls="text-gray-600 mb-6"),
             cls="mb-8"
         ),
-        
+
         # Summary stats
         Div(
             H2("Dependency Summary", cls="text-xl font-semibold text-gray-900 mb-4"),
@@ -107,7 +107,7 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
             ),
             cls="mb-8"
         ),
-        
+
         # Dependency Diagram
         Div(
             H2("Dependency Diagram", cls="text-xl font-semibold text-gray-900 mb-4"),
@@ -127,10 +127,10 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
             ),
             cls="mb-8"
         ),
-        
+
         # Detailed dependency lists
         render_dependency_details(dependencies),
-        
+
         cls="container mx-auto px-4 py-8"
     )
 
@@ -138,17 +138,17 @@ def render_table_dependency_view(schema_name: str, table_name: str, dependencies
 def render_table_list(nodes: List[Dict[str, Any]], schema_name: str) -> FT:
     """
     Render list of tables with links to dependency views.
-    
+
     Args:
         nodes: List of node data from graph
         schema_name: Name of the schema
-        
+
     Returns:
         FastHTML component
     """
     tables = sorted([node for node in nodes if node.get('type') == 'table'], key=lambda x: x.get('table_name', ''))
     views = sorted([node for node in nodes if node.get('type') == 'view'], key=lambda x: x.get('label', ''))
-    
+
     return Div(
         # Tables section
         Div(
@@ -174,7 +174,7 @@ def render_table_list(nodes: List[Dict[str, Any]], schema_name: str) -> FT:
             ) if tables else P("No tables found", cls="text-gray-500 italic"),
             cls="mb-6"
         ),
-        
+
         # Views section
         Div(
             H3("Views", cls="text-lg font-medium text-gray-900 mb-3"),
@@ -196,19 +196,19 @@ def render_table_list(nodes: List[Dict[str, Any]], schema_name: str) -> FT:
 def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
     """
     Render detailed dependency information in 3-column layout.
-    
+
     Args:
         dependencies: Dependency data from analyzer
-        
+
     Returns:
         FastHTML component
     """
     target_table = dependencies.get('target_table', {})
     center_table_name = target_table.get('table_name', 'Unknown')
-    
+
     return Div(
         H2("Detailed Dependencies", cls="text-xl font-semibold text-gray-900 mb-4"),
-        
+
         Div(
             # Left column: Referenced By (tables that reference this table)
             Div(
@@ -222,7 +222,7 @@ def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
                 ),
                 cls="bg-blue-50 border border-blue-200 rounded-lg p-4"
             ),
-            
+
             # Center column: Current table
             Div(
                 H3("Current Table", cls="text-lg font-medium text-gray-900 mb-3 text-center"),
@@ -237,7 +237,7 @@ def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
                 ),
                 cls="flex flex-col justify-center"
             ),
-            
+
             # Right column: References (tables this table references)
             Div(
                 Div(
@@ -250,10 +250,10 @@ def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
                 render_dependency_list(dependencies.get('right', {}), 'right'),
                 cls="bg-green-50 border border-green-200 rounded-lg p-4"
             ),
-            
+
             cls="grid grid-cols-1 lg:grid-cols-3 gap-6"
         ),
-        
+
         cls="mb-8"
     )
 
@@ -261,17 +261,17 @@ def render_dependency_details(dependencies: Dict[str, Any]) -> FT:
 def render_dependency_list(dep_levels: Dict[str, List[Dict[str, Any]]], side: str) -> FT:
     """
     Render dependency list for one side (left or right).
-    
+
     Args:
         dep_levels: Dependency levels data
         side: 'left' or 'right'
-        
+
     Returns:
         FastHTML component
     """
     if not dep_levels:
         return P("No dependencies", cls="text-gray-500 italic")
-    
+
     return Div(
         *[
             Div(
@@ -290,10 +290,10 @@ def render_dependency_list(dep_levels: Dict[str, List[Dict[str, Any]]], side: st
 def render_dependency_item(dep: Dict[str, Any]) -> FT:
     """
     Render individual dependency item.
-    
+
     Args:
         dep: Dependency item data
-        
+
     Returns:
         FastHTML component
     """
@@ -301,7 +301,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
     object_name = dep.get('object_name', 'Unknown')
     table_name = dep.get('table_name')
     schema_name = dep.get('schema_name', '')
-    
+
     # Icon based on type
     type_icons = {
         'relation': '🔗',
@@ -310,7 +310,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
         'index': '📇'
     }
     icon = type_icons.get(dep_type, '❓')
-    
+
     # Type color
     type_colors = {
         'relation': 'bg-blue-100 text-blue-800',
@@ -319,7 +319,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
         'index': 'bg-purple-100 text-purple-800'
     }
     color_class = type_colors.get(dep_type, 'bg-gray-100 text-gray-800')
-    
+
     return Div(
         Div(
             Span(icon, cls="mr-2"),
@@ -331,7 +331,7 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
             P(f"Schema: {schema_name}" + (f" • Table: {table_name}" if table_name else ""), cls="text-xs text-gray-600"),
             # Add path information if available
             Div(
-                *[P(f"via {path_item.get('table_name', 'Unknown')}", cls="text-xs text-gray-500") 
+                *[P(f"via {path_item.get('table_name', 'Unknown')}", cls="text-xs text-gray-500")
                  for path_item in dep.get('path', [])],
                 cls="ml-4"
             ) if dep.get('path') else None,
@@ -344,11 +344,11 @@ def render_dependency_item(dep: Dict[str, Any]) -> FT:
 def dependency_navigation_button(schema_name: str, table_name: Optional[str] = None) -> FT:
     """
     Create navigation button to dependency views.
-    
+
     Args:
         schema_name: Name of the schema
         table_name: Optional table name for table-specific view
-        
+
     Returns:
         FastHTML component
     """
@@ -360,7 +360,7 @@ def dependency_navigation_button(schema_name: str, table_name: Optional[str] = N
         href = f"/schemas/{schema_name}/dependencies"
         text = "View ER Diagram"
         icon = "📊"
-    
+
     return A(
         Span(icon, cls="mr-2"),
         text,

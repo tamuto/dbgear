@@ -6,7 +6,7 @@ Handles ER diagram and dependency analysis endpoints.
 from fasthtml.common import *
 from starlette.requests import Request
 from starlette.responses import Response
-import pygraphviz as pgv
+from graphviz import Digraph
 from dbgear.misc.dependencies import TableDependencyAnalyzer
 from dbgear.models.exceptions import DBGearError
 
@@ -227,7 +227,7 @@ def register_dependency_routes(rt):
 
     @rt('/schemas/{schema_name}/er-diagram')
     def schema_er_diagram_svg(schema_name: str):
-        """Return SVG ER diagram for entire schema using pygraphviz."""
+        """Return SVG ER diagram for entire schema using graphviz."""
         try:
             # Get current project
             project = get_current_project()
@@ -248,31 +248,19 @@ def register_dependency_routes(rt):
             # Get schema object
             schema = project.schema_manager.schemas[schema_name]
 
-            # Create pygraphviz graph with smaller dimensions
-            graph = pgv.AGraph(directed=True, rankdir='TB')
-            graph.graph_attr.update(
-                dpi='72',  # Lower DPI for smaller output
-                bgcolor='white',
-                size='8,6!',  # Force exact size with !
-                margin='0.1',
-                pad='0.2',
-                ranksep='0.3',
-                nodesep='0.2'
-            )
-            graph.node_attr.update(
-                shape='box',
-                style='rounded,filled',
-                fontname='Arial',
-                fontsize='9',
-                width='1.0',
-                height='0.5',
-                margin='0.1'
-            )
-            graph.edge_attr.update(fontname='Arial', fontsize='7')
+            # Create graphviz digraph with smaller dimensions
+            graph = Digraph(comment=f'ER Diagram for {schema_name}', format='svg')
+            graph.attr(rankdir='TB', bgcolor='white', dpi='72', 
+                      size='8,6!', margin='0.1', pad='0.2', 
+                      ranksep='0.3', nodesep='0.2')
+            graph.attr('node', shape='box', style='rounded,filled', 
+                      fontname='Arial', fontsize='9', width='1.0', 
+                      height='0.5', margin='0.1')
+            graph.attr('edge', fontname='Arial', fontsize='7')
 
             # Add all tables as nodes
             for table_name, table_obj in schema.tables.tables.items():
-                graph.add_node(
+                graph.node(
                     f"{schema_name}.{table_name}",
                     label=table_name,
                     fillcolor='lightblue',
@@ -281,7 +269,7 @@ def register_dependency_routes(rt):
 
             # Add all views as nodes
             for view_name, view_obj in schema.views.views.items():
-                graph.add_node(
+                graph.node(
                     f"{schema_name}.{view_name}",
                     label=view_name,
                     fillcolor='lightgreen',
@@ -304,7 +292,7 @@ def register_dependency_routes(rt):
                         for dep in level_deps:
                             if dep["type"] == "relation" and dep["table_name"]:
                                 # Foreign key relationship
-                                graph.add_edge(
+                                graph.edge(
                                     f"{schema_name}.{table_name}",
                                     f"{dep['schema_name']}.{dep['table_name']}",
                                     label=dep["object_name"],
@@ -316,7 +304,7 @@ def register_dependency_routes(rt):
                     continue
 
             # Generate SVG
-            svg_content = graph.draw(format='svg', prog='dot')
+            svg_content = graph.pipe(format='svg', encoding='utf-8')
 
             return Response(
                 content=svg_content,
@@ -329,7 +317,7 @@ def register_dependency_routes(rt):
 
     @rt('/schemas/{schema_name}/tables/{table_name}/diagram')
     def table_dependency_diagram_svg(schema_name: str, table_name: str):
-        """Return SVG dependency diagram for specific table using pygraphviz."""
+        """Return SVG dependency diagram for specific table using graphviz."""
         try:
             # Get current project
             project = get_current_project()
@@ -360,33 +348,20 @@ def register_dependency_routes(rt):
                 right_level=3
             )
 
-            # Create pygraphviz graph for table dependencies with compact size
-            graph = pgv.AGraph(directed=True, rankdir='LR')
-            graph.graph_attr.update(
-                dpi='72',  # Lower DPI for smaller output
-                bgcolor='white',
-                splines='ortho',
-                size='10,6!',  # Force exact size with !
-                margin='0.2',
-                pad='0.2',
-                nodesep='0.4',
-                ranksep='0.8'
-            )
-            graph.node_attr.update(
-                shape='box',
-                style='rounded,filled',
-                fontname='Arial',
-                fontsize='9',
-                width='1.2',
-                height='0.6',
-                margin='0.05'
-            )
-            graph.edge_attr.update(fontname='Arial', fontsize='7')
+            # Create graphviz digraph for table dependencies with compact size
+            graph = Digraph(comment=f'Dependency Diagram for {table_name}', format='svg')
+            graph.attr(rankdir='LR', bgcolor='white', dpi='72', splines='ortho',
+                      size='10,6!', margin='0.2', pad='0.2', 
+                      nodesep='0.4', ranksep='0.8')
+            graph.attr('node', shape='box', style='rounded,filled', 
+                      fontname='Arial', fontsize='9', width='1.2', 
+                      height='0.6', margin='0.05')
+            graph.attr('edge', fontname='Arial', fontsize='7')
 
             # Add central table (target table)
             target_table = dependencies.get('target_table', {})
             center_table_name = target_table.get('table_name', table_name)
-            graph.add_node(
+            graph.node(
                 f"center_{center_table_name}",
                 label=center_table_name,
                 fillcolor='gold',
@@ -401,14 +376,14 @@ def register_dependency_routes(rt):
                 for dep in level_deps:
                     if dep.get('table_name'):
                         node_id = f"left_{dep['schema_name']}_{dep['table_name']}"
-                        graph.add_node(
+                        graph.node(
                             node_id,
                             label=dep['table_name'],
                             fillcolor='lightblue',
                             color='blue'
                         )
                         # Add edge from left table to center
-                        graph.add_edge(
+                        graph.edge(
                             node_id,
                             f"center_{center_table_name}",
                             label=dep.get('object_name', ''),
@@ -422,14 +397,14 @@ def register_dependency_routes(rt):
                 for dep in level_deps:
                     if dep.get('table_name'):
                         node_id = f"right_{dep['schema_name']}_{dep['table_name']}"
-                        graph.add_node(
+                        graph.node(
                             node_id,
                             label=dep['table_name'],
                             fillcolor='lightgreen',
                             color='green'
                         )
                         # Add edge from center to right table
-                        graph.add_edge(
+                        graph.edge(
                             f"center_{center_table_name}",
                             node_id,
                             label=dep.get('object_name', ''),
@@ -438,7 +413,7 @@ def register_dependency_routes(rt):
                         )
 
             # Generate SVG
-            svg_content = graph.draw(format='svg', prog='dot')
+            svg_content = graph.pipe(format='svg', encoding='utf-8')
 
             return Response(
                 content=svg_content,
