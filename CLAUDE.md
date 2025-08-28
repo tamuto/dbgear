@@ -104,7 +104,7 @@ DBGear uses a Jinja2-based SQL template engine for all database operations, prov
 
 #### Architecture Overview
 ```
-packages/dbgear/dbgear/core/dbio/templates/
+packages/dbgear/dbgear/dbio/templates/
 ├── __init__.py              # Basic module
 ├── engine.py                # SQLTemplateEngine class with Jinja2 integration
 └── mysql/
@@ -134,7 +134,7 @@ packages/dbgear/dbgear/core/dbio/templates/
 
 #### Usage Example
 ```python
-from dbgear.core.dbio.templates.mysql import template_engine
+from dbgear.dbio.templates.mysql import template_engine
 
 # Generate CREATE TABLE SQL
 sql = template_engine.render('mysql_create_table', env='production', table=table_model)
@@ -211,18 +211,17 @@ DBGear implements a dynamic schema import system using importlib for extensible 
 
 #### Architecture Overview
 ```
-packages/dbgear/dbgear/core/
+packages/dbgear/dbgear/
 ├── importer.py                  # Generic importer with dynamic loading
-└── importers/                   # Importer modules directory
-    ├── __init__.py              # Interface documentation
-    └── a5sql_mk2.py             # A5:SQL Mk-2 format importer
+└── misc/
+    └── a5sql_mk2.py             # A5:SQL Mk-2 format importer (current location)
 ```
 
 #### Core Design Principles
 - **Dynamic Loading**: Uses importlib to load importer modules at runtime
 - **Unified Interface**: All importers implement the same `retrieve(folder, filename, mapping, **kwargs)` function
 - **Extensible**: New formats can be added by creating new modules in `importers/`
-- **CLI Integration**: Available via `dbgear import` command
+- **CLI Integration**: Core functionality available (CLI command in development)
 - **Error Handling**: Comprehensive error handling with clear user feedback
 
 #### Import Function Interface
@@ -251,14 +250,8 @@ def retrieve(folder: str, filename: str, mapping: dict, **kwargs) -> SchemaManag
 
 #### CLI Usage Examples
 ```bash
-# Import A5:SQL Mk-2 file
-dbgear import a5sql_mk2 schema.a5er
-
-# Custom output file
-dbgear import a5sql_mk2 schema.a5er --output production_schema.yaml
-
-# Schema mapping
-dbgear import a5sql_mk2 schema.a5er --mapping "MAIN:production,TEST:development"
+# Note: CLI import command is currently in development
+# Core functionality is available programmatically
 ```
 
 #### Programmatic Usage
@@ -273,11 +266,12 @@ schema_manager = import_schema('a5sql_mk2', 'path/to', 'schema.a5er', {'MAIN': '
 schema_manager.save('schema.yaml')
 ```
 
-#### Migration from Legacy Definitions
-The import system replaces the previous `definitions/` module structure:
-- ✅ `definitions/a5sql_mk2.py` → `importers/a5sql_mk2.py` (enhanced with ColumnType support)
-- ✅ `definitions/selectable.py` → Removed (not needed for core functionality)
-- ✅ `import.py` → Removed (experimental implementation)
+#### Current Implementation Status
+The import system is currently implemented as:
+- ✅ `misc/a5sql_mk2.py`: Core A5:SQL Mk-2 import functionality
+- ✅ `importer.py`: Generic importer interface with dynamic loading
+- 🔄 CLI integration: In development
+- ✅ Programmatic usage: Fully functional
 
 This provides a clean, extensible foundation for supporting additional schema formats in the future while maintaining backward compatibility for A5:SQL Mk-2 workflows.
 
@@ -293,7 +287,7 @@ This provides a clean, extensible foundation for supporting additional schema fo
 - **Core Models**: ✅ Complete (`dbgear.models.*`)
 - **CLI Integration**: ✅ Updated import paths
 - **Web Editor**: ✅ FastHTML modular architecture (94% code reduction)
-- **Database Operations**: ⚠️ Need import path updates from `core.models` to `models`
+- **Database Operations**: ✅ Complete migration to template-based SQL generation
 
 ### Critical Import Paths
 ```python
@@ -314,7 +308,7 @@ from dbgear.models.project import Project
 **3-Pane Layout System**:
 - Implemented comprehensive Notes display system with right sidebar
 - Enhanced Dependencies visualization with 3-column layout (Referenced By → Current Table → References)
-- Upgraded ER diagrams with Cytoscape.js dagre/concentric layouts
+- ER diagram functionality (layout library in development)
 
 **Critical Bug Fixes**:
 - Fixed Primary Key display issue (0-index problem)
@@ -336,9 +330,9 @@ def [entity]_notes_sidebar(entity) -> FastHTML
 ```
 
 **Performance Optimizations**:
-- Client-side Cytoscape.js layout computation
 - Conditional rendering for right sidebar (Notes存在時のみ)
 - Optimized spacing parameters for various screen sizes
+- Server-side rendering optimizations
 
 ### Future Development Priorities
 
@@ -346,7 +340,7 @@ See `ROADMAP.md` for detailed planning:
 - ✅ **Web Interface Modernization** - COMPLETED
 - ✅ **Notes Display System** - COMPLETED  
 - ✅ **Dependencies Visualization** - COMPLETED
-- ✅ **ER Diagram Enhancements** - COMPLETED
+- 🔄 **ER Diagram Enhancements** - IN PROGRESS (layout library migration)
 - Schema version management system
 - Enhanced MCP server integration  
 - Schema editing capabilities
