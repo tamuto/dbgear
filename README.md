@@ -43,10 +43,14 @@ poetry install
 
 ## 特徴
 
-- **Web エディターでのスキーマ閲覧**: FastHTML-based の直感的なインターフェースでデータベーススキーマを閲覧・編集
+- **高度なWeb エディター**: FastHTML-based の直感的なインターフェースでデータベーススキーマを閲覧・編集
+  - **3-Pane Layout**: メイン画面＋サイドバー＋右サイドバーの効率的レイアウト
+  - **Notes表示システム**: 全エンティティ対応のドキュメント管理機能
+  - **Dependencies可視化**: テーブル依存関係の双方向表示機能
+  - **ER図表示**: 動的ER図生成機能（レイアウトライブラリ対応中）
+- **包括的なスキーマ管理**: テーブル、ビュー、プロシージャ、トリガーの統合管理
 - **スキーマ連携**: テーブル定義に基づいたデータ入力支援と制約チェック
 - **関連データ管理**: 外部キー参照の自動解決により、IDのコピペ作業が不要
-- **ビュー管理**: データベースビューの定義と管理に対応
 - **バージョン管理対応**: YAML形式でのデータ保存により、Gitでの差分管理が可能
 - **複数環境対応**: 開発・テスト・本番など、環境ごとのデータ管理
 - **プラグイン機構**: カスタムデータ変換やバインディングの拡張が可能
@@ -107,9 +111,6 @@ instances:
 ### 3. CLI使用
 
 ```bash
-# A5:SQL Mk-2 ファイルからスキーマ定義をインポート（内蔵機能）
-dbgear import a5sql_mk2 schema.a5er --output schema.yaml
-
 # データベースへの適用
 dbgear apply localhost development --all drop
 
@@ -118,6 +119,8 @@ dbgear apply localhost development --all delta
 
 # 特定のテーブルのみ適用
 dbgear apply localhost development --target users
+
+# Note: A5:SQL Mk-2インポート機能は現在開発中です
 ```
 
 ### 4. Web エディター使用
@@ -160,16 +163,22 @@ DBGearは、Pydanticベースの型安全なデータモデルシステムを採
 ## CLIコマンド
 
 ### apply
-データベースにデータを適用します。
+データベースにスキーマとデータを適用します。
 
 ```bash
 # 基本構文
 dbgear apply <deployment> <environment> [options]
 
 # オプション
---target TABLE_NAME    # 特定のテーブルのみ適用
---all drop            # 全テーブルを削除して再作成
+--target TABLE_NAME    # 特定のテーブル/ビュー/プロシージャ/トリガーのみ適用
+--all drop            # 全データベースオブジェクトを削除して再作成
 --all delta           # 差分のみ適用
+--database DB_NAME    # 特定のデータベースのみ対象
+
+# 例
+dbgear apply localhost development --all drop
+dbgear apply localhost development --target users
+dbgear apply localhost development --database main --all delta
 ```
 
 ## Web エディターコマンド
@@ -239,17 +248,18 @@ task serve          # MCPサーバー起動
 
 ## 技術仕様
 
-- **バックエンド**: Python 3.12+, SQLAlchemy, Jinja2-based SQL template engine
+- **バックエンド**: Python 3.12+, SQLAlchemy, Jinja2-based SQL template engine (21 templates)
 - **Web エディター**: FastHTML, MonsterUI, Tailwind CSS (サーバーサイドレンダリング)
 - **MCPサーバー**: FastMCP, LLM統合機能
-- **データ形式**: YAML
+- **データ形式**: YAML, JSON対応
 - **対応データベース**: MySQL (他のSQLAlchemyサポートDB)
-- **スキーマ形式**: A5:SQL Mk-2 (内蔵インポート), MySQL直接接続, DBGearネイティブ形式
-- **スキーマ管理**: Pydanticベースの型安全なモデルによるテーブル、ビュー、インデックス、リレーション、制約の統合管理
-- **MySQL特化**: パーティション、ストレージエンジン、文字セット、生成カラム等の詳細設定対応
+- **スキーマ形式**: A5:SQL Mk-2 (開発中), MySQL直接接続, DBGearネイティブ形式
+- **スキーマ管理**: Pydanticベースの型安全なモデルによるテーブル、ビュー、プロシージャ、トリガー、インデックス、リレーション、制約の統合管理
+- **MySQL特化**: パーティション、ストレージエンジン、文字セット、生成カラム、JSON型等の詳細設定対応
 - **型システム**: ColumnTypeオブジェクトによる厳密な型定義とMySQL全タイプサポート
-- **統合ノートシステム**: 全エンティティ対応のドキュメント管理機能
+- **統合ノートシステム**: 全エンティティ対応のドキュメント管理機能（3-pane layout対応）
 - **環境管理**: DataModel、Environ、Tenant、Mappingによる包括的な環境設定
+- **依存関係管理**: テーブル依存関係の自動解決とデータ挿入順序の最適化
 - **パッケージ管理**: Poetry (Python)
 
 ## ライセンス

@@ -54,11 +54,13 @@ classDiagram
         +tables_ : dict[str, Table] = dict
         +views_ : dict[str, View] = dict
         +triggers_ : dict[str, Trigger] = dict
+        +procedures_ : dict[str, Procedure] = dict
         +notes_ : list[Note] = []
 
         +@ tables() TableManager
         +@ views() ViewManager
         +@ triggers() TriggerManager
+        +@ procedures() ProcedureManager
         +@ notes() NoteManager
 
         +merge(other: Schema)
@@ -67,6 +69,7 @@ classDiagram
     Schema -- TableManager : tables
     Schema -- ViewManager : views
     Schema -- TriggerManager : triggers
+    Schema -- ProcedureManager : procedures
     Schema -- NoteManager : notes
 
     class SchemaManager {
