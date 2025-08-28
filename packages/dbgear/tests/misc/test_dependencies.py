@@ -164,10 +164,7 @@ class TestTableDependencyAnalyzer(unittest.TestCase):
         # Check right dependencies (objects referenced by users)
         self.assertIn('level_1', result['right'])
         right_level_1 = result['right']['level_1']
-        self.assertEqual(len(right_level_1), 1)  # should have data source
-
-        data_dep = right_level_1[0]
-        self.assertEqual(data_dep['type'], 'data')
+        self.assertEqual(len(right_level_1), 0)  # no dependencies expected
 
     def test_multi_level_dependencies(self):
         """Test multi-level dependency analysis"""
@@ -255,20 +252,16 @@ class TestTableDependencyAnalyzer(unittest.TestCase):
         sql = "SELECT * FROM orders WHERE user_id = 1"
         self.assertFalse(self.analyzer._view_references_table(sql, 'main', 'users'))
 
-    def test_data_source_detection(self):
-        """Test data source file detection"""
-        # Analyze table with data source
+    def test_no_data_dependencies(self):
+        """Test that data dependencies are no longer generated"""
+        # Analyze table 
         result = self.analyzer.analyze('main', 'users', left_level=0, right_level=1)
 
         right_level_1 = result['right']['level_1']
 
-        # Should find the data file we created
+        # Should not find any data dependencies
         data_deps = [dep for dep in right_level_1 if dep['type'] == 'data']
-        self.assertGreater(len(data_deps), 0)
-
-        data_dep = data_deps[0]
-        self.assertEqual(data_dep['details']['environ'], 'development')
-        self.assertEqual(data_dep['details']['record_count'], 2)
+        self.assertEqual(len(data_deps), 0)
 
     def test_json_serialization(self):
         """Test that results can be serialized to JSON"""

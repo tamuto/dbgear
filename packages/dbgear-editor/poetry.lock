@@ -350,14 +350,14 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "dbgear"
-version = "0.30.0"
+version = "0.30.1"
 description = "Database management tools for initial data management"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "dbgear-0.30.0-py3-none-any.whl", hash = "sha256:178c60a640a29ce52244c7f2b46e7dcef6ea9f9939ed93dfe846ffb48a7ea46a"},
-    {file = "dbgear-0.30.0.tar.gz", hash = "sha256:09c24b3839008ffadf3f2b22ee6d47e8fcb38a28c4835fc68ab5aaeddb789e0e"},
+    {file = "dbgear-0.30.1-py3-none-any.whl", hash = "sha256:93e8e0b31adb7b993c164200b304976482bb03bfae221c570c408cb11ec7ba01"},
+    {file = "dbgear-0.30.1.tar.gz", hash = "sha256:11512c00703cc78e8433ea0c245846faff5959c173a7c9ed75ee5a263a8d2d24"},
 ]
 
 [package.dependencies]
@@ -405,6 +405,23 @@ files = [
 [package.dependencies]
 apswutils = ">=0.1.0"
 fastcore = ">=1.7.1"
+
+[[package]]
+name = "graphviz"
+version = "0.21"
+description = "Simple Python interface for Graphviz"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "graphviz-0.21-py3-none-any.whl", hash = "sha256:54f33de9f4f911d7e84e4191749cac8cc5653f815b06738c54db9a15ab8b1e42"},
+    {file = "graphviz-0.21.tar.gz", hash = "sha256:20743e7183be82aaaa8ad6c93f8893c923bd6658a04c32ee115edb3c8a835f78"},
+]
+
+[package.extras]
+dev = ["Flake8-pyproject", "build", "flake8", "pep8-naming", "tox (>=3)", "twine", "wheel"]
+docs = ["sphinx (>=5,<7)", "sphinx-autodoc-typehints", "sphinx-rtd-theme (>=0.2.5)"]
+test = ["coverage", "pytest (>=7,<8.1)", "pytest-cov", "pytest-mock (>=3)"]
 
 [[package]]
 name = "greenlet"
@@ -1646,4 +1663,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "89a012ce5cfd6cda8277e64eda0945f8a99e30417e58fc03f98c466ccee209cb"
+content-hash = "da72ee43ff491d5bea3e7ec15811cc2c1aca97177f280b47a2a2bf00902d8316"

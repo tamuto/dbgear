@@ -10,21 +10,26 @@ from .components.header import header_component
 from .components.sidebar import sidebar_component
 
 
-def layout(content, title="DBGear Editor", current_path=""):
+def layout(content, title="DBGear Editor", current_path="", sidebar_content=None):
     """
     Create the main 3-pane layout for the application.
 
     Args:
         content: Main content to display
         title: Page title (default: "DBGear Editor")
+        current_path: Current URL path for navigation highlighting
+        sidebar_content: Optional right sidebar content
 
     Returns:
         FastHTML document with complete layout
     """
     return (
         Title(title),
-        # Add Cytoscape.js CDN
-        Script(src="https://unpkg.com/cytoscape@3.30.3/dist/cytoscape.min.js"),
+        # Add Cytoscape.js CDN and layout extensions
+        # Script(src="https://unpkg.com/cytoscape@3.30.3/dist/cytoscape.min.js"),
+        # Script(src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"),
+        # Script(src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"),
+        # Script(src="https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"),
         # Add JavaScript for dropdown and collapsible functionality
         Script("""
             document.addEventListener('DOMContentLoaded', function() {
@@ -73,14 +78,14 @@ def layout(content, title="DBGear Editor", current_path=""):
             });
         """),
 
-        # Main layout container
+        # Main layout container with flex column
         Div(
             # Header
             header_component(),
 
             # Main content area with sidebar and content
             Div(
-                # Sidebar
+                # Left Sidebar
                 sidebar_component(current_path),
 
                 # Main content area
@@ -92,10 +97,16 @@ def layout(content, title="DBGear Editor", current_path=""):
                     cls="flex-1 bg-white overflow-y-auto"
                 ),
 
-                cls="flex h-screen"
+                # Right Sidebar (conditional)
+                Div(
+                    sidebar_content,
+                    cls="w-80 bg-gray-50 border-l border-gray-200 overflow-y-auto"
+                ) if sidebar_content else None,
+
+                cls="flex flex-1 min-h-0"
             ),
 
-            cls="min-h-screen bg-gray-100"
+            cls="flex flex-col h-screen bg-gray-100"
         )
     )
 

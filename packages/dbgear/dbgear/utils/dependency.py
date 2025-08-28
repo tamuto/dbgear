@@ -38,6 +38,12 @@ class DependencyResolver:
                 table = schema.tables[dm.table_name]
                 for relation in table.relations:
                     target_key = f"{relation.target.schema_name}@{relation.target.table_name}"
+                    
+                    # 自己参照リレーションを除外
+                    if target_key == key:
+                        logger.debug(f"Skipping self-reference: {key} -> {target_key}")
+                        continue
+                    
                     # 同じデータセット内にある依存関係のみ追加
                     if any(target_dm.schema_name == relation.target.schema_name and
                           target_dm.table_name == relation.target.table_name
@@ -96,6 +102,12 @@ class DependencyResolver:
                 table = schema.tables[dm.table_name]
                 for relation in table.relations:
                     target_key = f"{relation.target.schema_name}@{relation.target.table_name}"
+                    current_key = f"{dm.schema_name}@{dm.table_name}"
+                    
+                    # 自己参照リレーションを除外
+                    if target_key == current_key:
+                        continue
+                    
                     if target_key not in available_tables:
                         warnings.append(f"Table {dm.schema_name}@{dm.table_name} has FK to {target_key}, but it's not in the data insertion set")
 

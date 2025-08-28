@@ -13,6 +13,7 @@ from ..ui.tables import (
 )
 from ..ui.common import notes_section
 from ..ui.dependencies import dependency_navigation_button
+from ..components.right_sidebar import table_notes_sidebar
 
 
 def register_table_routes(rt):
@@ -84,14 +85,14 @@ def register_table_routes(rt):
                 )
             ] if len(list(table.relations)) > 0 else []),
 
-            # Notes section (if any)
-            *([
-                Div(
-                    H2("Notes", cls="text-lg font-medium text-gray-900 mb-4"),
-                    notes_section(table),
-                    cls="bg-white shadow rounded-lg p-6"
-                )
-            ] if hasattr(table, 'notes') and len(list(table.notes)) > 0 else [])
         )
 
-        return layout(content, f"{table_name} - {schema_name} - DBGear Editor", str(request.url.path) if request else "")
+        # Create right sidebar with notes
+        sidebar_content = table_notes_sidebar(table)
+
+        return layout(
+            content, 
+            f"{table_name} - {schema_name} - DBGear Editor", 
+            str(request.url.path) if request else "",
+            sidebar_content
+        )

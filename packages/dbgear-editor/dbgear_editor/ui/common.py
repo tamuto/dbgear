@@ -144,14 +144,14 @@ def note_card(note):
     """Create a note information card."""
     return Div(
         Div(
-            H3(getattr(note, 'title', 'Note'), cls="text-lg font-medium text-gray-900 mb-2"),
+            H3(getattr(note, 'title', 'Note'), cls="text-base font-semibold text-blue-900 mb-2"),
             Div(
                 render_md(getattr(note, 'content', '')),
                 cls="prose prose-sm max-w-none text-gray-700"
             ),
             cls="p-4"
         ),
-        cls="border border-gray-200 rounded-lg"
+        cls="border border-blue-200 bg-blue-50 rounded-lg shadow-sm"
     )
 
 

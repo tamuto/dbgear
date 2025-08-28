@@ -21,7 +21,7 @@ from .routes.triggers import register_trigger_routes
 from .routes.dependencies import register_dependency_routes
 
 # Initialize FastHTML app
-app, rt = fast_app(hdrs=[*Theme.blue.headers(highlightjs=True), MermaidJS()], secret_key=str(uuid4()))
+app, rt = fast_app(hdrs=[*Theme.blue.headers(highlightjs=True)], secret_key=str(uuid4()))
 
 # Register all routes
 register_dashboard_routes(rt)
@@ -38,11 +38,11 @@ def main():
     parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1)')
     parser.add_argument('--port', type=int, default=8000, help='Port to bind to (default: 8000)')
     parser.add_argument('--reload', action='store_true', help='Enable auto-reload')
-    parser.add_argument('--project', required=True, help='Project directory to load (required)')
+    parser.add_argument('--project', default='database', help='Project directory to load (default: database)')
 
     args = parser.parse_args()
 
-    # Load project (required)
+    # Load project (default to 'database' if not specified)
     success = load_project(args.project)
     if success:
         print(f"✅ Loaded project from: {args.project}")

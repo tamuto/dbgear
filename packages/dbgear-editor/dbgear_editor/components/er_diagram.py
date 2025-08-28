@@ -138,15 +138,15 @@ def generate_table_dependency_cytoscape(dependencies: Dict[str, Any]) -> str:
                     elements.append(ref_element)
                     processed_nodes.add(ref_id)
                 
-                # Add edge (referenced by)
-                edge_id = f"{center_id}-{ref_id}"
+                # Add edge (referenced by) - direction: ref_table -> center_table
+                edge_id = f"{ref_id}-{center_id}"
                 if edge_id not in processed_edges:
                     edge_element = {
                         'data': {
                             'id': edge_id,
-                            'source': center_id,
-                            'target': ref_id,
-                            'label': 'referenced by',
+                            'source': ref_id,
+                            'target': center_id,
+                            'label': 'references',
                             'type': 'referenced_by'
                         },
                         'classes': 'relation-edge referenced-by'

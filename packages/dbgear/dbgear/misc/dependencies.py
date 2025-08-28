@@ -287,74 +287,9 @@ class TableDependencyAnalyzer:
                 }
             ))
 
-        # 3. Data sources for the source table
-        if self.project_folder:
-            data_items = self._get_data_sources(source_schema, source_table)
-            items.extend(data_items)
 
         return items
 
-    def _get_data_sources(self, schema_name: str, table_name: str) -> List[DependencyItem]:
-        """Get data sources for the specified table"""
-        items = []
-
-        if not self.project_folder:
-            return items
-
-        try:
-            # Search for data files in all environments
-            for env_path in pathlib.Path(self.project_folder).glob("*/"):
-                if not env_path.is_dir():
-                    continue
-
-                environ_name = env_path.name
-
-                # Search for mapping directories
-                for map_path in env_path.glob("*/"):
-                    if not map_path.is_dir():
-                        continue
-
-                    map_name = map_path.name
-
-                    # Look for data files matching the schema@table pattern
-                    data_files = list(map_path.glob(f"{schema_name}@{table_name}*.dat"))
-
-                    for data_file in data_files:
-                        # Parse segment from filename if present
-                        filename = data_file.name
-                        segment = None
-                        if '#' in filename:
-                            segment = filename.split('#')[1].replace('.dat', '')
-
-                        # Count records in data file
-                        record_count = 0
-                        try:
-                            with open(data_file, 'r', encoding='utf-8') as f:
-                                data = yaml.safe_load(f)
-                                if isinstance(data, list):
-                                    record_count = len(data)
-                        except Exception:
-                            record_count = 0
-
-                        items.append(DependencyItem(
-                            dep_type="data",
-                            schema_name=schema_name,
-                            table_name=table_name,
-                            object_name=filename,
-                            details={
-                                "environ": environ_name,
-                                "mapping": map_name,
-                                "segment": segment,
-                                "record_count": record_count,
-                                "data_file_path": str(data_file.relative_to(self.project_folder))
-                            }
-                        ))
-
-        except Exception:
-            # If we can't access data files, just return empty list
-            pass
-
-        return items
 
     def _view_references_table(self, select_statement: str, schema_name: str, table_name: str) -> bool:
         """Simple check if view references the specified table"""

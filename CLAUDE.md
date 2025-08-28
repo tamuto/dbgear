@@ -307,11 +307,47 @@ from dbgear.models.exceptions import DBGearError
 from dbgear.models.project import Project
 ```
 
+## Recent Development Achievements (2025-01)
+
+### ✅ UI/UX Major Improvements - COMPLETED
+
+**3-Pane Layout System**:
+- Implemented comprehensive Notes display system with right sidebar
+- Enhanced Dependencies visualization with 3-column layout (Referenced By → Current Table → References)
+- Upgraded ER diagrams with Cytoscape.js dagre/concentric layouts
+
+**Critical Bug Fixes**:
+- Fixed Primary Key display issue (0-index problem)
+- Changed Primary Key display to numerical order (index + 1)
+- Corrected dependency arrow directions to match actual relationships
+
+**Visual Enhancements**:
+- Improved note card styling with blue theme and better visibility
+- Added visual flow indicators with color coding for dependencies
+- Enhanced spacing and layout for better readability
+
+**Technical Architecture**:
+```python
+# New 3-pane layout signature
+def layout(content, title="DBGear Editor", current_path="", sidebar_content=None)
+
+# Right sidebar component structure
+def [entity]_notes_sidebar(entity) -> FastHTML
+```
+
+**Performance Optimizations**:
+- Client-side Cytoscape.js layout computation
+- Conditional rendering for right sidebar (Notes存在時のみ)
+- Optimized spacing parameters for various screen sizes
+
 ### Future Development Priorities
 
 See `ROADMAP.md` for detailed planning:
 - ✅ **Web Interface Modernization** - COMPLETED
+- ✅ **Notes Display System** - COMPLETED  
+- ✅ **Dependencies Visualization** - COMPLETED
+- ✅ **ER Diagram Enhancements** - COMPLETED
 - Schema version management system
-- Document generation (ER diagrams)
-- Enhanced MCP server integration
+- Enhanced MCP server integration  
 - Schema editing capabilities
+- Real-time collaboration features

@@ -13,6 +13,7 @@ from ..ui.views import view_grid
 from ..ui.procedures import procedure_grid
 from ..ui.triggers import trigger_grid
 from ..ui.dependencies import dependency_navigation_button
+from ..components.right_sidebar import schema_notes_sidebar
 
 
 def register_dashboard_routes(rt):
@@ -216,7 +217,15 @@ def register_dashboard_routes(rt):
             )
         )
 
-        return layout(content, f"{schema_name} - Schemas - DBGear Editor", str(request.url.path))
+        # Create right sidebar with schema notes
+        sidebar_content = schema_notes_sidebar(schema)
+
+        return layout(
+            content, 
+            f"{schema_name} - Schemas - DBGear Editor", 
+            str(request.url.path),
+            sidebar_content
+        )
 
 
 def schema_grid(schemas: dict):
