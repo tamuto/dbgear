@@ -10,7 +10,6 @@ from ..project import get_current_project
 from ..ui.procedures import (
     procedure_info_section, procedure_parameters_section, procedure_sql_section
 )
-from ..ui.common import notes_section
 from ..components.right_sidebar import procedure_notes_sidebar
 
 

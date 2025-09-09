@@ -22,9 +22,6 @@ from .routes.triggers import register_trigger_routes
 from .routes.projects import register_project_routes
 
 # Initialize FastHTML app
-from pathlib import Path
-
-# Initialize FastHTML app
 app, rt = fast_app(
     hdrs=[*Theme.blue.headers(highlightjs=True)],
     secret_key=str(uuid4())

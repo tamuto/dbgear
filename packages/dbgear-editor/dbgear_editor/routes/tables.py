@@ -11,7 +11,6 @@ from ..ui.tables import (
     table_info_section, table_columns_section,
     table_indexes_section, table_relations_section
 )
-from ..ui.common import notes_section
 from ..components.right_sidebar import table_notes_sidebar
 
 
