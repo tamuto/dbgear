@@ -48,13 +48,9 @@ dbgear-editor --reload
 ### Web Interface
 
 1. Open `http://localhost:8000` in your browser
-2. Click on the project name in the header to switch projects
-3. Use "Manage Projects" to add new projects
-4. Navigate using the sidebar to explore schemas
-
-### Keyboard Shortcuts
-
-- `Ctrl+Shift+P` (or `Cmd+Shift+P`): Open project management modal
+2. Use the project dropdown in the header to switch between projects
+3. Click the `+` button or navigate to `/projects/add` to add new projects
+4. Navigate using the sidebar to explore schemas and database objects
 
 ## 🐳 Docker Usage
 
@@ -203,10 +199,12 @@ docker run -p 8000:8000 -e PYTHONUNBUFFERED=1 dbgear-editor
 
 ### v0.7.0
 - ✅ **Dynamic Project Switching**: Switch between projects without restart
-- ✅ **Settings Persistence**: Configuration saved automatically
-- ✅ **Enhanced UI**: Dropdown project selector in header
-- ✅ **Project Management**: Modal for adding/removing projects
-- ✅ **Docker Support**: Complete containerization
+- ✅ **Settings Persistence**: Configuration saved automatically to `~/.dbgear/editor_config.json`
+- ✅ **Enhanced UI**: MonsterUI Select dropdown with project path display
+- ✅ **Project Management**: Dedicated management page at `/projects/add`
+- ✅ **Dynamic Page Titles**: Format `schema@table (project_path)` for better tab identification
+- ✅ **Clean Architecture**: Removed JavaScript dependencies and Label components
+- ✅ **Docker Support**: Single-stage build for development efficiency
 
 ### v0.6.0
 - FastHTML-based web interface

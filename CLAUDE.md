@@ -32,8 +32,10 @@ from dbgear.dbio.database import create_database, drop_database
 - `engine.py` - Database abstraction layer
 
 **Web Editor (`packages/dbgear-editor/`):**
-- Modular routes in `routes/` (tables, views, procedures, triggers)
+- Modular routes in `routes/` (tables, views, procedures, triggers, projects)
 - Reusable UI components in `ui/`
+- Dynamic project switching with persistent settings
+- MonsterUI Select components for clean UI
 
 
 ### Design Philosophy
@@ -303,12 +305,53 @@ from dbgear.models.project import Project
 
 ## Recent Development Achievements (2025-01)
 
+### ✅ Dynamic Project Switching System - COMPLETED
+
+**Project Management Infrastructure**:
+- Implemented persistent settings system with `~/.dbgear/editor_config.json`
+- Created comprehensive project switching functionality without server restart
+- Added MonsterUI Select components for clean, accessible UI design
+- Developed dedicated project management page at `/projects/add`
+
+**Settings Persistence**:
+```python
+# Settings management with automatic validation
+from dbgear_editor.settings import EditorSettings, get_editor_settings
+
+settings = get_editor_settings()
+settings.add_recent_project(project_path, project_name)
+settings.set_current_project(project_path)
+```
+
+**Dynamic Page Titles**:
+- Format: `schema@table (project_path)` for clear tab identification
+- All routes updated: tables, views, procedures, triggers
+- Automatic project path detection from current context
+
+**UI Architecture Changes**:
+```python
+# Header integration with project dropdown
+def project_dropdown_component():
+    # MonsterUI Select with project list and path display
+    Select(*[Option(f"{name} ({path})", value=path) for path, name in options])
+
+# Route integration
+return layout(content, "Table Details", current_path, sidebar_content, 
+             schema_name=schema_name, table_name=table_name)
+```
+
+**Removed Dependencies**:
+- ✅ Eliminated JavaScript-based modal system
+- ✅ Removed Label components for cleaner design
+- ✅ Deleted graphviz dependencies and ER diagram generation
+- ✅ Simplified Docker configuration to single-stage build
+
 ### ✅ UI/UX Major Improvements - COMPLETED
 
 **3-Pane Layout System**:
 - Implemented comprehensive Notes display system with right sidebar
 - Enhanced Dependencies visualization with 3-column layout (Referenced By → Current Table → References)
-- ER diagram functionality (layout library in development)
+- Clean layout architecture without complex diagram dependencies
 
 **Critical Bug Fixes**:
 - Fixed Primary Key display issue (0-index problem)
@@ -322,8 +365,8 @@ from dbgear.models.project import Project
 
 **Technical Architecture**:
 ```python
-# New 3-pane layout signature
-def layout(content, title="DBGear Editor", current_path="", sidebar_content=None)
+# Enhanced layout signature with dynamic titles
+def layout(content, title="DBGear Editor", current_path="", sidebar_content=None, schema_name=None, table_name=None)
 
 # Right sidebar component structure
 def [entity]_notes_sidebar(entity) -> FastHTML
@@ -340,7 +383,8 @@ See `ROADMAP.md` for detailed planning:
 - ✅ **Web Interface Modernization** - COMPLETED
 - ✅ **Notes Display System** - COMPLETED  
 - ✅ **Dependencies Visualization** - COMPLETED
-- 🔄 **ER Diagram Enhancements** - IN PROGRESS (layout library migration)
+- ✅ **Dynamic Project Switching** - COMPLETED
+- ✅ **Clean UI Architecture** - COMPLETED (removed complex dependencies)
 - Schema version management system
 - Enhanced MCP server integration  
 - Schema editing capabilities
