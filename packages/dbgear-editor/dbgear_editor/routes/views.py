@@ -64,7 +64,9 @@ def register_view_routes(rt):
 
         return layout(
             content, 
-            f"{view_name} - {schema_name} - DBGear Editor", 
+            "View Details", 
             str(request.url.path) if request else "",
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=view_name
         )

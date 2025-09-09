@@ -12,7 +12,6 @@ from ..ui.tables import (
     table_indexes_section, table_relations_section
 )
 from ..ui.common import notes_section
-from ..ui.dependencies import dependency_navigation_button
 from ..components.right_sidebar import table_notes_sidebar
 
 
@@ -47,11 +46,6 @@ def register_table_routes(rt):
                 f"Schema: {schema_name}"
             ),
 
-            # Dependencies navigation
-            Div(
-                dependency_navigation_button(schema_name, table_name),
-                cls="mb-6"
-            ),
 
             # Table information card
             Div(
@@ -92,7 +86,9 @@ def register_table_routes(rt):
 
         return layout(
             content, 
-            f"{table_name} - {schema_name} - DBGear Editor", 
+            "Table Details", 
             str(request.url.path) if request else "",
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=table_name
         )

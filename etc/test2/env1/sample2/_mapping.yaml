@@ -1,0 +1,4 @@
+schemas:
+  - main
+description: テスト2データベース
+deploy: true

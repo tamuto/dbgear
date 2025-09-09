@@ -64,7 +64,9 @@ def register_trigger_routes(rt):
 
         return layout(
             content, 
-            f"{trigger_name} - {schema_name} - DBGear Editor", 
+            "Trigger Details", 
             str(request.url.path) if request else "",
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=trigger_name
         )

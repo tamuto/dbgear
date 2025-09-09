@@ -8,9 +8,41 @@ from monsterui.all import *
 
 from .components.header import header_component
 from .components.sidebar import sidebar_component
+from .project import get_current_project
 
 
-def layout(content, title="DBGear Editor", current_path="", sidebar_content=None):
+def generate_page_title(page_title="DBGear Editor", schema_name=None, table_name=None):
+    """
+    Generate dynamic page title in format: schema@table/project_path or page_title/project_path
+    
+    Args:
+        page_title: Base page title
+        schema_name: Current schema name (optional)
+        table_name: Current table name (optional)
+    
+    Returns:
+        Formatted title string
+    """
+    project = get_current_project()
+    
+    # Get project path
+    if project and project.is_loaded():
+        project_path = project.project_path
+    else:
+        project_path = "No Project"
+    
+    # Build title
+    if schema_name and table_name:
+        title = f"{schema_name}@{table_name} ({project_path})"
+    elif schema_name:
+        title = f"{schema_name} ({project_path})"
+    else:
+        title = f"{page_title} ({project_path})"
+    
+    return title
+
+
+def layout(content, title="DBGear Editor", current_path="", sidebar_content=None, schema_name=None, table_name=None):
     """
     Create the main 3-pane layout for the application.
 
@@ -19,17 +51,17 @@ def layout(content, title="DBGear Editor", current_path="", sidebar_content=None
         title: Page title (default: "DBGear Editor")
         current_path: Current URL path for navigation highlighting
         sidebar_content: Optional right sidebar content
+        schema_name: Current schema name for dynamic title
+        table_name: Current table name for dynamic title
 
     Returns:
         FastHTML document with complete layout
     """
+    # Generate dynamic title
+    page_title = generate_page_title(title, schema_name, table_name)
+    
     return (
-        Title(title),
-        # Add Cytoscape.js CDN and layout extensions
-        # Script(src="https://unpkg.com/cytoscape@3.30.3/dist/cytoscape.min.js"),
-        # Script(src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"),
-        # Script(src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"),
-        # Script(src="https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"),
+        Title(page_title),
         # Add JavaScript for dropdown and collapsible functionality
         Script("""
             document.addEventListener('DOMContentLoaded', function() {
@@ -107,7 +139,10 @@ def layout(content, title="DBGear Editor", current_path="", sidebar_content=None
             ),
 
             cls="flex flex-col h-screen bg-gray-100"
-        )
+        ),
+        
+        # Modal container for project management
+        Div(id="projectModalContainer")
     )
 
 

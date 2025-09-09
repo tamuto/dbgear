@@ -12,7 +12,6 @@ from ..ui.tables import table_grid
 from ..ui.views import view_grid
 from ..ui.procedures import procedure_grid
 from ..ui.triggers import trigger_grid
-from ..ui.dependencies import dependency_navigation_button
 from ..components.right_sidebar import schema_notes_sidebar
 
 
@@ -128,7 +127,7 @@ def register_dashboard_routes(rt):
                 )
             )
 
-        return layout(content, current_path=str(request.url.path))
+        return layout(content, "Dashboard", current_path=str(request.url.path))
 
     @rt('/schemas')
     def schemas(request: Request):
@@ -153,7 +152,7 @@ def register_dashboard_routes(rt):
             )
         )
 
-        return layout(content, "Schemas - DBGear Editor", str(request.url.path))
+        return layout(content, "Schemas", str(request.url.path))
 
     @rt('/schemas/{schema_name}')
     def schema_detail(schema_name: str, request: Request):
@@ -182,11 +181,6 @@ def register_dashboard_routes(rt):
                 f"{len(tables)} tables, {len(views)} views, {len(procedures)} procedures, {len(triggers)} triggers"
             ),
 
-            # ER Diagram navigation
-            Div(
-                dependency_navigation_button(schema_name),
-                cls="mb-6"
-            ),
 
             # Tables section
             Div(
@@ -222,9 +216,10 @@ def register_dashboard_routes(rt):
 
         return layout(
             content, 
-            f"{schema_name} - Schemas - DBGear Editor", 
+            "Schema Details", 
             str(request.url.path),
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name
         )
 
 
@@ -260,10 +255,6 @@ def schema_grid(schemas: dict):
                     ),
                     href=f"/schemas/{schema_name}",
                     cls="block hover:bg-gray-100 transition-colors duration-150 flex-1"
-                ),
-                Div(
-                    dependency_navigation_button(schema_name),
-                    cls="px-4 pb-4"
                 ),
                 cls="bg-gray-50 rounded-lg border border-gray-200 flex flex-col"
             )

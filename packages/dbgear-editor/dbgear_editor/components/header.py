@@ -5,7 +5,7 @@ Header component for DBGear Editor.
 from fasthtml.common import *
 from monsterui.all import *
 
-from ..project import get_current_project
+from ..project import get_current_project, get_recent_projects
 
 
 def header_component():
@@ -24,7 +24,7 @@ def header_component():
             # Left side - Title and project info
             Div(
                 H1("DBGear Editor", cls="text-2xl font-bold text-white"),
-                Span(f"Project: {project_name}", cls="text-sm text-gray-300 ml-4"),
+                project_dropdown_component(),
                 project_stats_badges(),
                 cls="flex items-center"
             ),
@@ -101,6 +101,60 @@ def project_stats_badges():
     return Div(
         *badges,
         cls="flex items-center space-x-2 ml-4"
+    )
+
+
+def project_dropdown_component():
+    """
+    Create a simple project select dropdown using MonsterUI Select.
+    
+    Returns:
+        FastHTML component for project selection
+    """
+    from monsterui.core import Select
+    
+    projects = get_recent_projects()
+    current = get_current_project()
+    
+    # Prepare options for Select component
+    options = []
+    current_value = None
+    
+    # Add current project if it exists
+    if current and current.is_loaded():
+        project_info = current.get_project_info()
+        current_name = project_info.get('name', 'Unknown Project')
+        current_value = current.project_path
+        options.append((current.project_path, current_name))
+    
+    # Add recent projects (avoid duplicates)
+    for project in projects:
+        if not current_value or project["path"] != current_value:
+            options.append((project["path"], project["name"]))
+    
+    if not options:
+        options = [("", "No Projects Available")]
+        current_value = ""
+    
+    return Form(
+        Div(
+            Select(
+                *[Option(f"{name} ({path})", value=path, selected=(path == current_value)) for path, name in options],
+                name="selected_project",
+                cls="bg-blue-500 text-white border-0 rounded px-2 py-1 text-sm mr-2",
+                onchange="this.form.submit()"
+            ),
+            A(
+                UkIcon("plus", height=14),
+                href="/projects/add",
+                cls="text-white hover:text-gray-300 p-1",
+                title="Add New Project"
+            ),
+            cls="flex items-center"
+        ),
+        method="POST",
+        action="/api/projects/switch-simple",
+        cls="ml-4"
     )
 
 

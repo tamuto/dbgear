@@ -11,6 +11,7 @@ from fasthtml.common import *
 from monsterui.all import *
 
 from .project import load_project
+from .settings import init_settings, get_editor_settings
 
 # Import route registration functions
 from .routes.dashboard import register_dashboard_routes
@@ -18,10 +19,16 @@ from .routes.tables import register_table_routes
 from .routes.views import register_view_routes
 from .routes.procedures import register_procedure_routes
 from .routes.triggers import register_trigger_routes
-from .routes.dependencies import register_dependency_routes
+from .routes.projects import register_project_routes
 
 # Initialize FastHTML app
-app, rt = fast_app(hdrs=[*Theme.blue.headers(highlightjs=True)], secret_key=str(uuid4()))
+from pathlib import Path
+
+# Initialize FastHTML app
+app, rt = fast_app(
+    hdrs=[*Theme.blue.headers(highlightjs=True)],
+    secret_key=str(uuid4())
+)
 
 # Register all routes
 register_dashboard_routes(rt)
@@ -29,7 +36,15 @@ register_table_routes(rt)
 register_view_routes(rt)
 register_procedure_routes(rt)
 register_trigger_routes(rt)
-register_dependency_routes(rt)
+register_project_routes(rt)
+
+# Test route to verify routing works
+@rt('/test-static')
+def test_static():
+    """Test route to verify routing is working."""
+    print("DEBUG: Test static route called!")
+    return "Static routing test successful"
+
 
 
 def main():
@@ -42,14 +57,38 @@ def main():
 
     args = parser.parse_args()
 
-    # Load project (default to 'database' if not specified)
-    success = load_project(args.project)
+    # Initialize settings system
+    init_settings()
+
+    # Try to load project from settings or command line
+    settings = get_editor_settings()
+    project_to_load = args.project
+
+    # If no project specified in command line, try to load from settings
+    if project_to_load == 'database':  # default value
+        current_project = settings.get_current_project()
+        if current_project:
+            project_to_load = current_project
+
+    # Load project
+    success = load_project(project_to_load)
     if success:
-        print(f"✅ Loaded project from: {args.project}")
+        print(f"✅ Loaded project from: {project_to_load}")
     else:
-        print(f"❌ Failed to load project from: {args.project}")
-        print("Please check that the directory contains a valid project.yaml file.")
-        exit(1)
+        print(f"❌ Failed to load project from: {project_to_load}")
+
+        # If we have recent projects, show them
+        recent_projects = settings.get_recent_projects()
+        if recent_projects:
+            print("\n📋 Recent projects:")
+            for project in recent_projects[:3]:
+                print(f"   - {project['name']}: {project['path']}")
+            print("\nYou can switch projects using the web interface.")
+        else:
+            print("Please check that the directory contains a valid project.yaml file.")
+
+        # Don't exit - allow starting without a project for project management
+        print("⚠️  Starting without a project loaded. Use the web interface to add projects.")
 
     print(f"🚀 Starting DBGear Editor on http://{args.host}:{args.port}")
 

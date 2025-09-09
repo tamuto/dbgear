@@ -1,0 +1,7 @@
+description: テストテーブル用データ
+sync_mode: drop_create
+data_type: xlsx
+data_path: ../shared/test_table.xlsx
+data_args:
+  header_row: 2
+  start_row: 3

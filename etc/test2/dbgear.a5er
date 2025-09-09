@@ -1,0 +1,306 @@
+﻿# A5:ER FORMAT:18
+# A5:ER ENCODING:UTF8
+# A5:ER Mk-1 Copyright © 2007 m.matsubara
+# A5:SQL Mk-2 Version 2.19.1 Copyright © 1997 - 2024 m.matsubara
+#  https://a5m2.mmatsubara.com
+
+[Manager]
+ProjectName=Test
+Author=
+MaxEntityRowShow=1000
+ReadOnlyRecommend=0
+Page=Main
+PageInfo="Main",7,"A4Landscape",$FFFFFF
+LogicalView=1
+DecodeDomain=0
+ViewModePageIndividually=1
+ViewMode=7
+ViewFormat=0
+UseNondependenceDashLine=0
+FontName=Tahoma
+FontSize=6
+PaperSize=A4Landscape
+HeaderLeft=
+HeaderCenter=
+HeaderRight=
+FooterLeft=
+FooterCenter=
+FooterRight=
+ShowPageoutRelation=1
+RDBMSType=6
+RDBMSTypeName=MySQL
+DefaultPkName=%0:s_PKC
+DefaultPkIndexName=%0:s_PKI
+DefaultIndexName=%0:s_IX%1:d
+DefaultFkName=%0:s_FK%1:d
+SqlSeparator=0
+UpperCaseKeyword=0
+ShowTag=1
+ShowCommonAttributes=0
+BugFixEntityWidth=1
+
+[Entity]
+PName=test_table
+LName=テストテーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=300
+Top=300
+Field="IDカラム","col_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="名前","name","varchar(100)","NOT NULL",,"","",$FFFFFFFF,""
+Field="数字","num","int",,,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20240529101047
+Position="MAIN",300,300
+ZOrder=1
+
+[Entity]
+PName=tbl_child
+LName=子テーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=900
+Top=450
+Field="子ID","child_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="IDカラム","col_id","varchar(36)","NOT NULL",,"","",$FFFFFFFF,""
+Field="名前","name","varchar(100)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080532
+Position="MAIN",900,450
+ZOrder=2
+
+[Relation]
+Entity1=test_table
+Entity2=tbl_child
+RelationType1=1
+RelationType2=3
+Fields1=col_id
+Fields2=col_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,6735,7394,2044,R,R,""
+Dependence=0
+Caption=
+PName=
+LineMode=0
+Bar1=674
+Bar2=739
+Bar3=204
+TermPos1=R
+TermPos2=R
+ZOrder=4
+
+[Entity]
+PName=properties
+LName=プロパティ
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=1700
+Top=500
+Field="キー","key","varchar(32)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="値","value","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080727
+Position="MAIN",1700,500
+ZOrder=5
+
+[Entity]
+PName=row_table
+LName=行テーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=350
+Top=750
+Field="ID","row_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="名前","row_name","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810080859
+Position="MAIN",350,750
+ZOrder=6
+
+[Entity]
+PName=tbl_matrix
+LName=マトリックステーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=1000
+Top=700
+Field="ID","row_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="子ID","child_id","varchar(36)","NOT NULL",1,"","",$FFFFFFFF,""
+Field="値","value","varchar(20)","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新日時","update_date","datetime","NOT NULL",,"","",$FFFFFFFF,""
+Field="更新者","update_user","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810081112
+Position="MAIN",1000,700
+ZOrder=7
+
+[Relation]
+Entity1=row_table
+Entity2=tbl_matrix
+RelationType1=1
+RelationType2=3
+Fields1=row_id
+Fields2=row_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4008,5992,4361,R,R,""
+Dependence=1
+Caption=
+PName=
+LineMode=0
+Bar1=401
+Bar2=599
+Bar3=436
+TermPos1=R
+TermPos2=R
+ZOrder=8
+
+[Relation]
+Entity1=tbl_child
+Entity2=tbl_matrix
+RelationType1=1
+RelationType2=3
+Fields1=child_id
+Fields2=child_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,4252,5748,3972,R,R,""
+Dependence=1
+Caption=
+PName=
+LineMode=0
+Bar1=425
+Bar2=575
+Bar3=397
+TermPos1=R
+TermPos2=R
+ZOrder=9
+
+[Entity]
+PName=tbl_cmp_table
+LName=複合キーテーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=1000
+Top=150
+Field="IDカラム","col_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="シーケンス","seq","int","NOT NULL",1,"","",$FFFFFFFF,""
+Field="名前","name","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810163332
+Position="MAIN",1000,150
+ZOrder=10
+
+[Relation]
+Entity1=test_table
+Entity2=tbl_cmp_table
+RelationType1=1
+RelationType2=3
+Fields1=col_id
+Fields2=col_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,3521,8719,2862,R,R,""
+Dependence=1
+Caption=
+PName=
+LineMode=0
+Bar1=352
+Bar2=872
+Bar3=286
+TermPos1=R
+TermPos2=R
+ZOrder=11
+
+[Entity]
+PName=tbl_cmp_child
+LName=複合子テーブル
+Comment=
+TableInnerOption=
+TableOption=
+Page=MAIN
+Left=1550
+Top=250
+Field="複合キー子ID","cmp_child_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="IDカラム","col_id","varchar(36)","NOT NULL",,"","",$FFFFFFFF,""
+Field="シーケンス","seq","int","NOT NULL",,"","",$FFFFFFFF,""
+Field="名前","name","varchar(64)","NOT NULL",,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20230810163457
+Position="MAIN",1550,250
+ZOrder=12
+
+[Relation]
+Entity1=tbl_cmp_table
+Entity2=tbl_cmp_child
+RelationType1=1
+RelationType2=3
+Fields1=col_id,seq
+Fields2=col_id,seq
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,1874,8126,1481,R,R,""
+Dependence=0
+Caption=
+PName=
+LineMode=0
+Bar1=187
+Bar2=813
+Bar3=148
+TermPos1=R
+TermPos2=R
+ZOrder=13
+
+[Entity]
+PName=tbl_null_test
+LName=tbl_null_test
+Comment=
+TableInnerOption=
+TableOption=
+Page=Main
+Left=1850
+Top=850
+Field="test_id","test_id","varchar(36)","NOT NULL",0,"","",$FFFFFFFF,""
+Field="col1","col1","char(5)",,,"","",$FFFFFFFF,""
+Field="col2","col2","varchar(10)",,,"","",$FFFFFFFF,""
+Field="col3","col3","datetime",,,"","",$FFFFFFFF,""
+Field="col4","col4","int",,,"","",$FFFFFFFF,""
+EffectMode=None
+Color=$000000
+BkColor=$FFFFFF
+ModifiedDateTime=20240529100921
+Position="Main",1850,850
+ZOrder=14

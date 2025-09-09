@@ -75,7 +75,9 @@ def register_procedure_routes(rt):
 
         return layout(
             content, 
-            f"{procedure_name} - {schema_name} - DBGear Editor", 
+            "Procedure Details", 
             str(request.url.path),
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=procedure_name
         )
