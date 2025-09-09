@@ -10,7 +10,6 @@ from ..project import get_current_project
 from ..ui.procedures import (
     procedure_info_section, procedure_parameters_section, procedure_sql_section
 )
-from ..ui.common import notes_section
 from ..components.right_sidebar import procedure_notes_sidebar
 
 
@@ -75,7 +74,9 @@ def register_procedure_routes(rt):
 
         return layout(
             content, 
-            f"{procedure_name} - {schema_name} - DBGear Editor", 
+            "Procedure Details", 
             str(request.url.path),
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=procedure_name
         )

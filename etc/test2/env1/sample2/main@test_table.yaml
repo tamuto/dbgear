@@ -1,0 +1,3 @@
+description: テストテーブル用データ
+sync_mode: drop_create
+data_type: yaml

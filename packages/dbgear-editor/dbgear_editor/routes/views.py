@@ -8,7 +8,6 @@ from starlette.requests import Request
 from ..layout import layout, content_header, breadcrumb
 from ..project import get_current_project
 from ..ui.views import view_info_section, view_sql_section
-from ..ui.common import notes_section
 from ..components.right_sidebar import view_notes_sidebar
 
 
@@ -64,7 +63,9 @@ def register_view_routes(rt):
 
         return layout(
             content, 
-            f"{view_name} - {schema_name} - DBGear Editor", 
+            "View Details", 
             str(request.url.path) if request else "",
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=view_name
         )

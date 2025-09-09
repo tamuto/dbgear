@@ -3,10 +3,11 @@ DBGear project management for the editor.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
 
 from dbgear.models.project import Project
 from dbgear.models.schema import SchemaManager
+from .settings import get_editor_settings
 
 
 class DBGearProject:
@@ -216,5 +217,72 @@ def load_project(project_path: str) -> bool:
     project = DBGearProject()
     if project.load_project(project_path):
         set_current_project(project)
+        
+        # Update settings
+        settings = get_editor_settings()
+        settings.set_current_project(project_path)
+        
         return True
     return False
+
+
+def get_recent_projects() -> List[Dict]:
+    """
+    Get list of recent projects from settings.
+    
+    Returns:
+        List of recent project dictionaries
+    """
+    settings = get_editor_settings()
+    settings.validate_recent_projects()  # Clean up invalid projects
+    return settings.get_recent_projects()
+
+
+def switch_project(project_path: str) -> bool:
+    """
+    Switch to a different project.
+    
+    Args:
+        project_path: Path to the project directory
+        
+    Returns:
+        bool: True if successfully switched
+    """
+    return load_project(project_path)
+
+
+def add_recent_project(project_path: str, project_name: Optional[str] = None) -> bool:
+    """
+    Add a project to the recent projects list without switching to it.
+    
+    Args:
+        project_path: Path to the project directory
+        project_name: Optional project name
+        
+    Returns:
+        bool: True if project exists and was added
+    """
+    try:
+        # Validate project exists and is valid
+        project_dir = Path(project_path)
+        if not project_dir.exists() or not (project_dir / "project.yaml").exists():
+            return False
+        
+        settings = get_editor_settings()
+        settings.add_recent_project(project_path, project_name)
+        return True
+        
+    except Exception as e:
+        print(f"Error adding recent project: {e}")
+        return False
+
+
+def remove_recent_project(project_path: str):
+    """
+    Remove a project from the recent projects list.
+    
+    Args:
+        project_path: Path to the project directory to remove
+    """
+    settings = get_editor_settings()
+    settings.remove_recent_project(project_path)

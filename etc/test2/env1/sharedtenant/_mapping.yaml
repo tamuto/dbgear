@@ -1,0 +1,4 @@
+schemas:
+  - main
+description: 共有テナント
+deploy: false

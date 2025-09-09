@@ -8,7 +8,6 @@ from starlette.requests import Request
 from ..layout import layout, content_header, breadcrumb
 from ..project import get_current_project
 from ..ui.triggers import trigger_info_section, trigger_sql_section
-from ..ui.common import notes_section
 from ..components.right_sidebar import trigger_notes_sidebar
 
 
@@ -64,7 +63,9 @@ def register_trigger_routes(rt):
 
         return layout(
             content, 
-            f"{trigger_name} - {schema_name} - DBGear Editor", 
+            "Trigger Details", 
             str(request.url.path) if request else "",
-            sidebar_content
+            sidebar_content,
+            schema_name=schema_name,
+            table_name=trigger_name
         )

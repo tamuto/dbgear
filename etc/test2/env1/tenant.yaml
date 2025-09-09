@@ -1,0 +1,13 @@
+tenants:
+  development:
+    ref: tenant1
+    databases:
+      - database: dev_testdb1
+        description: Development database
+        active: true
+      - database: dev_testdb2
+        description: Development database
+        active: false
+  sample:
+    ref: sharedtenant
+    databases: usecases.tenant

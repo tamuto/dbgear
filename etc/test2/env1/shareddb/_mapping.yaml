@@ -1,0 +1,4 @@
+schemas:
+  - main
+description: 参照データベース
+deploy: true

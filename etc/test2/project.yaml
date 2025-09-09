@@ -1,0 +1,53 @@
+project_name: Test
+description: Test Project
+
+# definitions:
+#   - type: a5sql_mk2
+#     filename: ./dbgear.a5er
+#     mapping:
+#       MAIN: main
+#   - type: dbgear_schema
+#     filename: ./schema.yaml
+#   - type: selectable
+#     prefix: _select
+#     items:
+#       y_or_n: Yes or No
+#       property_keys: Property Keys
+# - type: mysql
+#   connect: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
+#   mapping:
+#     common: dbcmn
+
+# bindings:
+#   uuid:
+#     type: fixed
+#     value: UUID()
+#   now:
+#     type: fixed
+#     value: NOW()
+#   update_user:
+#     type: fixed
+#     value: SYSTEM
+#   set_y:
+#     type: fixed
+#     value: Y
+#   set_n:
+#     type: fixed
+#     value: N
+#   gen_uuid:
+#     type: call
+#     value: uuid
+#   gen_ulid:
+#     type: call
+#     value: ulid
+#   echo:
+#     type: extend
+#     value: echo
+
+# rules:
+#   update_user: update_user
+#   update_date: now
+#   .*_flag: y_or_n
+
+# deployments:
+#   localhost: mysql+pymysql://root:password@host.docker.internal?charset=utf8mb4
