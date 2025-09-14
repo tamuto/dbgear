@@ -32,6 +32,24 @@ def execute():
         choices=['drop', 'delta'],
         help='apply all tables. Specify "drop" to drop database before applying, or "delta" to apply only the changes since the last deployment.'
     )
+    apply_parser.add_argument(
+        '--no-restore',
+        action='store_true',
+        help='skip data restore from backup tables'
+    )
+    apply_parser.add_argument(
+        '--restore-only',
+        action='store_true',
+        help='restore initial data only without recreating schema'
+    )
+    apply_parser.add_argument(
+        '--patch',
+        help='patch file to execute instead of restore'
+    )
+    apply_parser.add_argument(
+        '--backup-key',
+        help='backup table timestamp key (YYYYMMDDHHMMSS). Only valid with --restore-only'
+    )
 
     args = parser.parse_args()
 
@@ -52,11 +70,28 @@ def execute():
         if not args.all and args.target is None:
             logging.error('please specify --target or --all')
             return
+        
+        # Validate backup-key option
+        if args.backup_key and not args.restore_only:
+            logging.error('--backup-key can only be used with --restore-only')
+            return
+        
+        # Validate backup-key format
+        if args.backup_key:
+            import re
+            if not re.match(r'^\d{14}$', args.backup_key):
+                logging.error('--backup-key must be in YYYYMMDDHHMMSS format')
+                return
+        
         operations.apply(
             project,
             args.env,
             args.database,
             args.target,
             args.all,
-            args.deploy
+            args.deploy,
+            args.no_restore,
+            args.restore_only,
+            args.patch,
+            args.backup_key
         )
