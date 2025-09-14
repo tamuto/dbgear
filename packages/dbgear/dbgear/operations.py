@@ -18,13 +18,14 @@ logger = getLogger(__name__)
 
 class Operation:
 
-    def __init__(self, project: Project, env: str, database: str, deploy: str):
+    def __init__(self, project: Project, env: str, database: str, deploy: str, backup_key: str = None):
         self.project = project
         self.environ = project.envs[env]
         self.database = database
 
         self.conn = engine.get_connection(self.environ.deployments[deploy])
-        self.ymd = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+        # backup_keyが指定されている場合はそれを使用、そうでなければ現在時刻
+        self.ymd = backup_key if backup_key else datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 
     def __enter__(self):
         return self
@@ -44,7 +45,11 @@ class Operation:
                 logger.info(f'database {map.instance_name} was created.')
                 database.create(self.conn, map.instance_name)
 
-    def create_table(self, map: Mapping, schema: Schema, all: str, target: str):
+    def create_table(self, map: Mapping, schema: Schema, all: str, target: str, restore_only: bool = False):
+        if restore_only:
+            logger.info('restore-only mode: skipping schema creation')
+            return
+        
         for tbl in schema.tables:
             if not all and target != tbl.table_name:
                 continue
@@ -100,7 +105,7 @@ class Operation:
                 procedure.drop(self.conn, map.instance_name, proc)
                 procedure.create(self.conn, map.instance_name, proc)
 
-    def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str):
+    def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None):
         # データ投入の順序を決定
         if all:
             # 全体指定時は依存関係を考慮した順序でデータ投入
@@ -137,14 +142,47 @@ class Operation:
                 ds.load()
                 table.insert(self.conn, map.instance_name, tbl, ds.data)
 
-            if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
-                # 同期モードがdrop_create以外の場合は、データのリストアを行う。
-                if table.is_exist_backup(self.conn, map.instance_name, tbl, self.ymd):
+            if dm.sync_mode != const.SYNC_MODE_DROP_CREATE and not no_restore:
+                # 同期モードがdrop_create以外の場合で、no_restoreが指定されていない場合は、データのリストアを行う。
+                if patch_file and target == dm.table_name:
+                    # パッチファイルが指定されている場合は、パッチを実行
+                    self._execute_patch(map.instance_name, tbl.table_name, patch_file)
+                elif table.is_exist_backup(self.conn, map.instance_name, tbl, self.ymd):
                     # バックアップからデータを復元(同じIDは更新されるため、初期データの変更分は上書きされる)
                     logger.info(f'restore {map.instance_name}.{tbl.table_name}')
                     table.restore(self.conn, map.instance_name, tbl, self.ymd)
 
             engine.commit(self.conn)
+    
+    def _execute_patch(self, env: str, table_name: str, patch_file: str):
+        """Execute patch file for data restoration."""
+        from .patch import PatchConfig, generate_patch_sql, validate_patch_config
+        
+        try:
+            # Load and validate patch configuration
+            patch_config = PatchConfig.load_from_file(patch_file)
+            
+            # Validate patch configuration
+            errors = validate_patch_config(patch_config)
+            if errors:
+                for error in errors:
+                    logger.error(f"Patch validation error: {error}")
+                raise ValueError(f"Invalid patch configuration: {errors[0]}")
+            
+            # Verify patch targets the correct table
+            if patch_config.name != table_name:
+                raise ValueError(f"Patch table name '{patch_config.name}' does not match target '{table_name}'")
+            
+            # Generate and execute SQL
+            sql = generate_patch_sql(env, patch_config, self.ymd)
+            logger.info(f'executing patch {patch_file} for {env}.{table_name}')
+            logger.debug(f'patch SQL: {sql}')
+            
+            engine.execute(self.conn, sql)
+            
+        except Exception as e:
+            logger.error(f"Failed to execute patch {patch_file}: {e}")
+            raise
 
     # ユニットテストなどで、Operationのインスタンスを取得するためのメソッド
     @staticmethod
@@ -177,9 +215,10 @@ class Operation:
                     table.insert(self.conn, map.instance_name, tbl, ds.data)
 
 
-def apply(project, env: str, database: str, target: str, all: str, deploy: str):
+def apply(project, env: str, database: str, target: str, all: str, deploy: str, 
+          no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None):
     """ データベースの適用処理を行う。 CLI向け関数. """
-    with Operation(project, env, database, deploy) as op:
+    with Operation(project, env, database, deploy, backup_key) as op:
         for map in op.environ.databases:
             if database is not None and map.instance_name != database:
                 continue
@@ -187,5 +226,5 @@ def apply(project, env: str, database: str, target: str, all: str, deploy: str):
             op.create_database(map, all)
 
             schema = map.build_schema(op.project.schemas, op.environ.schemas)
-            op.create_table(map, schema, all, target)
-            op.insert_data(map, schema, all, target)
+            op.create_table(map, schema, all, target, restore_only)
+            op.insert_data(map, schema, all, target, no_restore, patch)
