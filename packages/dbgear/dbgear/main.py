@@ -35,7 +35,7 @@ def execute():
     apply_parser.add_argument(
         '--no-restore',
         action='store_true',
-        help='skip data restore from backup tables'
+        help='skip all data operations (initial data loading and backup restoration)'
     )
     apply_parser.add_argument(
         '--restore-only',
