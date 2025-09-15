@@ -47,7 +47,6 @@ class Operation:
 
     def create_table(self, map: Mapping, schema: Schema, all: str, target: str, restore_only: bool = False):
         if restore_only:
-            logger.info('restore-only mode: skipping schema creation')
             return
 
         for tbl in schema.tables:
@@ -108,7 +107,6 @@ class Operation:
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None):
         if no_restore:
             # no_restore が指定されている場合は、初期データ投入もバックアップ復元もスキップ
-            logger.info('no-restore mode: skipping all data operations')
             return
 
         # データ投入の順序を決定
