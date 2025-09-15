@@ -106,6 +106,11 @@ class Operation:
                 procedure.create(self.conn, map.instance_name, proc)
 
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None):
+        if no_restore:
+            # no_restore が指定されている場合は、初期データ投入もバックアップ復元もスキップ
+            logger.info('no-restore mode: skipping all data operations')
+            return
+
         # データ投入の順序を決定
         if all:
             # 全体指定時は依存関係を考慮した順序でデータ投入
@@ -142,8 +147,8 @@ class Operation:
                 ds.load()
                 table.insert(self.conn, map.instance_name, tbl, ds.data)
 
-            if dm.sync_mode != const.SYNC_MODE_DROP_CREATE and not no_restore:
-                # 同期モードがdrop_create以外の場合で、no_restoreが指定されていない場合は、データのリストアを行う。
+            if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
+                # 同期モードがdrop_create以外の場合は、データのリストアを行う。
                 if patch_file and target == dm.table_name:
                     # パッチファイルが指定されている場合は、パッチを実行
                     self._execute_patch(map.instance_name, tbl.table_name, patch_file)
