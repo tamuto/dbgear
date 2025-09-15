@@ -70,19 +70,19 @@ def execute():
         if not args.all and args.target is None:
             logging.error('please specify --target or --all')
             return
-        
+
         # Validate backup-key option
         if args.backup_key and not args.restore_only:
             logging.error('--backup-key can only be used with --restore-only')
             return
-        
+
         # Validate backup-key format
         if args.backup_key:
             import re
             if not re.match(r'^\d{14}$', args.backup_key):
                 logging.error('--backup-key must be in YYYYMMDDHHMMSS format')
                 return
-        
+
         operations.apply(
             project,
             args.env,
