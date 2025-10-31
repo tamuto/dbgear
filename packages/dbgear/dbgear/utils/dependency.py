@@ -11,6 +11,10 @@ class DependencyResolver:
         """
         DataModelリストを依存関係に基づいて並び替える
 
+        優先順位:
+        1. DataModelの明示的依存関係 (dependencies) - 最優先
+        2. FK依存関係 - 循環を引き起こさない範囲で考慮
+
         Args:
             datamodels: DataModelのイテラブル
             schema: Schema オブジェクト
@@ -19,61 +23,102 @@ class DependencyResolver:
             list[DataModel]: 依存関係順に並び替えられたDataModelリスト
 
         Raises:
-            CycleError: 循環依存が検出された場合
+            ValueError: 明示的依存関係で循環依存が検出された場合
         """
         # DataModelをリストに変換し、キーマップを作成
         datamodels_list = list(datamodels)
-        dependencies = {}
         datamodel_map = {}
 
-        # 各DataModelの依存関係を収集
+        # 明示的依存関係を収集
+        explicit_dependencies = {}
+        fk_dependencies = {}
+
         for dm in datamodels_list:
             key = f"{dm.schema_name}@{dm.table_name}"
             datamodel_map[key] = dm
+            explicit_dependencies[key] = set()
+            fk_dependencies[key] = set()
 
-            deps = set()
+        # Phase 1: 明示的依存関係を収集
+        for dm in datamodels_list:
+            key = f"{dm.schema_name}@{dm.table_name}"
 
-            # 1. FK依存関係を抽出（スキーマから）
-            if dm.table_name in schema.tables:
-                table = schema.tables[dm.table_name]
-                for relation in table.relations:
-                    target_key = f"{relation.target.schema_name}@{relation.target.table_name}"
-                    
-                    # 自己参照リレーションを除外
-                    if target_key == key:
-                        logger.debug(f"Skipping self-reference: {key} -> {target_key}")
-                        continue
-                    
-                    # 同じデータセット内にある依存関係のみ追加
-                    if any(target_dm.schema_name == relation.target.schema_name and
-                          target_dm.table_name == relation.target.table_name
-                          for target_dm in datamodels_list):
-                        deps.add(target_key)
-                        logger.debug(f"FK dependency: {key} -> {target_key}")
-
-            # 2. DataModelの明示的依存関係を追加
             for dep in dm.dependencies:
                 # 同じデータセット内にある依存関係のみ追加
                 if any(f"{target_dm.schema_name}@{target_dm.table_name}" == dep
                       for target_dm in datamodels_list):
-                    deps.add(dep)
+                    explicit_dependencies[key].add(dep)
                     logger.debug(f"Explicit dependency: {key} -> {dep}")
 
-            dependencies[key] = deps
-
+        # Phase 2: 明示的依存関係で循環チェック（循環があればエラー）
         try:
-            # TopologicalSorterで順序解決
-            ts = TopologicalSorter(dependencies)
+            ts_explicit = TopologicalSorter(explicit_dependencies)
+            list(ts_explicit.static_order())
+            logger.info("Explicit dependencies validation passed (no cycles)")
+        except CycleError as e:
+            logger.error(f"Circular dependency detected in explicit dependencies: {e}")
+            raise ValueError(f"Circular dependency detected in explicit dependencies: {e}")
+
+        # Phase 3: FK依存関係を収集
+        for dm in datamodels_list:
+            key = f"{dm.schema_name}@{dm.table_name}"
+
+            if dm.table_name in schema.tables:
+                table = schema.tables[dm.table_name]
+                for relation in table.relations:
+                    target_key = f"{relation.target.schema_name}@{relation.target.table_name}"
+
+                    # 自己参照リレーションを除外
+                    if target_key == key:
+                        logger.debug(f"Skipping self-reference FK: {key} -> {target_key}")
+                        continue
+
+                    # 同じデータセット内にある依存関係のみ追加
+                    if any(target_dm.schema_name == relation.target.schema_name and
+                          target_dm.table_name == relation.target.table_name
+                          for target_dm in datamodels_list):
+                        fk_dependencies[key].add(target_key)
+                        logger.debug(f"FK dependency candidate: {key} -> {target_key}")
+
+        # Phase 4: FK依存関係を明示的依存関係にマージ（循環を引き起こすFKは無視）
+        combined_dependencies = {k: v.copy() for k, v in explicit_dependencies.items()}
+        ignored_fks = []
+
+        for key, fk_deps in fk_dependencies.items():
+            for fk_dep in fk_deps:
+                # FK依存関係を試しに追加
+                test_dependencies = {k: v.copy() for k, v in combined_dependencies.items()}
+                test_dependencies[key].add(fk_dep)
+
+                try:
+                    # 循環チェック
+                    ts_test = TopologicalSorter(test_dependencies)
+                    list(ts_test.static_order())
+                    # 循環しなければ正式に追加
+                    combined_dependencies[key].add(fk_dep)
+                    logger.debug(f"FK dependency added: {key} -> {fk_dep}")
+                except CycleError:
+                    # 循環するFKは無視（警告のみ）
+                    ignored_fks.append((key, fk_dep))
+                    logger.warning(f"Ignoring FK dependency (would cause cycle): {key} -> {fk_dep}")
+
+        # Phase 5: 最終的な順序を解決
+        try:
+            ts = TopologicalSorter(combined_dependencies)
             ordered_keys = list(ts.static_order())
 
             # DataModelオブジェクトの順序で返す
             result = [datamodel_map[key] for key in ordered_keys if key in datamodel_map]
 
             logger.info(f"Resolved insertion order: {[f'{dm.schema_name}@{dm.table_name}' for dm in result]}")
+            if ignored_fks:
+                logger.info(f"Ignored {len(ignored_fks)} FK dependencies to avoid cycles")
+
             return result
 
         except CycleError as e:
-            logger.error(f"Circular dependency detected in data insertion order: {e}")
+            # ここには到達しないはずだが、念のため
+            logger.error(f"Unexpected circular dependency detected: {e}")
             raise ValueError(f"Circular dependency detected: {e}")
 
     def validate_dependencies(self, datamodels, schema):
