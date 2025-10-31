@@ -222,7 +222,11 @@ docker run -p 8000:8000 -e PYTHONUNBUFFERED=1 dbgear-editor
 
 ## 📄 License
 
-[License information]
+This project is licensed under the MIT License.
+
+Copyright (c) 2022 tamuto
+
+See the [LICENSE](../../LICENSE) file for details.
 
 ## 🔗 Links
 
