@@ -4,6 +4,7 @@ version = "0.31.2"
 description = "Database management tools for initial data management"
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"
+license = "MIT"
 homepage = "https://github.com/tamuto/dbgear"
 repository = "https://github.com/tamuto/dbgear"
 
