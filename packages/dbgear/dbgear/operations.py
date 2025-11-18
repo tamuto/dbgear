@@ -49,6 +49,9 @@ class Operation:
         if restore_only:
             return
 
+        # テーブル再作成時に一緒に再作成したトリガーを記録
+        recreated_triggers = set()
+
         for tbl in schema.tables:
             if not all and target != tbl.table_name:
                 continue
@@ -65,6 +68,18 @@ class Operation:
             table.drop(self.conn, map.instance_name, tbl)
             table.create(self.conn, map.instance_name, tbl)
 
+            # テーブル再作成後、紐付くトリガーも一緒に再作成
+            for tr in schema.triggers:
+                if tr.table_name == tbl.table_name:
+                    logger.info(f'recreate trigger {map.instance_name}.{tr.trigger_name} (associated with table {tbl.table_name})')
+                    # トリガーが存在すれば削除
+                    if trigger.is_exist(self.conn, map.instance_name, tr):
+                        trigger.drop(self.conn, map.instance_name, tr)
+                    # トリガーを作成
+                    trigger.create(self.conn, map.instance_name, tr)
+                    # 再作成済みとして記録
+                    recreated_triggers.add(tr.trigger_name)
+
         for vw in schema.views:
             if not all and target != vw.view_name:
                 continue
@@ -79,6 +94,9 @@ class Operation:
                 view.create(self.conn, map.instance_name, vw)
 
         for tr in schema.triggers:
+            # テーブル再作成時に既に処理済みのトリガーはスキップ
+            if tr.trigger_name in recreated_triggers:
+                continue
             if not all and target != tr.trigger_name:
                 continue
             # トリガーが存在しない場合は作成する。
