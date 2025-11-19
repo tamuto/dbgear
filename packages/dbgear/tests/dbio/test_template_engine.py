@@ -359,6 +359,44 @@ class TestTemplateEngine(unittest.TestCase):
             if index.unique:
                 self.assertIn('UNIQUE', sql)
 
+    def test_index_operations(self):
+        """Test index drop and check operations."""
+        # Test DROP INDEX template
+        sql_drop = template_engine.render(
+            'mysql_drop_index',
+            env='testdb',
+            table_name='test_table',
+            index_name='idx_test'
+        )
+
+        self.assertIsInstance(sql_drop, str)
+        self.assertTrue(len(sql_drop) > 0)
+
+        print("\n=== Drop Index ===")
+        print(sql_drop)
+
+        # Basic checks
+        self.assertIn('DROP INDEX', sql_drop)
+        self.assertIn('idx_test', sql_drop)
+        self.assertIn('testdb.test_table', sql_drop)
+
+        # Test CHECK INDEX EXISTS template
+        sql_check = template_engine.render('mysql_check_index_exists')
+
+        self.assertIsInstance(sql_check, str)
+        self.assertTrue(len(sql_check) > 0)
+
+        print("\n=== Check Index Exists ===")
+        print(sql_check)
+
+        # Basic checks
+        self.assertIn('SELECT', sql_check)
+        self.assertIn('INDEX_NAME', sql_check)
+        self.assertIn('information_schema.statistics', sql_check)
+        self.assertIn(':env', sql_check)
+        self.assertIn(':table_name', sql_check)
+        self.assertIn(':index_name', sql_check)
+
     def test_view_creation(self):
         """Test view creation template."""
         view = View(
