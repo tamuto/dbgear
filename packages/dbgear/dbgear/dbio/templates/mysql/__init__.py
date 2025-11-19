@@ -73,6 +73,17 @@ CREATE {% if index.unique %}UNIQUE {% endif %}INDEX {{ index.index_name or (tabl
 {%- if index.partial_condition %} WHERE {{ index.partial_condition }}{% endif %}
 """
 
+# DROP INDEX template
+DROP_INDEX_TEMPLATE = """
+DROP INDEX {{ index_name }} ON {{ env }}.{{ table_name }}
+"""
+
+# CHECK INDEX EXISTS template
+CHECK_INDEX_EXISTS_TEMPLATE = """
+SELECT INDEX_NAME FROM information_schema.statistics
+WHERE table_schema = :env AND table_name = :table_name AND index_name = :index_name
+"""
+
 # CREATE VIEW template
 CREATE_VIEW_TEMPLATE = """
 CREATE VIEW {{ env }}.{{ view.view_name }} AS
@@ -243,6 +254,8 @@ WHERE routine_schema = :env AND routine_name = :procedure_name AND routine_type 
 # Register templates
 template_engine.add_template('mysql_create_table', CREATE_TABLE_TEMPLATE)
 template_engine.add_template('mysql_create_index', CREATE_INDEX_TEMPLATE)
+template_engine.add_template('mysql_drop_index', DROP_INDEX_TEMPLATE)
+template_engine.add_template('mysql_check_index_exists', CHECK_INDEX_EXISTS_TEMPLATE)
 template_engine.add_template('mysql_create_view', CREATE_VIEW_TEMPLATE)
 template_engine.add_template('mysql_create_database', CREATE_DATABASE_TEMPLATE)
 template_engine.add_template('mysql_drop_database', DROP_DATABASE_TEMPLATE)

@@ -105,3 +105,52 @@ def is_exist_backup(conn, env: str, table: Table, ymd: str):
     backup_table_name = f'bak_{table.table_name}_{ymd}'
     result = engine.select_one(conn, sql, {'env': env, 'backup_table_name': backup_table_name})
     return result is not None
+
+
+def drop_indexes(conn, env: str, table: Table):
+    """Drop all secondary indexes on a table (excluding primary key)."""
+    for idx, index in enumerate(table.indexes):
+        index_name = index.index_name or f'{table.table_name}_IX{idx}'
+
+        # Check if index exists
+        sql_check = template_engine.render('mysql_check_index_exists')
+        result = engine.select_one(conn, sql_check, {
+            'env': env,
+            'table_name': table.table_name,
+            'index_name': index_name
+        })
+
+        if result is not None:
+            # Drop the index
+            sql_drop = template_engine.render(
+                'mysql_drop_index',
+                env=env,
+                table_name=table.table_name,
+                index_name=index_name
+            )
+            engine.execute(conn, sql_drop)
+            logger.info(f'Dropped index {index_name} on {env}.{table.table_name}')
+
+
+def create_indexes(conn, env: str, table: Table):
+    """Create all secondary indexes on a table."""
+    for idx, index in enumerate(table.indexes):
+        # Set loop context for template
+        loop_context = type('LoopContext', (), {'index0': idx})()
+        sql = template_engine.render(
+            'mysql_create_index',
+            env=env,
+            table=table,
+            index=index,
+            loop=loop_context
+        )
+        engine.execute(conn, sql)
+        index_name = index.index_name or f'{table.table_name}_IX{idx}'
+        logger.info(f'Created index {index_name} on {env}.{table.table_name}')
+
+
+def recreate_indexes(conn, env: str, table: Table):
+    """Drop and recreate all secondary indexes on a table."""
+    logger.info(f'Recreating indexes for {env}.{table.table_name}')
+    drop_indexes(conn, env, table)
+    create_indexes(conn, env, table)

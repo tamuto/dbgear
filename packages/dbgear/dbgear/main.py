@@ -50,6 +50,11 @@ def execute():
         '--backup-key',
         help='backup table timestamp key (YYYYMMDDHHMMSS). Only valid with --restore-only'
     )
+    apply_parser.add_argument(
+        '--index-only',
+        action='store_true',
+        help='recreate indexes only for the specified table (only valid with --target, not with --all)'
+    )
 
     args = parser.parse_args()
 
@@ -83,6 +88,15 @@ def execute():
                 logging.error('--backup-key must be in YYYYMMDDHHMMSS format')
                 return
 
+        # Validate index-only option
+        if args.index_only:
+            if args.all:
+                logging.error('--index-only cannot be used with --all')
+                return
+            if not args.target:
+                logging.error('--index-only requires --target to specify a table')
+                return
+
         operations.apply(
             project,
             args.env,
@@ -93,5 +107,6 @@ def execute():
             args.no_restore,
             args.restore_only,
             args.patch,
-            args.backup_key
+            args.backup_key,
+            args.index_only
         )

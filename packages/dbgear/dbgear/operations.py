@@ -235,18 +235,51 @@ class Operation:
                     ds.load()
                     table.insert(self.conn, map.instance_name, tbl, ds.data)
 
+    def recreate_indexes_only(self, map: Mapping, schema: Schema, target: str):
+        """Recreate indexes for the specified table only."""
+        if target is None:
+            logger.error('target table must be specified for index-only mode')
+            return
+
+        # Find the target table in the schema
+        tbl = None
+        for t in schema.tables:
+            if t.table_name == target:
+                tbl = t
+                break
+
+        if tbl is None:
+            logger.error(f'table {target} not found in schema')
+            return
+
+        # Check if table exists
+        if not table.is_exist(self.conn, map.instance_name, tbl):
+            logger.error(f'table {map.instance_name}.{target} does not exist')
+            return
+
+        # Recreate indexes
+        logger.info(f'Recreating indexes for {map.instance_name}.{target}')
+        table.recreate_indexes(self.conn, map.instance_name, tbl)
+        engine.commit(self.conn)
+
 
 def apply(
         project, env: str, database: str, target: str, all: str, deploy: str,
-        no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None):
+        no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None,
+        index_only: bool = False):
     """ データベースの適用処理を行う。 CLI向け関数. """
     with Operation(project, env, database, deploy, backup_key) as op:
         for map in op.environ.databases:
             if database is not None and map.instance_name != database:
                 continue
-            # データベースの作成
-            op.create_database(map, all)
 
             schema = map.build_schema(op.project.schemas, op.environ.schemas)
-            op.create_table(map, schema, all, target, restore_only)
-            op.insert_data(map, schema, all, target, no_restore, patch)
+
+            # index-only mode: recreate indexes only
+            if index_only:
+                op.recreate_indexes_only(map, schema, target)
+            else:
+                # Normal mode: create database and tables
+                op.create_database(map, all)
+                op.create_table(map, schema, all, target, restore_only)
+                op.insert_data(map, schema, all, target, no_restore, patch)
