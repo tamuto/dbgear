@@ -1,0 +1,30 @@
+# パッチファイルサンプル: test_table用（デフォルト値設定）
+# 用途: 新しく追加されたカラムにデフォルト値を設定
+
+name: test_table
+
+columns:
+  # 既存カラム
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+  num: num
+
+  # 以下は新しく追加されたカラムを想定
+  # 固定値: ステータスをactiveに設定
+  status: "'active'"
+
+  # 固定値: 数値
+  priority: "100"
+
+  # SQL関数: UUID生成
+  uuid: "UUID()"
+
+  # SQL関数: タイムスタンプ
+  created_at: "CURRENT_TIMESTAMP"
+  update_date: "NOW()"
+
+  # 固定値: システムユーザー
+  update_user: "'system'"
+
+# WHERE条件なし = 全データ対象

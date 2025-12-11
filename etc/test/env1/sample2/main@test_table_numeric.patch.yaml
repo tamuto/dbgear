@@ -1,0 +1,15 @@
+# パッチファイルサンプル: test_table用（数値条件）
+# 用途: 数値カラムが特定条件を満たすレコードのみを復元
+
+name: test_table
+
+columns:
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+  num: num
+  update_date: update_date
+  update_user: update_user
+
+# num カラムが100以上のレコードのみを復元
+where: "num >= 100"

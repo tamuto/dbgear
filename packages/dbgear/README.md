@@ -40,6 +40,73 @@ dbgear apply localhost development --all delta
 
 # 例：特定のテーブルのみ適用
 dbgear apply localhost development --target users
+
+# 例：パッチファイルを使って選択的にデータ復元
+dbgear apply localhost development --target users --patch users.patch.yaml
+```
+
+#### データパッチ適用
+パッチ機能を使うと、バックアップテーブルから特定条件のデータのみを選択的に復元できます。
+
+```bash
+# パッチファイルを使った選択的データ復元
+dbgear apply localhost development --target テーブル名 --patch パッチファイル.yaml
+
+# 例：特定ユーザーが更新したレコードのみ復元
+dbgear apply localhost development --target test_table --patch test_table_admin.patch.yaml
+```
+
+**パッチファイルの形式（YAML）:**
+```yaml
+name: test_table      # 対象テーブル名（必須）
+columns:              # カラムマッピング（必須）
+  # キー: INSERT先のカラム名
+  # 値: SELECT側の式（カラム名、SQL関数、固定値、計算式）
+  col_id: col_id                    # バックアップテーブルのカラム
+  name: name
+  update_date: "NOW()"              # SQL関数
+  update_user: "'migration_script'" # 固定値（文字列リテラル）
+  status: "'active'"                # 固定値
+  priority: "100"                   # 固定値（数値）
+  uuid: "UUID()"                    # SQL関数
+where: "update_user = 'admin'"      # WHERE条件（オプション）
+```
+
+**パッチファイルのサンプル:**
+
+基本的な使い方:
+- `etc/test/env1/sample2/main@test_table.patch.yaml` - 特定ユーザーのデータのみ復元
+- `etc/test/env1/sample2/main@test_table_recent.patch.yaml` - 直近30日のデータのみ復元
+- `etc/test/env1/sample2/main@test_table_numeric.patch.yaml` - 数値条件でフィルタ
+- `etc/test/env1/sample2/main@test_table_all.patch.yaml` - 全データ復元（WHERE条件なし）
+- `etc/test/env1/sample2/main@tbl_child.patch.yaml` - 親テーブルとの関連を考慮
+
+高度な使い方:
+- `etc/test/env1/sample2/main@test_table_advanced.patch.yaml` - SQL関数と計算式を使用
+- `etc/test/env1/sample2/main@test_table_with_defaults.patch.yaml` - 新カラムにデフォルト値設定
+- `etc/test/env1/sample2/main@test_table_transform.patch.yaml` - CASE文によるデータ変換
+
+**パッチのユースケース:**
+- 本番環境へのマイグレーション時にテストデータを除外
+- 個人情報を含む特定カラムの除外
+- 時系列データの部分復元（ディスク容量節約）
+- 条件付きロールバック（特定データのみ以前の状態に戻す）
+- スキーマ変更時の新カラムへのデフォルト値設定
+- データ変換・正規化（計算式、CASE文）
+- 監査情報の自動追加（現在時刻、ユーザー名など）
+
+**指定可能な値の種類:**
+- **カラム名**: バックアップテーブルのカラムを直接指定（例: `col_id: col_id`）
+- **SQL関数**: MySQL組み込み関数（例: `created_at: "NOW()"`、`uuid: "UUID()"`）
+- **固定値（文字列）**: シングルクォートで囲む（例: `status: "'active'"`）
+- **固定値（数値）**: そのまま記述（例: `priority: "100"`）
+- **計算式**: 四則演算など（例: `total: "price * quantity"`）
+- **CASE文**: 条件分岐（例: `type: "CASE WHEN num > 100 THEN 'large' ELSE 'small' END"`）
+
+**セキュリティ機能:**
+パッチファイルには自動バリデーションが組み込まれており、以下のパターンが検出されるとエラーになります：
+- WHERE句: `;` (複数SQL文の実行防止)、`--`, `/*`, `*/` (コメント注入防止)、`DROP`, `DELETE`, `UPDATE` (破壊的操作の防止)
+- カラム式: `;`, `--`, `/*`, `*/` の使用禁止
 ```
 
 ### プログラムでの利用

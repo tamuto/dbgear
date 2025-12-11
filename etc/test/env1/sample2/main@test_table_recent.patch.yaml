@@ -1,0 +1,15 @@
+# パッチファイルサンプル: test_table用（最近のデータのみ）
+# 用途: 直近30日間に更新されたレコードのみを復元
+
+name: test_table
+
+columns:
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+  num: num
+  update_date: update_date
+  update_user: update_user
+
+# 最近30日間のデータのみを復元
+where: "update_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
