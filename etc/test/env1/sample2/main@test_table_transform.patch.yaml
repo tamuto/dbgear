@@ -1,0 +1,23 @@
+# パッチファイルサンプル: test_table用（データ変換）
+# 用途: CASE文を使ったデータ変換とカラム除外
+
+name: test_table
+
+columns:
+  col_id: col_id
+  name: name
+
+  # JSONカラムは除外（個人情報削除）
+  # test_18n: test_18n  # コメントアウトして除外
+
+  # CASE文: 数値を文字列のステータスに変換
+  status: "CASE WHEN num >= 100 THEN 'high' WHEN num >= 50 THEN 'medium' ELSE 'low' END"
+
+  # 計算式: 数値を2倍
+  num: "num * 2"
+
+  # SQL関数: 現在時刻
+  update_date: "NOW()"
+  update_user: "'data_migration'"
+
+where: "num IS NOT NULL"

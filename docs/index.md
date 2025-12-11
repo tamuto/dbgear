@@ -16,6 +16,7 @@ DBGearは、データベース初期データ管理のためのローカル開�
 - [マルチテナント設定](spec_tenant.md)
 - [データモデル設定](spec_datamodel.md)
 - [データベーススキーマ定義](spec_schema.md)
+- [パッチ機能](spec_patch.md) - 選択的データ復元機能
 
 ### インフラストラクチャ
 

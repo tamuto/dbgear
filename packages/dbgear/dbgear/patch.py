@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 class PatchConfig:
     """Represents a patch configuration loaded from YAML."""
 
-    def __init__(self, name: str, select: List[str], where: Optional[str] = None):
+    def __init__(self, name: str, columns: Dict[str, str], where: Optional[str] = None):
         self.name = name
-        self.select = select
+        self.columns = columns
         self.where = where
 
     @classmethod
@@ -24,12 +24,14 @@ class PatchConfig:
         """Create PatchConfig from dictionary."""
         if 'name' not in data:
             raise ValueError("Patch config must have 'name' field")
-        if 'select' not in data:
-            raise ValueError("Patch config must have 'select' field")
+        if 'columns' not in data:
+            raise ValueError("Patch config must have 'columns' field")
+        if not isinstance(data['columns'], dict):
+            raise ValueError("'columns' must be a dictionary mapping insert columns to select expressions")
 
         return cls(
             name=data['name'],
-            select=data['select'],
+            columns=data['columns'],
             where=data.get('where')
         )
 
@@ -62,8 +64,11 @@ def generate_patch_sql(env: str, patch_config: PatchConfig, backup_key: str) -> 
     table_name = patch_config.name
     backup_table = f"bak_{table_name}_{backup_key}"
 
-    # Build SELECT columns
-    select_columns = ",\n  ".join(patch_config.select)
+    # Build INSERT column names
+    insert_columns = ",\n  ".join(patch_config.columns.keys())
+
+    # Build SELECT expressions
+    select_expressions = ",\n  ".join(patch_config.columns.values())
 
     # Build WHERE clause if specified
     where_clause = ""
@@ -71,9 +76,11 @@ def generate_patch_sql(env: str, patch_config: PatchConfig, backup_key: str) -> 
         where_clause = f"\nWHERE {patch_config.where}"
 
     # Generate final SQL
-    sql = f"""INSERT INTO {env}.{table_name}
+    sql = f"""INSERT INTO {env}.{table_name} (
+  {insert_columns}
+)
 SELECT
-  {select_columns}
+  {select_expressions}
 FROM {env}.{backup_table}{where_clause}"""
 
     return sql
@@ -91,16 +98,44 @@ def validate_patch_config(patch_config: PatchConfig) -> List[str]:
     if not patch_config.name:
         errors.append("Table name cannot be empty")
 
-    if not patch_config.select:
-        errors.append("Select columns cannot be empty")
+    if not patch_config.columns:
+        errors.append("Columns mapping cannot be empty")
 
     # Check for common SQL injection patterns in WHERE clause
     if patch_config.where:
-        dangerous_patterns = [';', '--', '/*', '*/', 'DROP', 'DELETE', 'UPDATE']
+        # Check for comment and statement separator patterns
+        simple_patterns = [';', '--', '/*', '*/']
         where_upper = patch_config.where.upper()
-        for pattern in dangerous_patterns:
+        for pattern in simple_patterns:
             if pattern in where_upper:
                 errors.append(f"Potentially dangerous pattern '{pattern}' found in WHERE clause")
+                break
+
+        # Check for destructive SQL keywords (word boundaries required)
+        import re
+        destructive_keywords = ['DROP', 'DELETE', 'UPDATE', 'INSERT', 'TRUNCATE', 'ALTER']
+        for keyword in destructive_keywords:
+            # Use word boundary to avoid false positives like "update_user"
+            if re.search(rf'\b{keyword}\b', where_upper):
+                errors.append(f"Potentially dangerous SQL keyword '{keyword}' found in WHERE clause")
+                break
+
+    # Check for dangerous patterns in column expressions
+    for insert_col, select_expr in patch_config.columns.items():
+        if not insert_col or not isinstance(insert_col, str):
+            errors.append(f"Invalid column name: {insert_col}")
+            continue
+        if not select_expr or not isinstance(select_expr, str):
+            errors.append(f"Invalid select expression for column '{insert_col}'")
+            continue
+
+        # Check for dangerous patterns in select expressions
+        expr_upper = select_expr.upper()
+        for pattern in [';', '--', '/*', '*/']:
+            if pattern in expr_upper:
+                errors.append(
+                    f"Potentially dangerous pattern '{pattern}' found in expression for column '{insert_col}'"
+                )
                 break
 
     return errors

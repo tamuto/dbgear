@@ -1,0 +1,19 @@
+# パッチファイルサンプル: test_table用
+# 用途: 特定のユーザーによって更新されたレコードのみを復元
+
+name: test_table  # 対象テーブル名（必須）
+
+# カラムマッピング（必須）
+# キー: INSERT先のカラム名
+# 値: SELECT側の式（カラム名、SQL関数、固定値、計算式）
+columns:
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+  num: num
+  update_date: update_date
+  update_user: update_user
+
+# データを絞り込むWHERE条件（オプション）
+# この例では、特定のユーザーによって更新されたレコードのみを復元
+where: "update_user = 'admin'"

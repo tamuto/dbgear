@@ -1,0 +1,15 @@
+# パッチファイルサンプル: test_table用（全データ）
+# 用途: WHERE条件なしで全データを復元（通常のrestoreと同じ動作）
+
+name: test_table
+
+# 全カラムを復元
+columns:
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+  num: num
+  update_date: update_date
+  update_user: update_user
+
+# where句を省略すると全データが対象

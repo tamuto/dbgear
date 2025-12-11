@@ -1,0 +1,21 @@
+# パッチファイルサンプル: test_table用（高度な機能）
+# 用途: SQL関数、固定値、計算式を使った復元
+
+name: test_table
+
+columns:
+  # バックアップテーブルのカラムをそのまま復元
+  col_id: col_id
+  name: name
+  test_18n: test_18n
+
+  # 計算式: 数値を10%増加
+  num: "num * 1.1"
+
+  # SQL関数: 現在時刻で更新
+  update_date: "NOW()"
+
+  # 固定値: 文字列リテラル
+  update_user: "'migration_script'"
+
+where: "update_user = 'admin'"

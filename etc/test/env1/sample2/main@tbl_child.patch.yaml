@@ -1,0 +1,15 @@
+# パッチファイルサンプル: tbl_child用
+# 用途: 親テーブル(test_table)との関連を考慮したデータ復元
+
+name: tbl_child
+
+columns:
+  child_id: child_id
+  col_id: col_id
+  name: name
+  update_date: update_date
+  update_user: update_user
+
+# 特定の親レコードに関連する子レコードのみを復元
+# col_idで親テーブルと紐付いている
+where: "col_id IN (SELECT col_id FROM testdb1.bak_test_table_20251210000000 WHERE update_user = 'admin')"
