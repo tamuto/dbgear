@@ -55,6 +55,11 @@ def execute():
         action='store_true',
         help='recreate indexes only for the specified table (only valid with --target, not with --all)'
     )
+    apply_parser.add_argument(
+        '--restore-backup',
+        action='store_true',
+        help='restore data from backup even if datamodel is not defined (only valid with --target)'
+    )
 
     args = parser.parse_args()
 
@@ -97,6 +102,15 @@ def execute():
                 logging.error('--index-only requires --target to specify a table')
                 return
 
+        # Validate restore-backup option
+        if args.restore_backup:
+            if args.all:
+                logging.error('--restore-backup cannot be used with --all')
+                return
+            if not args.target:
+                logging.error('--restore-backup requires --target to specify a table')
+                return
+
         operations.apply(
             project,
             args.env,
@@ -108,5 +122,6 @@ def execute():
             args.restore_only,
             args.patch,
             args.backup_key,
-            args.index_only
+            args.index_only,
+            args.restore_backup
         )
