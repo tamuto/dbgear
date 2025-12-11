@@ -34,16 +34,20 @@ class Operation:
         self.conn.close()
 
     def create_database(self, map: Mapping, all: str):
+        # Get charset and collation from mapping, or use defaults
+        charset = map.charset or 'utf8mb4'
+        collation = map.collation or 'utf8mb4_unicode_ci'
+
         if all == 'drop':
             logger.info(f'database {map.instance_name}')
             if database.is_exist(self.conn, map.instance_name):
                 database.drop(self.conn, map.instance_name)
-            database.create(self.conn, map.instance_name)
+            database.create(self.conn, map.instance_name, charset=charset, collation=collation)
         else:
             # 差分更新または個別指定の場合で、データベースが存在しない場合は作成する。
             if not database.is_exist(self.conn, map.instance_name):
                 logger.info(f'database {map.instance_name} was created.')
-                database.create(self.conn, map.instance_name)
+                database.create(self.conn, map.instance_name, charset=charset, collation=collation)
 
     def create_table(self, map: Mapping, schema: Schema, all: str, target: str, restore_only: bool = False):
         if restore_only:

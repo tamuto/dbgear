@@ -21,6 +21,10 @@ class Mapping(BaseSchema):
     schemas: list[str] = []
     deploy: bool = False
 
+    # Database character set and collation
+    charset: str | None = None      # e.g., utf8mb4, latin1
+    collation: str | None = None    # e.g., utf8mb4_unicode_ci, utf8mb4_ja_0900_as_cs
+
     @classmethod
     def _directory(cls, folder: str, environ: str, name: str) -> str:
         return os.path.join(folder, environ, name)
