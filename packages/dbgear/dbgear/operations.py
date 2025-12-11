@@ -126,7 +126,7 @@ class Operation:
                 procedure.drop(self.conn, map.instance_name, proc)
                 procedure.create(self.conn, map.instance_name, proc)
 
-    def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None):
+    def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None, restore_backup: bool = False):
         if no_restore:
             # no_restore が指定されている場合は、初期データ投入もバックアップ復元もスキップ
             return
@@ -153,6 +153,9 @@ class Operation:
             # 個別指定時は従来通り
             datamodels_to_process = map.datamodels
 
+        # 処理済みテーブルを記録
+        processed_tables = set()
+
         # データ投入処理
         for dm in datamodels_to_process:
             if dm.sync_mode == const.SYNC_MODE_MANUAL and all:
@@ -162,6 +165,10 @@ class Operation:
             if not all and target != dm.table_name:
                 continue
             tbl = schema.tables[dm.table_name]
+
+            # 処理済みとしてマーク
+            processed_tables.add(dm.table_name)
+
             for ds in dm.datasources:
                 logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                 ds.load()
@@ -176,6 +183,23 @@ class Operation:
                     # バックアップからデータを復元(同じIDは更新されるため、初期データの変更分は上書きされる)
                     logger.info(f'restore {map.instance_name}.{tbl.table_name}')
                     table.restore(self.conn, map.instance_name, tbl, self.ymd)
+
+            engine.commit(self.conn)
+
+        # datamodelがない場合でも、targetが指定されていてpatch/restore_backupが指定されていればリストア処理を実行
+        if target and target not in processed_tables and (patch_file or restore_backup):
+            tbl = schema.tables.get(target)
+            if tbl is None:
+                logger.warning(f'Table {target} not found in schema')
+                return
+
+            if patch_file:
+                # パッチファイルが指定されている場合は、パッチを実行
+                self._execute_patch(map.instance_name, tbl.table_name, patch_file)
+            elif restore_backup and table.is_exist_backup(self.conn, map.instance_name, tbl, self.ymd):
+                # restore_backupが指定されている場合は、バックアップから復元
+                logger.info(f'restore {map.instance_name}.{tbl.table_name}')
+                table.restore(self.conn, map.instance_name, tbl, self.ymd)
 
             engine.commit(self.conn)
 
@@ -270,7 +294,7 @@ class Operation:
 def apply(
         project, env: str, database: str, target: str, all: str, deploy: str,
         no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None,
-        index_only: bool = False):
+        index_only: bool = False, restore_backup: bool = False):
     """ データベースの適用処理を行う。 CLI向け関数. """
     with Operation(project, env, database, deploy, backup_key) as op:
         for map in op.environ.databases:
@@ -286,4 +310,4 @@ def apply(
                 # Normal mode: create database and tables
                 op.create_database(map, all)
                 op.create_table(map, schema, all, target, restore_only)
-                op.insert_data(map, schema, all, target, no_restore, patch)
+                op.insert_data(map, schema, all, target, no_restore, patch, restore_backup)
