@@ -151,6 +151,11 @@ dbgear apply localhost development --target users --restore-backup --backup-key 
 
 **注意**: datamodelが定義されている場合は、そちらの`sync_mode`設定が優先されます。
 
+**sync_modeの種類:**
+- `drop_create`: 初期データのみ投入、バックアップ復元なし
+- `manual`: 初期データ + バックアップから新規レコードのみ追加（INSERT IGNORE）
+- `update_diff`: 初期データ + バックアップから差分を更新・追加（REPLACE INTO）
+
 ### プログラムでの利用
 
 #### スキーマインポート

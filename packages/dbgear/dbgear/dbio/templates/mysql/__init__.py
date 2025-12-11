@@ -131,6 +131,12 @@ INSERT IGNORE INTO {{ env }}.{{ table_name }}
 SELECT * FROM {{ env }}.bak_{{ table_name }}_{{ ymd }}
 """
 
+# RESTORE TABLE with UPDATE template (REPLACE INTO SELECT)
+RESTORE_TABLE_UPDATE_TEMPLATE = """
+REPLACE INTO {{ env }}.{{ table_name }}
+SELECT * FROM {{ env }}.bak_{{ table_name }}_{{ ymd }}
+"""
+
 # CHECK BACKUP EXISTS template
 CHECK_BACKUP_EXISTS_TEMPLATE = """
 SELECT TABLE_NAME FROM information_schema.tables
@@ -264,6 +270,7 @@ template_engine.add_template('mysql_drop_table', DROP_TABLE_TEMPLATE)
 template_engine.add_template('mysql_insert_into', INSERT_INTO_TEMPLATE)
 template_engine.add_template('mysql_backup_table', BACKUP_TABLE_TEMPLATE)
 template_engine.add_template('mysql_restore_table', RESTORE_TABLE_TEMPLATE)
+template_engine.add_template('mysql_restore_table_update', RESTORE_TABLE_UPDATE_TEMPLATE)
 template_engine.add_template('mysql_check_backup_exists', CHECK_BACKUP_EXISTS_TEMPLATE)
 template_engine.add_template('mysql_check_database_exists', CHECK_DATABASE_EXISTS_TEMPLATE)
 template_engine.add_template('mysql_check_view_exists', CHECK_VIEW_EXISTS_TEMPLATE)
