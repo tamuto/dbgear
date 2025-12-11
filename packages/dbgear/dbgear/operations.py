@@ -188,10 +188,10 @@ class Operation:
 
         # datamodelがない場合でも、targetが指定されていてpatch/restore_backupが指定されていればリストア処理を実行
         if target and target not in processed_tables and (patch_file or restore_backup):
-            tbl = schema.tables.get(target)
-            if tbl is None:
+            if target not in schema.tables:
                 logger.warning(f'Table {target} not found in schema')
                 return
+            tbl = schema.tables[target]
 
             if patch_file:
                 # パッチファイルが指定されている場合は、パッチを実行
