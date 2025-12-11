@@ -43,7 +43,23 @@ dbgear apply localhost development --target users
 
 # 例：パッチファイルを使って選択的にデータ復元
 dbgear apply localhost development --target users --patch users.patch.yaml
+
+# 例：datamodelなしでバックアップから復元
+dbgear apply localhost development --target users --restore-backup
 ```
+
+#### applyコマンドオプション一覧
+
+| オプション | 説明 | 組み合わせ制約 |
+|-----------|------|-------------|
+| `--all drop/delta` | 全テーブルに対して操作 | `--target`と排他 |
+| `--target` | 特定テーブルのみ操作 | `--all`と排他 |
+| `--patch` | パッチファイルでデータ復元 | `--target`必須 |
+| `--restore-backup` | datamodelなしでバックアップ復元 | `--target`必須、`--all`と排他 |
+| `--no-restore` | データ投入・復元をスキップ | - |
+| `--restore-only` | スキーマ再作成なしで復元のみ | - |
+| `--backup-key` | バックアップキー指定（YYYYMMDDHHMMSS） | `--restore-only`と併用 |
+| `--index-only` | インデックスのみ再作成 | `--target`必須、`--all`と排他 |
 
 #### データパッチ適用
 パッチ機能を使うと、バックアップテーブルから特定条件のデータのみを選択的に復元できます。
@@ -108,6 +124,32 @@ where: "update_user = 'admin'"      # WHERE条件（オプション）
 - WHERE句: `;` (複数SQL文の実行防止)、`--`, `/*`, `*/` (コメント注入防止)、`DROP`, `DELETE`, `UPDATE` (破壊的操作の防止)
 - カラム式: `;`, `--`, `/*`, `*/` の使用禁止
 ```
+
+#### datamodelなしでの使用
+
+**v0.35.0以降**: datamodelが定義されていない場合でも、以下の操作が可能です。
+
+##### パッチファイルによる選択的復元
+```bash
+# datamodelがなくてもpatchファイルを使用可能
+dbgear apply localhost development --target users --patch users.patch.yaml
+```
+
+##### バックアップからの全件復元
+```bash
+# --restore-backupオプションでdatamodelなしでも復元可能
+dbgear apply localhost development --target users --restore-backup
+
+# バックアップキーを指定して復元
+dbgear apply localhost development --target users --restore-backup --backup-key 20251210120000
+```
+
+**動作条件:**
+- `--target`オプションでテーブル名を指定
+- `--patch`または`--restore-backup`オプションを指定
+- 対象テーブルのバックアップテーブルが存在すること
+
+**注意**: datamodelが定義されている場合は、そちらの`sync_mode`設定が優先されます。
 
 ### プログラムでの利用
 

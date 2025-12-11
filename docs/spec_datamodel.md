@@ -114,3 +114,59 @@ classDiagram
     DataModel -- DataSource : datasources
     DataModel -- DataParams : data_params
 ```
+
+## DataModelフィールド詳細
+
+### 必須フィールド
+
+#### description
+- **型**: 文字列
+- **説明**: データモデルの説明文
+
+#### sync_mode（必須）
+- **型**: 文字列
+- **必須**: はい（デフォルト値なし）
+- **取りうる値**:
+  - `drop_create`: テーブル再作成時に初期データのみ投入、バックアップ復元なし
+  - `manual`: 初期データ投入後、バックアップから復元（またはpatch適用）
+
+**動作詳細**:
+
+| sync_mode | 初期データ投入 | バックアップ復元 | patch適用 |
+|-----------|--------------|---------------|----------|
+| `drop_create` | ✓ | ✗ | ✗ |
+| `manual` | ✓ | ✓（--patchがない場合） | ✓（--patch指定時） |
+
+**注意**: v0.35.0以降、datamodel自体が定義されていない場合でも、`--patch`または`--restore-backup`オプションを使用することでデータ復元が可能です。
+
+```bash
+# datamodelなしでpatch適用（v0.35.0以降）
+dbgear apply localhost development --target users --patch users.patch.yaml
+
+# datamodelなしでバックアップ復元（v0.35.0以降）
+dbgear apply localhost development --target users --restore-backup
+```
+
+#### data_type
+- **型**: 文字列
+- **説明**: データソースの種類
+- **取りうる値**: `yaml`, `csv`, `xlsx`, `python` など
+
+### オプションフィールド
+
+#### data_path
+- **型**: 文字列 | None
+- **説明**: データファイルのカスタムパス
+
+#### data_args
+- **型**: ディクショナリ | None
+- **説明**: データソース固有の引数
+
+#### data_params
+- **型**: DataParams | None
+- **説明**: データレイアウトやセグメント情報
+
+#### dependencies
+- **型**: リスト[文字列]
+- **説明**: データ投入順序の依存関係（`schema@table`形式）
+- **例**: `["main@users", "main@categories"]`
