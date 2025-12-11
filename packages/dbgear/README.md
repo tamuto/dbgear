@@ -153,8 +153,9 @@ dbgear apply localhost development --target users --restore-backup --backup-key 
 
 **sync_modeの種類:**
 - `drop_create`: 初期データのみ投入、バックアップ復元なし
-- `manual`: 初期データ + バックアップから新規レコードのみ追加（INSERT IGNORE）
-- `update_diff`: 初期データ + バックアップから差分を更新・追加（REPLACE INTO）
+- `manual`: `--all`時スキップ、個別指定時は新規レコードのみ追加（INSERT IGNORE）
+- `update_diff`: `--all`時も実行、新規レコードのみ追加（INSERT IGNORE）
+- `replace`: `--all`時も実行、バックアップで既存レコードを上書き（REPLACE INTO）
 
 ### プログラムでの利用
 

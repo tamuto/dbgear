@@ -181,12 +181,12 @@ class Operation:
                     self._execute_patch(map.instance_name, tbl.table_name, patch_file)
                 elif table.is_exist_backup(self.conn, map.instance_name, tbl, self.ymd):
                     # sync_modeに応じてリストア処理を変更
-                    if dm.sync_mode == const.SYNC_MODE_UPDATE_DIFF:
-                        # update_diff: バックアップから差分のあるものだけを取り込む（REPLACE INTO）
-                        logger.info(f'restore with update {map.instance_name}.{tbl.table_name}')
+                    if dm.sync_mode == const.SYNC_MODE_REPLACE:
+                        # replace: バックアップで既存レコードを上書き（REPLACE INTO）
+                        logger.info(f'restore with replace {map.instance_name}.{tbl.table_name}')
                         table.restore_update(self.conn, map.instance_name, tbl, self.ymd)
                     else:
-                        # manual: バックアップから新規レコードのみ追加（INSERT IGNORE）
+                        # manual / update_diff: バックアップから新規レコードのみ追加（INSERT IGNORE）
                         logger.info(f'restore {map.instance_name}.{tbl.table_name}')
                         table.restore(self.conn, map.instance_name, tbl, self.ymd)
 

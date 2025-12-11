@@ -24,6 +24,7 @@ LAYOUT_SINGLE = 'single'
 SYNC_MODE_DROP_CREATE = 'drop_create'
 SYNC_MODE_MANUAL = 'manual'
 SYNC_MODE_UPDATE_DIFF = 'update_diff'
+SYNC_MODE_REPLACE = 'replace'
 
 # フィールド幅
 DEFAULT_WIDTH = 150
