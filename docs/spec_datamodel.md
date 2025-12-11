@@ -114,3 +114,71 @@ classDiagram
     DataModel -- DataSource : datasources
     DataModel -- DataParams : data_params
 ```
+
+## DataModelフィールド詳細
+
+### 必須フィールド
+
+#### description
+- **型**: 文字列
+- **説明**: データモデルの説明文
+
+#### sync_mode（必須）
+- **型**: 文字列
+- **必須**: はい（デフォルト値なし）
+- **取りうる値**:
+  - `drop_create`: テーブル再作成時に初期データのみ投入、バックアップ復元なし
+  - `manual`: `--all`指定時はスキップ、個別指定時は復元実行（INSERT IGNORE）
+  - `update_diff`: `--all`指定時も復元実行、新規レコードのみ追加（INSERT IGNORE）
+  - `replace`: `--all`指定時も復元実行、バックアップで既存レコードを上書き（REPLACE INTO）
+
+**動作詳細**:
+
+| sync_mode | --all時 | 初期データ投入 | バックアップ復元 | 復元方式 | patch適用 |
+|-----------|---------|--------------|---------------|---------|----------|
+| `drop_create` | 初期データのみ | ✓ | ✗ | - | ✗ |
+| `manual` | **スキップ** | ✓ | ✓（--patchがない場合） | INSERT IGNORE（新規のみ） | ✓（--patch指定時） |
+| `update_diff` | 復元実行 | ✓ | ✓（--patchがない場合） | INSERT IGNORE（新規のみ） | ✓（--patch指定時） |
+| `replace` | 復元実行 | ✓ | ✓（--patchがない場合） | REPLACE INTO（更新+新規） | ✓（--patch指定時） |
+
+**復元方式の違い**:
+- **INSERT IGNORE**: 既存レコードはスキップ、新規レコードのみ追加。初期データが優先される。
+- **REPLACE INTO**: 既存レコードは削除して再挿入、新規レコードも追加。バックアップデータが優先される。
+
+**manualの用途**:
+- データ依存関係やトリガーの問題を回避したい場合
+- `--all`での一括処理から除外し、手動で個別制御したい場合
+
+**注意**: v0.35.0以降、datamodel自体が定義されていない場合でも、`--patch`または`--restore-backup`オプションを使用することでデータ復元が可能です。
+
+```bash
+# datamodelなしでpatch適用（v0.35.0以降）
+dbgear apply localhost development --target users --patch users.patch.yaml
+
+# datamodelなしでバックアップ復元（v0.35.0以降）
+dbgear apply localhost development --target users --restore-backup
+```
+
+#### data_type
+- **型**: 文字列
+- **説明**: データソースの種類
+- **取りうる値**: `yaml`, `csv`, `xlsx`, `python` など
+
+### オプションフィールド
+
+#### data_path
+- **型**: 文字列 | None
+- **説明**: データファイルのカスタムパス
+
+#### data_args
+- **型**: ディクショナリ | None
+- **説明**: データソース固有の引数
+
+#### data_params
+- **型**: DataParams | None
+- **説明**: データレイアウトやセグメント情報
+
+#### dependencies
+- **型**: リスト[文字列]
+- **説明**: データ投入順序の依存関係（`schema@table`形式）
+- **例**: `["main@users", "main@categories"]`

@@ -100,6 +100,17 @@ def restore(conn, env: str, table: Table, ymd: str):
     engine.execute(conn, sql)
 
 
+def restore_update(conn, env: str, table: Table, ymd: str):
+    """Restore data from backup table with REPLACE INTO (update existing records)."""
+    sql = template_engine.render(
+        'mysql_restore_table_update',
+        env=env,
+        table_name=table.table_name,
+        ymd=ymd
+    )
+    engine.execute(conn, sql)
+
+
 def is_exist_backup(conn, env: str, table: Table, ymd: str):
     sql = template_engine.render('mysql_check_backup_exists')
     backup_table_name = f'bak_{table.table_name}_{ymd}'

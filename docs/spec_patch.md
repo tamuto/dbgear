@@ -183,6 +183,68 @@ from dbgear.dbio import engine
 engine.execute(conn, sql)
 ```
 
+## datamodelとの関係
+
+パッチ機能は、datamodel（データモデル定義ファイル）の有無によって動作が異なります。
+
+### datamodelが存在する場合
+
+datamodelの`sync_mode`設定と組み合わせて動作します：
+
+- **`sync_mode: drop_create`**:
+  - 初期データ投入のみ実行
+  - リストア処理はスキップ（patchも実行されない）
+
+- **`sync_mode: manual`**:
+  - `--all`指定時：スキップ（データ依存/トリガー問題を回避）
+  - `--target`個別指定時：初期データ投入後、以下のいずれかを実行
+    - `--patch`オプション指定時：patchファイルによる選択的復元
+    - 上記以外：バックアップから新規レコードのみ追加（INSERT IGNORE）
+
+- **`sync_mode: update_diff`**:
+  - `--all`指定時も復元実行
+  - 初期データ投入後、以下のいずれかを実行：
+    - `--patch`オプション指定時：patchファイルによる選択的復元
+    - 上記以外：バックアップから新規レコードのみ追加（INSERT IGNORE）
+
+- **`sync_mode: replace`**:
+  - `--all`指定時も復元実行
+  - 初期データ投入後、以下のいずれかを実行：
+    - `--patch`オプション指定時：patchファイルによる選択的復元
+    - 上記以外：バックアップで既存レコードを上書き（REPLACE INTO）
+
+**datamodelの例:**
+```yaml
+# env1/sample/main@users.yaml
+description: "ユーザーテーブル"
+sync_mode: manual  # リストア処理を有効化
+data_type: yaml
+```
+
+### datamodelが存在しない場合
+
+**v0.35.0以降**: datamodelがなくてもpatch機能およびバックアップ復元を使用可能
+
+```bash
+# datamodelなしでpatchファイルを適用
+dbgear apply localhost development --target users --patch users.patch.yaml
+
+# datamodelなしでバックアップから全件復元
+dbgear apply localhost development --target users --restore-backup
+```
+
+**動作条件**:
+- `--target`オプションでテーブル名を指定
+- `--patch`または`--restore-backup`オプションを指定
+- 対象テーブルのバックアップテーブル（`bak_{table_name}_{timestamp}`）が存在すること
+
+**メリット**:
+- 初期データ定義が不要なテーブルでもバックアップ復元が可能
+- 一時的なデータ復元操作が簡潔に実行できる
+- スキーマ定義のみでデータ管理が完結する場合に便利
+
+**注意**: datamodelが定義されている場合は、datamodelの`sync_mode`設定が優先されます。
+
 ## サンプルファイル
 
 ### 基本サンプル
