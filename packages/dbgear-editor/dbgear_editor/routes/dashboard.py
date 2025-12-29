@@ -21,20 +21,74 @@ def register_dashboard_routes(rt):
     @rt('/')
     def index(request: Request):
         """Dashboard page showing project overview."""
+        from ..project import get_recent_projects
+
         project = get_current_project()
 
         if not project or not project.is_loaded():
-            content = Div(
-                content_header(
-                    "DBGear Editor",
-                    "No project loaded. Please start the application with --project argument."
-                ),
-                empty_state(
-                    "folder-open",
-                    "No Project Loaded",
-                    "Use 'dbgear-editor --project /path/to/project' to load a project."
-                )
+            recent_projects = get_recent_projects()
+
+            # Create action button for adding projects
+            add_project_button = A(
+                "Add Project",
+                href="/projects/add",
+                cls="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             )
+
+            # Build content based on whether recent projects exist
+            if recent_projects:
+                # Show recent projects list with switch buttons
+                project_items = []
+                for proj in recent_projects[:5]:
+                    project_items.append(
+                        Div(
+                            Div(
+                                Strong(proj["name"], cls="text-base font-medium text-gray-900"),
+                                P(proj["path"], cls="text-sm text-gray-500 mt-1"),
+                                cls="flex-1"
+                            ),
+                            Form(
+                                Button(
+                                    "Load Project",
+                                    type="submit",
+                                    cls="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                ),
+                                Input(type="hidden", name="selected_project", value=proj["path"]),
+                                method="POST",
+                                action="/api/projects/switch-simple"
+                            ),
+                            cls="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+                        )
+                    )
+
+                content = Div(
+                    content_header(
+                        "DBGear Editor",
+                        "No project loaded. Please select a recent project or add a new one.",
+                        add_project_button
+                    ),
+
+                    # Recent projects section
+                    Div(
+                        H2("Recent Projects", cls="text-lg font-medium text-gray-900 mb-4"),
+                        Div(*project_items, cls="space-y-3"),
+                        cls="bg-gray-50 p-6 rounded-lg border border-gray-200"
+                    )
+                )
+            else:
+                # No recent projects - show empty state with add button
+                content = Div(
+                    content_header(
+                        "DBGear Editor",
+                        "No project loaded."
+                    ),
+                    empty_state(
+                        "folder-open",
+                        "No Project Loaded",
+                        "Use 'dbgear-editor --project /path/to/project' to load a project, or add one using the button below.",
+                        add_project_button
+                    )
+                )
         else:
             project_info = project.get_project_info()
             schemas = project.get_schemas()
