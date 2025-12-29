@@ -1,6 +1,6 @@
 [project]
 name = "dbgear-editor"
-version = "0.7.0"
+version = "0.8.1"
 description = "FastHTML-based web editor for DBGear schema and data management"
 authors = [
     {name = "tamuto", email = "mutomob@gmail.com"}
@@ -12,7 +12,8 @@ dependencies = [
     "python-fasthtml>=0.12.24,<0.13.0",
     "monsterui>=1.0.23,<2.0.0",
     "uvicorn>=0.30.0",
-    "dbgear>=0.32.1"
+    "dbgear>=0.32.1",
+    "in4viz>=0.1.0"
 ]
 
 [project.scripts]
