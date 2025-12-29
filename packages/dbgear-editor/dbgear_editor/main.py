@@ -20,6 +20,7 @@ from .routes.views import register_view_routes
 from .routes.procedures import register_procedure_routes
 from .routes.triggers import register_trigger_routes
 from .routes.projects import register_project_routes
+from .routes.er_diagram import register_er_diagram_routes
 
 # Initialize FastHTML app
 app, rt = fast_app(
@@ -34,6 +35,7 @@ register_view_routes(rt)
 register_procedure_routes(rt)
 register_trigger_routes(rt)
 register_project_routes(rt)
+register_er_diagram_routes(rt)
 
 # Test route to verify routing works
 @rt('/test-static')
