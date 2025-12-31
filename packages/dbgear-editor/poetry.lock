@@ -619,14 +619,14 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "in4viz"
-version = "0.1.0"
-description = "Python library for ER diagram visualization with SVG output"
+version = "0.2.0"
+description = "ER図可視化ライブラリ - SVGとdraw.io形式での出力をサポート"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "in4viz-0.1.0-py3-none-any.whl", hash = "sha256:e0265b0070f6dc93fe380520dd89f563f95a4cdc9467807440b7b0e10d95adb5"},
-    {file = "in4viz-0.1.0.tar.gz", hash = "sha256:0f7fbe12b51fe7a763797e200b86d87d390ddaf328278be86d21c10696345def"},
+    {file = "in4viz-0.2.0-py3-none-any.whl", hash = "sha256:b68730903fbdd9142fdf86f8266d9d0984b589405aa85cb1e0e6bfda0bec57e8"},
+    {file = "in4viz-0.2.0.tar.gz", hash = "sha256:bdcacc6a15a4cd1a189495300b0352dd2a9eee9cfe2519458f7d75f3679fc475"},
 ]
 
 [[package]]
@@ -1670,4 +1670,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "43d55563620b2d4481c09409f3df6391ebc5d7bee19dcd20713517fdabc38900"
+content-hash = "3e318cbc5e1c8ecb76bf3dec241b1d018696db9530eeedaf9bf474671aa9d618"

@@ -217,4 +217,4 @@ def generate_er_diagram_svg(
                 )
 
     # Generate and return SVG
-    return diagram.render_svg()
+    return diagram.render()
