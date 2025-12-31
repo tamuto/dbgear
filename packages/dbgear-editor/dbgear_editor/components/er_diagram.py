@@ -2,7 +2,8 @@
 ER diagram generation component using in4viz library.
 """
 
-from in4viz import ERDiagram, Table as In4vizTable, Column as In4vizColumn, LineType, Cardinality
+from in4viz import Table as In4vizTable, Column as In4vizColumn, LineType, Cardinality
+from in4viz.backends.svg import SVGERDiagram
 from dbgear.models.schema import SchemaManager
 from dbgear.models.table import Table
 from dbgear.models.column import Column
@@ -184,8 +185,12 @@ def generate_er_diagram_svg(
         )
         tables_to_include.update(fk_tables)
 
-    # Create ER diagram
-    diagram = ERDiagram()
+    # Create ER diagram with standard dimensions
+    diagram = SVGERDiagram(
+        default_line_type=LineType.STRAIGHT,
+        min_width=1200,
+        min_height=800
+    )
 
     # Add tables to diagram
     in4viz_tables = {}
@@ -217,4 +222,4 @@ def generate_er_diagram_svg(
                 )
 
     # Generate and return SVG
-    return diagram.render()
+    return diagram.render_svg()
