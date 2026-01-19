@@ -8,18 +8,18 @@ def is_exist(conn, database):
     return result is not None
 
 
-def create(conn, database, charset='utf8mb4', collation='utf8mb4_unicode_ci'):
+def create(conn, database, charset='utf8mb4', collation='utf8mb4_unicode_ci', dryrun=False):
     sql = template_engine.render(
         'mysql_create_database',
         database_name=database,
         charset=charset,
         collation=collation)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def drop(conn, database):
+def drop(conn, database, dryrun=False):
     sql = template_engine.render('mysql_drop_database', database_name=database)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
 # def grant(conn, database, user, host, privileges='ALL PRIVILEGES'):

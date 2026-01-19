@@ -10,19 +10,19 @@ def is_exist(conn, env: str, view: View):
     return result is not None
 
 
-def drop(conn, env: str, view: View):
+def drop(conn, env: str, view: View, dryrun=False):
     """Drop view"""
     sql = template_engine.render('mysql_drop_view', env=env, view_name=view.view_name)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def create(conn, env: str, view: View):
+def create(conn, env: str, view: View, dryrun=False):
     """Create view"""
     sql = template_engine.render('mysql_create_view', env=env, view=view)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def create_or_replace(conn, env: str, view: View):
+def create_or_replace(conn, env: str, view: View, dryrun=False):
     """Create or replace view"""
     sql = template_engine.render(
         'mysql_create_or_replace_view',
@@ -30,7 +30,7 @@ def create_or_replace(conn, env: str, view: View):
         view_name=view.view_name,
         view_select_statement=view.select_statement
     )
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
 def get_view_definition(conn, env: str, view_name: str):

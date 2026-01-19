@@ -62,7 +62,8 @@ class TestTriggerOperations(unittest.TestCase):
         # Verify SQL execution
         mock_engine.execute.assert_called_once_with(
             self.mock_conn,
-            expected_sql
+            expected_sql,
+            dryrun=False
         )
 
     @patch('dbgear.dbio.trigger.engine')
@@ -86,7 +87,8 @@ class TestTriggerOperations(unittest.TestCase):
         # Verify SQL execution
         mock_engine.execute.assert_called_once_with(
             self.mock_conn,
-            expected_sql
+            expected_sql,
+            dryrun=False
         )
 
     @patch('dbgear.dbio.trigger.engine')
@@ -110,7 +112,8 @@ class TestTriggerOperations(unittest.TestCase):
         # Verify SQL execution
         mock_engine.execute.assert_called_once_with(
             self.mock_conn,
-            expected_sql
+            expected_sql,
+            dryrun=False
         )
 
     @patch('dbgear.dbio.trigger.engine')

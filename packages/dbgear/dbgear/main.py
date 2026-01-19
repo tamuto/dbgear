@@ -60,6 +60,11 @@ def execute():
         action='store_true',
         help='restore data from backup even if datamodel is not defined (only valid with --target)'
     )
+    apply_parser.add_argument(
+        '--dryrun',
+        action='store_true',
+        help='print SQL statements without executing them'
+    )
 
     args = parser.parse_args()
 
@@ -123,5 +128,6 @@ def execute():
             args.patch,
             args.backup_key,
             args.index_only,
-            args.restore_backup
+            args.restore_backup,
+            args.dryrun
         )

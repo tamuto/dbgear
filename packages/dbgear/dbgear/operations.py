@@ -18,10 +18,11 @@ logger = getLogger(__name__)
 
 class Operation:
 
-    def __init__(self, project: Project, env: str, database: str, deploy: str, backup_key: str = None):
+    def __init__(self, project: Project, env: str, database: str, deploy: str, backup_key: str = None, dryrun: bool = False):
         self.project = project
         self.environ = project.envs[env]
         self.database = database
+        self.dryrun = dryrun
 
         self.conn = engine.get_connection(self.environ.deployments[deploy])
         # backup_keyが指定されている場合はそれを使用、そうでなければ現在時刻
@@ -41,13 +42,13 @@ class Operation:
         if all == 'drop':
             logger.info(f'database {map.instance_name}')
             if database.is_exist(self.conn, map.instance_name):
-                database.drop(self.conn, map.instance_name)
-            database.create(self.conn, map.instance_name, charset=charset, collation=collation)
+                database.drop(self.conn, map.instance_name, dryrun=self.dryrun)
+            database.create(self.conn, map.instance_name, charset=charset, collation=collation, dryrun=self.dryrun)
         else:
             # 差分更新または個別指定の場合で、データベースが存在しない場合は作成する。
             if not database.is_exist(self.conn, map.instance_name):
                 logger.info(f'database {map.instance_name} was created.')
-                database.create(self.conn, map.instance_name, charset=charset, collation=collation)
+                database.create(self.conn, map.instance_name, charset=charset, collation=collation, dryrun=self.dryrun)
 
     def create_table(self, map: Mapping, schema: Schema, all: str, target: str, restore_only: bool = False):
         if restore_only:
@@ -62,15 +63,15 @@ class Operation:
             # テーブルが存在しない場合は作成する。
             if not table.is_exist(self.conn, map.instance_name, tbl):
                 logger.info(f'table {map.instance_name}.{tbl.table_name} was created.')
-                table.create(self.conn, map.instance_name, tbl)
+                table.create(self.conn, map.instance_name, tbl, dryrun=self.dryrun)
                 continue
             # データのバックアップ
             logger.info(f'backup {map.instance_name}.{tbl.table_name}')
-            table.backup(self.conn, map.instance_name, tbl, self.ymd)
+            table.backup(self.conn, map.instance_name, tbl, self.ymd, dryrun=self.dryrun)
             # テーブルの再作成
             logger.info(f'drop & create table {map.instance_name}.{tbl.table_name}')
-            table.drop(self.conn, map.instance_name, tbl)
-            table.create(self.conn, map.instance_name, tbl)
+            table.drop(self.conn, map.instance_name, tbl, dryrun=self.dryrun)
+            table.create(self.conn, map.instance_name, tbl, dryrun=self.dryrun)
 
             # テーブル再作成後、紐付くトリガーも一緒に再作成
             for tr in schema.triggers:
@@ -78,9 +79,9 @@ class Operation:
                     logger.info(f'recreate trigger {map.instance_name}.{tr.trigger_name} (associated with table {tbl.table_name})')
                     # トリガーが存在すれば削除
                     if trigger.is_exist(self.conn, map.instance_name, tr):
-                        trigger.drop(self.conn, map.instance_name, tr)
+                        trigger.drop(self.conn, map.instance_name, tr, dryrun=self.dryrun)
                     # トリガーを作成
-                    trigger.create(self.conn, map.instance_name, tr)
+                    trigger.create(self.conn, map.instance_name, tr, dryrun=self.dryrun)
                     # 再作成済みとして記録
                     recreated_triggers.add(tr.trigger_name)
 
@@ -90,12 +91,12 @@ class Operation:
             # ビューが存在しない場合は作成する。
             if not view.is_exist(self.conn, map.instance_name, vw):
                 logger.info(f'view {map.instance_name}.{vw.view_name} was created.')
-                view.create(self.conn, map.instance_name, vw)
+                view.create(self.conn, map.instance_name, vw, dryrun=self.dryrun)
             else:
                 # ビューの再作成
                 logger.info(f'drop & create view {map.instance_name}.{vw.view_name}')
-                view.drop(self.conn, map.instance_name, vw)
-                view.create(self.conn, map.instance_name, vw)
+                view.drop(self.conn, map.instance_name, vw, dryrun=self.dryrun)
+                view.create(self.conn, map.instance_name, vw, dryrun=self.dryrun)
 
         for tr in schema.triggers:
             # テーブル再作成時に既に処理済みのトリガーはスキップ
@@ -106,12 +107,12 @@ class Operation:
             # トリガーが存在しない場合は作成する。
             if not trigger.is_exist(self.conn, map.instance_name, tr):
                 logger.info(f'trigger {map.instance_name}.{tr.trigger_name} was created.')
-                trigger.create(self.conn, map.instance_name, tr)
+                trigger.create(self.conn, map.instance_name, tr, dryrun=self.dryrun)
             else:
                 # トリガーの再作成
                 logger.info(f'drop & create trigger {map.instance_name}.{tr.trigger_name}')
-                trigger.drop(self.conn, map.instance_name, tr)
-                trigger.create(self.conn, map.instance_name, tr)
+                trigger.drop(self.conn, map.instance_name, tr, dryrun=self.dryrun)
+                trigger.create(self.conn, map.instance_name, tr, dryrun=self.dryrun)
 
         for proc in schema.procedures:
             if not all and target != proc.procedure_name:
@@ -119,12 +120,12 @@ class Operation:
             # プロシージャが存在しない場合は作成する。
             if not procedure.is_exist(self.conn, map.instance_name, proc):
                 logger.info(f'procedure {map.instance_name}.{proc.procedure_name} was created.')
-                procedure.create(self.conn, map.instance_name, proc)
+                procedure.create(self.conn, map.instance_name, proc, dryrun=self.dryrun)
             else:
                 # プロシージャの再作成
                 logger.info(f'drop & create procedure {map.instance_name}.{proc.procedure_name}')
-                procedure.drop(self.conn, map.instance_name, proc)
-                procedure.create(self.conn, map.instance_name, proc)
+                procedure.drop(self.conn, map.instance_name, proc, dryrun=self.dryrun)
+                procedure.create(self.conn, map.instance_name, proc, dryrun=self.dryrun)
 
     def insert_data(self, map: Mapping, schema: Schema, all: bool, target: str, no_restore: bool = False, patch_file: str = None, restore_backup: bool = False):
         if no_restore:
@@ -172,7 +173,7 @@ class Operation:
             for ds in dm.datasources:
                 logger.info(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                 ds.load()
-                table.insert(self.conn, map.instance_name, tbl, ds.data)
+                table.insert(self.conn, map.instance_name, tbl, ds.data, dryrun=self.dryrun)
 
             if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
                 # 同期モードがdrop_create以外の場合は、データのリストアを行う。
@@ -184,13 +185,13 @@ class Operation:
                     if dm.sync_mode == const.SYNC_MODE_REPLACE:
                         # replace: バックアップで既存レコードを上書き（REPLACE INTO）
                         logger.info(f'restore with replace {map.instance_name}.{tbl.table_name}')
-                        table.restore_update(self.conn, map.instance_name, tbl, self.ymd)
+                        table.restore_update(self.conn, map.instance_name, tbl, self.ymd, dryrun=self.dryrun)
                     else:
                         # manual / update_diff: バックアップから新規レコードのみ追加（INSERT IGNORE）
                         logger.info(f'restore {map.instance_name}.{tbl.table_name}')
-                        table.restore(self.conn, map.instance_name, tbl, self.ymd)
+                        table.restore(self.conn, map.instance_name, tbl, self.ymd, dryrun=self.dryrun)
 
-            engine.commit(self.conn)
+            engine.commit(self.conn, dryrun=self.dryrun)
 
         # datamodelがない場合でも、targetが指定されていてpatch/restore_backupが指定されていればリストア処理を実行
         if target and target not in processed_tables and (patch_file or restore_backup):
@@ -205,9 +206,9 @@ class Operation:
             elif restore_backup and table.is_exist_backup(self.conn, map.instance_name, tbl, self.ymd):
                 # restore_backupが指定されている場合は、バックアップから復元
                 logger.info(f'restore {map.instance_name}.{tbl.table_name}')
-                table.restore(self.conn, map.instance_name, tbl, self.ymd)
+                table.restore(self.conn, map.instance_name, tbl, self.ymd, dryrun=self.dryrun)
 
-            engine.commit(self.conn)
+            engine.commit(self.conn, dryrun=self.dryrun)
 
     def _execute_patch(self, env: str, table_name: str, patch_file: str):
         """Execute patch file for data restoration."""
@@ -233,7 +234,7 @@ class Operation:
             logger.info(f'executing patch {patch_file} for {env}.{table_name}')
             logger.debug(f'patch SQL: {sql}')
 
-            engine.execute(self.conn, sql)
+            engine.execute(self.conn, sql, dryrun=self.dryrun)
 
         except Exception as e:
             logger.error(f"Failed to execute patch {patch_file}: {e}")
@@ -293,16 +294,16 @@ class Operation:
 
         # Recreate indexes
         logger.info(f'Recreating indexes for {map.instance_name}.{target}')
-        table.recreate_indexes(self.conn, map.instance_name, tbl)
-        engine.commit(self.conn)
+        table.recreate_indexes(self.conn, map.instance_name, tbl, dryrun=self.dryrun)
+        engine.commit(self.conn, dryrun=self.dryrun)
 
 
 def apply(
         project, env: str, database: str, target: str, all: str, deploy: str,
         no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None,
-        index_only: bool = False, restore_backup: bool = False):
+        index_only: bool = False, restore_backup: bool = False, dryrun: bool = False):
     """ データベースの適用処理を行う。 CLI向け関数. """
-    with Operation(project, env, database, deploy, backup_key) as op:
+    with Operation(project, env, database, deploy, backup_key, dryrun=dryrun) as op:
         for map in op.environ.databases:
             if database is not None and map.instance_name != database:
                 continue
