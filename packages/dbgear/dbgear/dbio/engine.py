@@ -11,7 +11,12 @@ def get_connection(conn):
     return engine.connect()
 
 
-def execute(conn, sql, params=None):
+def execute(conn, sql, params=None, dryrun=False):
+    if dryrun:
+        print(sql)
+        if params:
+            print(f"-- params: {params}")
+        return None
     return conn.execute(text(sql), params)
 
 
@@ -23,5 +28,8 @@ def select_one(conn, sql, params=None):
     return execute(conn, sql, params).mappings().fetchone()
 
 
-def commit(conn):
+def commit(conn, dryrun=False):
+    if dryrun:
+        print("-- COMMIT")
+        return
     conn.commit()

@@ -12,13 +12,13 @@ def is_exist(conn, env: str, trigger: Trigger):
     return result is not None
 
 
-def drop(conn, env: str, trigger: Trigger):
+def drop(conn, env: str, trigger: Trigger, dryrun=False):
     """Drop trigger"""
     sql = template_engine.render('mysql_drop_trigger', env=env, trigger_name=trigger.trigger_name)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def create(conn, env: str, trigger: Trigger):
+def create(conn, env: str, trigger: Trigger, dryrun=False):
     """Create trigger"""
     sql = template_engine.render('mysql_create_trigger', env=env, trigger=trigger)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)

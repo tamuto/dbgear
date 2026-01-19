@@ -16,15 +16,15 @@ def is_exist(conn, env: str, table: Table):
     return result is not None
 
 
-def drop(conn, env: str, table: Table):
+def drop(conn, env: str, table: Table, dryrun=False):
     sql = template_engine.render('mysql_drop_table', env=env, table_name=table.table_name)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def create(conn, env: str, table: Table):
+def create(conn, env: str, table: Table, dryrun=False):
     # Use template engine for CREATE TABLE
     sql = template_engine.render('mysql_create_table', env=env, table=table)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
     # Create indexes using template engine
     for idx, index in enumerate(table.indexes):
@@ -36,7 +36,7 @@ def create(conn, env: str, table: Table):
             table=table,
             index=index,
             loop=loop_context)
-        engine.execute(conn, sql)
+        engine.execute(conn, sql, dryrun=dryrun)
 
 
 def _col_value(item: dict, column: Column):
@@ -57,7 +57,7 @@ def _col_conv(values: dict):
     }
 
 
-def insert(conn, env: str, table: Table, items: list[dict]):
+def insert(conn, env: str, table: Table, items: list[dict], dryrun=False):
     if len(items) == 0:
         logger.warning(f'No items to insert into {env}.{table.table_name}')
         return
@@ -76,31 +76,32 @@ def insert(conn, env: str, table: Table, items: list[dict]):
         column_names=column_names,
         value_placeholders=value_placeholders
     )
-    engine.execute(conn, sql, params)
-    conn.commit()
+    engine.execute(conn, sql, params, dryrun=dryrun)
+    if not dryrun:
+        conn.commit()
 
 
-def backup(conn, env: str, table: Table, ymd: str):
+def backup(conn, env: str, table: Table, ymd: str, dryrun=False):
     sql = template_engine.render(
         'mysql_backup_table',
         env=env,
         table_name=table.table_name,
         ymd=ymd
     )
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def restore(conn, env: str, table: Table, ymd: str):
+def restore(conn, env: str, table: Table, ymd: str, dryrun=False):
     sql = template_engine.render(
         'mysql_restore_table',
         env=env,
         table_name=table.table_name,
         ymd=ymd
     )
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def restore_update(conn, env: str, table: Table, ymd: str):
+def restore_update(conn, env: str, table: Table, ymd: str, dryrun=False):
     """Restore data from backup table with REPLACE INTO (update existing records)."""
     sql = template_engine.render(
         'mysql_restore_table_update',
@@ -108,7 +109,7 @@ def restore_update(conn, env: str, table: Table, ymd: str):
         table_name=table.table_name,
         ymd=ymd
     )
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
 def is_exist_backup(conn, env: str, table: Table, ymd: str):
@@ -118,7 +119,7 @@ def is_exist_backup(conn, env: str, table: Table, ymd: str):
     return result is not None
 
 
-def drop_indexes(conn, env: str, table: Table):
+def drop_indexes(conn, env: str, table: Table, dryrun=False):
     """Drop all secondary indexes on a table (excluding primary key)."""
     for idx, index in enumerate(table.indexes):
         index_name = index.index_name or f'{table.table_name}_IX{idx}'
@@ -139,11 +140,11 @@ def drop_indexes(conn, env: str, table: Table):
                 table_name=table.table_name,
                 index_name=index_name
             )
-            engine.execute(conn, sql_drop)
+            engine.execute(conn, sql_drop, dryrun=dryrun)
             logger.info(f'Dropped index {index_name} on {env}.{table.table_name}')
 
 
-def create_indexes(conn, env: str, table: Table):
+def create_indexes(conn, env: str, table: Table, dryrun=False):
     """Create all secondary indexes on a table."""
     for idx, index in enumerate(table.indexes):
         # Set loop context for template
@@ -155,13 +156,13 @@ def create_indexes(conn, env: str, table: Table):
             index=index,
             loop=loop_context
         )
-        engine.execute(conn, sql)
+        engine.execute(conn, sql, dryrun=dryrun)
         index_name = index.index_name or f'{table.table_name}_IX{idx}'
         logger.info(f'Created index {index_name} on {env}.{table.table_name}')
 
 
-def recreate_indexes(conn, env: str, table: Table):
+def recreate_indexes(conn, env: str, table: Table, dryrun=False):
     """Drop and recreate all secondary indexes on a table."""
     logger.info(f'Recreating indexes for {env}.{table.table_name}')
-    drop_indexes(conn, env, table)
-    create_indexes(conn, env, table)
+    drop_indexes(conn, env, table, dryrun)
+    create_indexes(conn, env, table, dryrun)

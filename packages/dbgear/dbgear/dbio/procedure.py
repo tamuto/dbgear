@@ -16,19 +16,19 @@ def is_exist(conn, env: str, procedure: Procedure):
     return result is not None
 
 
-def drop(conn, env: str, procedure: Procedure):
+def drop(conn, env: str, procedure: Procedure, dryrun=False):
     """Drop stored procedure or function"""
     if procedure.is_function:
         sql = template_engine.render('mysql_drop_function', env=env, procedure_name=procedure.procedure_name)
     else:
         sql = template_engine.render('mysql_drop_procedure', env=env, procedure_name=procedure.procedure_name)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
 
 
-def create(conn, env: str, procedure: Procedure):
+def create(conn, env: str, procedure: Procedure, dryrun=False):
     """Create stored procedure or function"""
     if procedure.is_function:
         sql = template_engine.render('mysql_create_function', env=env, procedure=procedure)
     else:
         sql = template_engine.render('mysql_create_procedure', env=env, procedure=procedure)
-    engine.execute(conn, sql)
+    engine.execute(conn, sql, dryrun=dryrun)
