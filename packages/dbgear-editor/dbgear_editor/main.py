@@ -50,7 +50,7 @@ def main():
     """Main entry point for the dbgear-editor command."""
     parser = argparse.ArgumentParser(description='DBGear FastHTML Editor')
     parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1)')
-    parser.add_argument('--port', type=int, default=8000, help='Port to bind to (default: 8000)')
+    parser.add_argument('--port', type=int, default=19086, help='Port to bind to (default: 19086)')
     parser.add_argument('--project', default=None, help='Project directory to load')
 
     args = parser.parse_args()
