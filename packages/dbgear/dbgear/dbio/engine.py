@@ -13,9 +13,9 @@ def get_connection(conn):
 
 def execute(conn, sql, params=None, dryrun=False):
     if dryrun:
-        print(sql)
+        print(f"[DRYRUN] {sql}")
         if params:
-            print(f"-- params: {params}")
+            print(f"[DRYRUN] -- params: {params}")
         return None
     return conn.execute(text(sql), params)
 
@@ -30,6 +30,6 @@ def select_one(conn, sql, params=None):
 
 def commit(conn, dryrun=False):
     if dryrun:
-        print("-- COMMIT")
+        print("[DRYRUN] -- COMMIT")
         return
     conn.commit()

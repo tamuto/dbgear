@@ -303,6 +303,9 @@ def apply(
         no_restore: bool = False, restore_only: bool = False, patch: str = None, backup_key: str = None,
         index_only: bool = False, restore_backup: bool = False, dryrun: bool = False):
     """ データベースの適用処理を行う。 CLI向け関数. """
+    if dryrun:
+        logger.info("=== DRYRUN MODE: SQL statements will be printed but not executed ===")
+
     with Operation(project, env, database, deploy, backup_key, dryrun=dryrun) as op:
         for map in op.environ.databases:
             if database is not None and map.instance_name != database:
