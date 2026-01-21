@@ -1,5 +1,6 @@
 import logging
 from argparse import ArgumentParser
+from importlib.metadata import entry_points
 
 
 def execute():
@@ -64,6 +65,14 @@ def execute():
         '--dryrun',
         action='store_true',
         help='print SQL statements without executing them'
+    )
+
+    # doc subcommand - documentation generation
+    doc_parser = sub.add_parser('doc', help='generate documentation from schema')
+    doc_parser.add_argument(
+        '-o', '--output',
+        default='./docs',
+        help='output directory for documentation (default: ./docs)'
     )
 
     args = parser.parse_args()
@@ -131,3 +140,31 @@ def execute():
             args.restore_backup,
             args.dryrun
         )
+
+    elif args.command == 'doc':
+        # Load doc plugin via entry points
+        eps = entry_points(group='dbgear.plugins')
+        doc_ep = None
+        for ep in eps:
+            if ep.name == 'doc':
+                doc_ep = ep
+                break
+
+        if doc_ep is None:
+            logging.error('doc plugin not found. Please install dbgear-doc package.')
+            return
+
+        from pathlib import Path
+
+        generate_docs = doc_ep.load()
+        schema_path = Path(project.folder) / 'schema.yaml'
+
+        if not schema_path.exists():
+            logging.error(f'schema.yaml not found: {schema_path}')
+            return
+
+        generated_files = generate_docs(
+            schema_path=str(schema_path),
+            output_dir=args.output,
+        )
+        logging.info(f'Generated {len(generated_files)} documentation files in {args.output}')

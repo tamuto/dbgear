@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbgear"
-version = "0.37.1"
+version = "0.38.0"
 description = "Database management tools for initial data management"
 authors = ["tamuto <tamuto@infodb.jp>"]
 readme = "README.md"
@@ -33,6 +33,7 @@ xlsx = ["openpyxl"]
 taskipy = "^1.14.1"
 flake8 = "^7.3.0"
 usecases = {path = "../../etc/usecases"}
+dbgear-doc = {path = "../dbgear-doc", develop = true}
 
 [build-system]
 requires = ["poetry-core"]
