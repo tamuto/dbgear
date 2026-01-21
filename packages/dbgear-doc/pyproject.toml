@@ -1,16 +1,33 @@
 [project]
 name = "dbgear-doc"
 version = "0.1.0"
-description = ""
+description = "Documentation generator plugin for DBGear"
 authors = [
-    {name = "tamuto",email = "mutomob@gmail.com"}
+    {name = "tamuto", email = "mutomob@gmail.com"}
 ]
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
+    "dbgear>=0.37.0",
 ]
 
+[project.entry-points."dbgear.plugins"]
+doc = "dbgear_doc:generate_docs"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "dbgear_doc" }
+]
+
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.14.1"
+flake8 = "^7.3.0"
+
+[tool.taskipy.tasks]
+test = "poetry run python -m unittest discover tests/ -v"
+lint = "poetry run flake8 dbgear_doc/ tests/"
