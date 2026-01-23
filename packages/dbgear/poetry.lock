@@ -165,13 +165,14 @@ name = "dbgear-doc"
 version = "0.1.0"
 description = "Documentation generator plugin for DBGear"
 optional = false
-python-versions = ">=3.12"
+python-versions = ">=3.12,<4.0"
 groups = ["dev"]
 files = []
 develop = true
 
 [package.dependencies]
-dbgear = ">=0.37.0"
+dbgear = ">=0.38.0"
+in4viz = ">=0.3.0"
 
 [package.source]
 type = "directory"
@@ -275,6 +276,18 @@ files = [
 [package.extras]
 docs = ["Sphinx", "furo"]
 test = ["objgraph", "psutil"]
+
+[[package]]
+name = "in4viz"
+version = "0.5.0"
+description = "ER図可視化ライブラリ - SVGとdraw.io形式での出力をサポート"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "in4viz-0.5.0-py3-none-any.whl", hash = "sha256:8d601f2e1ae52000f95c6f8665cb5cc8665d8c8c9ad44d2f097ac15d5a771f3b"},
+    {file = "in4viz-0.5.0.tar.gz", hash = "sha256:fadf6fc7ba8dc304aec358e32bd3a38209a3556c3a9cce7d7b91273b5369b2f9"},
+]
 
 [[package]]
 name = "jinja2"

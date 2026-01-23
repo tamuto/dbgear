@@ -1,0 +1,20 @@
+# ER Diagram Configuration
+# Defines category-based styling for tables in ER diagram output
+
+categories:
+  master:
+    background_color: "#E3F2FD"
+    use_gradient: true
+  transaction:
+    background_color: "#FFF3E0"
+    use_gradient: false
+  log:
+    background_color: "#E8F5E9"
+    use_gradient: false
+  config:
+    background_color: "#F3E5F5"
+    use_gradient: true
+
+default:
+  background_color: "#FFFFFF"
+  use_gradient: false

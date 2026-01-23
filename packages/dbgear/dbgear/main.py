@@ -75,6 +75,62 @@ def execute():
         help='output directory for documentation (default: ./docs)'
     )
 
+    # svg subcommand - ER diagram in SVG format
+    svg_parser = sub.add_parser('svg', help='generate ER diagram in SVG format')
+    svg_parser.add_argument(
+        '-o', '--output',
+        default='./er_diagram.svg',
+        help='output file path (default: ./er_diagram.svg)'
+    )
+    svg_parser.add_argument(
+        '-s', '--schema',
+        help='schema name (uses first schema if not specified)'
+    )
+    svg_parser.add_argument(
+        '-t', '--table',
+        help='center table name (shows all tables if not specified)'
+    )
+    svg_parser.add_argument(
+        '--ref-level',
+        type=int,
+        default=1,
+        help='levels of referencing tables to include (default: 1)'
+    )
+    svg_parser.add_argument(
+        '--fk-level',
+        type=int,
+        default=1,
+        help='levels of referenced tables to include (default: 1)'
+    )
+
+    # drawio subcommand - ER diagram in draw.io format
+    drawio_parser = sub.add_parser('drawio', help='generate ER diagram in draw.io format')
+    drawio_parser.add_argument(
+        '-o', '--output',
+        default='./er_diagram.drawio',
+        help='output file path (default: ./er_diagram.drawio)'
+    )
+    drawio_parser.add_argument(
+        '-s', '--schema',
+        help='schema name (uses first schema if not specified)'
+    )
+    drawio_parser.add_argument(
+        '-t', '--table',
+        help='center table name (shows all tables if not specified)'
+    )
+    drawio_parser.add_argument(
+        '--ref-level',
+        type=int,
+        default=1,
+        help='levels of referencing tables to include (default: 1)'
+    )
+    drawio_parser.add_argument(
+        '--fk-level',
+        type=int,
+        default=1,
+        help='levels of referenced tables to include (default: 1)'
+    )
+
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
@@ -168,3 +224,35 @@ def execute():
             output_dir=args.output,
         )
         logging.info(f'Generated {len(generated_files)} documentation files in {args.output}')
+
+    elif args.command in ('svg', 'drawio'):
+        # Load svg/drawio plugin via entry points
+        eps = entry_points(group='dbgear.plugins')
+        plugin_ep = None
+        for ep in eps:
+            if ep.name == args.command:
+                plugin_ep = ep
+                break
+
+        if plugin_ep is None:
+            logging.error(f'{args.command} plugin not found. Please install dbgear-doc package.')
+            return
+
+        from pathlib import Path
+
+        generate_diagram = plugin_ep.load()
+        schema_path = Path(project.folder) / 'schema.yaml'
+
+        if not schema_path.exists():
+            logging.error(f'schema.yaml not found: {schema_path}')
+            return
+
+        output_path = generate_diagram(
+            schema_path=str(schema_path),
+            output_path=args.output,
+            schema_name=args.schema,
+            center_table=args.table,
+            ref_level=args.ref_level,
+            fk_level=args.fk_level,
+        )
+        logging.info(f'Generated ER diagram: {output_path}')
