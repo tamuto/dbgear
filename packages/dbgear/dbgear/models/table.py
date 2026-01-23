@@ -39,6 +39,7 @@ class Table(BaseSchema):
     indexes_: list[Index] = pydantic.Field(default_factory=list, alias='indexes')
     relations_: list[Relation] = pydantic.Field(default_factory=list, alias='relations')
     notes_: list[Note] = pydantic.Field(default_factory=list, alias='notes')
+    categories_: list[str] = pydantic.Field(default_factory=list, alias='categories')
 
     # MySQL固有のテーブルオプション
     mysql_options: MySQLTableOptions | None = None
@@ -58,6 +59,10 @@ class Table(BaseSchema):
     @property
     def notes(self) -> NoteManager:
         return NoteManager(self.notes_)
+
+    @property
+    def categories(self) -> list[str]:
+        return self.categories_
 
 
 class TableManager:

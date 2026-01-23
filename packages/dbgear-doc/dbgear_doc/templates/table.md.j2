@@ -2,6 +2,10 @@
 
 **Schema:** {{ schema_name }}
 
+{% if table.categories %}
+**Categories:** {{ table.categories | join(', ') }}
+
+{% endif %}
 {% if table | get_table_note %}
 ## Description
 

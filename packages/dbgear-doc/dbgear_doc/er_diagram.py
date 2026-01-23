@@ -4,12 +4,16 @@ ER diagram generation module using in4viz library.
 Provides SVG and draw.io format output for database schema visualization.
 """
 
+from pathlib import Path
+
 from in4viz import Table as In4vizTable, Column as In4vizColumn, LineType, Cardinality
 from in4viz.backends.svg import SVGERDiagram
 from in4viz.backends.drawio import DrawioERDiagram
 from dbgear.models.schema import SchemaManager
 from dbgear.models.table import Table
 from dbgear.models.column import Column
+
+from .diagram import DiagramConfig, load_diagram_config
 
 
 def collect_related_tables(
@@ -102,13 +106,20 @@ def dbgear_to_in4viz_column(column: Column) -> In4vizColumn:
     )
 
 
-def dbgear_to_in4viz_table(table: Table, table_name: str) -> In4vizTable:
+def dbgear_to_in4viz_table(
+    table: Table,
+    table_name: str,
+    bgcolor: str = '#ffffff',
+    use_gradient: bool = False
+) -> In4vizTable:
     """
     Convert DBGear Table to in4viz Table.
 
     Args:
         table: DBGear Table object
         table_name: Name of the table
+        bgcolor: Background color for the table in hex format (default: white)
+        use_gradient: Whether to use gradient for background (default: False)
 
     Returns:
         in4viz Table object
@@ -132,12 +143,22 @@ def dbgear_to_in4viz_table(table: Table, table_name: str) -> In4vizTable:
     return In4vizTable(
         name=table_name,
         logical_name=table.display_name or table_name,
-        columns=columns
+        columns=columns,
+        bgcolor=bgcolor,
+        use_gradient=use_gradient
     )
 
 
-def _create_diagram(backend: str, schema_manager: SchemaManager, schema_name: str,
-                    center_table: str | None = None, ref_level: int = 1, fk_level: int = 1):
+def _create_diagram(
+    backend: str,
+    schema_manager: SchemaManager,
+    schema_name: str,
+    center_table: str | None = None,
+    ref_level: int = 1,
+    fk_level: int = 1,
+    category: str | None = None,
+    diagram_config: DiagramConfig | None = None
+):
     """
     Create ER diagram with specified backend.
 
@@ -148,6 +169,8 @@ def _create_diagram(backend: str, schema_manager: SchemaManager, schema_name: st
         center_table: Name of the table to center the diagram on (None for all tables)
         ref_level: How many levels of referencing tables to include
         fk_level: How many levels of referenced tables to include
+        category: Filter tables by category (None for all tables)
+        diagram_config: DiagramConfig for background colors (None uses defaults)
 
     Returns:
         Diagram instance (SVGERDiagram or DrawioERDiagram)
@@ -155,6 +178,9 @@ def _create_diagram(backend: str, schema_manager: SchemaManager, schema_name: st
     Raises:
         ValueError: If schema or table not found
     """
+    if diagram_config is None:
+        diagram_config = DiagramConfig()
+
     # Get all tables in the schema
     schemas = schema_manager.schemas
     schema = schemas.get(schema_name)
@@ -162,6 +188,13 @@ def _create_diagram(backend: str, schema_manager: SchemaManager, schema_name: st
         raise ValueError(f"Schema '{schema_name}' not found")
 
     all_tables = {table.table_name: table for table in schema.tables}
+
+    # Filter by category if specified
+    if category:
+        all_tables = {
+            name: table for name, table in all_tables.items()
+            if category in table.categories
+        }
 
     # Determine which tables to include
     if center_table:
@@ -205,7 +238,10 @@ def _create_diagram(backend: str, schema_manager: SchemaManager, schema_name: st
     in4viz_tables = {}
     for table_name in tables_to_include:
         table = all_tables[table_name]
-        in4viz_table = dbgear_to_in4viz_table(table, table_name)
+        style = diagram_config.get_style(table.categories)
+        in4viz_table = dbgear_to_in4viz_table(
+            table, table_name, style.background_color, style.use_gradient
+        )
         diagram.add_table(in4viz_table)
         in4viz_tables[table_name] = in4viz_table
 
@@ -236,7 +272,9 @@ def generate_er_diagram_svg(
     schema_name: str,
     center_table: str | None = None,
     ref_level: int = 1,
-    fk_level: int = 1
+    fk_level: int = 1,
+    category: str | None = None,
+    diagram_config: DiagramConfig | None = None
 ) -> str:
     """
     Generate ER diagram in SVG format.
@@ -247,11 +285,16 @@ def generate_er_diagram_svg(
         center_table: Name of the table to center the diagram on (None for all tables)
         ref_level: How many levels of referencing tables to include
         fk_level: How many levels of referenced tables to include
+        category: Filter tables by category (None for all tables)
+        diagram_config: DiagramConfig for background colors (None uses defaults)
 
     Returns:
         SVG string of the ER diagram
     """
-    diagram = _create_diagram('svg', schema_manager, schema_name, center_table, ref_level, fk_level)
+    diagram = _create_diagram(
+        'svg', schema_manager, schema_name, center_table, ref_level, fk_level,
+        category, diagram_config
+    )
     return diagram.render_svg()
 
 
@@ -260,7 +303,9 @@ def generate_er_diagram_drawio(
     schema_name: str,
     center_table: str | None = None,
     ref_level: int = 1,
-    fk_level: int = 1
+    fk_level: int = 1,
+    category: str | None = None,
+    diagram_config: DiagramConfig | None = None
 ) -> str:
     """
     Generate ER diagram in draw.io XML format.
@@ -271,11 +316,16 @@ def generate_er_diagram_drawio(
         center_table: Name of the table to center the diagram on (None for all tables)
         ref_level: How many levels of referencing tables to include
         fk_level: How many levels of referenced tables to include
+        category: Filter tables by category (None for all tables)
+        diagram_config: DiagramConfig for background colors (None uses defaults)
 
     Returns:
         draw.io XML string of the ER diagram
     """
-    diagram = _create_diagram('drawio', schema_manager, schema_name, center_table, ref_level, fk_level)
+    diagram = _create_diagram(
+        'drawio', schema_manager, schema_name, center_table, ref_level, fk_level,
+        category, diagram_config
+    )
     return diagram.render_drawio()
 
 
@@ -285,7 +335,9 @@ def generate_svg(
     schema_name: str | None = None,
     center_table: str | None = None,
     ref_level: int = 1,
-    fk_level: int = 1
+    fk_level: int = 1,
+    category: str | None = None,
+    project_path: str | None = None
 ) -> str:
     """
     Generate SVG ER diagram from a schema file.
@@ -299,6 +351,8 @@ def generate_svg(
         center_table: Table to center diagram on (all tables if None).
         ref_level: Levels of referencing tables to include.
         fk_level: Levels of referenced tables to include.
+        category: Filter tables by category (None for all tables).
+        project_path: Path to project directory for diagram.yaml (uses schema_path parent if None).
 
     Returns:
         Path to the generated SVG file.
@@ -309,8 +363,14 @@ def generate_svg(
     if schema_name is None:
         schema_name = next(iter(schema_manager.schemas.keys()))
 
+    # Load diagram config
+    if project_path is None:
+        project_path = Path(schema_path).parent
+    diagram_config = load_diagram_config(project_path)
+
     svg_content = generate_er_diagram_svg(
-        schema_manager, schema_name, center_table, ref_level, fk_level
+        schema_manager, schema_name, center_table, ref_level, fk_level,
+        category, diagram_config
     )
 
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -325,7 +385,9 @@ def generate_drawio(
     schema_name: str | None = None,
     center_table: str | None = None,
     ref_level: int = 1,
-    fk_level: int = 1
+    fk_level: int = 1,
+    category: str | None = None,
+    project_path: str | None = None
 ) -> str:
     """
     Generate draw.io ER diagram from a schema file.
@@ -339,6 +401,8 @@ def generate_drawio(
         center_table: Table to center diagram on (all tables if None).
         ref_level: Levels of referencing tables to include.
         fk_level: Levels of referenced tables to include.
+        category: Filter tables by category (None for all tables).
+        project_path: Path to project directory for diagram.yaml (uses schema_path parent if None).
 
     Returns:
         Path to the generated draw.io file.
@@ -349,8 +413,14 @@ def generate_drawio(
     if schema_name is None:
         schema_name = next(iter(schema_manager.schemas.keys()))
 
+    # Load diagram config
+    if project_path is None:
+        project_path = Path(schema_path).parent
+    diagram_config = load_diagram_config(project_path)
+
     drawio_content = generate_er_diagram_drawio(
-        schema_manager, schema_name, center_table, ref_level, fk_level
+        schema_manager, schema_name, center_table, ref_level, fk_level,
+        category, diagram_config
     )
 
     with open(output_path, 'w', encoding='utf-8') as f:
