@@ -10,9 +10,16 @@ class DocTemplateEngine:
     Template engine for generating Markdown documentation from database schemas.
     """
 
-    def __init__(self):
-        """Initialize the template engine with Jinja2 environment."""
-        template_dir = Path(__file__).parent
+    def __init__(self, template_dir: Path | None = None):
+        """
+        Initialize the template engine with Jinja2 environment.
+
+        Args:
+            template_dir: Optional custom template directory.
+                         If None, uses the built-in templates directory.
+        """
+        if template_dir is None:
+            template_dir = Path(__file__).parent
         self.env = Environment(
             loader=FileSystemLoader(template_dir),
             trim_blocks=True,
@@ -20,6 +27,19 @@ class DocTemplateEngine:
             keep_trailing_newline=True,
         )
         self._setup_filters()
+
+    @classmethod
+    def create_for_directory(cls, template_dir: Path) -> 'DocTemplateEngine':
+        """
+        Create a template engine for a custom template directory.
+
+        Args:
+            template_dir: Path to the directory containing template files.
+
+        Returns:
+            A new DocTemplateEngine instance configured for the custom directory.
+        """
+        return cls(template_dir)
 
     def _setup_filters(self):
         """Register custom Jinja2 filters."""

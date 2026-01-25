@@ -7,7 +7,7 @@ It generates Markdown documentation from database schema definitions.
 
 from .generator import DocumentGenerator, generate_docs
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "DocumentGenerator",
