@@ -2,14 +2,13 @@
 DBGear Document Generator Plugin
 
 This package provides documentation generation capabilities for DBGear.
-It generates Markdown documentation from database schema definitions.
+It generates documentation from database schema definitions using custom templates.
 """
 
-from .generator import DocumentGenerator, generate_docs
+from .generator import generate_docs
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
-    "DocumentGenerator",
     "generate_docs",
 ]
