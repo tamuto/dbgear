@@ -47,3 +47,25 @@
 | {{ fk.constraint_name | default('', true) }} | {{ fk.column_name | default('', true) }} | {{ fk.ref_table | default('', true) }}.{{ fk.ref_column | default('', true) }} |
 {% endfor %}
 {% endif %}
+{% if referenced_tables %}
+## Referenced Tables
+
+Tables that this table references:
+
+| Table | Display Name | Constraint | Bindings | ON DELETE | ON UPDATE |
+|-------|--------------|------------|----------|-----------|-----------|
+{% for ref in referenced_tables %}
+| {{ ref.table_name }} | {{ ref.display_name }} | {{ ref.constraint_name | default('', true) }} | {{ ref.bindings | join(', ') }} | {{ ref.on_delete }} | {{ ref.on_update }} |
+{% endfor %}
+{% endif %}
+{% if referencing_tables %}
+## Referencing Tables
+
+Tables that reference this table:
+
+| Table | Display Name | Constraint | Bindings | ON DELETE | ON UPDATE |
+|-------|--------------|------------|----------|-----------|-----------|
+{% for ref in referencing_tables %}
+| {{ ref.table_name }} | {{ ref.display_name }} | {{ ref.constraint_name | default('', true) }} | {{ ref.bindings | join(', ') }} | {{ ref.on_delete }} | {{ ref.on_update }} |
+{% endfor %}
+{% endif %}

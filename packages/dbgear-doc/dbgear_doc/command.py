@@ -61,18 +61,19 @@ def _register_doc_command(subparsers):
     parser = subparsers.add_parser('doc', help='generate documentation from schema')
     parser.add_argument(
         '-o', '--output',
-        default='./docs',
-        help='output path: directory for default/table scope, file path for schema scope'
+        required=True,
+        help='output path: file path for schema scope, directory for table scope'
     )
     parser.add_argument(
         '--template',
-        help='custom Jinja2 template file path'
+        required=True,
+        help='Jinja2 template file path'
     )
     parser.add_argument(
         '--scope',
-        choices=['schema', 'table'],
+        choices=['schema', 'table', 'view', 'trigger', 'procedure'],
         default='table',
-        help='data scope for custom template: schema (1 file, -o is file path) or table (per-table files)'
+        help='data scope: schema (1 file), table/view/trigger/procedure (per-entity files)'
     )
 
 
