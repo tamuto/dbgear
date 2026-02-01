@@ -31,36 +31,10 @@ def _create_jinja_env(template_dir: Path) -> Environment:
     )
 
     # Register custom filters
-    env.filters["get_table_note"] = _get_table_note
-    env.filters["get_column_note"] = _get_column_note
-    env.filters["truncate_note"] = _truncate_note
     env.filters["escape_pipe"] = _escape_pipe
     env.filters["format_column_type"] = _format_column_type
 
     return env
-
-
-def _get_table_note(table) -> str:
-    """Extract note text from a table object."""
-    if not hasattr(table, "notes") or not table.notes:
-        return ""
-    note = table.notes.note if hasattr(table.notes, "note") else str(table.notes)
-    return note.replace("\n", " ")
-
-
-def _get_column_note(column) -> str:
-    """Extract note text from a column object."""
-    if not hasattr(column, "notes") or not column.notes:
-        return ""
-    note = column.notes.note if hasattr(column.notes, "note") else str(column.notes)
-    return note.replace("\n", " ")
-
-
-def _truncate_note(text: str, length: int) -> str:
-    """Truncate text to specified length with ellipsis."""
-    if len(text) <= length:
-        return text
-    return text[:length] + "..."
 
 
 def _escape_pipe(text: str) -> str:

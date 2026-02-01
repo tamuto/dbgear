@@ -241,9 +241,6 @@ dbgear doc --template procedure.md.j2 --scope procedure -o docs/
 
 | フィルター名 | 説明 | 使用例 |
 |-------------|------|--------|
-| `get_table_note` | テーブルからノートテキストを取得 | `{{ table \| get_table_note }}` |
-| `get_column_note` | カラムからノートテキストを取得 | `{{ col \| get_column_note }}` |
-| `truncate_note` | テキストを指定長で切り詰め | `{{ text \| truncate_note(50) }}` |
 | `escape_pipe` | パイプ文字をエスケープ | `{{ text \| escape_pipe }}` |
 | `format_column_type` | カラム型を文字列に変換 | `{{ col.column_type \| format_column_type }}` |
 
@@ -371,6 +368,34 @@ dbgear doc --template procedure.md.j2 --scope procedure -o docs/
 |-----------|-----|------|
 | `source_column` | `str` | ソース側カラム名 |
 | `target_column` | `str` | ターゲット側カラム名 |
+
+### NoteManager オブジェクト
+
+ノートのコレクション。イテレート可能。
+
+| プロパティ/メソッド | 型 | 説明 |
+|-------------------|-----|------|
+| `notes` | `list[Note]` | ノートのリスト |
+| `len(manager)` | `int` | ノート数 |
+| `manager[i]` | `Note` | インデックスでノートを取得 |
+
+```jinja2
+{% for note in table.notes %}
+**{{ note.title }}**: {{ note.content }}
+{% endfor %}
+
+{% if table.notes %}
+ノートあり（{{ table.notes | length }}件）
+{% endif %}
+```
+
+### Note オブジェクト
+
+| プロパティ | 型 | 説明 |
+|-----------|-----|------|
+| `title` | `str \| None` | ノートのタイトル（デフォルト: None） |
+| `content` | `str` | ノートの内容 |
+| `checked` | `bool` | チェック状態（デフォルト: False） |
 
 ### ColumnTypeRegistry オブジェクト
 
