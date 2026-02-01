@@ -94,16 +94,16 @@ def _register_svg_command(subparsers):
         help='center table name (shows all tables if not specified)'
     )
     parser.add_argument(
-        '--ref-level',
+        '--referenced-by-level',
         type=int,
         default=1,
-        help='levels of referencing tables to include (default: 1)'
+        help='levels of tables that reference this table to include (default: 1)'
     )
     parser.add_argument(
-        '--fk-level',
+        '--references-level',
         type=int,
         default=1,
-        help='levels of referenced tables to include (default: 1)'
+        help='levels of tables this table references to include (default: 1)'
     )
 
 
@@ -124,16 +124,16 @@ def _register_drawio_command(subparsers):
         help='center table name (shows all tables if not specified)'
     )
     parser.add_argument(
-        '--ref-level',
+        '--referenced-by-level',
         type=int,
         default=1,
-        help='levels of referencing tables to include (default: 1)'
+        help='levels of tables that reference this table to include (default: 1)'
     )
     parser.add_argument(
-        '--fk-level',
+        '--references-level',
         type=int,
         default=1,
-        help='levels of referenced tables to include (default: 1)'
+        help='levels of tables this table references to include (default: 1)'
     )
 
 
@@ -155,9 +155,9 @@ def _execute_svg(args, schema_path):
         schema_path=str(schema_path),
         output_path=args.output,
         schema_name=args.schema,
-        table_name=args.table,
-        ref_level=args.ref_level,
-        fk_level=args.fk_level,
+        center_table=args.table,
+        referenced_by_level=args.referenced_by_level,
+        references_level=args.references_level,
     )
     logging.info(f'Generated ER diagram: {args.output}')
     return True
@@ -169,9 +169,9 @@ def _execute_drawio(args, schema_path):
         schema_path=str(schema_path),
         output_path=args.output,
         schema_name=args.schema,
-        table_name=args.table,
-        ref_level=args.ref_level,
-        fk_level=args.fk_level,
+        center_table=args.table,
+        referenced_by_level=args.referenced_by_level,
+        references_level=args.references_level,
     )
     logging.info(f'Generated ER diagram: {args.output}')
     return True

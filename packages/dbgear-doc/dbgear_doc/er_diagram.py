@@ -29,7 +29,7 @@ def collect_related_tables(
     Args:
         all_tables: Dictionary of all tables in the schema
         start_table_name: Name of the starting table
-        direction: 'refs' (tables referencing this) or 'fks' (tables referenced by this)
+        direction: 'referenced_by' (tables that reference this) or 'references' (tables this references)
         level: How many levels deep to search
         visited: Set of already visited table names
 
@@ -51,7 +51,7 @@ def collect_related_tables(
     if not start_table:
         return visited
 
-    if direction == 'fks':
+    if direction == 'references':
         # Collect tables that this table references (via foreign keys)
         for relation in start_table.relations:
             target_table_name = relation.target.table_name
@@ -60,7 +60,7 @@ def collect_related_tables(
                     all_tables, target_table_name, direction, level - 1, visited
                 )
 
-    elif direction == 'refs':
+    elif direction == 'referenced_by':
         # Collect tables that reference this table
         for table_name, table in all_tables.items():
             if table_name in visited:
@@ -154,8 +154,8 @@ def _create_diagram(
     schema_manager: SchemaManager,
     schema_name: str,
     center_table: str | None = None,
-    ref_level: int = 1,
-    fk_level: int = 1,
+    referenced_by_level: int = 1,
+    references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None
 ):
@@ -167,8 +167,8 @@ def _create_diagram(
         schema_manager: SchemaManager instance
         schema_name: Name of the schema
         center_table: Name of the table to center the diagram on (None for all tables)
-        ref_level: How many levels of referencing tables to include
-        fk_level: How many levels of referenced tables to include
+        referenced_by_level: How many levels of tables that reference this table to include
+        references_level: How many levels of tables this table references to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
 
@@ -203,17 +203,17 @@ def _create_diagram(
 
         tables_to_include = {center_table}
 
-        # Add tables that reference the center table (refs direction)
-        if ref_level > 0:
+        # Add tables that reference the center table
+        if referenced_by_level > 0:
             ref_tables = collect_related_tables(
-                all_tables, center_table, 'refs', ref_level, set()
+                all_tables, center_table, 'referenced_by', referenced_by_level, set()
             )
             tables_to_include.update(ref_tables)
 
-        # Add tables that the center table references (fks direction)
-        if fk_level > 0:
+        # Add tables that the center table references
+        if references_level > 0:
             fk_tables = collect_related_tables(
-                all_tables, center_table, 'fks', fk_level, set()
+                all_tables, center_table, 'references', references_level, set()
             )
             tables_to_include.update(fk_tables)
     else:
@@ -271,8 +271,8 @@ def generate_er_diagram_svg(
     schema_manager: SchemaManager,
     schema_name: str,
     center_table: str | None = None,
-    ref_level: int = 1,
-    fk_level: int = 1,
+    referenced_by_level: int = 1,
+    references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None
 ) -> str:
@@ -283,8 +283,8 @@ def generate_er_diagram_svg(
         schema_manager: SchemaManager instance
         schema_name: Name of the schema
         center_table: Name of the table to center the diagram on (None for all tables)
-        ref_level: How many levels of referencing tables to include
-        fk_level: How many levels of referenced tables to include
+        referenced_by_level: How many levels of tables that reference this table to include
+        references_level: How many levels of tables this table references to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
 
@@ -292,7 +292,7 @@ def generate_er_diagram_svg(
         SVG string of the ER diagram
     """
     diagram = _create_diagram(
-        'svg', schema_manager, schema_name, center_table, ref_level, fk_level,
+        'svg', schema_manager, schema_name, center_table, referenced_by_level, references_level,
         category, diagram_config
     )
     return diagram.render_svg()
@@ -302,8 +302,8 @@ def generate_er_diagram_drawio(
     schema_manager: SchemaManager,
     schema_name: str,
     center_table: str | None = None,
-    ref_level: int = 1,
-    fk_level: int = 1,
+    referenced_by_level: int = 1,
+    references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None
 ) -> str:
@@ -314,8 +314,8 @@ def generate_er_diagram_drawio(
         schema_manager: SchemaManager instance
         schema_name: Name of the schema
         center_table: Name of the table to center the diagram on (None for all tables)
-        ref_level: How many levels of referencing tables to include
-        fk_level: How many levels of referenced tables to include
+        referenced_by_level: How many levels of tables that reference this table to include
+        references_level: How many levels of tables this table references to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
 
@@ -323,7 +323,7 @@ def generate_er_diagram_drawio(
         draw.io XML string of the ER diagram
     """
     diagram = _create_diagram(
-        'drawio', schema_manager, schema_name, center_table, ref_level, fk_level,
+        'drawio', schema_manager, schema_name, center_table, referenced_by_level, references_level,
         category, diagram_config
     )
     return diagram.render_drawio()
@@ -334,8 +334,8 @@ def generate_svg(
     output_path: str,
     schema_name: str | None = None,
     center_table: str | None = None,
-    ref_level: int = 1,
-    fk_level: int = 1,
+    referenced_by_level: int = 1,
+    references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None
 ) -> str:
@@ -349,8 +349,8 @@ def generate_svg(
         output_path: Path to write the SVG file.
         schema_name: Name of the schema (uses first schema if None).
         center_table: Table to center diagram on (all tables if None).
-        ref_level: Levels of referencing tables to include.
-        fk_level: Levels of referenced tables to include.
+        referenced_by_level: Levels of tables that reference this table to include.
+        references_level: Levels of tables this table references to include.
         category: Filter tables by category (None for all tables).
         project_path: Path to project directory for diagram.yaml (uses schema_path parent if None).
 
@@ -369,7 +369,7 @@ def generate_svg(
     diagram_config = load_diagram_config(project_path)
 
     svg_content = generate_er_diagram_svg(
-        schema_manager, schema_name, center_table, ref_level, fk_level,
+        schema_manager, schema_name, center_table, referenced_by_level, references_level,
         category, diagram_config
     )
 
@@ -384,8 +384,8 @@ def generate_drawio(
     output_path: str,
     schema_name: str | None = None,
     center_table: str | None = None,
-    ref_level: int = 1,
-    fk_level: int = 1,
+    referenced_by_level: int = 1,
+    references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None
 ) -> str:
@@ -399,8 +399,8 @@ def generate_drawio(
         output_path: Path to write the draw.io XML file.
         schema_name: Name of the schema (uses first schema if None).
         center_table: Table to center diagram on (all tables if None).
-        ref_level: Levels of referencing tables to include.
-        fk_level: Levels of referenced tables to include.
+        referenced_by_level: Levels of tables that reference this table to include.
+        references_level: Levels of tables this table references to include.
         category: Filter tables by category (None for all tables).
         project_path: Path to project directory for diagram.yaml (uses schema_path parent if None).
 
@@ -419,7 +419,7 @@ def generate_drawio(
     diagram_config = load_diagram_config(project_path)
 
     drawio_content = generate_er_diagram_drawio(
-        schema_manager, schema_name, center_table, ref_level, fk_level,
+        schema_manager, schema_name, center_table, referenced_by_level, references_level,
         category, diagram_config
     )
 

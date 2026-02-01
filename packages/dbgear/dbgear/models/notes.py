@@ -2,7 +2,7 @@ from .base import BaseSchema
 
 
 class Note(BaseSchema):
-    title: str
+    title: str | None = None
     content: str
     checked: bool = False
 

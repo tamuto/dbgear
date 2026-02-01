@@ -22,7 +22,7 @@ def collect_related_tables(
     Args:
         all_tables: Dictionary of all tables in the schema
         start_table_name: Name of the starting table
-        direction: 'refs' (tables referencing this) or 'fks' (tables referenced by this)
+        direction: 'referenced_by' (tables that reference this) or 'references' (tables this references)
         level: How many levels deep to search
         visited: Set of already visited table names
 
@@ -44,7 +44,7 @@ def collect_related_tables(
     if not start_table:
         return visited
 
-    if direction == 'fks':
+    if direction == 'references':
         # Collect tables that this table references (via foreign keys)
         for relation in start_table.relations:
             target_table_name = relation.target.table_name
@@ -53,7 +53,7 @@ def collect_related_tables(
                     all_tables, target_table_name, direction, level - 1, visited
                 )
 
-    elif direction == 'refs':
+    elif direction == 'referenced_by':
         # Collect tables that reference this table
         for table_name, table in all_tables.items():
             if table_name in visited:
@@ -137,8 +137,8 @@ def generate_er_diagram_svg(
     schema_manager: SchemaManager,
     schema_name: str,
     center_table: str,
-    ref_level: int = 1,
-    fk_level: int = 1
+    referenced_by_level: int = 1,
+    references_level: int = 1
 ) -> str:
     """
     Generate ER diagram SVG centered on a specific table.
@@ -147,8 +147,8 @@ def generate_er_diagram_svg(
         schema_manager: SchemaManager instance
         schema_name: Name of the schema
         center_table: Name of the table to center the diagram on
-        ref_level: How many levels of referencing tables to include (default: 1)
-        fk_level: How many levels of referenced tables to include (default: 1)
+        referenced_by_level: How many levels of tables that reference this table to include (default: 1)
+        references_level: How many levels of tables this table references to include (default: 1)
 
     Returns:
         SVG string of the ER diagram
@@ -171,17 +171,17 @@ def generate_er_diagram_svg(
     # Collect related tables
     tables_to_include = {center_table}
 
-    # Add tables that reference the center table (refs direction)
-    if ref_level > 0:
+    # Add tables that reference the center table
+    if referenced_by_level > 0:
         ref_tables = collect_related_tables(
-            all_tables, center_table, 'refs', ref_level, set()
+            all_tables, center_table, 'referenced_by', referenced_by_level, set()
         )
         tables_to_include.update(ref_tables)
 
-    # Add tables that the center table references (fks direction)
-    if fk_level > 0:
+    # Add tables that the center table references
+    if references_level > 0:
         fk_tables = collect_related_tables(
-            all_tables, center_table, 'fks', fk_level, set()
+            all_tables, center_table, 'references', references_level, set()
         )
         tables_to_include.update(fk_tables)
 

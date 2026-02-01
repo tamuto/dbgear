@@ -7,8 +7,6 @@ It generates documentation from database schema definitions using custom templat
 
 from .generator import generate_docs
 
-__version__ = "0.4.0"
-
 __all__ = [
     "generate_docs",
 ]
