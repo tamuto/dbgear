@@ -16,8 +16,8 @@ def register_er_diagram_routes(rt):
     def er_diagram_svg(
         schema_name: str,
         table_name: str,
-        ref_level: int = 1,
-        fk_level: int = 1
+        referenced_by_level: int = 1,
+        references_level: int = 1
     ):
         """
         Generate ER diagram SVG for a specific table.
@@ -25,8 +25,8 @@ def register_er_diagram_routes(rt):
         Args:
             schema_name: Name of the schema
             table_name: Name of the table to center the diagram on
-            ref_level: Levels of referencing tables to include (default: 1)
-            fk_level: Levels of referenced tables to include (default: 1)
+            referenced_by_level: Levels of tables that reference this table to include (default: 1)
+            references_level: Levels of tables this table references to include (default: 1)
 
         Returns:
             SVG response with image/svg+xml content type
@@ -47,8 +47,8 @@ def register_er_diagram_routes(rt):
             schema_manager,
             schema_name,
             table_name,
-            ref_level,
-            fk_level
+            referenced_by_level,
+            references_level
         )
 
         # Return SVG response

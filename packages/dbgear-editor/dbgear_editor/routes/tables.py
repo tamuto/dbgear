@@ -82,7 +82,7 @@ def register_table_routes(rt):
                                 Button(
                                     str(level),
                                     onclick=f"changeERLevel({level}, null)",
-                                    id=f"ref-level-{level}",
+                                    id=f"referenced-by-level-{level}",
                                     cls=f"px-2 py-1 text-xs {'bg-blue-500 text-white' if level == 1 else 'bg-gray-200 hover:bg-gray-300'} {'rounded-l' if level == 4 else ''} {'rounded-r' if level == 1 else ''}"
                                 )
                                 for level in [4, 3, 2, 1]
@@ -92,7 +92,7 @@ def register_table_routes(rt):
                                 Button(
                                     str(level),
                                     onclick=f"changeERLevel(null, {level})",
-                                    id=f"fk-level-{level}",
+                                    id=f"references-level-{level}",
                                     cls=f"px-2 py-1 text-xs {'bg-blue-500 text-white' if level == 1 else 'bg-gray-200 hover:bg-gray-300'} {'rounded-l' if level == 1 else ''} {'rounded-r' if level == 4 else ''}"
                                 )
                                 for level in [1, 2, 3, 4]
@@ -109,7 +109,7 @@ def register_table_routes(rt):
                 Div(
                     Div(
                         Img(
-                            src=f"/api/er-diagram/{schema_name}/{table_name}?ref_level=1&fk_level=1",
+                            src=f"/api/er-diagram/{schema_name}/{table_name}?referenced_by_level=1&references_level=1",
                             alt=f"ER Diagram for {table_name}",
                             id="er-diagram-img",
                             cls="w-full h-auto transition-transform duration-200"
@@ -122,8 +122,8 @@ def register_table_routes(rt):
                 ),
                 # JavaScript for interactive controls
                 Script(f"""
-                    let currentRefLevel = 1;
-                    let currentFkLevel = 1;
+                    let currentReferencedByLevel = 1;
+                    let currentReferencesLevel = 1;
                     let currentZoom = 100;
                     let erDiagramVisible = true;
                     const schemaName = '{schema_name}';
@@ -158,25 +158,25 @@ def register_table_routes(rt):
                         }}
                     }}
 
-                    function changeERLevel(refLevel, fkLevel) {{
-                        if (refLevel !== null) {{
-                            currentRefLevel = refLevel;
-                            // Update button styles for ref levels
+                    function changeERLevel(referencedByLevel, referencesLevel) {{
+                        if (referencedByLevel !== null) {{
+                            currentReferencedByLevel = referencedByLevel;
+                            // Update button styles for referenced-by levels
                             for (let i = 1; i <= 4; i++) {{
-                                const btn = document.getElementById(`ref-level-${{i}}`);
-                                if (i === refLevel) {{
+                                const btn = document.getElementById(`referenced-by-level-${{i}}`);
+                                if (i === referencedByLevel) {{
                                     btn.className = btn.className.replace('bg-gray-200 hover:bg-gray-300', 'bg-blue-500 text-white');
                                 }} else {{
                                     btn.className = btn.className.replace('bg-blue-500 text-white', 'bg-gray-200 hover:bg-gray-300');
                                 }}
                             }}
                         }}
-                        if (fkLevel !== null) {{
-                            currentFkLevel = fkLevel;
-                            // Update button styles for fk levels
+                        if (referencesLevel !== null) {{
+                            currentReferencesLevel = referencesLevel;
+                            // Update button styles for references levels
                             for (let i = 1; i <= 4; i++) {{
-                                const btn = document.getElementById(`fk-level-${{i}}`);
-                                if (i === fkLevel) {{
+                                const btn = document.getElementById(`references-level-${{i}}`);
+                                if (i === referencesLevel) {{
                                     btn.className = btn.className.replace('bg-gray-200 hover:bg-gray-300', 'bg-blue-500 text-white');
                                 }} else {{
                                     btn.className = btn.className.replace('bg-blue-500 text-white', 'bg-gray-200 hover:bg-gray-300');
@@ -186,7 +186,7 @@ def register_table_routes(rt):
 
                         // Update image source
                         const img = document.getElementById('er-diagram-img');
-                        img.src = `/api/er-diagram/${{schemaName}}/${{tableName}}?ref_level=${{currentRefLevel}}&fk_level=${{currentFkLevel}}`;
+                        img.src = `/api/er-diagram/${{schemaName}}/${{tableName}}?referenced_by_level=${{currentReferencedByLevel}}&references_level=${{currentReferencesLevel}}`;
                     }}
 
                     // Initialize zoom display

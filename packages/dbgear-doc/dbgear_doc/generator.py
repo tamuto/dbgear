@@ -89,54 +89,26 @@ def _collect_related_tables_info(
         table_name: Name of the target table
 
     Returns:
-        Dictionary with 'referenced_tables' and 'referencing_tables' lists.
+        Dictionary with 'referenced_by' list containing dicts with 'table' and 'relation' objects.
     """
     table = all_tables.get(table_name)
     if not table:
-        return {'referenced_tables': [], 'referencing_tables': []}
+        return {'referenced_by': []}
 
-    # Tables that this table references (via foreign keys/relations)
-    referenced_tables = []
-    for relation in table.relations:
-        target_table_name = relation.target.table_name
-        target_table = all_tables.get(target_table_name)
-        if target_table:
-            bindings = [
-                f"{bc.source_column} -> {bc.target_column}"
-                for bc in relation.bind_columns
-            ]
-            referenced_tables.append({
-                'table_name': target_table_name,
-                'display_name': target_table.display_name,
-                'constraint_name': relation.constraint_name,
-                'bindings': bindings,
-                'on_delete': relation.on_delete,
-                'on_update': relation.on_update,
-            })
-
-    # Tables that reference this table
-    referencing_tables = []
+    # Tables that reference this table (this table is referenced by these tables)
+    referenced_by = []
     for other_table_name, other_table in all_tables.items():
         if other_table_name == table_name:
             continue
         for relation in other_table.relations:
             if relation.target.table_name == table_name:
-                bindings = [
-                    f"{bc.source_column} -> {bc.target_column}"
-                    for bc in relation.bind_columns
-                ]
-                referencing_tables.append({
-                    'table_name': other_table_name,
-                    'display_name': other_table.display_name,
-                    'constraint_name': relation.constraint_name,
-                    'bindings': bindings,
-                    'on_delete': relation.on_delete,
-                    'on_update': relation.on_update,
+                referenced_by.append({
+                    'table': other_table,
+                    'relation': relation,
                 })
 
     return {
-        'referenced_tables': referenced_tables,
-        'referencing_tables': referencing_tables,
+        'referenced_by': referenced_by,
     }
 
 
@@ -217,8 +189,7 @@ def generate_docs(
                     schema_name=schema_name,
                     table_name=table_name,
                     table=table,
-                    referenced_tables=related['referenced_tables'],
-                    referencing_tables=related['referencing_tables'],
+                    referenced_by=related['referenced_by'],
                 )
                 output_file.write_text(content, encoding="utf-8")
                 generated_files.append(output_file)

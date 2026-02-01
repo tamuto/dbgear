@@ -66,21 +66,19 @@ dbgear doc --template my_template.yaml.j2 --scope schema -o output.yaml
 | `schema_name` | `str` | スキーマ名 |
 | `table_name` | `str` | テーブル名 |
 | `table` | `Table` | テーブルオブジェクト |
-| `referenced_tables` | `list[dict]` | このテーブルが参照しているテーブル一覧 |
-| `referencing_tables` | `list[dict]` | このテーブルを参照しているテーブル一覧 |
+| `referenced_by` | `list[dict]` | このテーブルを参照しているテーブル一覧（被参照テーブル） |
 
-### `referenced_tables` / `referencing_tables` の構造
+### `referenced_by` の構造
 
 ```python
 {
-    'table_name': str,        # テーブル名
-    'display_name': str,      # 表示名
-    'constraint_name': str,   # FK制約名（None可）
-    'bindings': list[str],    # カラムバインディング ("col_a -> col_b" 形式)
-    'on_delete': str,         # ON DELETE アクション
-    'on_update': str,         # ON UPDATE アクション
+    'table': Table,           # 参照元テーブルオブジェクト
+    'relation': Relation,     # リレーションオブジェクト
 }
 ```
+
+テンプレートでは `ref.table.table_name`, `ref.table.display_name`, `ref.relation.constraint_name` などでアクセスできます。
+詳細は下記の「Relation オブジェクト」セクションを参照してください。
 
 ### 使用例
 
@@ -95,10 +93,10 @@ dbgear doc --template my_template.yaml.j2 --scope schema -o output.yaml
 | {{ col.column_name }} | {{ col.column_type | format_column_type }} | {{ "YES" if col.nullable else "NO" }} |
 {% endfor %}
 
-{% if referenced_tables %}
-## References
-{% for ref in referenced_tables %}
-- {{ ref.table_name }} ({{ ref.bindings | join(', ') }})
+{% if referenced_by %}
+## Referenced By
+{% for ref in referenced_by %}
+- {{ ref.table.table_name }} ({{ ref.relation.constraint_name }})
 {% endfor %}
 {% endif %}
 ```
