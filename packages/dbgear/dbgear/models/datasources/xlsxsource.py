@@ -84,7 +84,7 @@ class DataSource(BaseDataSource):
                 return 'NOW()'
             elif value.upper() in ('SYSTEM', 'CURRENT_USER'):
                 return 'SYSTEM'
-            elif value.upper() in ('NULL', 'NONE', ''):
+            elif value.upper() in ('NULL', ''):
                 return None
 
             # Try to convert to number if it looks like one
