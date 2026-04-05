@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 class BaseDataSource(metaclass=ABCMeta):
 
-    settings: dict[str, str]
+    settings: dict[str, str] = {}
 
     @property
     def filename(self) -> str:
