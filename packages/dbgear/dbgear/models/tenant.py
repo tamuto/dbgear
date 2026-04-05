@@ -14,6 +14,7 @@ class DatabaseInfo(BaseSchema):
     database: str
     description: str | None = None
     active: bool = True
+    settings: dict[str, str] = pydantic.Field(default_factory=dict)
 
 
 class TenantConfig(BaseSchema):
@@ -99,4 +100,5 @@ class TenantRegistry(BaseSchema):
                         continue
                     clone = map.model_copy(deep=True)
                     clone.tenant_name = database.database
+                    clone.settings = database.settings.copy()
                     yield clone

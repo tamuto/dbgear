@@ -12,6 +12,7 @@ from .models.project import Project
 from .models.mapping import Mapping
 from .models.schema import Schema
 from .utils import const
+from .utils.variable import expand_variables
 
 logger = getLogger(__name__)
 
@@ -177,10 +178,12 @@ class Operation:
             # 処理済みとしてマーク
             processed_tables.add(dm.table_name)
 
-            for ds in dm.datasources:
+            base_settings = {**self.environ.settings, **map.settings}
+            for ds in dm.get_datasources(base_settings):
                 self._log(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                 ds.load()
-                table.insert(self.conn, map.instance_name, tbl, ds.data, dryrun=self.dryrun)
+                items = expand_variables(ds.data, ds.settings)
+                table.insert(self.conn, map.instance_name, tbl, items, dryrun=self.dryrun)
 
             if dm.sync_mode != const.SYNC_MODE_DROP_CREATE:
                 # 同期モードがdrop_create以外の場合は、データのリストアを行う。
@@ -272,10 +275,12 @@ class Operation:
             tbl = schema.tables[table_name]
             dm = map.datamodel(schema_name, table_name)
             if dm is not None:
-                for ds in dm.datasources:
+                base_settings = {**self.environ.settings, **map.settings}
+                for ds in dm.get_datasources(base_settings):
                     self._log(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                     ds.load()
-                    table.insert(self.conn, map.instance_name, tbl, ds.data)
+                    items = expand_variables(ds.data, ds.settings)
+                    table.insert(self.conn, map.instance_name, tbl, items)
 
     def recreate_indexes_only(self, map: Mapping, schema: Schema, target: str):
         """Recreate indexes for the specified table only."""

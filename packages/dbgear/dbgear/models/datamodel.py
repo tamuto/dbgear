@@ -9,6 +9,7 @@ from .base import BaseSchema
 from .datasources.factory import Factory
 from ..utils import const
 from ..utils.fileio import save_model
+from ..utils.variable import expand_value, expand_dict
 
 
 class SettingInfo(BaseSchema):
@@ -88,6 +89,32 @@ class DataModel(BaseSchema):
 
     @property
     def datasources(self):
+        return self.get_datasources()
+
+    def build_settings(self, settings: dict[str, str] = None) -> dict[str, str]:
+        """コンテキスト値とsettingsをマージした変数辞書を構築する。
+
+        優先順位: settings(environ/tenant) > コンテキスト値
+        """
+        context = {
+            'folder': self.folder,
+            'environ': self.environ,
+            'map_name': self.map_name,
+            'schema_name': self.schema_name,
+            'table_name': self.table_name,
+        }
+        if self.tenant_name:
+            context['tenant_name'] = self.tenant_name
+        if settings:
+            context.update(settings)
+        return context
+
+    def get_datasources(self, settings: dict[str, str] = None):
+        settings = self.build_settings(settings)
+
+        data_path = expand_value(self.data_path, settings) if self.data_path else self.data_path
+        data_args = expand_dict(self.data_args, settings) if self.data_args else self.data_args
+
         if self.data_params.segment is None:
             yield Factory.create(
                 data_type=self.data_type,
@@ -97,8 +124,9 @@ class DataModel(BaseSchema):
                 schema_name=self.schema_name,
                 table_name=self.table_name,
                 tenant_name=self.tenant_name,
-                data_path=self.data_path,
-                **self.data_args,
+                data_path=data_path,
+                settings=settings,
+                **data_args,
             )
 
         for path in sorted(pathlib.Path(self.folder, self.environ, self.map_name).glob(f"{self.schema_name}@{self.table_name}#*.dat")):
@@ -112,6 +140,7 @@ class DataModel(BaseSchema):
                 table_name=self.table_name,
                 segment=seg,
                 tenant_name=self.tenant_name,
-                data_path=self.data_path,
-                **self.data_args,
+                data_path=data_path,
+                settings=settings,
+                **data_args,
             )
