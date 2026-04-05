@@ -18,6 +18,7 @@ class DataSource(BaseDataSource):
         self.table_name = table_name
         self.header_row = header_row
         self.start_row = start_row
+        self.settings = kwargs.pop('settings', {})
         self._data = []
 
     @property

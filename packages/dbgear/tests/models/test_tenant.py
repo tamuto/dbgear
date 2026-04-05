@@ -108,6 +108,41 @@ class TestTenant(unittest.TestCase):
         docker_tenant = loaded_registry['docker']
         self.assertEqual(len(docker_tenant.databases), 2)
 
+    def test_database_info_settings(self):
+        """Test DatabaseInfo with settings for variable expansion"""
+        # Create tenant with settings
+        db_info = DatabaseInfo(
+            database='tenant_db',
+            description='Tenant with settings',
+            active=True,
+            settings={'app_name': 'TenantApp', 'base_url': 'https://tenant.example.com'}
+        )
+
+        tenant_config = TenantConfig(
+            name='with_settings',
+            ref='base',
+            databases=[db_info]
+        )
+
+        tenant_registry = TenantRegistry(folder=self.temp_dir, name='test_env')
+        tenant_registry.append(tenant_config)
+
+        # Create directory and save
+        env_dir = os.path.join(self.temp_dir, 'test_env')
+        os.makedirs(env_dir, exist_ok=True)
+        tenant_registry.save()
+
+        # Load and verify
+        loaded_registry = TenantRegistry.load(self.temp_dir, 'test_env')
+        loaded_db = loaded_registry['with_settings'].databases[0]
+        self.assertEqual(loaded_db.settings['app_name'], 'TenantApp')
+        self.assertEqual(loaded_db.settings['base_url'], 'https://tenant.example.com')
+
+    def test_database_info_default_empty_settings(self):
+        """Test DatabaseInfo defaults to empty settings"""
+        db_info = DatabaseInfo(database='simple_db')
+        self.assertEqual(db_info.settings, {})
+
 
 if __name__ == "__main__":
     unittest.main()

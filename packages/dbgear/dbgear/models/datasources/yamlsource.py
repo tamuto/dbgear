@@ -19,6 +19,7 @@ class DataSource(BaseDataSource):
         self.schema_name = schema_name
         self.table_name = table_name
         self.segment = segment
+        self.settings = kwargs.pop('settings', {})
         self._data = []
 
     @property

@@ -4,6 +4,9 @@ from abc import abstractmethod
 
 
 class BaseDataSource(metaclass=ABCMeta):
+
+    settings: dict[str, str]
+
     @property
     def filename(self) -> str:
         raise NotImplementedError("This method should be implemented in subclasses.")
