@@ -3,23 +3,26 @@ import yaml
 import os
 import importlib
 
+from typing import Any
+
 from .base import BaseSchema
 from .mapping import Mapping
 from .exceptions import DBGearEntityExistsError
 from .exceptions import DBGearEntityNotFoundError
 from ..utils.populate import auto_populate_from_keys
+from ..utils.variable import expand_dict
 
 
 class DatabaseInfo(BaseSchema):
     database: str
     description: str | None = None
     active: bool = True
-    settings: dict[str, str] = pydantic.Field(default_factory=dict)
 
 
 class TenantConfig(BaseSchema):
     name: str = pydantic.Field(exclude=True)
     ref: str
+    data_args: dict[str, Any] = pydantic.Field(default_factory=dict)
 
     # tenant variables
     databases: str | list[DatabaseInfo]
@@ -84,15 +87,15 @@ class TenantRegistry(BaseSchema):
             raise DBGearEntityNotFoundError(f'Tenant {name} does not exist')
         del self.tenants[name]
 
-    def materialize(self):
+    def materialize(self, settings: dict[str, str] = None):
         for tenant in self.tenants.values():
             map = Mapping.load(self.folder, self.name, tenant.ref)
+            expanded_args = expand_dict(tenant.data_args, settings) if settings and tenant.data_args else tenant.data_args
 
             if type(tenant.databases) is str:
                 module = importlib.import_module(tenant.databases)
-                method_name = "retrieve"
-                method = getattr(module, method_name)
-                for tenant_map in method(map):
+                method = getattr(module, "retrieve")
+                for tenant_map in method(map, **expanded_args):
                     yield tenant_map
             else:
                 for database in tenant.databases:
@@ -100,5 +103,4 @@ class TenantRegistry(BaseSchema):
                         continue
                     clone = map.model_copy(deep=True)
                     clone.tenant_name = database.database
-                    clone.settings = database.settings.copy()
                     yield clone
