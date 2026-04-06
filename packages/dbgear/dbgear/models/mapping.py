@@ -25,8 +25,7 @@ class Mapping(BaseSchema):
     charset: str | None = None      # e.g., utf8mb4, latin1
     collation: str | None = None    # e.g., utf8mb4_unicode_ci, utf8mb4_ja_0900_as_cs
 
-    # Tenant-specific settings (populated during materialize)
-    settings: dict[str, str] = pydantic.Field(default_factory=dict, exclude=True)
+
 
     @classmethod
     def _directory(cls, folder: str, environ: str, name: str) -> str:

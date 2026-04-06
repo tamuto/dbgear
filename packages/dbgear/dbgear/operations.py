@@ -178,7 +178,7 @@ class Operation:
             # 処理済みとしてマーク
             processed_tables.add(dm.table_name)
 
-            base_settings = {**self.environ.settings, **map.settings}
+            base_settings = {**self.environ.settings}
             for ds in dm.get_datasources(base_settings):
                 self._log(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                 ds.load()
@@ -275,7 +275,7 @@ class Operation:
             tbl = schema.tables[table_name]
             dm = map.datamodel(schema_name, table_name)
             if dm is not None:
-                base_settings = {**self.environ.settings, **map.settings}
+                base_settings = {**self.environ.settings}
                 for ds in dm.get_datasources(base_settings):
                     self._log(f'insert {ds.filename} to {map.instance_name}.{tbl.table_name}')
                     ds.load()

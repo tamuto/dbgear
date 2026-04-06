@@ -108,19 +108,18 @@ class TestTenant(unittest.TestCase):
         docker_tenant = loaded_registry['docker']
         self.assertEqual(len(docker_tenant.databases), 2)
 
-    def test_database_info_settings(self):
-        """Test DatabaseInfo with settings for variable expansion"""
-        # Create tenant with settings
+    def test_tenant_config_data_args(self):
+        """Test TenantConfig with data_args for variable expansion"""
         db_info = DatabaseInfo(
             database='tenant_db',
-            description='Tenant with settings',
+            description='Tenant with data_args',
             active=True,
-            settings={'app_name': 'TenantApp', 'base_url': 'https://tenant.example.com'}
         )
 
         tenant_config = TenantConfig(
-            name='with_settings',
+            name='with_args',
             ref='base',
+            data_args={'app_name': '$app', 'base_url': 'https://$host/api'},
             databases=[db_info]
         )
 
@@ -134,14 +133,18 @@ class TestTenant(unittest.TestCase):
 
         # Load and verify
         loaded_registry = TenantRegistry.load(self.temp_dir, 'test_env')
-        loaded_db = loaded_registry['with_settings'].databases[0]
-        self.assertEqual(loaded_db.settings['app_name'], 'TenantApp')
-        self.assertEqual(loaded_db.settings['base_url'], 'https://tenant.example.com')
+        loaded_tenant = loaded_registry['with_args']
+        self.assertEqual(loaded_tenant.data_args['app_name'], '$app')
+        self.assertEqual(loaded_tenant.data_args['base_url'], 'https://$host/api')
 
-    def test_database_info_default_empty_settings(self):
-        """Test DatabaseInfo defaults to empty settings"""
-        db_info = DatabaseInfo(database='simple_db')
-        self.assertEqual(db_info.settings, {})
+    def test_tenant_config_default_empty_data_args(self):
+        """Test TenantConfig defaults to empty data_args"""
+        tenant_config = TenantConfig(
+            name='simple',
+            ref='base',
+            databases='some.module.path'
+        )
+        self.assertEqual(tenant_config.data_args, {})
 
 
 if __name__ == "__main__":
