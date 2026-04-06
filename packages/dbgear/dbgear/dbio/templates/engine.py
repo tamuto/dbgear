@@ -26,8 +26,14 @@ class SQLTemplateEngine:
         self.env.filters['escape_string'] = self._escape_string_filter
 
     def _join_columns_filter(self, columns, separator=', '):
-        """Join column names with backticks."""
-        return separator.join(f'`{col}`' for col in columns)
+        """Join column names with backticks, preserving ASC/DESC order specifiers."""
+        parts = []
+        for col in columns:
+            tokens = col.split()
+            name = tokens[0]
+            suffix = f' {tokens[1]}' if len(tokens) > 1 else ''
+            parts.append(f'`{name}`{suffix}')
+        return separator.join(parts)
 
     def _escape_identifier_filter(self, identifier):
         """Escape SQL identifier with backticks."""
