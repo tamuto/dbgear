@@ -160,7 +160,8 @@ def _create_diagram(
     referenced_by_level: int = 1,
     references_level: int = 1,
     category: str | None = None,
-    diagram_config: DiagramConfig | None = None
+    diagram_config: DiagramConfig | None = None,
+    ideal_length_factor: float = 1.6
 ):
     """
     Create ER diagram with specified backend.
@@ -174,6 +175,8 @@ def _create_diagram(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
+        ideal_length_factor: Multiplier for ideal node distance in force-directed layout
+            (smaller values produce tighter diagrams, default: 1.6)
 
     Returns:
         Diagram instance (SVGERDiagram or DrawioERDiagram)
@@ -256,15 +259,17 @@ def _create_diagram(
     # Create ER diagram with appropriate backend
     if backend == 'svg':
         diagram = SVGERDiagram(
-            default_line_type=LineType.STRAIGHT,
+            default_line_type=LineType.ORTHOGONAL,
             min_width=1200,
-            min_height=800
+            min_height=800,
+            ideal_length_factor=ideal_length_factor
         )
     else:  # drawio
         diagram = DrawioERDiagram(
-            default_line_type=LineType.STRAIGHT,
+            default_line_type=LineType.ORTHOGONAL,
             min_width=1200,
-            min_height=800
+            min_height=800,
+            ideal_length_factor=ideal_length_factor
         )
 
     # Add tables to diagram
@@ -291,7 +296,7 @@ def _create_diagram(
                 diagram.add_edge(
                     _display_id(qkey),
                     _display_id(target_qkey),
-                    LineType.STRAIGHT,
+                    LineType.ORTHOGONAL,
                     cardinality
                 )
 
@@ -305,7 +310,8 @@ def generate_er_diagram_svg(
     referenced_by_level: int = 1,
     references_level: int = 1,
     category: str | None = None,
-    diagram_config: DiagramConfig | None = None
+    diagram_config: DiagramConfig | None = None,
+    ideal_length_factor: float = 1.6
 ) -> str:
     """
     Generate ER diagram in SVG format.
@@ -318,13 +324,14 @@ def generate_er_diagram_svg(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
 
     Returns:
         SVG string of the ER diagram
     """
     diagram = _create_diagram(
         'svg', schema_manager, schema_name, center_tables, referenced_by_level, references_level,
-        category, diagram_config
+        category, diagram_config, ideal_length_factor
     )
     return diagram.render_svg()
 
@@ -336,7 +343,8 @@ def generate_er_diagram_drawio(
     referenced_by_level: int = 1,
     references_level: int = 1,
     category: str | None = None,
-    diagram_config: DiagramConfig | None = None
+    diagram_config: DiagramConfig | None = None,
+    ideal_length_factor: float = 1.6
 ) -> str:
     """
     Generate ER diagram in draw.io XML format.
@@ -349,13 +357,14 @@ def generate_er_diagram_drawio(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
 
     Returns:
         draw.io XML string of the ER diagram
     """
     diagram = _create_diagram(
         'drawio', schema_manager, schema_name, center_tables, referenced_by_level, references_level,
-        category, diagram_config
+        category, diagram_config, ideal_length_factor
     )
     return diagram.render_drawio()
 
@@ -368,7 +377,8 @@ def generate_svg(
     referenced_by_level: int = 1,
     references_level: int = 1,
     category: str | None = None,
-    project_path: str | None = None
+    project_path: str | None = None,
+    ideal_length_factor: float = 1.6
 ) -> str:
     """
     Generate SVG ER diagram from a schema file.
@@ -401,7 +411,7 @@ def generate_svg(
 
     svg_content = generate_er_diagram_svg(
         schema_manager, schema_name, center_tables, referenced_by_level, references_level,
-        category, diagram_config
+        category, diagram_config, ideal_length_factor
     )
 
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -418,7 +428,8 @@ def generate_drawio(
     referenced_by_level: int = 1,
     references_level: int = 1,
     category: str | None = None,
-    project_path: str | None = None
+    project_path: str | None = None,
+    ideal_length_factor: float = 1.6
 ) -> str:
     """
     Generate draw.io ER diagram from a schema file.
@@ -451,7 +462,7 @@ def generate_drawio(
 
     drawio_content = generate_er_diagram_drawio(
         schema_manager, schema_name, center_tables, referenced_by_level, references_level,
-        category, diagram_config
+        category, diagram_config, ideal_length_factor
     )
 
     with open(output_path, 'w', encoding='utf-8') as f:
