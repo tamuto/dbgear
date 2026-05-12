@@ -92,23 +92,27 @@ def _register_svg_command(subparsers):
     parser.add_argument(
         '-t', '--table',
         nargs='+',
-        help='center table name(s) (shows all tables if not specified)'
+        help='center table name(s); accepts "schema.table" for cross-schema diagrams '
+             '(shows all tables in the default schema if not specified)'
     )
     parser.add_argument(
         '--table-file',
-        help='path to a file listing center table names (one per line, # for comments)'
+        help='path to a file listing center table names (one per line, # for comments; '
+             'each entry may be qualified as "schema.table")'
     )
     parser.add_argument(
         '--referenced-by-level',
         type=int,
         default=1,
-        help='levels of tables that reference these tables to include (default: 1)'
+        help='levels of tables that reference this table to include '
+             '(default: 1; ignored when multiple center tables are specified)'
     )
     parser.add_argument(
         '--references-level',
         type=int,
         default=1,
-        help='levels of tables these tables reference to include (default: 1)'
+        help='levels of tables this table references to include '
+             '(default: 1; ignored when multiple center tables are specified)'
     )
 
 
@@ -127,23 +131,27 @@ def _register_drawio_command(subparsers):
     parser.add_argument(
         '-t', '--table',
         nargs='+',
-        help='center table name(s) (shows all tables if not specified)'
+        help='center table name(s); accepts "schema.table" for cross-schema diagrams '
+             '(shows all tables in the default schema if not specified)'
     )
     parser.add_argument(
         '--table-file',
-        help='path to a file listing center table names (one per line, # for comments)'
+        help='path to a file listing center table names (one per line, # for comments; '
+             'each entry may be qualified as "schema.table")'
     )
     parser.add_argument(
         '--referenced-by-level',
         type=int,
         default=1,
-        help='levels of tables that reference these tables to include (default: 1)'
+        help='levels of tables that reference this table to include '
+             '(default: 1; ignored when multiple center tables are specified)'
     )
     parser.add_argument(
         '--references-level',
         type=int,
         default=1,
-        help='levels of tables these tables reference to include (default: 1)'
+        help='levels of tables this table references to include '
+             '(default: 1; ignored when multiple center tables are specified)'
     )
 
 

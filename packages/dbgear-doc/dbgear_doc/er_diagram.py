@@ -4,6 +4,7 @@ ER diagram generation module using in4viz library.
 Provides SVG and draw.io format output for database schema visualization.
 """
 
+import logging
 from pathlib import Path
 
 from in4viz import Table as In4vizTable, Column as In4vizColumn, LineType, Cardinality
@@ -18,57 +19,59 @@ from .diagram import DiagramConfig, load_diagram_config
 
 def collect_related_tables(
     all_tables: dict[str, Table],
-    start_table_name: str,
+    start_qkey: str,
     direction: str,
     level: int,
     visited: set[str] | None = None
 ) -> set[str]:
     """
-    Recursively collect related tables.
+    Recursively collect related tables across schemas.
 
     Args:
-        all_tables: Dictionary of all tables in the schema
-        start_table_name: Name of the starting table
+        all_tables: Dictionary of tables keyed by ``"schema.table"``
+        start_qkey: Qualified key (``"schema.table"``) of the starting table
         direction: 'referenced_by' (tables that reference this) or 'references' (tables this references)
         level: How many levels deep to search
-        visited: Set of already visited table names
+        visited: Set of already visited qualified keys
 
     Returns:
-        Set of table names including the start table
+        Set of qualified keys including the start table
     """
     if visited is None:
         visited = set()
 
-    if level < 0 or start_table_name in visited:
+    if level < 0 or start_qkey in visited:
         return visited
 
-    visited.add(start_table_name)
+    visited.add(start_qkey)
 
     if level == 0:
         return visited
 
-    start_table = all_tables.get(start_table_name)
+    start_table = all_tables.get(start_qkey)
     if not start_table:
         return visited
 
     if direction == 'references':
         # Collect tables that this table references (via foreign keys)
         for relation in start_table.relations:
-            target_table_name = relation.target.table_name
-            if target_table_name in all_tables:
+            target_qkey = f"{relation.target.schema_name}.{relation.target.table_name}"
+            if target_qkey in all_tables:
                 collect_related_tables(
-                    all_tables, target_table_name, direction, level - 1, visited
+                    all_tables, target_qkey, direction, level - 1, visited
                 )
 
     elif direction == 'referenced_by':
+        start_schema, start_table_name = start_qkey.split('.', 1)
         # Collect tables that reference this table
-        for table_name, table in all_tables.items():
-            if table_name in visited:
+        for qkey, table in all_tables.items():
+            if qkey in visited:
                 continue
             for relation in table.relations:
-                if relation.target.table_name == start_table_name:
+                if (relation.target.schema_name == start_schema
+                        and relation.target.table_name == start_table_name):
                     collect_related_tables(
-                        all_tables, table_name, direction, level - 1, visited
+                        all_tables, qkey, direction, level - 1, visited
                     )
                     break
 
@@ -181,48 +184,74 @@ def _create_diagram(
     if diagram_config is None:
         diagram_config = DiagramConfig()
 
-    # Get all tables in the schema
+    # Validate default schema exists
     schemas = schema_manager.schemas
-    schema = schemas.get(schema_name)
-    if not schema:
+    if schema_name not in schemas:
         raise ValueError(f"Schema '{schema_name}' not found")
 
-    all_tables = {table.table_name: table for table in schema.tables}
+    # Build global table index across all schemas, keyed by "schema.table".
+    # Cross-schema relations are resolved against this index.
+    all_tables: dict[str, Table] = {}
+    for sname, schema in schemas.items():
+        for table in schema.tables:
+            all_tables[f"{sname}.{table.table_name}"] = table
 
     # Filter by category if specified
     if category:
         all_tables = {
-            name: table for name, table in all_tables.items()
+            qkey: table for qkey, table in all_tables.items()
             if category in table.categories
         }
 
+    def _resolve_qkey(name: str) -> str:
+        # Unqualified names are bound to the default schema; qualified names pass through.
+        if '.' in name:
+            return name
+        return f"{schema_name}.{name}"
+
     # Determine which tables to include
     if center_tables:
-        missing = [name for name in center_tables if name not in all_tables]
+        resolved = [_resolve_qkey(name) for name in center_tables]
+        missing = [name for name in resolved if name not in all_tables]
         if missing:
-            raise ValueError(
-                f"Table(s) not found in schema '{schema_name}': {', '.join(missing)}"
-            )
+            raise ValueError(f"Table(s) not found: {', '.join(missing)}")
 
-        tables_to_include: set[str] = set(center_tables)
-
-        for center in center_tables:
-            # Add tables that reference the center table
+        if len(resolved) == 1:
+            center = resolved[0]
+            tables_to_include: set[str] = {center}
             if referenced_by_level > 0:
                 ref_tables = collect_related_tables(
                     all_tables, center, 'referenced_by', referenced_by_level, set()
                 )
                 tables_to_include.update(ref_tables)
-
-            # Add tables that the center table references
             if references_level > 0:
                 fk_tables = collect_related_tables(
                     all_tables, center, 'references', references_level, set()
                 )
                 tables_to_include.update(fk_tables)
+        else:
+            if referenced_by_level > 0 or references_level > 0:
+                logging.warning(
+                    "Multiple center tables specified; "
+                    "--referenced-by-level / --references-level are ignored "
+                    "and only the given tables are rendered."
+                )
+            tables_to_include = set(resolved)
     else:
-        # Include all tables
-        tables_to_include = set(all_tables.keys())
+        # Include all tables from the default schema (legacy behavior)
+        tables_to_include = {
+            qkey for qkey in all_tables if qkey.split('.', 1)[0] == schema_name
+        }
+
+    # Use qualified display names only when the diagram spans multiple schemas,
+    # so single-schema diagrams keep their previous appearance.
+    distinct_schemas = {qkey.split('.', 1)[0] for qkey in tables_to_include}
+    use_qualified_names = len(distinct_schemas) > 1
+
+    def _display_id(qkey: str) -> str:
+        if use_qualified_names:
+            return qkey
+        return qkey.split('.', 1)[1]
 
     # Create ER diagram with appropriate backend
     if backend == 'svg':
@@ -239,22 +268,20 @@ def _create_diagram(
         )
 
     # Add tables to diagram
-    in4viz_tables = {}
-    for table_name in tables_to_include:
-        table = all_tables[table_name]
+    for qkey in tables_to_include:
+        table = all_tables[qkey]
         style = diagram_config.get_style(table.categories)
         in4viz_table = dbgear_to_in4viz_table(
-            table, table_name, style.background_color, style.use_gradient
+            table, _display_id(qkey), style.background_color, style.use_gradient
         )
         diagram.add_table(in4viz_table)
-        in4viz_tables[table_name] = in4viz_table
 
     # Add edges (relationships)
-    for table_name in tables_to_include:
-        table = all_tables[table_name]
+    for qkey in tables_to_include:
+        table = all_tables[qkey]
         for relation in table.relations:
-            target_name = relation.target.table_name
-            if target_name in tables_to_include:
+            target_qkey = f"{relation.target.schema_name}.{relation.target.table_name}"
+            if target_qkey in tables_to_include:
                 # Convert cardinality from DBGear format to in4viz format
                 cardinality = Cardinality(
                     relation.cardinarity_source,
@@ -262,8 +289,8 @@ def _create_diagram(
                 )
 
                 diagram.add_edge(
-                    table_name,
-                    target_name,
+                    _display_id(qkey),
+                    _display_id(target_qkey),
                     LineType.STRAIGHT,
                     cardinality
                 )
