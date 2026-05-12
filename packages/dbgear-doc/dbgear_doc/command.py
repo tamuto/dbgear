@@ -114,6 +114,13 @@ def _register_svg_command(subparsers):
         help='levels of tables this table references to include '
              '(default: 1; ignored when multiple center tables are specified)'
     )
+    parser.add_argument(
+        '--ideal-length-factor',
+        type=float,
+        default=1.4,
+        help='multiplier for ideal node distance in force-directed layout '
+             '(smaller values produce tighter diagrams, default: 1.4)'
+    )
 
 
 def _register_drawio_command(subparsers):
@@ -153,6 +160,13 @@ def _register_drawio_command(subparsers):
         help='levels of tables this table references to include '
              '(default: 1; ignored when multiple center tables are specified)'
     )
+    parser.add_argument(
+        '--ideal-length-factor',
+        type=float,
+        default=1.4,
+        help='multiplier for ideal node distance in force-directed layout '
+             '(smaller values produce tighter diagrams, default: 1.4)'
+    )
 
 
 def _execute_doc(args, schema_path):
@@ -177,6 +191,7 @@ def _execute_svg(args, schema_path):
         center_tables=center_tables,
         referenced_by_level=args.referenced_by_level,
         references_level=args.references_level,
+        ideal_length_factor=args.ideal_length_factor,
     )
     logging.info(f'Generated ER diagram: {args.output}')
     return True
@@ -192,6 +207,7 @@ def _execute_drawio(args, schema_path):
         center_tables=center_tables,
         referenced_by_level=args.referenced_by_level,
         references_level=args.references_level,
+        ideal_length_factor=args.ideal_length_factor,
     )
     logging.info(f'Generated ER diagram: {args.output}')
     return True

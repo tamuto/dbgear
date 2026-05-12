@@ -161,7 +161,7 @@ def _create_diagram(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ):
     """
     Create ER diagram with specified backend.
@@ -176,7 +176,7 @@ def _create_diagram(
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
         ideal_length_factor: Multiplier for ideal node distance in force-directed layout
-            (smaller values produce tighter diagrams, default: 1.6)
+            (smaller values produce tighter diagrams, default: 1.4)
 
     Returns:
         Diagram instance (SVGERDiagram or DrawioERDiagram)
@@ -311,7 +311,7 @@ def generate_er_diagram_svg(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate ER diagram in SVG format.
@@ -324,7 +324,7 @@ def generate_er_diagram_svg(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
-        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.4)
 
     Returns:
         SVG string of the ER diagram
@@ -344,7 +344,7 @@ def generate_er_diagram_drawio(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate ER diagram in draw.io XML format.
@@ -357,7 +357,7 @@ def generate_er_diagram_drawio(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
-        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.4)
 
     Returns:
         draw.io XML string of the ER diagram
@@ -378,7 +378,7 @@ def generate_svg(
     references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate SVG ER diagram from a schema file.
@@ -429,7 +429,7 @@ def generate_drawio(
     references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate draw.io ER diagram from a schema file.

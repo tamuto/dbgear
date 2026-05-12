@@ -1,6 +1,6 @@
 [project]
 name = "dbgear-doc"
-version = "0.7.1"
+version = "0.7.2"
 description = "Documentation generator plugin for DBGear"
 authors = [
     {name = "tamuto", email = "mutomob@gmail.com"}
