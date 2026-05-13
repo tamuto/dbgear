@@ -250,6 +250,7 @@ def _create_diagram(
     # so single-schema diagrams keep their previous appearance.
     distinct_schemas = {qkey.split('.', 1)[0] for qkey in tables_to_include}
     use_qualified_names = len(distinct_schemas) > 1
+    ordered_table_keys = sorted(tables_to_include)
 
     def _display_id(qkey: str) -> str:
         if use_qualified_names:
@@ -273,7 +274,7 @@ def _create_diagram(
         )
 
     # Add tables to diagram
-    for qkey in tables_to_include:
+    for qkey in ordered_table_keys:
         table = all_tables[qkey]
         style = diagram_config.get_style(table.categories)
         in4viz_table = dbgear_to_in4viz_table(
@@ -282,9 +283,16 @@ def _create_diagram(
         diagram.add_table(in4viz_table)
 
     # Add edges (relationships)
-    for qkey in tables_to_include:
+    for qkey in ordered_table_keys:
         table = all_tables[qkey]
-        for relation in table.relations:
+        for relation in sorted(
+            table.relations,
+            key=lambda rel: (
+                rel.target.schema_name,
+                rel.target.table_name,
+                rel.constraint_name or '',
+            )
+        ):
             target_qkey = f"{relation.target.schema_name}.{relation.target.table_name}"
             if target_qkey in tables_to_include:
                 # Convert cardinality from DBGear format to in4viz format
