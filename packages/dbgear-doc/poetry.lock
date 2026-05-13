@@ -290,14 +290,14 @@ test = ["objgraph", "psutil", "setuptools"]
 
 [[package]]
 name = "in4viz"
-version = "0.6.1"
+version = "0.6.2"
 description = "ER図可視化ライブラリ - SVGとdraw.io形式での出力をサポート"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "in4viz-0.6.1-py3-none-any.whl", hash = "sha256:40a777ed5af7ad9b337304ca2623cf2d4e21ca16cc5f66554cfb72c48768327b"},
-    {file = "in4viz-0.6.1.tar.gz", hash = "sha256:8df707156ba51ec8255d014dd2fe4a2319381b3792d2142e27b05398747d1562"},
+    {file = "in4viz-0.6.2-py3-none-any.whl", hash = "sha256:292e632604ed5d99c40010111ecb130fd7023f69b2417b3815ca03b1dcb0fba4"},
+    {file = "in4viz-0.6.2.tar.gz", hash = "sha256:b08b7604b2d49a0106d75c01908341989fb1b183f49c36d03c29bb6f3dc0b8de"},
 ]
 
 [[package]]
@@ -983,4 +983,4 @@ typing-extensions = ">=4.12.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "db4ac9424bbec69fd85006911be74427b2f47b9a3f7426b2efca8c547d45034a"
+content-hash = "6468bc848a3626658a60a2983d728f81a39b0eccaaf2e73332f54a235dd1feed"
