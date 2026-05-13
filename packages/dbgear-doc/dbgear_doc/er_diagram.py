@@ -161,7 +161,7 @@ def _create_diagram(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ):
     """
     Create ER diagram with specified backend.
@@ -176,7 +176,7 @@ def _create_diagram(
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
         ideal_length_factor: Multiplier for ideal node distance in force-directed layout
-            (smaller values produce tighter diagrams, default: 1.6)
+            (smaller values produce tighter diagrams, default: 1.4)
 
     Returns:
         Diagram instance (SVGERDiagram or DrawioERDiagram)
@@ -250,6 +250,7 @@ def _create_diagram(
     # so single-schema diagrams keep their previous appearance.
     distinct_schemas = {qkey.split('.', 1)[0] for qkey in tables_to_include}
     use_qualified_names = len(distinct_schemas) > 1
+    ordered_table_keys = sorted(tables_to_include)
 
     def _display_id(qkey: str) -> str:
         if use_qualified_names:
@@ -273,7 +274,7 @@ def _create_diagram(
         )
 
     # Add tables to diagram
-    for qkey in tables_to_include:
+    for qkey in ordered_table_keys:
         table = all_tables[qkey]
         style = diagram_config.get_style(table.categories)
         in4viz_table = dbgear_to_in4viz_table(
@@ -282,9 +283,16 @@ def _create_diagram(
         diagram.add_table(in4viz_table)
 
     # Add edges (relationships)
-    for qkey in tables_to_include:
+    for qkey in ordered_table_keys:
         table = all_tables[qkey]
-        for relation in table.relations:
+        for relation in sorted(
+            table.relations,
+            key=lambda rel: (
+                rel.target.schema_name,
+                rel.target.table_name,
+                rel.constraint_name or '',
+            )
+        ):
             target_qkey = f"{relation.target.schema_name}.{relation.target.table_name}"
             if target_qkey in tables_to_include:
                 # Convert cardinality from DBGear format to in4viz format
@@ -311,7 +319,7 @@ def generate_er_diagram_svg(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate ER diagram in SVG format.
@@ -324,7 +332,7 @@ def generate_er_diagram_svg(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
-        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.4)
 
     Returns:
         SVG string of the ER diagram
@@ -344,7 +352,7 @@ def generate_er_diagram_drawio(
     references_level: int = 1,
     category: str | None = None,
     diagram_config: DiagramConfig | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate ER diagram in draw.io XML format.
@@ -357,7 +365,7 @@ def generate_er_diagram_drawio(
         references_level: How many levels of tables these tables reference to include
         category: Filter tables by category (None for all tables)
         diagram_config: DiagramConfig for background colors (None uses defaults)
-        ideal_length_factor: Multiplier for ideal node distance (default: 1.6)
+        ideal_length_factor: Multiplier for ideal node distance (default: 1.4)
 
     Returns:
         draw.io XML string of the ER diagram
@@ -378,7 +386,7 @@ def generate_svg(
     references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate SVG ER diagram from a schema file.
@@ -429,7 +437,7 @@ def generate_drawio(
     references_level: int = 1,
     category: str | None = None,
     project_path: str | None = None,
-    ideal_length_factor: float = 1.6
+    ideal_length_factor: float = 1.4
 ) -> str:
     """
     Generate draw.io ER diagram from a schema file.
