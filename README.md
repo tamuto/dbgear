@@ -111,6 +111,9 @@ dbgear-doc をインストールすると `doc` / `svg` / `drawio` サブコマ�
 # Jinja2テンプレートからテーブル定義書を生成
 dbgear --project my-database doc -o ./output --template table.md.j2 --scope table
 
+# テーブルリストファイル(ER図の --table-file と同形式)をテンプレートに渡す
+dbgear --project my-database doc -o ./output/index.md --template index.md.j2 --scope schema --table-file diagrams/*.txt
+
 # ER図をSVG形式で出力
 dbgear --project my-database svg -o er_diagram.svg
 

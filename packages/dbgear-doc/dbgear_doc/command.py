@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .generator import generate_docs
 from .er_diagram import generate_svg, generate_drawio
+from .table_file import read_table_file
 
 
 def register_commands(subparsers):
@@ -74,6 +75,19 @@ def _register_doc_command(subparsers):
         choices=['schema', 'table', 'view', 'trigger', 'procedure'],
         default='table',
         help='data scope: schema (1 file), table/view/trigger/procedure (per-entity files)'
+    )
+    parser.add_argument(
+        '--table-file',
+        nargs='+',
+        action='extend',
+        metavar='FILE',
+        help='file(s) listing table names (one per line, # for comments; '
+             'each entry may be qualified as "schema.table"); '
+             'exposed to templates as table_files and listed_tables'
+    )
+    parser.add_argument(
+        '-s', '--schema',
+        help='schema bound to unqualified names in --table-file (uses first schema if not specified)'
     )
 
 
@@ -176,6 +190,8 @@ def _execute_doc(args, schema_path):
         output_dir=args.output,
         template=args.template,
         scope=args.scope,
+        table_files=args.table_file,
+        schema_name=args.schema,
     )
     logging.info(f'Generated {len(generated_files)} documentation files in {args.output}')
     return True
@@ -233,25 +249,10 @@ def _resolve_center_tables(args) -> list[str] | None:
             _add(name)
 
     if args.table_file:
-        file_names = _read_table_file(args.table_file)
+        file_names = read_table_file(args.table_file)
         if not file_names:
             raise ValueError(f'table file is empty: {args.table_file}')
         for name in file_names:
             _add(name)
 
     return names or None
-
-
-def _read_table_file(path: str) -> list[str]:
-    """Read table names from a file, skipping blank lines and ``#`` comments."""
-    file_path = Path(path)
-    if not file_path.exists():
-        raise FileNotFoundError(f'table file not found: {path}')
-
-    names: list[str] = []
-    with open(file_path, encoding='utf-8') as f:
-        for raw_line in f:
-            line = raw_line.split('#', 1)[0].strip()
-            if line:
-                names.append(line)
-    return names
