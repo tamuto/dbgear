@@ -5,7 +5,7 @@
 ## コマンド概要
 
 ```bash
-dbgear doc --template <テンプレートファイル> -o <出力先> [--scope schema|table|view|trigger|procedure]
+dbgear doc --template <テンプレートファイル> -o <出力先> [--scope schema|table|view|trigger|procedure] [--table-file <ファイル> ...] [-s <スキーマ>]
 ```
 
 | オプション | 必須 | 説明 |
@@ -13,6 +13,8 @@ dbgear doc --template <テンプレートファイル> -o <出力先> [--scope s
 | `--template` | ○ | Jinja2テンプレートファイルのパス |
 | `-o, --output` | ○ | 出力先（scope=schema: ファイルパス、その他: ディレクトリ） |
 | `--scope` | - | データスコープ（デフォルト: `table`） |
+| `--table-file` | - | テーブルリストファイルのパス（複数指定可）。詳細は「[テーブルリストファイル](#テーブルリストファイル全scope共通)」を参照 |
+| `-s, --schema` | - | テーブルリストファイル内のスキーマ名省略エントリに適用するスキーマ（デフォルト: 先頭のスキーマ） |
 
 **出力ファイルの拡張子**はテンプレートファイル名から自動決定されます:
 - `template.md.j2` → `.md`
@@ -231,6 +233,66 @@ dbgear doc --template trigger.md.j2 --scope trigger -o docs/
 ```bash
 dbgear doc --template procedure.md.j2 --scope procedure -o docs/
 # 出力: docs/main/calculate_total.md, ...
+```
+
+---
+
+## テーブルリストファイル（全scope共通）
+
+`--table-file` で指定したファイルの内容は、すべてのscopeのテンプレートに渡されます。
+`drawio` / `svg` コマンドの `--table-file` と同じ形式のファイルを指定できるため、
+「ER図に掲載されていないテーブルの一覧」などをドキュメントに出力できます。
+
+ファイル形式:
+
+- 1行に1テーブル名
+- 空行は無視、`#` 以降はコメント
+- `schema.table` 形式でスキーマを指定可能（省略時は `-s` のスキーマ、未指定なら先頭のスキーマ）
+
+スキーマに存在しないテーブル名が含まれていても生成は継続し、警告ログのみ出力します。
+
+### テンプレート変数
+
+| 変数名 | 型 | 説明 |
+|--------|-----|------|
+| `table_files` | `list[dict]` | 指定されたファイルごとの情報（指定順） |
+| `listed_tables` | `set[str]` | 全ファイルに記載されたテーブルの `schema.table` 形式の集合 |
+
+`--table-file` を指定しない場合、`table_files` は空リスト、`listed_tables` は空集合になります。
+
+### `table_files` の構造
+
+```python
+{
+    'name': str,          # ファイル名（例: 'orders.txt'）
+    'path': str,          # 指定されたパス
+    'tables': list[str],  # 記載テーブルの 'schema.table' 形式リスト（記載順、重複除去）
+}
+```
+
+### 使用例
+
+```jinja2
+{% for schema_name, schema in schemas.items() %}
+{% set unlisted = [] %}
+{% for table_name in schema.tables.tables | sort %}
+{% if (schema_name ~ '.' ~ table_name) not in listed_tables %}
+{% set _ = unlisted.append(table_name) %}
+{% endif %}
+{% endfor %}
+{% if unlisted %}
+## {{ schema_name }}: リスト未掲載テーブル
+{% for table_name in unlisted %}
+- {{ table_name }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+```
+
+### コマンド例
+
+```bash
+dbgear doc --template index.md.j2 --scope schema -o docs/index.md --table-file diagrams/*.txt
 ```
 
 ---
